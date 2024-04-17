@@ -1,0 +1,8 @@
+{
+  "parserOptions": {
+    "project": "./node_modules/pixel-pigeon/game-tsconfig.json"
+  },
+  "extends": [
+    "./node_modules/pixel-pigeon/.eslintrc"
+  ]
+}

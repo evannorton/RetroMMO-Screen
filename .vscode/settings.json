@@ -1,0 +1,30 @@
+{
+    "beautify.options": {
+        "newline-between-rules": false,
+        "selector-separator-newline": false
+    },
+    "powermode.enabled": true,
+    "powermode.presets": "flames",
+    "powermode.explosions.customExplosions": [
+        "https://i.imgur.com/yt5PnVg.gif"
+    ],
+    "powermode.shake": false,
+    "powermode.combo.counterEnabled": "hide",
+    "powermode.combo.timerEnabled": "hide",
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "eslint.format.enable": true,
+    "files.eol": "\n",
+    "[css]": {
+        "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
+}
