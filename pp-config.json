@@ -1,5 +1,6 @@
 {
   "height": 240,
   "name": "RetroMMO Screen",
+  "requireClickToFocus": false,
   "width": 304
 }
