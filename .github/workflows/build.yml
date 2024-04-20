@@ -6,10 +6,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-env:
-  # Setting an environment variable with the value of a configuration variable
-  env_var: ${{ vars.WEBSOCKET_URL }}
-
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -50,6 +46,8 @@ jobs:
     - name: Build
       run:
         npm run zip
+      env:
+        WEBSOCKET_URL: ${{ vars.WEBSOCKET_URL }}
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
