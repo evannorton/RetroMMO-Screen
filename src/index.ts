@@ -1,3 +1,4 @@
+import "./classes";
 import "./volumeChannels";
 import { initialize, onRun, onTick } from "pixel-pigeon";
 import { run } from "./run";
