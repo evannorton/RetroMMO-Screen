@@ -1,5 +1,6 @@
 node_modules
 out
+.env
 pp-dev.json
 pp-env.json
 game.zip

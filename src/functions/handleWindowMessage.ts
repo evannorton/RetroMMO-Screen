@@ -1,4 +1,4 @@
-import { connectToSocketioServer } from "pixel-pigeon";
+import { connectToSocketioServer, getEnvironmentVariable } from "pixel-pigeon";
 
 export const handleWindowMessage = (message: unknown): void => {
   if (typeof message !== "object" || message === null) {
@@ -9,15 +9,22 @@ export const handleWindowMessage = (message: unknown): void => {
       throw new Error("Invalid message type");
     }
     switch (message.type) {
-      case "auth":
+      case "auth": {
         if (typeof message.value !== "string") {
           throw new Error("Invalid auth message value");
         }
+        const url: unknown = getEnvironmentVariable("WEBSOCKET_URL");
+        if (typeof url !== "string") {
+          throw new Error(
+            "WEBSOCKET_URL environment variable must be a string",
+          );
+        }
         connectToSocketioServer({
           auth: { token: message.value },
-          url: "http://localhost:4000",
+          url,
         });
         break;
+      }
     }
   } else {
     throw new Error("Invalid message type");
