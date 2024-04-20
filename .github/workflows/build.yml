@@ -47,7 +47,7 @@ jobs:
       run:
         npm run zip
       env:
-        WEBSOCKET_URL: ${{ vars.WEBSOCKET_URL }}
+        GITHUB_ENV_VARS: ${{ toJSON(vars) }}
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
