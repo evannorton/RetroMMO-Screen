@@ -43,8 +43,6 @@ export class Class extends Definable {
     console.log(this._defaultMaskItemID);
     console.log(this._defaultOutfitItemID);
     console.log(this._defaultSkinColorID);
-    console.log(this._name);
-    console.log(this._order);
   }
 
   public get name(): string {
