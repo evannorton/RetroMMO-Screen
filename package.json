@@ -10,7 +10,8 @@
         "zip": "pigeon zip"
     },
     "dependencies": {
-        "pixel-pigeon": "evannorton/Pixel-Pigeon"
+        "pixel-pigeon": "evannorton/Pixel-Pigeon",
+        "retrommo-types": "evannorton/RetroMMO-Types"
     },
     "engines": {
         "npm": "10.5.0",
