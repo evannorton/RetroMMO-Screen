@@ -78,16 +78,3 @@ export class Class extends Definable {
     return this._order;
   }
 }
-new Class({
-  abbreviation: "a",
-  description: "b",
-  defaultClothesDyeItemID: "c",
-  defaultFigureID: "d",
-  defaultHairDyeItemID: "e",
-  defaultMaskItemID: "f",
-  defaultOutfitItemID: "g",
-  defaultSkinColorID: "h",
-  id: "i",
-  name: "j",
-  order: 1,
-});
