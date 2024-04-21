@@ -1,4 +1,4 @@
-import { Definable } from "./definables";
+import { Definable } from "../definables";
 
 export interface ClassOptions {
   abbreviation: string;
@@ -9,6 +9,7 @@ export interface ClassOptions {
   defaultMaskItemID: string;
   defaultOutfitItemID: string;
   defaultSkinColorID: string;
+  id: string;
   name: string;
   order: number;
 }
@@ -24,7 +25,7 @@ export class Class extends Definable {
   private readonly _name: string;
   private readonly _order: number;
   public constructor(options: ClassOptions) {
-    super();
+    super(options.id);
     this._abbreviation = options.abbreviation;
     this._description = options.description;
     this._defaultClothesDyeItemID = options.defaultClothesDyeItemID;
@@ -35,14 +36,38 @@ export class Class extends Definable {
     this._defaultSkinColorID = options.defaultSkinColorID;
     this._name = options.name;
     this._order = options.order;
-    console.log(this._abbreviation);
-    console.log(this._description);
-    console.log(this._defaultClothesDyeItemID);
-    console.log(this._defaultFigureID);
-    console.log(this._defaultHairDyeItemID);
-    console.log(this._defaultMaskItemID);
-    console.log(this._defaultOutfitItemID);
-    console.log(this._defaultSkinColorID);
+  }
+
+  public get abbreviation(): string {
+    return this._abbreviation;
+  }
+
+  public get description(): string {
+    return this._description;
+  }
+
+  public get defaultClothesDyeItemID(): string {
+    return this._defaultClothesDyeItemID;
+  }
+
+  public get defaultFigureID(): string {
+    return this._defaultFigureID;
+  }
+
+  public get defaultHairDyeItemID(): string {
+    return this._defaultHairDyeItemID;
+  }
+
+  public get defaultMaskItemID(): string {
+    return this._defaultMaskItemID;
+  }
+
+  public get defaultOutfitItemID(): string {
+    return this._defaultOutfitItemID;
+  }
+
+  public get defaultSkinColorID(): string {
+    return this._defaultSkinColorID;
   }
 
   public get name(): string {
@@ -54,38 +79,15 @@ export class Class extends Definable {
   }
 }
 new Class({
-  abbreviation: "WR",
-  defaultClothesDyeItemID: "gray-black-clothes-dye",
-  defaultFigureID: "masculine",
-  defaultHairDyeItemID: "brown-hair-dye",
-  defaultMaskItemID: "barbute",
-  defaultOutfitItemID: "armor-1",
-  defaultSkinColorID: "skin-2",
-  description: "Heavily armored tank and physical damage powerhouse",
-  name: "Warrior",
+  abbreviation: "a",
+  description: "b",
+  defaultClothesDyeItemID: "c",
+  defaultFigureID: "d",
+  defaultHairDyeItemID: "e",
+  defaultMaskItemID: "f",
+  defaultOutfitItemID: "g",
+  defaultSkinColorID: "h",
+  id: "i",
+  name: "j",
   order: 1,
-});
-new Class({
-  abbreviation: "WZ",
-  defaultClothesDyeItemID: "blue-clothes-dye",
-  defaultFigureID: "masculine",
-  defaultHairDyeItemID: "brown-hair-dye",
-  defaultMaskItemID: "wizard-hat",
-  defaultOutfitItemID: "robe-1",
-  defaultSkinColorID: "skin-2",
-  description: "Powerful magic user with frail defenses",
-  name: "Wizard",
-  order: 2,
-});
-new Class({
-  abbreviation: "CL",
-  defaultClothesDyeItemID: "red-white-clothes-dye",
-  defaultFigureID: "masculine",
-  defaultHairDyeItemID: "brown-hair-dye",
-  defaultMaskItemID: "mitre",
-  defaultOutfitItemID: "vest-1",
-  defaultSkinColorID: "skin-2",
-  description: "Master of healing spells and light magic",
-  name: "Cleric",
-  order: 3,
 });
