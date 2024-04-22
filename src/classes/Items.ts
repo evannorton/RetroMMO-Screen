@@ -1,22 +1,32 @@
-import { Definable } from "../definables";
+import { Definable, getDefinable } from "../definables";
+import { ItemDefinition } from "retrommo-types";
+import { Mask } from "./Mask";
+import { Outfit } from "./Outfit";
 
 export interface ItemOptions {
-  abilityID: string | null;
-  clothesDyeID: string | null;
-  description: string | null;
-  equipmentPieceID: string | null;
-  hairDyeID: string | null;
+  definition: ItemDefinition;
   id: string;
-  imageSourceID: string;
-  isConsumable: boolean;
-  isTradable: boolean;
-  maskID: string | null;
-  name: string;
-  outfitID: string | null;
-  value: number;
 }
 export class Item extends Definable {
+  private readonly _maskID?: string;
+  private readonly _outfitID?: string;
   public constructor(options: ItemOptions) {
     super(options.id);
+    this._maskID = options.definition.maskSlug;
+    this._outfitID = options.definition.outfitSlug;
+  }
+
+  public get mask(): Mask | undefined {
+    if (typeof this._maskID !== "undefined") {
+      return getDefinable(Mask, this._maskID);
+    }
+    return undefined;
+  }
+
+  public get outfit(): Outfit | undefined {
+    if (typeof this._outfitID !== "undefined") {
+      return getDefinable(Outfit, this._outfitID);
+    }
+    return undefined;
   }
 }

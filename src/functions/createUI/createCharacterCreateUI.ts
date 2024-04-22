@@ -9,10 +9,9 @@ import {
   getGameWidth,
 } from "pixel-pigeon";
 import { getDefinables } from "../../definables";
-import { state } from "../../state";
 
 export const createCharacterCreateUI = (): void => {
-  const condition = (): boolean => state.values.hasLoadedGameData;
+  const condition = (): boolean => true;
   // Background panel
   createNineSlice({
     bottomHeight: 16,

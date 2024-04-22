@@ -6,9 +6,12 @@ import { onWindowMessage } from "pixel-pigeon";
 
 export const run = (): void => {
   loadServerURL();
-  loadGameData().catch((error: unknown): void => {
-    throw error;
-  });
+  loadGameData()
+    .then((): void => {
+      createUI();
+    })
+    .catch((error: unknown): void => {
+      throw error;
+    });
   onWindowMessage(handleWindowMessage);
-  createUI();
 };

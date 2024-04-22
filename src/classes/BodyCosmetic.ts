@@ -1,14 +1,15 @@
+import { BodyCosmeticDefinition } from "retrommo-types";
 import { Definable } from "../definables";
 
 export interface BodyCosmeticOptions {
+  definition: BodyCosmeticDefinition;
   id: string;
-  imagePaths: Record<string, string>;
 }
 export class BodyCosmetic extends Definable {
   private readonly _imagePaths: Record<string, string>;
   public constructor(options: BodyCosmeticOptions) {
     super(options.id);
-    this._imagePaths = options.imagePaths;
+    this._imagePaths = options.definition.imageSourcesSlugs;
   }
 
   public get imagePaths(): Record<string, string> {
