@@ -28,31 +28,31 @@ export const createCharacterCreateUI = (): void => {
     width: getGameWidth(),
   });
   // Back arrow sprite
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 14,
-            sourceHeight: 14,
-            sourceWidth: 14,
-            sourceX: 0,
-            sourceY: 0,
-            width: 14,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: 16,
-      y: 16,
-    },
-    imagePath: "arrows/left",
-    recolors: [],
-  });
+  // createSprite({
+  //   animationID: "default",
+  //   animations: [
+  //     {
+  //       frames: [
+  //         {
+  //           height: 14,
+  //           sourceHeight: 14,
+  //           sourceWidth: 14,
+  //           sourceX: 0,
+  //           sourceY: 0,
+  //           width: 14,
+  //         },
+  //       ],
+  //       id: "default",
+  //     },
+  //   ],
+  //   coordinates: {
+  //     condition,
+  //     x: 16,
+  //     y: 16,
+  //   },
+  //   imagePath: "arrows/left",
+  //   recolors: [],
+  // });
   // Back arrow button
   createButton({
     coordinates: {
@@ -113,6 +113,118 @@ export const createCharacterCreateUI = (): void => {
         horizontalAlignment: "center",
         size: 1,
         text: { value: sortedClass.name },
+      });
+      // Class sprite
+      createSprite({
+        animationID: "default",
+        animations: [
+          {
+            frames: [
+              {
+                height: 16,
+                sourceHeight: 16,
+                sourceWidth: 16,
+                sourceX: 0,
+                sourceY: 0,
+                width: 16,
+              },
+            ],
+            id: "default",
+          },
+        ],
+        coordinates: {
+          condition: (): boolean => {
+            if (condition()) {
+              const imagePath: string | undefined =
+                sortedClass.defaultMaskItem.mask?.headCosmetic?.backImagePaths[
+                  "masculine"
+                ];
+              return typeof imagePath !== "undefined";
+            }
+            return false;
+          },
+          x: 48 + sortedClassIndex * 96,
+          y: 74,
+        },
+        imagePath: (): string => {
+          return sortedClass.defaultMaskItem.mask?.headCosmetic?.backImagePaths[
+            "masculine"
+          ] as string;
+        },
+      });
+      createSprite({
+        animationID: "default",
+        animations: [
+          {
+            frames: [
+              {
+                height: 16,
+                sourceHeight: 16,
+                sourceWidth: 16,
+                sourceX: 0,
+                sourceY: 0,
+                width: 16,
+              },
+            ],
+            id: "default",
+          },
+        ],
+        coordinates: {
+          condition: (): boolean => {
+            if (condition()) {
+              const imagePath: string | undefined =
+                sortedClass.defaultOutfitItem.outfit?.bodyCosmetic?.imagePaths[
+                  "masculine"
+                ];
+              return typeof imagePath !== "undefined";
+            }
+            return false;
+          },
+          x: 48 + sortedClassIndex * 96,
+          y: 74,
+        },
+        imagePath: (): string => {
+          return sortedClass.defaultOutfitItem.outfit?.bodyCosmetic?.imagePaths[
+            "masculine"
+          ] as string;
+        },
+      });
+      createSprite({
+        animationID: "default",
+        animations: [
+          {
+            frames: [
+              {
+                height: 16,
+                sourceHeight: 16,
+                sourceWidth: 16,
+                sourceX: 0,
+                sourceY: 0,
+                width: 16,
+              },
+            ],
+            id: "default",
+          },
+        ],
+        coordinates: {
+          condition: (): boolean => {
+            if (condition()) {
+              const imagePath: string | undefined =
+                sortedClass.defaultMaskItem.mask?.headCosmetic?.frontImagePaths[
+                  "masculine"
+                ];
+              return typeof imagePath !== "undefined";
+            }
+            return false;
+          },
+          x: 48 + sortedClassIndex * 96,
+          y: 74,
+        },
+        imagePath: (): string => {
+          return sortedClass.defaultMaskItem.mask?.headCosmetic?.frontImagePaths[
+            "masculine"
+          ] as string;
+        },
       });
     },
   );

@@ -5,12 +5,16 @@ import {
   Definition,
   HeadCosmeticDefinition,
   ItemDefinition,
+  MaskDefinition,
+  OutfitDefinition,
 } from "retrommo-types";
 import { Class } from "../classes/Class";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Items";
 import { makeHTTPRequest } from "pixel-pigeon";
 import { state } from "../state";
+import { Outfit } from "../classes/Outfit";
+import { Mask } from "../classes/Mask";
 
 export const loadGameData = async (): Promise<void> => {
   if (state.values.serverURL === null) {
@@ -114,9 +118,16 @@ export const loadGameData = async (): Promise<void> => {
         case "Landscape":
           // new Landscape();
           break;
-        case "Mask":
-          // new Mask();
+        case "Mask": {
+          const definition: MaskDefinition = data[className][
+            id
+          ] as MaskDefinition;
+          new Mask({
+            definition,
+            id,
+          });
           break;
+        }
         case "Monster":
           // new Monster();
           break;
@@ -129,9 +140,16 @@ export const loadGameData = async (): Promise<void> => {
         case "Noise":
           // new Noise();
           break;
-        case "Outfit":
-          // new Outfit();
+        case "Outfit": {
+          const definition: OutfitDefinition = data[className][
+            id
+          ] as OutfitDefinition;
+          new Outfit({
+            definition,
+            id,
+          });
           break;
+        }
         case "Panel":
           // new Panel();
           break;
