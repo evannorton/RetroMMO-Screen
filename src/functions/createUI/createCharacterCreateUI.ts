@@ -137,7 +137,7 @@ export const createCharacterCreateUI = (): void => {
             if (condition()) {
               const imagePath: string | undefined =
                 sortedClass.defaultMaskItem.mask?.headCosmetic?.backImagePaths[
-                  "masculine"
+                  sortedClass.defaultFigure.id
                 ];
               return typeof imagePath !== "undefined";
             }
@@ -146,11 +146,10 @@ export const createCharacterCreateUI = (): void => {
           x: 48 + sortedClassIndex * 96,
           y: 74,
         },
-        imagePath: (): string => {
-          return sortedClass.defaultMaskItem.mask?.headCosmetic?.backImagePaths[
-            "masculine"
-          ] as string;
-        },
+        imagePath: (): string =>
+          sortedClass.defaultMaskItem.mask?.headCosmetic?.backImagePaths[
+            sortedClass.defaultFigure.id
+          ] as string,
       });
       createSprite({
         animationID: "default",
@@ -174,7 +173,7 @@ export const createCharacterCreateUI = (): void => {
             if (condition()) {
               const imagePath: string | undefined =
                 sortedClass.defaultOutfitItem.outfit?.bodyCosmetic?.imagePaths[
-                  "masculine"
+                  sortedClass.defaultFigure.id
                 ];
               return typeof imagePath !== "undefined";
             }
@@ -183,11 +182,10 @@ export const createCharacterCreateUI = (): void => {
           x: 48 + sortedClassIndex * 96,
           y: 74,
         },
-        imagePath: (): string => {
-          return sortedClass.defaultOutfitItem.outfit?.bodyCosmetic?.imagePaths[
-            "masculine"
-          ] as string;
-        },
+        imagePath: (): string =>
+          sortedClass.defaultOutfitItem.outfit?.bodyCosmetic?.imagePaths[
+            sortedClass.defaultFigure.id
+          ] as string,
       });
       createSprite({
         animationID: "default",
@@ -211,7 +209,7 @@ export const createCharacterCreateUI = (): void => {
             if (condition()) {
               const imagePath: string | undefined =
                 sortedClass.defaultMaskItem.mask?.headCosmetic?.frontImagePaths[
-                  "masculine"
+                  sortedClass.defaultFigure.id
                 ];
               return typeof imagePath !== "undefined";
             }
@@ -220,11 +218,10 @@ export const createCharacterCreateUI = (): void => {
           x: 48 + sortedClassIndex * 96,
           y: 74,
         },
-        imagePath: (): string => {
-          return sortedClass.defaultMaskItem.mask?.headCosmetic?.frontImagePaths[
-            "masculine"
-          ] as string;
-        },
+        imagePath: (): string =>
+          sortedClass.defaultMaskItem.mask?.headCosmetic?.frontImagePaths[
+            sortedClass.defaultFigure.id
+          ] as string,
       });
     },
   );

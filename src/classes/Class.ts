@@ -1,5 +1,6 @@
 import { ClassDefinition } from "retrommo-types";
 import { Definable, getDefinable } from "../definables";
+import { Figure } from "./Figure";
 import { Item } from "./Items";
 
 export interface ClassOptions {
@@ -9,6 +10,7 @@ export interface ClassOptions {
 export class Class extends Definable {
   private readonly _abbreviation: string;
   private readonly _description: string;
+  private readonly _defaultFigureID: string;
   private readonly _defaultMaskItemID: string;
   private readonly _defaultOutfitItemID: string;
   private readonly _name: string;
@@ -17,6 +19,7 @@ export class Class extends Definable {
     super(options.id);
     this._abbreviation = options.definition.abbreviation;
     this._description = options.definition.description;
+    this._defaultFigureID = options.definition.defaultFigureSlug;
     this._defaultMaskItemID = options.definition.defaultMaskItemSlug;
     this._defaultOutfitItemID = options.definition.defaultOutfitItemSlug;
     this._name = options.definition.name;
@@ -29,6 +32,10 @@ export class Class extends Definable {
 
   public get description(): string {
     return this._description;
+  }
+
+  public get defaultFigure(): Figure {
+    return getDefinable(Figure, this._defaultFigureID);
   }
 
   public get defaultMaskItem(): Item {

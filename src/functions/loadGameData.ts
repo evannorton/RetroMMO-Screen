@@ -3,18 +3,20 @@ import {
   BodyCosmeticDefinition,
   ClassDefinition,
   Definition,
+  FigureDefinition,
   HeadCosmeticDefinition,
   ItemDefinition,
   MaskDefinition,
   OutfitDefinition,
 } from "retrommo-types";
 import { Class } from "../classes/Class";
+import { Figure } from "../classes/Figure";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Items";
+import { Mask } from "../classes/Mask";
+import { Outfit } from "../classes/Outfit";
 import { makeHTTPRequest } from "pixel-pigeon";
 import { state } from "../state";
-import { Outfit } from "../classes/Outfit";
-import { Mask } from "../classes/Mask";
 
 export const loadGameData = async (): Promise<void> => {
   if (state.values.serverURL === null) {
@@ -80,9 +82,16 @@ export const loadGameData = async (): Promise<void> => {
         case "Enterable":
           // new Enterable();
           break;
-        case "Figure":
-          // new Figure();
+        case "Figure": {
+          const definition: FigureDefinition = data[className][
+            id
+          ] as FigureDefinition;
+          new Figure({
+            definition,
+            id,
+          });
           break;
+        }
         case "HairColor":
           // new HairColor();
           break;
