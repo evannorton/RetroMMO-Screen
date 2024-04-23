@@ -1,4 +1,4 @@
-import { createUI } from "./functions/createUI/createUI";
+import { createUI } from "./functions/ui/createUI";
 import { handleWindowMessage } from "./functions/handleWindowMessage";
 import { loadGameData } from "./functions/loadGameData";
 import { loadServerURL } from "./functions/loadServerURL";

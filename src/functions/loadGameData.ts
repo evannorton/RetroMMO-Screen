@@ -8,6 +8,7 @@ import {
   ItemDefinition,
   MaskDefinition,
   OutfitDefinition,
+  SkinColorDefinition,
 } from "retrommo-types";
 import { Class } from "../classes/Class";
 import { Figure } from "../classes/Figure";
@@ -15,6 +16,7 @@ import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Items";
 import { Mask } from "../classes/Mask";
 import { Outfit } from "../classes/Outfit";
+import { SkinColor } from "../classes/SkinColor";
 import { makeHTTPRequest } from "pixel-pigeon";
 import { state } from "../state";
 
@@ -174,9 +176,16 @@ export const loadGameData = async (): Promise<void> => {
         case "ResourceBar":
           // new ResourceBar();
           break;
-        case "SkinColor":
-          // new SkinColor();
+        case "SkinColor": {
+          const definition: SkinColorDefinition = data[className][
+            id
+          ] as SkinColorDefinition;
+          new SkinColor({
+            definition,
+            id,
+          });
           break;
+        }
         case "Switch":
           // new Switch();
           break;
