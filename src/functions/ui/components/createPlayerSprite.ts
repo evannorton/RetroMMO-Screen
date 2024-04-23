@@ -9,7 +9,9 @@ import { getDefinable } from "../../../definables";
 
 export interface CreatePlayerSpriteOptions {
   condition?: () => boolean;
+  clothesDyeItemID: string;
   figureID: string;
+  hairDyeItemID: string;
   maskItemID: string;
   outfitItemID: string;
   skinColorID: string;
@@ -18,52 +20,59 @@ export interface CreatePlayerSpriteOptions {
 }
 export const createPlayerSprite = ({
   condition,
+  clothesDyeItemID,
   figureID,
+  hairDyeItemID,
   maskItemID,
   outfitItemID,
   skinColorID,
   x,
   y,
 }: CreatePlayerSpriteOptions): void => {
-  const skinColor: SkinColor = getDefinable(SkinColor, skinColorID);
   const maskItem: Item = getDefinable(Item, maskItemID);
   const outfitItem: Item = getDefinable(Item, outfitItemID);
+  const skinColor: SkinColor = getDefinable(SkinColor, skinColorID);
+  const hairDyeItem: Item = getDefinable(Item, hairDyeItemID);
+  const clothesDyeItem: Item = getDefinable(Item, clothesDyeItemID);
+  console.log(clothesDyeItem);
   const recolors: CreateSpriteOptionsRecolor[] = [
-    // // Clothes Primary 1
-    // {
-    //   toColor: primaryClothesColor.color1,
-    //   fromColor: "#0d0d0d",
-    // },
-    // // Clothes Primary 2
-    // {
-    //   toColor: primaryClothesColor.color2,
-    //   fromColor: "#272727",
-    // },
-    // // Clothes Secondary 1
-    // {
-    //   toColor: secondaryClothesColor.color1,
-    //   fromColor: "#414141",
-    // },
-    // // Clothes Secondary 2
-    // {
-    //   toColor: secondaryClothesColor.color2,
-    //   fromColor: "#5b5b5b",
-    // },
-    // // Hair 1
-    // {
-    //   toColor: hairColor.color1,
-    //   fromColor: "#757575",
-    // },
-    // // Hair 2
-    // {
-    //   toColor: hairColor.color2,
-    //   fromColor: "#8f8f8f",
-    // },
-    // // Hair 3
-    // {
-    //   toColor: hairColor.color3,
-    //   fromColor: "#c3c3c3",
-    // },
+    // Clothes Primary 1
+    {
+      fromColor: "#0d0d0d",
+      toColor: clothesDyeItem.clothesDye?.primaryClothesColor.color1 as string,
+    },
+    // Clothes Primary 2
+    {
+      fromColor: "#272727",
+      toColor: clothesDyeItem.clothesDye?.primaryClothesColor.color2 as string,
+    },
+    // Clothes Secondary 1
+    {
+      fromColor: "#414141",
+      toColor: clothesDyeItem.clothesDye?.secondaryClothesColor
+        .color1 as string,
+    },
+    // Clothes Secondary 2
+    {
+      fromColor: "#5b5b5b",
+      toColor: clothesDyeItem.clothesDye?.secondaryClothesColor
+        .color2 as string,
+    },
+    // Hair 1
+    {
+      fromColor: "#757575",
+      toColor: hairDyeItem.hairDye?.hairColor.color1 as string,
+    },
+    // Hair 2
+    {
+      fromColor: "#8f8f8f",
+      toColor: hairDyeItem.hairDye?.hairColor.color2 as string,
+    },
+    // Hair 3
+    {
+      fromColor: "#c3c3c3",
+      toColor: hairDyeItem.hairDye?.hairColor.color3 as string,
+    },
     // Skin color
     {
       fromColor: "#dddddd",

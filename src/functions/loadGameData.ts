@@ -2,8 +2,12 @@ import { BodyCosmetic } from "../classes/BodyCosmetic";
 import {
   BodyCosmeticDefinition,
   ClassDefinition,
+  ClothesColorDefinition,
+  ClothesDyeDefinition,
   Definition,
   FigureDefinition,
+  HairColorDefinition,
+  HairDyeDefinition,
   HeadCosmeticDefinition,
   ItemDefinition,
   MaskDefinition,
@@ -11,7 +15,11 @@ import {
   SkinColorDefinition,
 } from "retrommo-types";
 import { Class } from "../classes/Class";
+import { ClothesColor } from "../classes/ClothesColor";
+import { ClothesDye } from "../classes/ClothesDye";
 import { Figure } from "../classes/Figure";
+import { HairColor } from "../classes/HairColor";
+import { HairDye } from "../classes/HairDye";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Items";
 import { Mask } from "../classes/Mask";
@@ -69,12 +77,26 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "ClothesColor":
-          // new ClothesColor();
+        case "ClothesColor": {
+          const definition: ClothesColorDefinition = data[className][
+            id
+          ] as ClothesColorDefinition;
+          new ClothesColor({
+            definition,
+            id,
+          });
           break;
-        case "ClothesDye":
-          // new ClothesDye();
+        }
+        case "ClothesDye": {
+          const definition: ClothesDyeDefinition = data[className][
+            id
+          ] as ClothesDyeDefinition;
+          new ClothesDye({
+            definition,
+            id,
+          });
           break;
+        }
         case "CombinationLock":
           // new CombinationLock();
           break;
@@ -94,12 +116,26 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "HairColor":
-          // new HairColor();
+        case "HairColor": {
+          const definition: HairColorDefinition = data[className][
+            id
+          ] as HairColorDefinition;
+          new HairColor({
+            definition,
+            id,
+          });
           break;
-        case "HairDye":
-          // new HairDye();
+        }
+        case "HairDye": {
+          const definition: HairDyeDefinition = data[className][
+            id
+          ] as HairDyeDefinition;
+          new HairDye({
+            definition,
+            id,
+          });
           break;
+        }
         case "HeadCosmetic": {
           const definition: HeadCosmeticDefinition = data[className][
             id
