@@ -120,6 +120,7 @@ export const createCharacterCreateUI = (): void => {
         figureID: sortedClass.defaultFigure.id,
         maskItemID: sortedClass.defaultMaskItem.id,
         outfitItemID: sortedClass.defaultOutfitItem.id,
+        skinColorID: sortedClass.defaultSkinColor.id,
         x: 48 + sortedClassIndex * 96,
         y: 74,
       });

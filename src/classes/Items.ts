@@ -12,8 +12,8 @@ export class Item extends Definable {
   private readonly _outfitID?: string;
   public constructor(options: ItemOptions) {
     super(options.id);
-    this._maskID = options.definition.maskSlug;
-    this._outfitID = options.definition.outfitSlug;
+    this._maskID = options.definition.maskID;
+    this._outfitID = options.definition.outfitID;
   }
 
   public get mask(): Mask | undefined {

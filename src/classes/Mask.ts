@@ -10,7 +10,7 @@ export class Mask extends Definable {
   private readonly _headCosmeticID: string;
   public constructor(options: MaskOptions) {
     super(options.id);
-    this._headCosmeticID = options.definition.headCosmeticSlug;
+    this._headCosmeticID = options.definition.headCosmeticID;
   }
 
   public get headCosmetic(): HeadCosmetic | undefined {

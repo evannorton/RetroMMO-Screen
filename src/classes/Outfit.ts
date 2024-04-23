@@ -10,7 +10,7 @@ export class Outfit extends Definable {
   private readonly _bodyCosmeticID: string;
   public constructor(options: OutfitOptions) {
     super(options.id);
-    this._bodyCosmeticID = options.definition.bodyCosmeticSlug;
+    this._bodyCosmeticID = options.definition.bodyCosmeticID;
   }
 
   public get bodyCosmetic(): BodyCosmetic | undefined {
