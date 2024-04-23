@@ -34,7 +34,6 @@ export const createPlayerSprite = ({
   const skinColor: SkinColor = getDefinable(SkinColor, skinColorID);
   const hairDyeItem: Item = getDefinable(Item, hairDyeItemID);
   const clothesDyeItem: Item = getDefinable(Item, clothesDyeItemID);
-  console.log(clothesDyeItem);
   const recolors: CreateSpriteOptionsRecolor[] = [
     // Clothes Primary 1
     {
