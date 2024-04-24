@@ -9,6 +9,7 @@ import {
   getGameWidth,
 } from "pixel-pigeon";
 import { createPlayerSprite } from "./components/createPlayerSprite";
+import { createPressableButton } from "./components/createPressableButton";
 import { getDefinables } from "../../definables";
 
 export const createCharacterCreateUI = (): void => {
@@ -125,6 +126,19 @@ export const createCharacterCreateUI = (): void => {
         skinColorID: sortedClass.defaultSkinColor.id,
         x: 48 + sortedClassIndex * 96,
         y: 74,
+      });
+      // Select button
+      createPressableButton({
+        condition,
+        height: 16,
+        imagePath: "pressable-buttons/gray",
+        onClick: (): void => {
+          console.log("yo");
+        },
+        text: "Select",
+        width: 44,
+        x: 34 + sortedClassIndex * 96,
+        y: 103,
       });
     },
   );
