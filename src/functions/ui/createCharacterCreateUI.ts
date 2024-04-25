@@ -133,7 +133,10 @@ export const createCharacterCreateUI = (): void => {
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
-          console.log("yo");
+          emitToSocketioServer({
+            data: sortedClass.id,
+            event: "legacy-character-create-select",
+          });
         },
         text: "Select",
         width: 44,
