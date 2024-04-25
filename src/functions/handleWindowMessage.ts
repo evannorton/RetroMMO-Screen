@@ -2,6 +2,8 @@ import { connectToSocketioServer } from "pixel-pigeon";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
+  console.log("message");
+  console.log(message);
   if (typeof message !== "object" || message === null) {
     throw new Error("Invalid message.");
   }
@@ -20,6 +22,7 @@ export const handleWindowMessage = (message: unknown): void => {
             "Attempted to connect to socket.io server with no server URL.",
           );
         }
+        console.log("connect");
         connectToSocketioServer({
           auth: { token: message.value },
           url,
