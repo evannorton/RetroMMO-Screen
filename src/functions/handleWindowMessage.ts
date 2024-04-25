@@ -2,8 +2,6 @@ import { connectToSocketioServer } from "pixel-pigeon";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
-  console.log("message");
-  console.log(message);
   if (typeof message !== "object" || message === null) {
     throw new Error("Invalid message.");
   }
