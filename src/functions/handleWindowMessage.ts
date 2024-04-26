@@ -20,7 +20,6 @@ export const handleWindowMessage = (message: unknown): void => {
             "Attempted to connect to socket.io server with no server URL.",
           );
         }
-        console.log("connect");
         connectToSocketioServer({
           auth: { token: message.value },
           url,
