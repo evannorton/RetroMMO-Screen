@@ -11,9 +11,12 @@ import {
 import { createPlayerSprite } from "./components/createPlayerSprite";
 import { createPressableButton } from "./components/createPressableButton";
 import { getDefinables } from "../../definables";
+import { state } from "../../state";
 
 export const createCharacterCreateUI = (): void => {
-  const condition = (): boolean => true;
+  const condition = (): boolean =>
+    state.values.mainMenuState !== null &&
+    state.values.mainMenuState.values.characterCreateState !== null;
   // Background panel
   createNineSlice({
     bottomHeight: 16,
@@ -118,6 +121,7 @@ export const createCharacterCreateUI = (): void => {
       });
       // Class player sprite
       createPlayerSprite({
+        condition,
         clothesDyeItemID: sortedClass.defaultClothesDyeItem.id,
         figureID: sortedClass.defaultFigure.id,
         hairDyeItemID: sortedClass.defaultHairDyeItem.id,
