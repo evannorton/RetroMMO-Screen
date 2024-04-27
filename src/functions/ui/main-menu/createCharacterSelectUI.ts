@@ -3,6 +3,7 @@ import {
   MainMenuStateSchema,
   state,
 } from "../../../state";
+import { Class } from "../../../classes/Class";
 import {
   CreateLabelOptionsText,
   State,
@@ -24,6 +25,7 @@ import {
   defaultOutfitItemID,
 } from "../../../constants/defaultVanities";
 import { getCyclicIndex } from "../../getCyclicIndex";
+import { getDefinable } from "../../../definables";
 
 export const createCharacterSelectUI = (): void => {
   const condition = (): boolean =>
@@ -85,7 +87,7 @@ export const createCharacterSelectUI = (): void => {
     color: "#ffffff",
     coordinates: {
       condition,
-      x: 152,
+      x: getGameWidth() / 2,
       y: 10,
     },
     horizontalAlignment: "center",
@@ -206,43 +208,47 @@ export const createCharacterSelectUI = (): void => {
       x: i % 2 === 0 ? 33 : 169,
       y: 69 + 42 * Math.floor(i / 2),
     });
-    //   new PlayerSprite(
+    // Character info
+    createLabel({
+      color: "#ffffff",
+      coordinates: {
+        condition: characterCondition,
+        x: i % 2 === 0 ? 84 : 220,
+        y: 74 + 42 * Math.floor(i / 2),
+      },
+      horizontalAlignment: "center",
+      maxLines: 1,
+      maxWidth: getGameWidth(),
+      size: 1,
+      text: (): CreateLabelOptionsText => {
+        const character: SavefileCharacter = getCharacter();
+        return {
+          value: `Lv${character.level} ${
+            getDefinable(Class, character.classID).abbreviation
+          }`,
+        };
+      },
+    });
+    //   new Label(
     //     `character-select/character/${i}`,
-    //     (player: Player): PlayerSpriteOptions => {
+    //     (player: Player): LabelOptions => {
     //       const character: Character = player.getCharacterSelectCharacter(i);
-    //       const clothesDye: ClothesDye =
-    //         character.clothesDyeItemInstance !== null
-    //           ? getItem(character.clothesDyeItemInstance.itemSlug).clothesDye
-    //           : getClothesDye(defaultClothesDyeSlug);
-    //       const hairDye: HairDye =
-    //         character.hairDyeItemInstance !== null
-    //           ? getItem(character.hairDyeItemInstance.itemSlug).hairDye
-    //           : getHairDye(defaultHairDyeSlug);
-    //       const mask: Mask =
-    //         character.maskItemInstance !== null
-    //           ? getItem(character.maskItemInstance.itemSlug).mask
-    //           : getMask(defaultMaskSlug);
-    //       const outfit: Outfit =
-    //         character.outfitItemInstance !== null
-    //           ? getItem(character.outfitItemInstance.itemSlug).outfit
-    //           : getOutfit(defaultOutfitSlug);
+    //       const characterSelectClass: Class = getClass(character.classSlug);
     //       return {
-    //         clothesDyeSlug: clothesDye.slug,
-    //         direction: Direction.Down,
-    //         figureSlug: character.figureSlug,
-    //         hairDyeSlug: hairDye.slug,
-    //         maskSlug: mask.slug,
-    //         outfitSlug: outfit.slug,
-    //         renewing: false,
-    //         skinColorSlug: character.skinColorSlug,
-    //         x: i % 2 === 0 ? 33 : 169,
-    //         y: 69 + 42 * Math.floor(i / 2),
+    //         color: Color.White,
+    //         horizontalAlignment: "center",
+    //         maxLines: 1,
+    //         maxWidth: getGameWidth(),
+    //         size: 1,
+    //         text: `Lv${character.level} ${characterSelectClass.abbreviation}`,
+    //         verticalAlignment: "middle",
+    //         x: i % 2 === 0 ? 84 : 220,
+    //         y: 77 + 42 * Math.floor(i / 2),
     //       };
     //     },
     //     (player: Player): boolean =>
     //       player.isAtCharacterSelect &&
     //       player.hasCharacterSelectCharacters(i + 1),
-    //     true,
     //   );
   }
   // Page number
@@ -339,30 +345,7 @@ export const createCharacterSelectUI = (): void => {
   });
 
   // for (let i: number = 0; i < serverConstants.pageSizes.characterSelect; i++) {
-  //   // Sprite
 
-  //   // Label
-  //   new Label(
-  //     `character-select/character/${i}`,
-  //     (player: Player): LabelOptions => {
-  //       const character: Character = player.getCharacterSelectCharacter(i);
-  //       const characterSelectClass: Class = getClass(character.classSlug);
-  //       return {
-  //         color: Color.White,
-  //         horizontalAlignment: "center",
-  //         maxLines: 1,
-  //         maxWidth: getGameWidth(),
-  //         size: 1,
-  //         text: `Lv${character.level} ${characterSelectClass.abbreviation}`,
-  //         verticalAlignment: "middle",
-  //         x: i % 2 === 0 ? 84 : 220,
-  //         y: 77 + 42 * Math.floor(i / 2),
-  //       };
-  //     },
-  //     (player: Player): boolean =>
-  //       player.isAtCharacterSelect &&
-  //       player.hasCharacterSelectCharacters(i + 1),
-  //   );
   //   // Play
   //   new Picture(
   //     `character-select/character/${i}/play`,
