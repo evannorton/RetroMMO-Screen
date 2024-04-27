@@ -26,7 +26,7 @@ export const createCharacterCreateUI = (): void => {
     x: 0,
     y: 0,
   });
-  // Back arrow sprite
+  // Back arrow
   const backX: number = 16;
   const backY: number = 16;
   const backWidth: number = 14;
@@ -56,7 +56,6 @@ export const createCharacterCreateUI = (): void => {
     imagePath: "arrows/left",
     recolors: [],
   });
-  // Back arrow button
   createButton({
     coordinates: {
       condition,
