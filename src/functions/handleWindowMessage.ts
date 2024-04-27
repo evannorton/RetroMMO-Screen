@@ -1,4 +1,8 @@
-import { connectToSocketioServer } from "pixel-pigeon";
+import { InitialUpdate, MainState } from "retrommo-types";
+import { connectToSocketioServer, listenToSocketioEvent } from "pixel-pigeon";
+import { createBattleState } from "./state/createBattleState";
+import { createMainMenuState } from "./state/main-menu/createMainMenuState";
+import { createWorldState } from "./state/createWorldState";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
@@ -23,6 +27,32 @@ export const handleWindowMessage = (message: unknown): void => {
         connectToSocketioServer({
           auth: { token: message.value },
           url,
+        });
+        listenToSocketioEvent({
+          eventName: "initial-update",
+          onMessage: (data: unknown): void => {
+            const initialUpdate: InitialUpdate = data as InitialUpdate;
+            state.setValues({
+              savefile: initialUpdate.savefile,
+            });
+            switch (initialUpdate.mainState) {
+              case MainState.Battle:
+                state.setValues({
+                  battleState: createBattleState(),
+                });
+                break;
+              case MainState.MainMenu:
+                state.setValues({
+                  mainMenuState: createMainMenuState(),
+                });
+                break;
+              case MainState.World:
+                state.setValues({
+                  worldState: createWorldState(),
+                });
+                break;
+            }
+          },
         });
         break;
       }

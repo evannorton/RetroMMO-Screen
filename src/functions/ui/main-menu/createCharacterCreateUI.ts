@@ -1,36 +1,29 @@
-import { Class } from "../../classes/Class";
+import { Class } from "../../../classes/Class";
 import {
   createButton,
   createLabel,
-  createNineSlice,
   createSprite,
   emitToSocketioServer,
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import { createPlayerSprite } from "./components/createPlayerSprite";
-import { createPressableButton } from "./components/createPressableButton";
-import { getDefinables } from "../../definables";
-import { state } from "../../state";
+import { createPanel } from "../components/createPanel";
+import { createPlayerSprite } from "../components/createPlayerSprite";
+import { createPressableButton } from "../components/createPressableButton";
+import { getDefinables } from "../../../definables";
+import { state } from "../../../state";
 
 export const createCharacterCreateUI = (): void => {
   const condition = (): boolean =>
     state.values.mainMenuState !== null &&
     state.values.mainMenuState.values.characterCreateState !== null;
   // Background panel
-  createNineSlice({
-    bottomHeight: 16,
-    coordinates: {
-      condition,
-      x: 0,
-      y: 0,
-    },
+  createPanel({
+    condition,
     height: getGameHeight(),
-    imagePath: "panels/basic",
-    leftWidth: 16,
-    rightWidth: 16,
-    topHeight: 16,
     width: getGameWidth(),
+    x: 0,
+    y: 0,
   });
   // Back arrow sprite
   createSprite({
@@ -93,19 +86,12 @@ export const createCharacterCreateUI = (): void => {
   sortedClasses.forEach(
     ([, sortedClass]: [string, Class], sortedClassIndex: number): void => {
       // Class panel
-      createNineSlice({
-        bottomHeight: 16,
-        coordinates: {
-          condition,
-          x: 16 + sortedClassIndex * 96,
-          y: 48,
-        },
+      createPanel({
+        condition,
         height: 80,
-        imagePath: "panels/basic",
-        leftWidth: 16,
-        rightWidth: 16,
-        topHeight: 16,
         width: 80,
+        x: 16 + sortedClassIndex * 96,
+        y: 48,
       });
       // Class name text
       createLabel({
@@ -121,8 +107,8 @@ export const createCharacterCreateUI = (): void => {
       });
       // Class player sprite
       createPlayerSprite({
-        condition,
         clothesDyeItemID: sortedClass.defaultClothesDyeItem.id,
+        condition,
         figureID: sortedClass.defaultFigure.id,
         hairDyeItemID: sortedClass.defaultHairDyeItem.id,
         maskItemID: sortedClass.defaultMaskItem.id,

@@ -1,5 +1,5 @@
-import { createCharacterCreateUI } from "./createCharacterCreateUI";
+import { createMainMenuUI } from "./main-menu/createMainMenuUI";
 
 export const createUI = (): void => {
-  createCharacterCreateUI();
+  createMainMenuUI();
 };
