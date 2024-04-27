@@ -3,7 +3,11 @@ import { State } from "pixel-pigeon";
 
 export interface CharacterCustomizeStateSchema {}
 export interface CharacterCreateStateSchema {}
-export interface CharacterSelectStateSchema {}
+export interface CharacterSelectStateSchema {
+  isDeleting: boolean;
+  isSorting: boolean;
+  page: number;
+}
 export interface MainMenuStateSchema {
   characterCreateState: State<CharacterCreateStateSchema> | null;
   characterCustomizeState: State<CharacterCustomizeStateSchema> | null;

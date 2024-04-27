@@ -1,11 +1,18 @@
-import { State, createButton, createLabel, createSprite } from "pixel-pigeon";
+import {
+  CreateLabelOptionsText,
+  Scriptable,
+  State,
+  createButton,
+  createLabel,
+  createSprite,
+} from "pixel-pigeon";
 
 export interface CreatePressableButtonOptions {
   condition: () => boolean;
   onClick: () => void;
   height: number;
   imagePath: string;
-  text: string;
+  text: Scriptable<CreateLabelOptionsText>;
   width: number;
   x: number;
   y: number;
@@ -19,6 +26,7 @@ export const createPressableButton = ({
   height,
   imagePath,
   onClick,
+  text,
   width,
   x,
   y,
@@ -81,7 +89,7 @@ export const createPressableButton = ({
       },
     },
     horizontalAlignment: "center",
-    text: { value: "Select" },
+    text,
   });
   createButton({
     coordinates: {

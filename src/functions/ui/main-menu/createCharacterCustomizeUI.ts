@@ -1,3 +1,8 @@
+import { state } from "../../../state";
+
 export const createCharacterCustomizeUI = (): void => {
-  console.log("TODO: character customize UI");
+  const condition = (): boolean =>
+    state.values.mainMenuState !== null &&
+    state.values.mainMenuState.values.characterCustomizeState !== null;
+  console.log(condition);
 };

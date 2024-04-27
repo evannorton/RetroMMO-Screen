@@ -3,6 +3,7 @@ import { createNineSlice } from "pixel-pigeon";
 interface CreatePanelOptions {
   condition?: () => boolean;
   height: number;
+  imagePath: string;
   width: number;
   x: number;
   y: number;
@@ -11,6 +12,7 @@ interface CreatePanelOptions {
 export const createPanel = ({
   condition,
   height,
+  imagePath,
   x,
   y,
   width,
@@ -23,7 +25,7 @@ export const createPanel = ({
       y,
     },
     height,
-    imagePath: "panels/basic",
+    imagePath,
     leftWidth: 16,
     rightWidth: 16,
     topHeight: 16,

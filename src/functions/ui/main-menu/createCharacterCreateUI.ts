@@ -3,10 +3,10 @@ import {
   createButton,
   createLabel,
   createSprite,
-  emitToSocketioServer,
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
+import { createCharacterSelectState } from "../../state/main-menu/createCharacterSelectState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
@@ -21,6 +21,7 @@ export const createCharacterCreateUI = (): void => {
   createPanel({
     condition,
     height: getGameHeight(),
+    imagePath: "panels/basic",
     width: getGameWidth(),
     x: 0,
     y: 0,
@@ -60,8 +61,12 @@ export const createCharacterCreateUI = (): void => {
     },
     height: 14,
     onClick: (): void => {
-      emitToSocketioServer({
-        event: "legacy-character-create-back",
+      if (state.values.mainMenuState === null) {
+        throw new Error("mainMenuState is null");
+      }
+      state.values.mainMenuState.setValues({
+        characterCreateState: null,
+        characterSelectState: createCharacterSelectState(),
       });
     },
     width: 14,
@@ -89,6 +94,7 @@ export const createCharacterCreateUI = (): void => {
       createPanel({
         condition,
         height: 80,
+        imagePath: "panels/basic",
         width: 80,
         x: 16 + sortedClassIndex * 96,
         y: 48,
@@ -123,12 +129,9 @@ export const createCharacterCreateUI = (): void => {
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
-          emitToSocketioServer({
-            data: sortedClass.id,
-            event: "legacy-character-create-select",
-          });
+          console.log("TODO");
         },
-        text: "Select",
+        text: { value: "Select" },
         width: 44,
         x: 34 + sortedClassIndex * 96,
         y: 103,

@@ -1,20 +1,25 @@
+import { BodyCosmetic } from "../../../classes/BodyCosmetic";
+import { ClothesDye } from "../../../classes/ClothesDye";
 import {
   CreateSpriteOptionsRecolor,
   Scriptable,
   createSprite,
 } from "pixel-pigeon";
+import { HairDye } from "../../../classes/HairDye";
+import { HeadCosmetic } from "../../../classes/HeadCosmetic";
 import { Item } from "../../../classes/Items";
+import { Mask } from "../../../classes/Mask";
 import { SkinColor } from "../../../classes/SkinColor";
 import { getDefinable } from "../../../definables";
 
 export interface CreatePlayerSpriteOptions {
   condition?: () => boolean;
-  clothesDyeItemID: string;
-  figureID: string;
-  hairDyeItemID: string;
-  maskItemID: string;
-  outfitItemID: string;
-  skinColorID: string;
+  clothesDyeItemID: Scriptable<string>;
+  figureID: Scriptable<string>;
+  hairDyeItemID: Scriptable<string>;
+  maskItemID: Scriptable<string>;
+  outfitItemID: Scriptable<string>;
+  skinColorID: Scriptable<string>;
   x: Scriptable<number>;
   y: Scriptable<number>;
 }
@@ -29,59 +34,126 @@ export const createPlayerSprite = ({
   x,
   y,
 }: CreatePlayerSpriteOptions): void => {
-  const maskItem: Item = getDefinable(Item, maskItemID);
-  const outfitItem: Item = getDefinable(Item, outfitItemID);
-  const skinColor: SkinColor = getDefinable(SkinColor, skinColorID);
-  const hairDyeItem: Item = getDefinable(Item, hairDyeItemID);
-  const clothesDyeItem: Item = getDefinable(Item, clothesDyeItemID);
-  const recolors: CreateSpriteOptionsRecolor[] = [
-    // Clothes Primary 1
-    {
-      fromColor: "#0d0d0d",
-      toColor: clothesDyeItem.clothesDye?.primaryClothesColor.color1 as string,
-    },
-    // Clothes Primary 2
-    {
-      fromColor: "#272727",
-      toColor: clothesDyeItem.clothesDye?.primaryClothesColor.color2 as string,
-    },
-    // Clothes Secondary 1
-    {
-      fromColor: "#414141",
-      toColor: clothesDyeItem.clothesDye?.secondaryClothesColor
-        .color1 as string,
-    },
-    // Clothes Secondary 2
-    {
-      fromColor: "#5b5b5b",
-      toColor: clothesDyeItem.clothesDye?.secondaryClothesColor
-        .color2 as string,
-    },
-    // Hair 1
-    {
-      fromColor: "#757575",
-      toColor: hairDyeItem.hairDye?.hairColor.color1 as string,
-    },
-    // Hair 2
-    {
-      fromColor: "#8f8f8f",
-      toColor: hairDyeItem.hairDye?.hairColor.color2 as string,
-    },
-    // Hair 3
-    {
-      fromColor: "#c3c3c3",
-      toColor: hairDyeItem.hairDye?.hairColor.color3 as string,
-    },
-    // Skin color
-    {
-      fromColor: "#dddddd",
-      toColor: skinColor.color1,
-    },
-    {
-      fromColor: "#f7f7f7",
-      toColor: skinColor.color2,
-    },
-  ];
+  const getMaskItem = (): Item =>
+    getDefinable(
+      Item,
+      typeof maskItemID === "function" ? maskItemID() : maskItemID,
+    );
+  const getMask = (): Mask => {
+    const maskItem: Item = getMaskItem();
+    if (typeof maskItem.mask === "undefined") {
+      throw new Error("Mask is undefined");
+    }
+    return maskItem.mask;
+  };
+  const getHeadCosmetic = (): HeadCosmetic => {
+    const mask: Mask = getMask();
+    if (typeof mask.headCosmetic === "undefined") {
+      throw new Error("Head cosmetic is undefined");
+    }
+    return mask.headCosmetic;
+  };
+  const getOutfitItem = (): Item =>
+    getDefinable(
+      Item,
+      typeof outfitItemID === "function" ? outfitItemID() : outfitItemID,
+    );
+  const getOutfit = (): Item => {
+    const outfitItem: Item = getOutfitItem();
+    if (typeof outfitItem.outfit === "undefined") {
+      throw new Error("Outfit is undefined");
+    }
+    return outfitItem;
+  };
+  const getBodyCosmetic = (): BodyCosmetic => {
+    const outfitItem: Item = getOutfit();
+    if (typeof outfitItem.outfit?.bodyCosmetic === "undefined") {
+      throw new Error("Body cosmetic is undefined");
+    }
+    return outfitItem.outfit.bodyCosmetic;
+  };
+  const getSkinColor = (): SkinColor =>
+    getDefinable(
+      SkinColor,
+      typeof skinColorID === "function" ? skinColorID() : skinColorID,
+    );
+  const getHairDyeItem = (): Item =>
+    getDefinable(
+      Item,
+      typeof hairDyeItemID === "function" ? hairDyeItemID() : hairDyeItemID,
+    );
+  const getHairDye = (): HairDye => {
+    const hairDyeItem: Item = getHairDyeItem();
+    if (typeof hairDyeItem.hairDye === "undefined") {
+      throw new Error("Hair dye is undefined");
+    }
+    return hairDyeItem.hairDye;
+  };
+  const getClothesDyeItem = (): Item =>
+    getDefinable(
+      Item,
+      typeof clothesDyeItemID === "function"
+        ? clothesDyeItemID()
+        : clothesDyeItemID,
+    );
+  const getClothesDye = (): ClothesDye => {
+    const clothesDyeItem: Item = getClothesDyeItem();
+    if (typeof clothesDyeItem.clothesDye === "undefined") {
+      throw new Error("Clothes dye is undefined");
+    }
+    return clothesDyeItem.clothesDye;
+  };
+  const recolors = (): CreateSpriteOptionsRecolor[] => {
+    const clothesDye: ClothesDye = getClothesDye();
+    const hairDye: HairDye = getHairDye();
+    const skinColor: SkinColor = getSkinColor();
+    return [
+      // Clothes Primary 1
+      {
+        fromColor: "#0d0d0d",
+        toColor: clothesDye.primaryClothesColor.color1,
+      },
+      // Clothes Primary 2
+      {
+        fromColor: "#272727",
+        toColor: clothesDye.primaryClothesColor.color2,
+      },
+      // Clothes Secondary 1
+      {
+        fromColor: "#414141",
+        toColor: clothesDye.secondaryClothesColor.color1,
+      },
+      // Clothes Secondary 2
+      {
+        fromColor: "#5b5b5b",
+        toColor: clothesDye.secondaryClothesColor.color2,
+      },
+      // Hair 1
+      {
+        fromColor: "#757575",
+        toColor: hairDye.hairColor.color1,
+      },
+      // Hair 2
+      {
+        fromColor: "#8f8f8f",
+        toColor: hairDye.hairColor.color2,
+      },
+      // Hair 3
+      {
+        fromColor: "#c3c3c3",
+        toColor: hairDye.hairColor.color3,
+      },
+      // Skin color
+      {
+        fromColor: "#dddddd",
+        toColor: skinColor.color1,
+      },
+      {
+        fromColor: "#f7f7f7",
+        toColor: skinColor.color2,
+      },
+    ];
+  };
   createSprite({
     animationID: "default",
     animations: [
@@ -130,9 +202,11 @@ export const createPlayerSprite = ({
     coordinates: {
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
-          const imagePath: string | undefined =
-            maskItem.mask?.headCosmetic?.backImagePaths[figureID];
-          return typeof imagePath !== "undefined";
+          return (
+            typeof getHeadCosmetic().backImagePaths[
+              typeof figureID === "function" ? figureID() : figureID
+            ] !== "undefined"
+          );
         }
         return false;
       },
@@ -140,7 +214,10 @@ export const createPlayerSprite = ({
       y,
     },
     imagePath: (): string =>
-      maskItem.mask?.headCosmetic?.backImagePaths[figureID] as string,
+      getHeadCosmetic().backImagePaths[
+        typeof figureID === "function" ? figureID() : figureID
+      ] as string,
+
     recolors,
   });
   createSprite({
@@ -191,9 +268,11 @@ export const createPlayerSprite = ({
     coordinates: {
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
-          const imagePath: string | undefined =
-            outfitItem.outfit?.bodyCosmetic?.imagePaths[figureID];
-          return typeof imagePath !== "undefined";
+          return (
+            typeof getBodyCosmetic().imagePaths[
+              typeof figureID === "function" ? figureID() : figureID
+            ] !== "undefined"
+          );
         }
         return false;
       },
@@ -201,7 +280,9 @@ export const createPlayerSprite = ({
       y,
     },
     imagePath: (): string =>
-      outfitItem.outfit?.bodyCosmetic?.imagePaths[figureID] as string,
+      getBodyCosmetic().imagePaths[
+        typeof figureID === "function" ? figureID() : figureID
+      ],
     recolors,
   });
   createSprite({
@@ -252,9 +333,11 @@ export const createPlayerSprite = ({
     coordinates: {
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
-          const imagePath: string | undefined =
-            maskItem.mask?.headCosmetic?.frontImagePaths[figureID];
-          return typeof imagePath !== "undefined";
+          return (
+            typeof getHeadCosmetic().frontImagePaths[
+              typeof figureID === "function" ? figureID() : figureID
+            ] !== "undefined"
+          );
         }
         return false;
       },
@@ -262,7 +345,9 @@ export const createPlayerSprite = ({
       y,
     },
     imagePath: (): string =>
-      maskItem.mask?.headCosmetic?.frontImagePaths[figureID] as string,
+      getHeadCosmetic().frontImagePaths[
+        typeof figureID === "function" ? figureID() : figureID
+      ] as string,
     recolors,
   });
 };
