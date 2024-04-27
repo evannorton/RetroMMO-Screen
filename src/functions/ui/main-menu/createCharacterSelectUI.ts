@@ -10,6 +10,7 @@ import {
   createButton,
   createLabel,
   createSprite,
+  emitToSocketioServer,
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
@@ -229,6 +230,82 @@ export const createCharacterSelectUI = (): void => {
         };
       },
     });
+    // Play button
+    const playCondition = (): boolean =>
+      characterCondition() &&
+      getCharacterSelectState().values.isDeleting === false &&
+      getCharacterSelectState().values.isSorting === false;
+    const playX: number = i % 2 === 0 ? 125 : 261;
+    const playY: number = 71 + 42 * Math.floor(i / 2);
+    const playWidth: number = 10;
+    const playHeight: number = 12;
+    createSprite({
+      animationID: "default",
+      animations: [
+        {
+          frames: [
+            {
+              height: playHeight,
+              sourceHeight: playHeight,
+              sourceWidth: playWidth,
+              sourceX: 0,
+              sourceY: 0,
+              width: playWidth,
+            },
+          ],
+          id: "default",
+        },
+      ],
+      coordinates: {
+        condition: playCondition,
+        x: playX,
+        y: playY,
+      },
+      imagePath: "arrows/green",
+      recolors: [],
+    });
+    createButton({
+      coordinates: {
+        condition: playCondition,
+        x: playX,
+        y: playY,
+      },
+      height: playHeight,
+      onClick: (): void => {
+        emitToSocketioServer({
+          data: getOffsetIndex(i),
+          event: "select-character",
+        });
+      },
+      width: playWidth,
+    });
+    //   // Play
+    //   new Picture(
+    //     `character-select/character/${i}/play`,
+    //     (player: Player): PictureOptions => ({
+    //       grayscale: false,
+    //       height: 12,
+    //       imageSourceSlug: player.canPlayCharacterSelectCharacter(i)
+    //         ? "arrows/green"
+    //         : "arrows/right-small",
+    //       recolors: [],
+    //       sourceHeight: 12,
+    //       sourceWidth: 10,
+    //       sourceX: 0,
+    //       sourceY: 0,
+    //       width: 10,
+    //       x: i % 2 === 0 ? 125 : 261,
+    //       y: 71 + 42 * Math.floor(i / 2),
+    //     }),
+    //     (player: Player): boolean =>
+    //       player.isAtCharacterSelect &&
+    //       player.hasCharacterSelectCharacters(i + 1) &&
+    //       player.characterSelectIsDeleting === false &&
+    //       player.characterSelectIsSorting === false,
+    //     (player: Player): void => {
+    //       player.playCharacterIndex(i);
+    //     },
+    //   );
     //   new Label(
     //     `character-select/character/${i}`,
     //     (player: Player): LabelOptions => {
@@ -345,34 +422,6 @@ export const createCharacterSelectUI = (): void => {
   });
 
   // for (let i: number = 0; i < serverConstants.pageSizes.characterSelect; i++) {
-
-  //   // Play
-  //   new Picture(
-  //     `character-select/character/${i}/play`,
-  //     (player: Player): PictureOptions => ({
-  //       grayscale: false,
-  //       height: 12,
-  //       imageSourceSlug: player.canPlayCharacterSelectCharacter(i)
-  //         ? "arrows/green"
-  //         : "arrows/right-small",
-  //       recolors: [],
-  //       sourceHeight: 12,
-  //       sourceWidth: 10,
-  //       sourceX: 0,
-  //       sourceY: 0,
-  //       width: 10,
-  //       x: i % 2 === 0 ? 125 : 261,
-  //       y: 71 + 42 * Math.floor(i / 2),
-  //     }),
-  //     (player: Player): boolean =>
-  //       player.isAtCharacterSelect &&
-  //       player.hasCharacterSelectCharacters(i + 1) &&
-  //       player.characterSelectIsDeleting === false &&
-  //       player.characterSelectIsSorting === false,
-  //     (player: Player): void => {
-  //       player.playCharacterIndex(i);
-  //     },
-  //   );
   //   // Sort Left
   //   new Picture(
   //     `character-select/character/${i}/sort/left`,

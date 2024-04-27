@@ -29,11 +29,14 @@ export const handleWindowMessage = (message: unknown): void => {
           url,
         });
         listenToSocketioEvent({
-          eventName: "initial-update",
+          event: "initial-update",
           onMessage: (data: unknown): void => {
             const initialUpdate: InitialUpdate = data as InitialUpdate;
             state.setValues({
+              battleState: null,
+              mainMenuState: null,
               savefile: initialUpdate.savefile,
+              worldState: null,
             });
             switch (initialUpdate.mainState) {
               case MainState.Battle:
@@ -52,6 +55,25 @@ export const handleWindowMessage = (message: unknown): void => {
                 });
                 break;
             }
+          },
+        });
+        listenToSocketioEvent({
+          event: "select-character",
+          onMessage: (data: unknown): void => {
+            const characterIndex: number = data as number;
+            state.setValues({
+              mainMenuState: null,
+            });
+            console.log(characterIndex);
+          },
+        });
+        listenToSocketioEvent({
+          event: "exit-world-to-main-menu",
+          onMessage: (): void => {
+            state.setValues({
+              mainMenuState: createMainMenuState(),
+              worldState: null,
+            });
           },
         });
         break;

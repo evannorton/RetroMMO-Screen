@@ -27,18 +27,22 @@ export const createCharacterCreateUI = (): void => {
     y: 0,
   });
   // Back arrow sprite
+  const backX: number = 16;
+  const backY: number = 16;
+  const backWidth: number = 14;
+  const backHeight: number = 14;
   createSprite({
     animationID: "default",
     animations: [
       {
         frames: [
           {
-            height: 14,
-            sourceHeight: 14,
-            sourceWidth: 14,
+            height: backHeight,
+            sourceHeight: backHeight,
+            sourceWidth: backWidth,
             sourceX: 0,
             sourceY: 0,
-            width: 14,
+            width: backWidth,
           },
         ],
         id: "default",
@@ -46,8 +50,8 @@ export const createCharacterCreateUI = (): void => {
     ],
     coordinates: {
       condition,
-      x: 16,
-      y: 16,
+      x: backX,
+      y: backY,
     },
     imagePath: "arrows/left",
     recolors: [],
@@ -56,10 +60,10 @@ export const createCharacterCreateUI = (): void => {
   createButton({
     coordinates: {
       condition,
-      x: 16,
-      y: 16,
+      x: backX,
+      y: backY,
     },
-    height: 14,
+    height: backHeight,
     onClick: (): void => {
       if (state.values.mainMenuState === null) {
         throw new Error("mainMenuState is null");
@@ -69,7 +73,7 @@ export const createCharacterCreateUI = (): void => {
         characterSelectState: createCharacterSelectState(),
       });
     },
-    width: 14,
+    width: backWidth,
   });
   // Title text
   createLabel({
