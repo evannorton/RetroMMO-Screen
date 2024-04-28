@@ -80,7 +80,7 @@ export const createCharacterCreateUI = (): void => {
     color: "#ffffff",
     coordinates: {
       condition,
-      x: 152,
+      x: getGameWidth() / 2,
       y: 10,
     },
     horizontalAlignment: "center",
