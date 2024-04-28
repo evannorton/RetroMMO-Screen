@@ -3,6 +3,7 @@ import { State } from "pixel-pigeon";
 export interface CharacterCustomizeStateSchema {}
 export interface CharacterCreateStateSchema {}
 export interface CharacterSelectStateSchema {
+  deletingIndex: number | null;
   isDeleting: boolean;
   isSorting: boolean;
   page: number;

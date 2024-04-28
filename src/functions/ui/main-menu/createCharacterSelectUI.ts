@@ -103,11 +103,13 @@ export const createCharacterSelectUI = (): void => {
   });
   // Sort characters button
   createPressableButton({
-    condition,
+    condition: (): boolean =>
+      condition() && getCharacterSelectState().values.deletingIndex === null,
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
       getCharacterSelectState().setValues({
+        deletingIndex: null,
         isDeleting: false,
         isSorting: getCharacterSelectState().values.isSorting === false,
       });
@@ -120,6 +122,29 @@ export const createCharacterSelectUI = (): void => {
     x: 128,
     y: 38,
   });
+  // Confirm delete button
+  createPressableButton({
+    condition: (): boolean =>
+      condition() &&
+      getCharacterSelectState().values.isDeleting &&
+      getCharacterSelectState().values.deletingIndex !== null,
+    height: 16,
+    imagePath: "pressable-buttons/red",
+    onClick: (): void => {
+      emitToSocketioServer({
+        data: getCharacterSelectState().values.deletingIndex,
+        event: "character-select/delete-character",
+      });
+      getCharacterSelectState().setValues({
+        deletingIndex: null,
+        isDeleting: false,
+      });
+    },
+    text: { value: "Confirm" },
+    width: 48,
+    x: 128,
+    y: 38,
+  });
   // Delete character button
   createPressableButton({
     condition,
@@ -127,6 +152,7 @@ export const createCharacterSelectUI = (): void => {
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
       getCharacterSelectState().setValues({
+        deletingIndex: null,
         isDeleting: getCharacterSelectState().values.isDeleting === false,
         isSorting: false,
       });
@@ -223,7 +249,6 @@ export const createCharacterSelectUI = (): void => {
         y: playY,
       },
       imagePath: "arrows/green",
-      recolors: [],
     });
     createButton({
       coordinates: {
@@ -270,7 +295,6 @@ export const createCharacterSelectUI = (): void => {
         y: sortLeftY,
       },
       imagePath: "arrows/left-small",
-      recolors: [],
     });
     createButton({
       coordinates: {
@@ -315,7 +339,6 @@ export const createCharacterSelectUI = (): void => {
         y: sortRightY,
       },
       imagePath: "arrows/right-small",
-      recolors: [],
     });
     createButton({
       coordinates: {
@@ -331,6 +354,58 @@ export const createCharacterSelectUI = (): void => {
         });
       },
       width: sortRightWidth,
+    });
+    // Delete X
+    const deleteButtonCondition = (): boolean =>
+      characterCondition() &&
+      getCharacterSelectState().values.isDeleting &&
+      (getCharacterSelectState().values.deletingIndex === getOffsetIndex(i) ||
+        getCharacterSelectState().values.deletingIndex === null);
+    const deleteButtonX: number = i % 2 === 0 ? 125 : 261;
+    const deleteButtonY: number = 72 + 42 * Math.floor(i / 2);
+    const deleteButtonWidth: number = 10;
+    const deleteButtonHeight: number = 11;
+    createSprite({
+      animationID: "default",
+      animations: [
+        {
+          frames: [
+            {
+              height: deleteButtonHeight,
+              sourceHeight: deleteButtonHeight,
+              sourceWidth: deleteButtonWidth,
+              sourceX: 0,
+              sourceY: 0,
+              width: deleteButtonWidth,
+            },
+          ],
+          id: "default",
+        },
+      ],
+      coordinates: {
+        condition: deleteButtonCondition,
+        x: deleteButtonX,
+        y: deleteButtonY,
+      },
+      imagePath: "x",
+    });
+    createButton({
+      coordinates: {
+        condition: deleteButtonCondition,
+        x: deleteButtonX,
+        y: deleteButtonY,
+      },
+      height: deleteButtonHeight,
+      onClick: (): void => {
+        const characterSelectState: State<CharacterSelectStateSchema> =
+          getCharacterSelectState();
+        const index: number = getOffsetIndex(i);
+        characterSelectState.setValues({
+          deletingIndex:
+            characterSelectState.values.deletingIndex !== index ? index : null,
+        });
+      },
+      width: deleteButtonWidth,
     });
   }
   // Page number
@@ -373,7 +448,6 @@ export const createCharacterSelectUI = (): void => {
       y: 202,
     },
     imagePath: "arrows/left",
-    recolors: [],
   });
   createButton({
     coordinates: {
@@ -411,7 +485,6 @@ export const createCharacterSelectUI = (): void => {
       y: 202,
     },
     imagePath: "arrows/right",
-    recolors: [],
   });
   createButton({
     coordinates: {
@@ -425,52 +498,4 @@ export const createCharacterSelectUI = (): void => {
     },
     width: 14,
   });
-
-  // for (let i: number = 0; i < serverConstants.pageSizes.characterSelect; i++) {
-
-  //   // Delete
-  //   new Picture(
-  //     `character-select/character/${i}/delete`,
-  //     (): PictureOptions => ({
-  //       grayscale: false,
-  //       height: 11,
-  //       imageSourceSlug: "x",
-  //       recolors: [],
-  //       sourceHeight: 11,
-  //       sourceWidth: 10,
-  //       sourceX: 0,
-  //       sourceY: 0,
-  //       width: 10,
-  //       x: i % 2 === 0 ? 125 : 261,
-  //       y: 72 + 42 * Math.floor(i / 2),
-  //     }),
-  //     (player: Player): boolean =>
-  //       player.isAtCharacterSelect &&
-  //       player.hasCharacterSelectCharacters(i + 1) &&
-  //       player.characterSelectIsDeleting &&
-  //       (player.isDeletingIndex(i) || player.isDeletingNoIndex()),
-  //     (player: Player): void => {
-  //       player.selectCharacterForDeletion(i);
-  //     },
-  //   );
-  // }
-
-  // // Confirm delete character button
-  // new Button(
-  //   "character-select/confirm-delete",
-  //   (): ButtonOptions => ({
-  //     color: Color.White,
-  //     height: 16,
-  //     imageSourceSlug: "buttons/red",
-  //     text: "Confirm",
-  //     width: 48,
-  //     x: 128,
-  //     y: 38,
-  //   }),
-  //   (player: Player): boolean =>
-  //     player.isAtCharacterSelect && player.isDeletingAnIndex(),
-  //   (player: Player): void => {
-  //     player.confirmDeleteCharacter();
-  //   },
-  // );
 };

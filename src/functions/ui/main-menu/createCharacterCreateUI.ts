@@ -54,7 +54,6 @@ export const createCharacterCreateUI = (): void => {
       y: backY,
     },
     imagePath: "arrows/left",
-    recolors: [],
   });
   createButton({
     coordinates: {

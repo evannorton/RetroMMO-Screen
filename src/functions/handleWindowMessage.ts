@@ -5,7 +5,7 @@ import { connectToSocketioServer, listenToSocketioEvent } from "pixel-pigeon";
 import { createBattleState } from "./state/createBattleState";
 import { createMainMenuState } from "./state/main-menu/createMainMenuState";
 import { createWorldState } from "./state/createWorldState";
-import { getDefinables } from "../definables";
+import { getDefinable, getDefinables } from "../definables";
 import { loadSavefile } from "./loadSavefile";
 import { state } from "../state";
 
@@ -66,6 +66,22 @@ export const handleWindowMessage = (message: unknown): void => {
                 });
                 break;
             }
+          },
+        });
+        listenToSocketioEvent({
+          event: "character-select/delete-character",
+          onMessage: (data: unknown): void => {
+            const characterIndex: number = data as number;
+            const character: Character = getDefinable(
+              Character,
+              state.values.characterIDs[characterIndex],
+            );
+            character.remove();
+            state.setValues({
+              characterIDs: state.values.characterIDs.filter(
+                (characterID: string): boolean => characterID !== character.id,
+              ),
+            });
           },
         });
         listenToSocketioEvent({
