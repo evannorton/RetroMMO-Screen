@@ -16,6 +16,7 @@ export interface CharacterOptions {
   clothesDyeItemInstanceID: string | null;
   figureID: string;
   hairDyeItemInstanceID: string | null;
+  id: string;
   level: number;
   maskItemInstanceID: string | null;
   outfitItemInstanceID: string | null;
@@ -32,7 +33,7 @@ export class Character extends Definable {
   private readonly _skinColorID: string;
 
   public constructor(options: CharacterOptions) {
-    super();
+    super(options.id);
     this._classID = options.classID;
     this._clothesDyeItemInstanceID = options.clothesDyeItemInstanceID;
     this._figureID = options.figureID;

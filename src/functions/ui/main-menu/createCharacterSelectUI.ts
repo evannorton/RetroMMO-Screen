@@ -104,12 +104,13 @@ export const createCharacterSelectUI = (): void => {
   // Sort characters button
   createPressableButton({
     condition: (): boolean =>
-      condition() && getCharacterSelectState().values.deletingIndex === null,
+      condition() &&
+      getCharacterSelectState().values.characterIDToDelete === null,
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
       getCharacterSelectState().setValues({
-        deletingIndex: null,
+        characterIDToDelete: null,
         isDeleting: false,
         isSorting: getCharacterSelectState().values.isSorting === false,
       });
@@ -127,16 +128,16 @@ export const createCharacterSelectUI = (): void => {
     condition: (): boolean =>
       condition() &&
       getCharacterSelectState().values.isDeleting &&
-      getCharacterSelectState().values.deletingIndex !== null,
+      getCharacterSelectState().values.characterIDToDelete !== null,
     height: 16,
     imagePath: "pressable-buttons/red",
     onClick: (): void => {
       emitToSocketioServer({
-        data: getCharacterSelectState().values.deletingIndex,
+        data: getCharacterSelectState().values.characterIDToDelete,
         event: "character-select/delete-character",
       });
       getCharacterSelectState().setValues({
-        deletingIndex: null,
+        characterIDToDelete: null,
         isDeleting: false,
       });
     },
@@ -152,7 +153,7 @@ export const createCharacterSelectUI = (): void => {
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
       getCharacterSelectState().setValues({
-        deletingIndex: null,
+        characterIDToDelete: null,
         isDeleting: getCharacterSelectState().values.isDeleting === false,
         isSorting: false,
       });
@@ -259,7 +260,7 @@ export const createCharacterSelectUI = (): void => {
       height: playHeight,
       onClick: (): void => {
         emitToSocketioServer({
-          data: getOffsetIndex(i),
+          data: state.values.characterIDs[getOffsetIndex(i)],
           event: "character-select/select-character",
         });
       },
@@ -305,7 +306,7 @@ export const createCharacterSelectUI = (): void => {
       height: sortLeftHeight,
       onClick: (): void => {
         emitToSocketioServer({
-          data: getOffsetIndex(i),
+          data: state.values.characterIDs[getOffsetIndex(i)],
           event: "character-select/sort-character-left",
         });
       },
@@ -349,7 +350,7 @@ export const createCharacterSelectUI = (): void => {
       height: sortRightHeight,
       onClick: (): void => {
         emitToSocketioServer({
-          data: getOffsetIndex(i),
+          data: state.values.characterIDs[getOffsetIndex(i)],
           event: "character-select/sort-character-right",
         });
       },
@@ -359,8 +360,9 @@ export const createCharacterSelectUI = (): void => {
     const deleteButtonCondition = (): boolean =>
       characterCondition() &&
       getCharacterSelectState().values.isDeleting &&
-      (getCharacterSelectState().values.deletingIndex === getOffsetIndex(i) ||
-        getCharacterSelectState().values.deletingIndex === null);
+      (getCharacterSelectState().values.characterIDToDelete ===
+        state.values.characterIDs[getOffsetIndex(i)] ||
+        getCharacterSelectState().values.characterIDToDelete === null);
     const deleteButtonX: number = i % 2 === 0 ? 125 : 261;
     const deleteButtonY: number = 72 + 42 * Math.floor(i / 2);
     const deleteButtonWidth: number = 10;
@@ -401,8 +403,11 @@ export const createCharacterSelectUI = (): void => {
           getCharacterSelectState();
         const index: number = getOffsetIndex(i);
         characterSelectState.setValues({
-          deletingIndex:
-            characterSelectState.values.deletingIndex !== index ? index : null,
+          characterIDToDelete:
+            characterSelectState.values.characterIDToDelete !==
+            state.values.characterIDs[index]
+              ? state.values.characterIDs[index]
+              : null,
         });
       },
       width: deleteButtonWidth,

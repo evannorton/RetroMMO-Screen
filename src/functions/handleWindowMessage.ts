@@ -44,7 +44,6 @@ export const handleWindowMessage = (message: unknown): void => {
             }
             state.setValues({
               battleState: null,
-              characterIDs: [],
               mainMenuState: null,
               worldState: null,
             });
@@ -71,15 +70,13 @@ export const handleWindowMessage = (message: unknown): void => {
         listenToSocketioEvent({
           event: "character-select/delete-character",
           onMessage: (data: unknown): void => {
-            const characterIndex: number = data as number;
-            const character: Character = getDefinable(
-              Character,
-              state.values.characterIDs[characterIndex],
-            );
+            const characterID: string = data as string;
+            const character: Character = getDefinable(Character, characterID);
             character.remove();
             state.setValues({
               characterIDs: state.values.characterIDs.filter(
-                (characterID: string): boolean => characterID !== character.id,
+                (loopedCharacterID: string): boolean =>
+                  loopedCharacterID !== character.id,
               ),
             });
           },
@@ -87,23 +84,23 @@ export const handleWindowMessage = (message: unknown): void => {
         listenToSocketioEvent({
           event: "character-select/select-character",
           onMessage: (data: unknown): void => {
-            const characterIndex: number = data as number;
+            const characterID: string = data as string;
             state.setValues({
               mainMenuState: null,
             });
-            console.log(`Selected character ${characterIndex}`);
+            console.log(`Selected character ${characterID}`);
           },
         });
         listenToSocketioEvent({
           event: "character-select/sort-character-left",
           onMessage: (data: unknown): void => {
-            const characterIndex: number = data as number;
+            const characterID: string = data as string;
+            const characterIndex: number =
+              state.values.characterIDs.indexOf(characterID);
             const targetIndex: number =
               characterIndex === 0
                 ? state.values.characterIDs.length - 1
-                : characterIndex - 1;
-            const characterID: string =
-              state.values.characterIDs[characterIndex];
+                : characterIndex + 1;
             const targetCharacterID: string =
               state.values.characterIDs[targetIndex];
             const characterIDs: string[] = [...state.values.characterIDs];
@@ -115,13 +112,13 @@ export const handleWindowMessage = (message: unknown): void => {
         listenToSocketioEvent({
           event: "character-select/sort-character-right",
           onMessage: (data: unknown): void => {
-            const characterIndex: number = data as number;
+            const characterID: string = data as string;
+            const characterIndex: number =
+              state.values.characterIDs.indexOf(characterID);
             const targetIndex: number =
               characterIndex === state.values.characterIDs.length - 1
                 ? 0
                 : characterIndex + 1;
-            const characterID: string =
-              state.values.characterIDs[characterIndex];
             const targetCharacterID: string =
               state.values.characterIDs[targetIndex];
             const characterIDs: string[] = [...state.values.characterIDs];

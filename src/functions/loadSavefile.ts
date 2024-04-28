@@ -40,6 +40,7 @@ export const loadSavefile = (savefile: Savefile): void => {
         clothesDyeItemInstanceID,
         figureID: character.figureID,
         hairDyeItemInstanceID,
+        id: character.id,
         level: character.level,
         maskItemInstanceID,
         outfitItemInstanceID,
