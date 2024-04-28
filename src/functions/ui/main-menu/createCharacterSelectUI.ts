@@ -414,10 +414,12 @@ export const createCharacterSelectUI = (): void => {
     });
   }
   // Page number
+  const paginationCondition = (): boolean =>
+    condition() && state.values.characterIDs.length > charactersPerPage;
   createLabel({
     color: "#ffffff",
     coordinates: {
-      condition,
+      condition: paginationCondition,
       x: 220,
       y: 190,
     },
@@ -448,7 +450,7 @@ export const createCharacterSelectUI = (): void => {
       },
     ],
     coordinates: {
-      condition,
+      condition: paginationCondition,
       x: 204,
       y: 202,
     },
@@ -456,7 +458,7 @@ export const createCharacterSelectUI = (): void => {
   });
   createButton({
     coordinates: {
-      condition,
+      condition: paginationCondition,
       x: 204,
       y: 202,
     },
@@ -485,7 +487,7 @@ export const createCharacterSelectUI = (): void => {
       },
     ],
     coordinates: {
-      condition,
+      condition: paginationCondition,
       x: 222,
       y: 202,
     },
@@ -493,7 +495,7 @@ export const createCharacterSelectUI = (): void => {
   });
   createButton({
     coordinates: {
-      condition,
+      condition: paginationCondition,
       x: 222,
       y: 202,
     },
