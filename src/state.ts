@@ -1,6 +1,8 @@
 import { State } from "pixel-pigeon";
 
-export interface CharacterCustomizeStateSchema {}
+export interface CharacterCustomizeStateSchema {
+  classID: string;
+}
 export interface CharacterCreateStateSchema {}
 export interface CharacterSelectStateSchema {
   characterIDToDelete: string | null;

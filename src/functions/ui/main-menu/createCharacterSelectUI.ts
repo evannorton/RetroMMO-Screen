@@ -1,9 +1,5 @@
 import { Character } from "../../../classes/Character";
-import {
-  CharacterSelectStateSchema,
-  MainMenuStateSchema,
-  state,
-} from "../../../state";
+import { CharacterSelectStateSchema, state } from "../../../state";
 import { Class } from "../../../classes/Class";
 import {
   CreateLabelOptionsText,
@@ -19,26 +15,15 @@ import { createCharacterCreateState } from "../../state/main-menu/createCharacte
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
+import { getCharacterSelectState } from "../../state/main-menu/getCharacterSelectState";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefinable } from "../../../definables";
+import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 
 export const createCharacterSelectUI = (): void => {
   const condition = (): boolean =>
     state.values.mainMenuState !== null &&
     state.values.mainMenuState.values.characterSelectState !== null;
-  const getMainMenuState = (): State<MainMenuStateSchema> => {
-    if (state.values.mainMenuState === null) {
-      throw new Error("mainMenuState is null");
-    }
-    return state.values.mainMenuState;
-  };
-  const getCharacterSelectState = (): State<CharacterSelectStateSchema> => {
-    const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
-    if (mainMenuState.values.characterSelectState === null) {
-      throw new Error("characterSelectState is null");
-    }
-    return mainMenuState.values.characterSelectState;
-  };
   const charactersPerPage: number = 7;
   const getIndexOffset = (): number =>
     getCharacterSelectState().values.page * charactersPerPage;

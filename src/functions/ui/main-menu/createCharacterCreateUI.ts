@@ -6,11 +6,13 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
+import { createCharacterCustomizeState } from "../../state/main-menu/createCharacterCustomizeState";
 import { createCharacterSelectState } from "../../state/main-menu/createCharacterSelectState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
 import { getDefinables } from "../../../definables";
+import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { state } from "../../../state";
 
 export const createCharacterCreateUI = (): void => {
@@ -131,7 +133,12 @@ export const createCharacterCreateUI = (): void => {
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
-          console.log("TODO");
+          getMainMenuState().setValues({
+            characterCreateState: null,
+            characterCustomizeState: createCharacterCustomizeState({
+              classID: sortedClass.id,
+            }),
+          });
         },
         text: { value: "Select" },
         width: 44,
