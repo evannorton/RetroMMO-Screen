@@ -1,7 +1,7 @@
 import { ClassDefinition } from "retrommo-types";
 import { Definable, getDefinable } from "../definables";
 import { Figure } from "./Figure";
-import { Item } from "./Items";
+import { Item } from "./Item";
 import { SkinColor } from "./SkinColor";
 
 export interface ClassOptions {

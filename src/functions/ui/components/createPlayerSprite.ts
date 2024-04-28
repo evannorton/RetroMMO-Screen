@@ -7,7 +7,7 @@ import {
 } from "pixel-pigeon";
 import { HairDye } from "../../../classes/HairDye";
 import { HeadCosmetic } from "../../../classes/HeadCosmetic";
-import { Item } from "../../../classes/Items";
+import { Item } from "../../../classes/Item";
 import { Mask } from "../../../classes/Mask";
 import { SkinColor } from "../../../classes/SkinColor";
 import { getDefinable } from "../../../definables";

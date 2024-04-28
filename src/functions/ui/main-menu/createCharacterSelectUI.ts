@@ -1,3 +1,4 @@
+import { Character } from "../../../classes/Character";
 import {
   CharacterSelectStateSchema,
   MainMenuStateSchema,
@@ -14,17 +15,10 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import { Savefile, SavefileCharacter } from "retrommo-types";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
-import {
-  defaultClothesDyeItemID,
-  defaultHairDyeItemID,
-  defaultMaskItemID,
-  defaultOutfitItemID,
-} from "../../../constants/defaultVanities";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefinable } from "../../../definables";
 
@@ -32,12 +26,6 @@ export const createCharacterSelectUI = (): void => {
   const condition = (): boolean =>
     state.values.mainMenuState !== null &&
     state.values.mainMenuState.values.characterSelectState !== null;
-  const getSavefile = (): Savefile => {
-    if (state.values.savefile === null) {
-      throw new Error("savefile is null");
-    }
-    return state.values.savefile;
-  };
   const getMainMenuState = (): State<MainMenuStateSchema> => {
     if (state.values.mainMenuState === null) {
       throw new Error("mainMenuState is null");
@@ -56,10 +44,10 @@ export const createCharacterSelectUI = (): void => {
     getCharacterSelectState().values.page * charactersPerPage;
   const getOffsetIndex = (index: number): number => index + getIndexOffset();
   const hasCharacter = (index: number): boolean =>
-    getSavefile().characters.length - getIndexOffset() > index;
+    state.values.characterIDs.length - getIndexOffset() > index;
   const getLastPage = (): number =>
     Math.max(
-      Math.floor((getSavefile().characters.length - 1) / charactersPerPage),
+      Math.floor((state.values.characterIDs.length - 1) / charactersPerPage),
       0,
     );
   const page = (offset: number): void => {
@@ -155,15 +143,12 @@ export const createCharacterSelectUI = (): void => {
   for (let i: number = 0; i < charactersPerPage; i++) {
     const characterCondition = (): boolean => {
       if (condition()) {
-        if (state.values.savefile === null) {
-          throw new Error("savefile is null");
-        }
         return hasCharacter(i);
       }
       return false;
     };
-    const getCharacter = (): SavefileCharacter =>
-      getSavefile().characters[getOffsetIndex(i)];
+    const getCharacter = (): Character =>
+      getDefinable(Character, state.values.characterIDs[getOffsetIndex(i)]);
     // Character panel
     createPanel({
       condition: characterCondition,
@@ -175,37 +160,13 @@ export const createCharacterSelectUI = (): void => {
     });
     // Character sprite
     createPlayerSprite({
-      clothesDyeItemID: (): string => {
-        const character: SavefileCharacter = getCharacter();
-        if (character.clothesDyeItemInstance !== null) {
-          return character.clothesDyeItemInstance.itemID;
-        }
-        return defaultClothesDyeItemID;
-      },
+      clothesDyeItemID: (): string => getCharacter().clothesDyeItem.id,
       condition: characterCondition,
-      figureID: (): string => getCharacter().figureID,
-      hairDyeItemID: (): string => {
-        const character: SavefileCharacter = getCharacter();
-        if (character.hairDyeItemInstance !== null) {
-          return character.hairDyeItemInstance.itemID;
-        }
-        return defaultHairDyeItemID;
-      },
-      maskItemID: (): string => {
-        const character: SavefileCharacter = getCharacter();
-        if (character.maskItemInstance !== null) {
-          return character.maskItemInstance.itemID;
-        }
-        return defaultMaskItemID;
-      },
-      outfitItemID: (): string => {
-        const character: SavefileCharacter = getCharacter();
-        if (character.outfitItemInstance !== null) {
-          return character.outfitItemInstance.itemID;
-        }
-        return defaultOutfitItemID;
-      },
-      skinColorID: (): string => getCharacter().skinColorID,
+      figureID: (): string => getCharacter().figure.id,
+      hairDyeItemID: (): string => getCharacter().hairDyeItem.id,
+      maskItemID: (): string => getCharacter().maskItem.id,
+      outfitItemID: (): string => getCharacter().outfitItem.id,
+      skinColorID: (): string => getCharacter().skinColor.id,
       x: i % 2 === 0 ? 33 : 169,
       y: 69 + 42 * Math.floor(i / 2),
     });
@@ -222,10 +183,10 @@ export const createCharacterSelectUI = (): void => {
       maxWidth: getGameWidth(),
       size: 1,
       text: (): CreateLabelOptionsText => {
-        const character: SavefileCharacter = getCharacter();
+        const character: Character = getCharacter();
         return {
           value: `Lv${character.level} ${
-            getDefinable(Class, character.classID).abbreviation
+            getDefinable(Class, character.class.id).abbreviation
           }`,
         };
       },
@@ -274,59 +235,103 @@ export const createCharacterSelectUI = (): void => {
       onClick: (): void => {
         emitToSocketioServer({
           data: getOffsetIndex(i),
-          event: "select-character",
+          event: "character-select/select-character",
         });
       },
       width: playWidth,
     });
-    //   // Play
-    //   new Picture(
-    //     `character-select/character/${i}/play`,
-    //     (player: Player): PictureOptions => ({
-    //       grayscale: false,
-    //       height: 12,
-    //       imageSourceSlug: player.canPlayCharacterSelectCharacter(i)
-    //         ? "arrows/green"
-    //         : "arrows/right-small",
-    //       recolors: [],
-    //       sourceHeight: 12,
-    //       sourceWidth: 10,
-    //       sourceX: 0,
-    //       sourceY: 0,
-    //       width: 10,
-    //       x: i % 2 === 0 ? 125 : 261,
-    //       y: 71 + 42 * Math.floor(i / 2),
-    //     }),
-    //     (player: Player): boolean =>
-    //       player.isAtCharacterSelect &&
-    //       player.hasCharacterSelectCharacters(i + 1) &&
-    //       player.characterSelectIsDeleting === false &&
-    //       player.characterSelectIsSorting === false,
-    //     (player: Player): void => {
-    //       player.playCharacterIndex(i);
-    //     },
-    //   );
-    //   new Label(
-    //     `character-select/character/${i}`,
-    //     (player: Player): LabelOptions => {
-    //       const character: Character = player.getCharacterSelectCharacter(i);
-    //       const characterSelectClass: Class = getClass(character.classSlug);
-    //       return {
-    //         color: Color.White,
-    //         horizontalAlignment: "center",
-    //         maxLines: 1,
-    //         maxWidth: getGameWidth(),
-    //         size: 1,
-    //         text: `Lv${character.level} ${characterSelectClass.abbreviation}`,
-    //         verticalAlignment: "middle",
-    //         x: i % 2 === 0 ? 84 : 220,
-    //         y: 77 + 42 * Math.floor(i / 2),
-    //       };
-    //     },
-    //     (player: Player): boolean =>
-    //       player.isAtCharacterSelect &&
-    //       player.hasCharacterSelectCharacters(i + 1),
-    //   );
+    // Sort left arrow
+    const sortCondition = (): boolean =>
+      characterCondition() && getCharacterSelectState().values.isSorting;
+    const sortLeftX: number = i % 2 === 0 ? 114 : 250;
+    const sortLeftY: number = 71 + 42 * Math.floor(i / 2);
+    const sortLeftWidth: number = 10;
+    const sortLeftHeight: number = 12;
+    createSprite({
+      animationID: "default",
+      animations: [
+        {
+          frames: [
+            {
+              height: sortLeftHeight,
+              sourceHeight: sortLeftHeight,
+              sourceWidth: sortLeftWidth,
+              sourceX: 0,
+              sourceY: 0,
+              width: sortLeftWidth,
+            },
+          ],
+          id: "default",
+        },
+      ],
+      coordinates: {
+        condition: sortCondition,
+        x: sortLeftX,
+        y: sortLeftY,
+      },
+      imagePath: "arrows/left-small",
+      recolors: [],
+    });
+    createButton({
+      coordinates: {
+        condition: sortCondition,
+        x: sortLeftX,
+        y: sortLeftY,
+      },
+      height: sortLeftHeight,
+      onClick: (): void => {
+        emitToSocketioServer({
+          data: getOffsetIndex(i),
+          event: "character-select/sort-character-left",
+        });
+      },
+      width: sortLeftWidth,
+    });
+    // Sort right arrow
+    const sortRightX: number = i % 2 === 0 ? 129 : 265;
+    const sortRightY: number = 71 + 42 * Math.floor(i / 2);
+    const sortRightWidth: number = 10;
+    const sortRightHeight: number = 12;
+    createSprite({
+      animationID: "default",
+      animations: [
+        {
+          frames: [
+            {
+              height: sortRightHeight,
+              sourceHeight: sortRightHeight,
+              sourceWidth: sortRightWidth,
+              sourceX: 0,
+              sourceY: 0,
+              width: sortRightWidth,
+            },
+          ],
+          id: "default",
+        },
+      ],
+      coordinates: {
+        condition: sortCondition,
+        x: sortRightX,
+        y: sortRightY,
+      },
+      imagePath: "arrows/right-small",
+      recolors: [],
+    });
+    createButton({
+      coordinates: {
+        condition: sortCondition,
+        x: sortRightX,
+        y: sortRightY,
+      },
+      height: sortRightHeight,
+      onClick: (): void => {
+        emitToSocketioServer({
+          data: getOffsetIndex(i),
+          event: "character-select/sort-character-right",
+        });
+      },
+      width: sortRightWidth,
+    });
   }
   // Page number
   createLabel({
@@ -422,56 +427,7 @@ export const createCharacterSelectUI = (): void => {
   });
 
   // for (let i: number = 0; i < serverConstants.pageSizes.characterSelect; i++) {
-  //   // Sort Left
-  //   new Picture(
-  //     `character-select/character/${i}/sort/left`,
-  //     (): PictureOptions => ({
-  //       grayscale: false,
-  //       height: 12,
-  //       imageSourceSlug: "arrows/left-small",
-  //       recolors: [],
-  //       sourceHeight: 12,
-  //       sourceWidth: 10,
-  //       sourceX: 0,
-  //       sourceY: 0,
-  //       width: 10,
-  //       x: i % 2 === 0 ? 114 : 250,
-  //       y: 71 + 42 * Math.floor(i / 2),
-  //     }),
-  //     (player: Player): boolean =>
-  //       player.isAtCharacterSelect &&
-  //       player.hasAccessibleCharacterSelectCharacters(i + 1) &&
-  //       player.characterIsFirstSortableCharacter(i) === false &&
-  //       player.characterSelectIsSorting,
-  //     (player: Player): void => {
-  //       player.sortCharacterLeft(i);
-  //     },
-  //   );
-  //   // Sort Right
-  //   new Picture(
-  //     `character-select/character/${i}/sort/right`,
-  //     (): PictureOptions => ({
-  //       grayscale: false,
-  //       height: 12,
-  //       imageSourceSlug: "arrows/right-small",
-  //       recolors: [],
-  //       sourceHeight: 12,
-  //       sourceWidth: 10,
-  //       sourceX: 0,
-  //       sourceY: 0,
-  //       width: 10,
-  //       x: i % 2 === 0 ? 129 : 265,
-  //       y: 71 + 42 * Math.floor(i / 2),
-  //     }),
-  //     (player: Player): boolean =>
-  //       player.isAtCharacterSelect &&
-  //       player.hasAccessibleCharacterSelectCharacters(i + 1) &&
-  //       player.characterIsLastSortableCharacter(i) === false &&
-  //       player.characterSelectIsSorting,
-  //     (player: Player): void => {
-  //       player.sortCharacterRight(i);
-  //     },
-  //   );
+
   //   // Delete
   //   new Picture(
   //     `character-select/character/${i}/delete`,

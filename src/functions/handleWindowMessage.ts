@@ -1,8 +1,12 @@
+import { Character } from "../classes/Character";
 import { InitialUpdate, MainState } from "retrommo-types";
+import { ItemInstance } from "../classes/ItemInstance";
 import { connectToSocketioServer, listenToSocketioEvent } from "pixel-pigeon";
 import { createBattleState } from "./state/createBattleState";
 import { createMainMenuState } from "./state/main-menu/createMainMenuState";
 import { createWorldState } from "./state/createWorldState";
+import { getDefinables } from "../definables";
+import { loadSavefile } from "./loadSavefile";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
@@ -32,12 +36,19 @@ export const handleWindowMessage = (message: unknown): void => {
           event: "initial-update",
           onMessage: (data: unknown): void => {
             const initialUpdate: InitialUpdate = data as InitialUpdate;
+            for (const itemInstance of getDefinables(ItemInstance).values()) {
+              itemInstance.remove();
+            }
+            for (const character of getDefinables(Character).values()) {
+              character.remove();
+            }
             state.setValues({
               battleState: null,
+              characterIDs: [],
               mainMenuState: null,
-              savefile: initialUpdate.savefile,
               worldState: null,
             });
+            loadSavefile(initialUpdate.savefile);
             switch (initialUpdate.mainState) {
               case MainState.Battle:
                 state.setValues({
@@ -58,17 +69,53 @@ export const handleWindowMessage = (message: unknown): void => {
           },
         });
         listenToSocketioEvent({
-          event: "select-character",
+          event: "character-select/select-character",
           onMessage: (data: unknown): void => {
             const characterIndex: number = data as number;
             state.setValues({
               mainMenuState: null,
             });
-            console.log(characterIndex);
+            console.log(`Selected character ${characterIndex}`);
           },
         });
         listenToSocketioEvent({
-          event: "exit-world-to-main-menu",
+          event: "character-select/sort-character-left",
+          onMessage: (data: unknown): void => {
+            const characterIndex: number = data as number;
+            const targetIndex: number =
+              characterIndex === 0
+                ? state.values.characterIDs.length - 1
+                : characterIndex - 1;
+            const characterID: string =
+              state.values.characterIDs[characterIndex];
+            const targetCharacterID: string =
+              state.values.characterIDs[targetIndex];
+            const characterIDs: string[] = [...state.values.characterIDs];
+            characterIDs[targetIndex] = characterID;
+            characterIDs[characterIndex] = targetCharacterID;
+            state.setValues({ characterIDs });
+          },
+        });
+        listenToSocketioEvent({
+          event: "character-select/sort-character-right",
+          onMessage: (data: unknown): void => {
+            const characterIndex: number = data as number;
+            const targetIndex: number =
+              characterIndex === state.values.characterIDs.length - 1
+                ? 0
+                : characterIndex + 1;
+            const characterID: string =
+              state.values.characterIDs[characterIndex];
+            const targetCharacterID: string =
+              state.values.characterIDs[targetIndex];
+            const characterIDs: string[] = [...state.values.characterIDs];
+            characterIDs[targetIndex] = characterID;
+            characterIDs[characterIndex] = targetCharacterID;
+            state.setValues({ characterIDs });
+          },
+        });
+        listenToSocketioEvent({
+          event: "world/exit-to-main-menu",
           onMessage: (): void => {
             state.setValues({
               mainMenuState: createMainMenuState(),

@@ -1,4 +1,3 @@
-import { Savefile } from "retrommo-types";
 import { State } from "pixel-pigeon";
 
 export interface CharacterCustomizeStateSchema {}
@@ -17,16 +16,16 @@ export interface WorldStateSchema {}
 export interface BattleStateSchema {}
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
+  characterIDs: string[];
   mainMenuState: State<MainMenuStateSchema> | null;
-  savefile: Savefile | null;
   serverURL: string | null;
   worldState: State<WorldStateSchema> | null;
 }
 
 export const state: State<StateSchema> = new State<StateSchema>({
   battleState: null,
+  characterIDs: [],
   mainMenuState: null,
-  savefile: null,
   serverURL: null,
   worldState: null,
 });

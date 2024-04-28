@@ -21,7 +21,7 @@ import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
 import { HairDye } from "../classes/HairDye";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
-import { Item } from "../classes/Items";
+import { Item } from "../classes/Item";
 import { Mask } from "../classes/Mask";
 import { Outfit } from "../classes/Outfit";
 import { SkinColor } from "../classes/SkinColor";
