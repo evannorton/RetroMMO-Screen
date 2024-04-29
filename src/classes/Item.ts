@@ -32,7 +32,6 @@ export class Item extends Definable {
     this._hairDyeID = options.definition.hairDyeID;
     this._maskID = options.definition.maskID;
     this._outfitID = options.definition.outfitID;
-    console.log(options.definition);
   }
 
   public get characterCustomizeClothesDyeOrder(): [number, number] | undefined {
