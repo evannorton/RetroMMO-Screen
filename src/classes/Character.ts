@@ -1,12 +1,13 @@
 import { Class } from "./Class";
 import { ClothesDye } from "./ClothesDye";
-import { Definable, getDefinable, getDefinables } from "../definables";
+import { Definable, getDefinable } from "../definables";
 import { Figure } from "./Figure";
 import { HairDye } from "./HairDye";
 import { ItemInstance } from "./ItemInstance";
 import { Mask } from "./Mask";
 import { Outfit } from "./Outfit";
 import { SkinColor } from "./SkinColor";
+import { state } from "../state";
 
 export interface CharacterOptions {
   classID: string;
@@ -89,54 +90,40 @@ export class Character extends Definable {
     if (this.hasClothesDyeItemInstance()) {
       return this.clothesDyeItemInstance.item.clothesDye;
     }
-    const defaultClothesDye: [string, ClothesDye] | undefined = Array.from(
-      getDefinables(ClothesDye),
-    ).find(
-      (clothesDye: [string, ClothesDye]): boolean => clothesDye[1].isDefault,
-    );
-    if (typeof defaultClothesDye === "undefined") {
-      throw new Error("Default clothes dye is undefined");
+    if (state.values.defaultClothesDyeID === null) {
+      throw new Error("Default clothes dye is null");
     }
-    return defaultClothesDye[1];
+    return getDefinable(ClothesDye, state.values.defaultClothesDyeID);
   }
 
   public getHairDye(): HairDye {
     if (this.hasHairDyeItemInstance()) {
       return this.hairDyeItemInstance.item.hairDye;
     }
-    const defaultHairDye: [string, HairDye] | undefined = Array.from(
-      getDefinables(HairDye),
-    ).find((hairDye: [string, HairDye]): boolean => hairDye[1].isDefault);
-    if (typeof defaultHairDye === "undefined") {
-      throw new Error("Default hair dye is undefined");
+    if (state.values.defaultHairDyeID === null) {
+      throw new Error("Default hair dye is null");
     }
-    return defaultHairDye[1];
+    return getDefinable(HairDye, state.values.defaultHairDyeID);
   }
 
   public getMask(): Mask {
     if (this.hasMaskItemInstance()) {
       return this.maskItemInstance.item.mask;
     }
-    const defaultMask: [string, Mask] | undefined = Array.from(
-      getDefinables(Mask),
-    ).find((mask: [string, Mask]): boolean => mask[1].isDefault);
-    if (typeof defaultMask === "undefined") {
-      throw new Error("Default mask is undefined");
+    if (state.values.defaultMaskID === null) {
+      throw new Error("Default mask is null");
     }
-    return defaultMask[1];
+    return getDefinable(Mask, state.values.defaultMaskID);
   }
 
   public getOutfit(): Outfit {
     if (this.hasOutfitItemInstance()) {
       return this.outfitItemInstance.item.outfit;
     }
-    const defaultOutfit: [string, Outfit] | undefined = Array.from(
-      getDefinables(Outfit),
-    ).find((outfit: [string, Outfit]): boolean => outfit[1].isDefault);
-    if (typeof defaultOutfit === "undefined") {
-      throw new Error("Default mask is undefined");
+    if (state.values.defaultOutfitID === null) {
+      throw new Error("Default outfit is null");
     }
-    return defaultOutfit[1];
+    return getDefinable(Outfit, state.values.defaultOutfitID);
   }
 
   private hasClothesDyeItemInstance(): boolean {

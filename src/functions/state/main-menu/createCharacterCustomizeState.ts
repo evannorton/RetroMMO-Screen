@@ -82,6 +82,5 @@ export const createCharacterCustomizeState = (
       outfitItemID: outfitItem[0],
       skinColorID: skinColor[0],
     });
-  console.log(state);
   return state;
 };

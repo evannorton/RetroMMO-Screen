@@ -25,6 +25,7 @@ import { Item } from "../classes/Item";
 import { Mask } from "../classes/Mask";
 import { Outfit } from "../classes/Outfit";
 import { SkinColor } from "../classes/SkinColor";
+import { getDefinables } from "../definables";
 import { makeHTTPRequest } from "pixel-pigeon";
 import { state } from "../state";
 
@@ -251,4 +252,36 @@ export const loadGameData = async (): Promise<void> => {
       }
     }
   }
+  const defaultClothesDye: [string, ClothesDye] | undefined = Array.from(
+    getDefinables(ClothesDye),
+  ).find(
+    (clothesDye: [string, ClothesDye]): boolean => clothesDye[1].isDefault,
+  );
+  if (typeof defaultClothesDye === "undefined") {
+    throw new Error("Default clothes dye is undefined");
+  }
+  const defaultHairDye: [string, HairDye] | undefined = Array.from(
+    getDefinables(HairDye),
+  ).find((hairDye: [string, HairDye]): boolean => hairDye[1].isDefault);
+  if (typeof defaultHairDye === "undefined") {
+    throw new Error("Default hair dye is undefined");
+  }
+  const defaultMask: [string, Mask] | undefined = Array.from(
+    getDefinables(Mask),
+  ).find((mask: [string, Mask]): boolean => mask[1].isDefault);
+  if (typeof defaultMask === "undefined") {
+    throw new Error("Default mask is undefined");
+  }
+  const defaultOutfit: [string, Outfit] | undefined = Array.from(
+    getDefinables(Outfit),
+  ).find((outfit: [string, Outfit]): boolean => outfit[1].isDefault);
+  if (typeof defaultOutfit === "undefined") {
+    throw new Error("Default outfit is undefined");
+  }
+  state.setValues({
+    defaultClothesDyeID: defaultClothesDye[1].id,
+    defaultHairDyeID: defaultHairDye[1].id,
+    defaultMaskID: defaultMask[1].id,
+    defaultOutfitID: defaultOutfit[1].id,
+  });
 };

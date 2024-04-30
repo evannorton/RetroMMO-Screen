@@ -26,6 +26,10 @@ export interface BattleStateSchema {}
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
   characterIDs: string[];
+  defaultClothesDyeID: string | null;
+  defaultHairDyeID: string | null;
+  defaultMaskID: string | null;
+  defaultOutfitID: string | null;
   mainMenuState: State<MainMenuStateSchema> | null;
   serverURL: string | null;
   worldState: State<WorldStateSchema> | null;
@@ -34,6 +38,10 @@ interface StateSchema {
 export const state: State<StateSchema> = new State<StateSchema>({
   battleState: null,
   characterIDs: [],
+  defaultClothesDyeID: null,
+  defaultHairDyeID: null,
+  defaultMaskID: null,
+  defaultOutfitID: null,
   mainMenuState: null,
   serverURL: null,
   worldState: null,
