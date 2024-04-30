@@ -24,11 +24,11 @@ export class Mask extends Definable {
     throw new Error(this.getAccessorErrorMessage("headCosmetic"));
   }
 
-  public canClassEquip(classID: string): boolean {
-    return this._classIDs.includes(classID);
-  }
-
   public get isDefault(): boolean {
     return this._isDefault ?? false;
+  }
+
+  public canClassEquip(classID: string): boolean {
+    return this._classIDs.includes(classID);
   }
 }
