@@ -10,8 +10,8 @@ export class HeadCosmetic extends Definable {
   private readonly _frontImagePaths: Record<string, string | undefined>;
   public constructor(options: HeadCosmeticOptions) {
     super(options.id);
-    this._backImagePaths = options.definition.backImageSourcesIDs;
-    this._frontImagePaths = options.definition.frontImageSourcesIDs;
+    this._backImagePaths = options.definition.backImageSourceIDs;
+    this._frontImagePaths = options.definition.frontImageSourceIDs;
   }
 
   public get backImagePaths(): Record<string, string | undefined> {

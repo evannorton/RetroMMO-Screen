@@ -55,7 +55,8 @@ export const createCharacterCustomizeState = (
   ).find(
     (loopedItem: [string, Item]): boolean =>
       typeof loopedItem[1].characterCustomizeMaskOrder !== "undefined" &&
-      loopedItem[1].characterCustomizeMaskOrder === 0,
+      loopedItem[1].characterCustomizeMaskOrder === 0 &&
+      loopedItem[1].mask.canClassEquip(options.classID),
   );
   if (typeof maskItem === "undefined") {
     throw new Error("Mask item is undefined");
@@ -65,7 +66,8 @@ export const createCharacterCustomizeState = (
   ).find(
     (loopedItem: [string, Item]): boolean =>
       typeof loopedItem[1].characterCustomizeOutfitOrder !== "undefined" &&
-      loopedItem[1].characterCustomizeOutfitOrder === 0,
+      loopedItem[1].characterCustomizeOutfitOrder === 0 &&
+      loopedItem[1].outfit.canClassEquip(options.classID),
   );
   if (typeof outfitItem === "undefined") {
     throw new Error("Outfit item is undefined");

@@ -9,7 +9,7 @@ export class BodyCosmetic extends Definable {
   private readonly _imagePaths: Record<string, string>;
   public constructor(options: BodyCosmeticOptions) {
     super(options.id);
-    this._imagePaths = options.definition.imageSourcesIDs;
+    this._imagePaths = options.definition.imageSourceIDs;
   }
 
   public get imagePaths(): Record<string, string> {
