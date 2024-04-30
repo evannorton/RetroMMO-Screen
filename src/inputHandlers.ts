@@ -1,4 +1,8 @@
-import { createInputCollection, createInputPressHandler, takeScreenshot } from "pixel-pigeon";
+import {
+  createInputCollection,
+  createInputPressHandler,
+  takeScreenshot,
+} from "pixel-pigeon";
 
 export const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
