@@ -117,12 +117,12 @@ export const createCharacterCreateUI = (): void => {
       });
       // Class player sprite
       createPlayerSprite({
-        clothesDyeItemID: sortedClass.defaultClothesDyeItem.id,
+        clothesDyeID: sortedClass.defaultClothesDyeItem.clothesDye.id,
         condition,
         figureID: sortedClass.defaultFigure.id,
-        hairDyeItemID: sortedClass.defaultHairDyeItem.id,
-        maskItemID: sortedClass.defaultMaskItem.id,
-        outfitItemID: sortedClass.defaultOutfitItem.id,
+        hairDyeID: sortedClass.defaultHairDyeItem.hairDye.id,
+        maskID: sortedClass.defaultMaskItem.mask.id,
+        outfitID: sortedClass.defaultOutfitItem.outfit.id,
         skinColorID: sortedClass.defaultSkinColor.id,
         x: 48 + sortedClassIndex * 96,
         y: 74,

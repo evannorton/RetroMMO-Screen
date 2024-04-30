@@ -172,12 +172,12 @@ export const createCharacterSelectUI = (): void => {
     });
     // Character sprite
     createPlayerSprite({
-      clothesDyeItemID: (): string => getCharacter().getClothesDyeItem().id,
+      clothesDyeID: (): string => getCharacter().getClothesDye().id,
       condition: characterCondition,
       figureID: (): string => getCharacter().figure.id,
-      hairDyeItemID: (): string => getCharacter().getHairDyeItem().id,
-      maskItemID: (): string => getCharacter().getMaskItem().id,
-      outfitItemID: (): string => getCharacter().getOutfitItem().id,
+      hairDyeID: (): string => getCharacter().getHairDye().id,
+      maskID: (): string => getCharacter().getMask().id,
+      outfitID: (): string => getCharacter().getOutfit().id,
       skinColorID: (): string => getCharacter().skinColor.id,
       x: i % 2 === 0 ? 33 : 169,
       y: 69 + 42 * Math.floor(i / 2),

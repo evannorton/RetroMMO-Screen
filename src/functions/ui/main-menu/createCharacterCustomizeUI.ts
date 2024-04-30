@@ -7,6 +7,7 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
+import { Item } from "../../../classes/Item";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
@@ -104,45 +105,24 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Preview sprite
   createPlayerSprite({
-    clothesDyeItemID: (): string =>
-      getCharacterCustomizeState().values.clothesDyeItemID,
+    clothesDyeID: (): string =>
+      getDefinable(Item, getCharacterCustomizeState().values.clothesDyeItemID)
+        .clothesDye.id,
     condition,
     figureID: (): string => getCharacterCustomizeState().values.figureID,
-    hairDyeItemID: (): string =>
-      getCharacterCustomizeState().values.hairDyeItemID,
-    maskItemID: (): string => getCharacterCustomizeState().values.maskItemID,
-    outfitItemID: (): string =>
-      getCharacterCustomizeState().values.outfitItemID,
+    hairDyeID: (): string =>
+      getDefinable(Item, getCharacterCustomizeState().values.hairDyeItemID)
+        .hairDye.id,
+    maskID: (): string =>
+      getDefinable(Item, getCharacterCustomizeState().values.maskItemID).mask
+        .id,
+    outfitID: (): string =>
+      getDefinable(Item, getCharacterCustomizeState().values.outfitItemID)
+        .outfit.id,
     skinColorID: (): string => getCharacterCustomizeState().values.skinColorID,
     x: 144,
     y: 74,
   });
-  // new PlayerSprite(
-  //   "character-customize",
-  //   (player: Player): PlayerSpriteOptions => {
-  //     const hairDyeItem: Item = player.characterCustomizeHairDyeItem;
-  //     const maskItem: Item = player.characterCustomizeMaskItem;
-  //     const outfitItem: Item = player.characterCustomizeOutfitItem;
-  //     const hairDye: HairDye = hairDyeItem.hairDye;
-  //     const mask: Mask = maskItem.mask;
-  //     const outfit: Outfit = outfitItem.outfit;
-  //     const skinColor: SkinColor = player.characterCustomizeSkinColor;
-  //     return {
-  //       clothesDyeSlug: player.characterCustomizeClothesDyeItem.clothesDye.slug,
-  //       direction: player.characterCustomizeDirection,
-  //       figureSlug: player.characterCustomizeFigure.slug,
-  //       hairDyeSlug: hairDye.slug,
-  //       maskSlug: mask.slug,
-  //       outfitSlug: outfit.slug,
-  //       renewing: false,
-  //       skinColorSlug: skinColor.slug,
-  //       x: 144,
-  //       y: 74,
-  //     };
-  //   },
-  //   (player: Player): boolean => player.isAtCharacterCustomize,
-  //   true,
-  // );
 
   // // Preview left arrow
   // new Picture(

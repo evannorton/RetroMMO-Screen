@@ -1,4 +1,3 @@
-import { BodyCosmetic } from "../../../classes/BodyCosmetic";
 import { ClothesDye } from "../../../classes/ClothesDye";
 import {
   CreateSpriteOptionsRecolor,
@@ -6,103 +5,55 @@ import {
   createSprite,
 } from "pixel-pigeon";
 import { HairDye } from "../../../classes/HairDye";
-import { HeadCosmetic } from "../../../classes/HeadCosmetic";
-import { Item } from "../../../classes/Item";
 import { Mask } from "../../../classes/Mask";
+import { Outfit } from "../../../classes/Outfit";
 import { SkinColor } from "../../../classes/SkinColor";
 import { getDefinable } from "../../../definables";
 
 export interface CreatePlayerSpriteOptions {
   condition?: () => boolean;
-  clothesDyeItemID: Scriptable<string>;
+  clothesDyeID: Scriptable<string>;
   figureID: Scriptable<string>;
-  hairDyeItemID: Scriptable<string>;
-  maskItemID: Scriptable<string>;
-  outfitItemID: Scriptable<string>;
+  hairDyeID: Scriptable<string>;
+  maskID: Scriptable<string>;
+  outfitID: Scriptable<string>;
   skinColorID: Scriptable<string>;
   x: Scriptable<number>;
   y: Scriptable<number>;
 }
 export const createPlayerSprite = ({
   condition,
-  clothesDyeItemID,
+  clothesDyeID,
   figureID,
-  hairDyeItemID,
-  maskItemID,
-  outfitItemID,
+  hairDyeID,
+  maskID,
+  outfitID,
   skinColorID,
   x,
   y,
 }: CreatePlayerSpriteOptions): void => {
-  const getMaskItem = (): Item =>
+  const getClothesDye = (): ClothesDye =>
     getDefinable(
-      Item,
-      typeof maskItemID === "function" ? maskItemID() : maskItemID,
+      ClothesDye,
+      typeof clothesDyeID === "function" ? clothesDyeID() : clothesDyeID,
     );
-  const getMask = (): Mask => {
-    const maskItem: Item = getMaskItem();
-    if (typeof maskItem.mask === "undefined") {
-      throw new Error("Mask is undefined");
-    }
-    return maskItem.mask;
-  };
-  const getHeadCosmetic = (): HeadCosmetic => {
-    const mask: Mask = getMask();
-    if (typeof mask.headCosmetic === "undefined") {
-      throw new Error("Head cosmetic is undefined");
-    }
-    return mask.headCosmetic;
-  };
-  const getOutfitItem = (): Item =>
+  const getHairDye = (): HairDye =>
     getDefinable(
-      Item,
-      typeof outfitItemID === "function" ? outfitItemID() : outfitItemID,
+      HairDye,
+      typeof hairDyeID === "function" ? hairDyeID() : hairDyeID,
     );
-  const getOutfit = (): Item => {
-    const outfitItem: Item = getOutfitItem();
-    if (typeof outfitItem.outfit === "undefined") {
-      throw new Error("Outfit is undefined");
-    }
-    return outfitItem;
-  };
-  const getBodyCosmetic = (): BodyCosmetic => {
-    const outfitItem: Item = getOutfit();
-    if (typeof outfitItem.outfit?.bodyCosmetic === "undefined") {
-      throw new Error("Body cosmetic is undefined");
-    }
-    return outfitItem.outfit.bodyCosmetic;
-  };
+  const getMask = (): Mask =>
+    getDefinable(Mask, typeof maskID === "function" ? maskID() : maskID);
+  const getOutfit = (): Outfit =>
+    getDefinable(
+      Outfit,
+      typeof outfitID === "function" ? outfitID() : outfitID,
+    );
   const getSkinColor = (): SkinColor =>
     getDefinable(
       SkinColor,
       typeof skinColorID === "function" ? skinColorID() : skinColorID,
     );
-  const getHairDyeItem = (): Item =>
-    getDefinable(
-      Item,
-      typeof hairDyeItemID === "function" ? hairDyeItemID() : hairDyeItemID,
-    );
-  const getHairDye = (): HairDye => {
-    const hairDyeItem: Item = getHairDyeItem();
-    if (typeof hairDyeItem.hairDye === "undefined") {
-      throw new Error("Hair dye is undefined");
-    }
-    return hairDyeItem.hairDye;
-  };
-  const getClothesDyeItem = (): Item =>
-    getDefinable(
-      Item,
-      typeof clothesDyeItemID === "function"
-        ? clothesDyeItemID()
-        : clothesDyeItemID,
-    );
-  const getClothesDye = (): ClothesDye => {
-    const clothesDyeItem: Item = getClothesDyeItem();
-    if (typeof clothesDyeItem.clothesDye === "undefined") {
-      throw new Error("Clothes dye is undefined");
-    }
-    return clothesDyeItem.clothesDye;
-  };
   const recolors = (): CreateSpriteOptionsRecolor[] => {
     const clothesDye: ClothesDye = getClothesDye();
     const hairDye: HairDye = getHairDye();
@@ -203,7 +154,7 @@ export const createPlayerSprite = ({
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
           return (
-            typeof getHeadCosmetic().backImagePaths[
+            typeof getMask().headCosmetic.backImagePaths[
               typeof figureID === "function" ? figureID() : figureID
             ] !== "undefined"
           );
@@ -214,7 +165,7 @@ export const createPlayerSprite = ({
       y,
     },
     imagePath: (): string =>
-      getHeadCosmetic().backImagePaths[
+      getMask().headCosmetic.backImagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
 
@@ -269,7 +220,7 @@ export const createPlayerSprite = ({
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
           return (
-            typeof getBodyCosmetic().imagePaths[
+            typeof getOutfit().bodyCosmetic.imagePaths[
               typeof figureID === "function" ? figureID() : figureID
             ] !== "undefined"
           );
@@ -280,7 +231,7 @@ export const createPlayerSprite = ({
       y,
     },
     imagePath: (): string =>
-      getBodyCosmetic().imagePaths[
+      getOutfit().bodyCosmetic.imagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ],
     recolors,
@@ -334,7 +285,7 @@ export const createPlayerSprite = ({
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
           return (
-            typeof getHeadCosmetic().frontImagePaths[
+            typeof getMask().headCosmetic.frontImagePaths[
               typeof figureID === "function" ? figureID() : figureID
             ] !== "undefined"
           );
@@ -345,7 +296,7 @@ export const createPlayerSprite = ({
       y,
     },
     imagePath: (): string =>
-      getHeadCosmetic().frontImagePaths[
+      getMask().headCosmetic.frontImagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
     recolors,

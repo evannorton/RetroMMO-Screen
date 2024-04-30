@@ -1,15 +1,12 @@
 import { Class } from "./Class";
-import { Definable, getDefinable } from "../definables";
+import { ClothesDye } from "./ClothesDye";
+import { Definable, getDefinable, getDefinables } from "../definables";
 import { Figure } from "./Figure";
-import { Item } from "./Item";
+import { HairDye } from "./HairDye";
 import { ItemInstance } from "./ItemInstance";
+import { Mask } from "./Mask";
+import { Outfit } from "./Outfit";
 import { SkinColor } from "./SkinColor";
-import {
-  defaultClothesDyeItemID,
-  defaultHairDyeItemID,
-  defaultMaskItemID,
-  defaultOutfitItemID,
-} from "../constants/defaultVanities";
 
 export interface CharacterOptions {
   classID: string;
@@ -88,32 +85,58 @@ export class Character extends Definable {
     throw new Error(this.getAccessorErrorMessage("outfitItemInstance"));
   }
 
-  public getClothesDyeItem(): Item {
+  public getClothesDye(): ClothesDye {
     if (this.hasClothesDyeItemInstance()) {
-      return this.clothesDyeItemInstance.item;
+      return this.clothesDyeItemInstance.item.clothesDye;
     }
-    return getDefinable(Item, defaultClothesDyeItemID);
+    const defaultClothesDye: [string, ClothesDye] | undefined = Array.from(
+      getDefinables(ClothesDye),
+    ).find(
+      (clothesDye: [string, ClothesDye]): boolean => clothesDye[1].isDefault,
+    );
+    if (typeof defaultClothesDye === "undefined") {
+      throw new Error("Default clothes dye is undefined");
+    }
+    return defaultClothesDye[1];
   }
 
-  public getHairDyeItem(): Item {
+  public getHairDye(): HairDye {
     if (this.hasHairDyeItemInstance()) {
-      return this.hairDyeItemInstance.item;
+      return this.hairDyeItemInstance.item.hairDye;
     }
-    return getDefinable(Item, defaultHairDyeItemID);
+    const defaultHairDye: [string, HairDye] | undefined = Array.from(
+      getDefinables(HairDye),
+    ).find((hairDye: [string, HairDye]): boolean => hairDye[1].isDefault);
+    if (typeof defaultHairDye === "undefined") {
+      throw new Error("Default hair dye is undefined");
+    }
+    return defaultHairDye[1];
   }
 
-  public getMaskItem(): Item {
+  public getMask(): Mask {
     if (this.hasMaskItemInstance()) {
-      return this.maskItemInstance.item;
+      return this.maskItemInstance.item.mask;
     }
-    return getDefinable(Item, defaultMaskItemID);
+    const defaultMask: [string, Mask] | undefined = Array.from(
+      getDefinables(Mask),
+    ).find((mask: [string, Mask]): boolean => mask[1].isDefault);
+    if (typeof defaultMask === "undefined") {
+      throw new Error("Default mask is undefined");
+    }
+    return defaultMask[1];
   }
 
-  public getOutfitItem(): Item {
+  public getOutfit(): Outfit {
     if (this.hasOutfitItemInstance()) {
-      return this.outfitItemInstance.item;
+      return this.outfitItemInstance.item.outfit;
     }
-    return getDefinable(Item, defaultOutfitItemID);
+    const defaultOutfit: [string, Outfit] | undefined = Array.from(
+      getDefinables(Outfit),
+    ).find((outfit: [string, Outfit]): boolean => outfit[1].isDefault);
+    if (typeof defaultOutfit === "undefined") {
+      throw new Error("Default mask is undefined");
+    }
+    return defaultOutfit[1];
   }
 
   private hasClothesDyeItemInstance(): boolean {
