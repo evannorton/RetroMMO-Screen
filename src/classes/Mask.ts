@@ -13,10 +13,10 @@ export class Mask extends Definable {
     this._headCosmeticID = options.definition.headCosmeticID;
   }
 
-  public get headCosmetic(): HeadCosmetic | undefined {
+  public get headCosmetic(): HeadCosmetic {
     if (typeof this._headCosmeticID !== "undefined") {
       return getDefinable(HeadCosmetic, this._headCosmeticID);
     }
-    return undefined;
+    throw new Error(this.getAccessorErrorMessage("headCosmetic"));
   }
 }

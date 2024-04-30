@@ -1,3 +1,1 @@
-export const tick = (): void => {
-  console.log("tick");
-};
+export const tick = (): void => {};

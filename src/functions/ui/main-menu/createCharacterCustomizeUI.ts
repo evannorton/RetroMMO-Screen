@@ -9,6 +9,7 @@ import {
 } from "pixel-pigeon";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
+import { createPlayerSprite } from "../components/createPlayerSprite";
 import { getCharacterCustomizeState } from "../../state/main-menu/getCharacterCustomizeState";
 import { getDefinable } from "../../../definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
@@ -101,29 +102,21 @@ export const createCharacterCustomizeUI = (): void => {
     size: 1,
     text: (): CreateLabelOptionsText => ({ value: getClass().description }),
   });
-
-  // // Preview left arrow
-  // new Picture(
-  //   "character-customize/preview/left",
-  //   (): PictureOptions => ({
-  //     grayscale: false,
-  //     height: 14,
-  //     imageSourceSlug: "arrows/left",
-  //     recolors: [],
-  //     sourceHeight: 14,
-  //     sourceWidth: 14,
-  //     sourceX: 0,
-  //     sourceY: 0,
-  //     width: 14,
-  //     x: 98,
-  //     y: 75,
-  //   }),
-  //   (player: Player): boolean => player.isAtCharacterCustomize,
-  //   (player: Player): void => {
-  //     player.rotateCharacterCustomizePreview(-1);
-  //   },
-  // );
-  // // Preview sprite
+  // Preview sprite
+  createPlayerSprite({
+    clothesDyeItemID: (): string =>
+      getCharacterCustomizeState().values.clothesDyeItemID,
+    condition,
+    figureID: (): string => getCharacterCustomizeState().values.figureID,
+    hairDyeItemID: (): string =>
+      getCharacterCustomizeState().values.hairDyeItemID,
+    maskItemID: (): string => getCharacterCustomizeState().values.maskItemID,
+    outfitItemID: (): string =>
+      getCharacterCustomizeState().values.outfitItemID,
+    skinColorID: (): string => getCharacterCustomizeState().values.skinColorID,
+    x: 144,
+    y: 74,
+  });
   // new PlayerSprite(
   //   "character-customize",
   //   (player: Player): PlayerSpriteOptions => {
@@ -149,6 +142,28 @@ export const createCharacterCustomizeUI = (): void => {
   //   },
   //   (player: Player): boolean => player.isAtCharacterCustomize,
   //   true,
+  // );
+
+  // // Preview left arrow
+  // new Picture(
+  //   "character-customize/preview/left",
+  //   (): PictureOptions => ({
+  //     grayscale: false,
+  //     height: 14,
+  //     imageSourceSlug: "arrows/left",
+  //     recolors: [],
+  //     sourceHeight: 14,
+  //     sourceWidth: 14,
+  //     sourceX: 0,
+  //     sourceY: 0,
+  //     width: 14,
+  //     x: 98,
+  //     y: 75,
+  //   }),
+  //   (player: Player): boolean => player.isAtCharacterCustomize,
+  //   (player: Player): void => {
+  //     player.rotateCharacterCustomizePreview(-1);
+  //   },
   // );
   // // Preview right arrow
   // new Picture(

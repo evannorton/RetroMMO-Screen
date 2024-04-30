@@ -50,31 +50,31 @@ export class Item extends Definable {
     return this._characterCustomizeOutfitOrder;
   }
 
-  public get clothesDye(): ClothesDye | undefined {
+  public get clothesDye(): ClothesDye {
     if (typeof this._clothesDyeID !== "undefined") {
       return getDefinable(ClothesDye, this._clothesDyeID);
     }
-    return undefined;
+    throw new Error(this.getAccessorErrorMessage("clothesDye"));
   }
 
-  public get hairDye(): HairDye | undefined {
+  public get hairDye(): HairDye {
     if (typeof this._hairDyeID !== "undefined") {
       return getDefinable(HairDye, this._hairDyeID);
     }
-    return undefined;
+    throw new Error(this.getAccessorErrorMessage("hairDye"));
   }
 
-  public get mask(): Mask | undefined {
+  public get mask(): Mask {
     if (typeof this._maskID !== "undefined") {
       return getDefinable(Mask, this._maskID);
     }
-    return undefined;
+    throw new Error(this.getAccessorErrorMessage("mask"));
   }
 
-  public get outfit(): Outfit | undefined {
+  public get outfit(): Outfit {
     if (typeof this._outfitID !== "undefined") {
       return getDefinable(Outfit, this._outfitID);
     }
-    return undefined;
+    throw new Error(this.getAccessorErrorMessage("outfit"));
   }
 }

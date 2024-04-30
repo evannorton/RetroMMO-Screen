@@ -48,71 +48,87 @@ export class Character extends Definable {
     return getDefinable(Class, this._classID);
   }
 
-  public get clothesDyeItem(): Item {
-    if (this.clothesDyeItemInstance !== null) {
-      return this.clothesDyeItemInstance.item;
-    }
-    return getDefinable(Item, defaultClothesDyeItemID);
-  }
-
   public get figure(): Figure {
     return getDefinable(Figure, this._figureID);
-  }
-
-  public get hairDyeItem(): Item {
-    if (this.hairDyeItemInstance !== null) {
-      return this.hairDyeItemInstance.item;
-    }
-    return getDefinable(Item, defaultHairDyeItemID);
   }
 
   public get level(): number {
     return this._level;
   }
 
-  public get maskItem(): Item {
-    if (this.maskItemInstance !== null) {
+  public get skinColor(): SkinColor {
+    return getDefinable(SkinColor, this._skinColorID);
+  }
+
+  private get clothesDyeItemInstance(): ItemInstance {
+    if (this._clothesDyeItemInstanceID !== null) {
+      return getDefinable(ItemInstance, this._clothesDyeItemInstanceID);
+    }
+    throw new Error(this.getAccessorErrorMessage("clothesDyeItemInstance"));
+  }
+
+  private get hairDyeItemInstance(): ItemInstance {
+    if (this._hairDyeItemInstanceID !== null) {
+      return getDefinable(ItemInstance, this._hairDyeItemInstanceID);
+    }
+    throw new Error(this.getAccessorErrorMessage("hairDyeItemInstance"));
+  }
+
+  private get maskItemInstance(): ItemInstance {
+    if (this._maskItemInstanceID !== null) {
+      return getDefinable(ItemInstance, this._maskItemInstanceID);
+    }
+    throw new Error(this.getAccessorErrorMessage("maskItemInstance"));
+  }
+
+  private get outfitItemInstance(): ItemInstance {
+    if (this._outfitItemInstanceID !== null) {
+      return getDefinable(ItemInstance, this._outfitItemInstanceID);
+    }
+    throw new Error(this.getAccessorErrorMessage("outfitItemInstance"));
+  }
+
+  public getClothesDyeItem(): Item {
+    if (this.hasClothesDyeItemInstance()) {
+      return this.clothesDyeItemInstance.item;
+    }
+    return getDefinable(Item, defaultClothesDyeItemID);
+  }
+
+  public getHairDyeItem(): Item {
+    if (this.hasHairDyeItemInstance()) {
+      return this.hairDyeItemInstance.item;
+    }
+    return getDefinable(Item, defaultHairDyeItemID);
+  }
+
+  public getMaskItem(): Item {
+    if (this.hasMaskItemInstance()) {
       return this.maskItemInstance.item;
     }
     return getDefinable(Item, defaultMaskItemID);
   }
 
-  public get outfitItem(): Item {
-    if (this.outfitItemInstance !== null) {
+  public getOutfitItem(): Item {
+    if (this.hasOutfitItemInstance()) {
       return this.outfitItemInstance.item;
     }
     return getDefinable(Item, defaultOutfitItemID);
   }
 
-  private get clothesDyeItemInstance(): ItemInstance | null {
-    if (this._clothesDyeItemInstanceID !== null) {
-      return getDefinable(ItemInstance, this._clothesDyeItemInstanceID);
-    }
-    return null;
+  private hasClothesDyeItemInstance(): boolean {
+    return this._clothesDyeItemInstanceID !== null;
   }
 
-  private get hairDyeItemInstance(): ItemInstance | null {
-    if (this._hairDyeItemInstanceID !== null) {
-      return getDefinable(ItemInstance, this._hairDyeItemInstanceID);
-    }
-    return null;
+  private hasHairDyeItemInstance(): boolean {
+    return this._hairDyeItemInstanceID !== null;
   }
 
-  private get maskItemInstance(): ItemInstance | null {
-    if (this._maskItemInstanceID !== null) {
-      return getDefinable(ItemInstance, this._maskItemInstanceID);
-    }
-    return null;
+  private hasMaskItemInstance(): boolean {
+    return this._maskItemInstanceID !== null;
   }
 
-  private get outfitItemInstance(): ItemInstance | null {
-    if (this._outfitItemInstanceID !== null) {
-      return getDefinable(ItemInstance, this._outfitItemInstanceID);
-    }
-    return null;
-  }
-
-  public get skinColor(): SkinColor {
-    return getDefinable(SkinColor, this._skinColorID);
+  private hasOutfitItemInstance(): boolean {
+    return this._outfitItemInstanceID !== null;
   }
 }

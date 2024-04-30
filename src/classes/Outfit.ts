@@ -13,10 +13,10 @@ export class Outfit extends Definable {
     this._bodyCosmeticID = options.definition.bodyCosmeticID;
   }
 
-  public get bodyCosmetic(): BodyCosmetic | undefined {
+  public get bodyCosmetic(): BodyCosmetic {
     if (typeof this._bodyCosmeticID !== "undefined") {
       return getDefinable(BodyCosmetic, this._bodyCosmeticID);
     }
-    return undefined;
+    throw new Error(this.getAccessorErrorMessage("bodyCosmetic"));
   }
 }
