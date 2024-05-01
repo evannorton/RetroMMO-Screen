@@ -16,6 +16,7 @@ export class Class extends Definable {
   private readonly _characterCustomizeMaskItemIDs: string[] = [];
   private readonly _characterCustomizeOutfitItemIDs: string[] = [];
   private readonly _characterCustomizeSkinColorIDs: string[] = [];
+  private _clothesDyeItemOrderOffset?: [number, number] = undefined;
   private readonly _description: string;
   private readonly _defaultClothesDyeID: string;
   private readonly _defaultFigureID: string;
@@ -83,9 +84,15 @@ export class Class extends Definable {
     indexX: number,
     indexY: number,
   ): Item {
+    if (typeof this._clothesDyeItemOrderOffset === "undefined") {
+      throw new Error(
+        "Attempted to get character customize clothes dye item with no clothes dye item order offset."
+      );
+    }
+    const [offsetX, offsetY]: number[] = this._clothesDyeItemOrderOffset;
     return getDefinable(
       Item,
-      this._characterCustomizeClothesDyeItemIDs[indexX][indexY],
+      this._characterCustomizeClothesDyeItemIDs[indexX + offsetX][indexY + offsetY],
     );
   }
 
@@ -134,6 +141,15 @@ export class Class extends Definable {
           this._characterCustomizeClothesDyeItemIDs[x] = [];
         }
         this._characterCustomizeClothesDyeItemIDs[x][y] = clothesDyeItem.id;
+      }
+    }
+    for (const item of getDefinables(Item).values()) {
+      if (
+        item.id === this._defaultClothesDyeID 
+        && typeof item.characterCustomizeClothesDyeOrder !== "undefined"
+      ) {
+        this._clothesDyeItemOrderOffset = item.characterCustomizeClothesDyeOrder;
+        break;
       }
     }
     for (const hairDyeItem of getDefinables(Item).values()) {
