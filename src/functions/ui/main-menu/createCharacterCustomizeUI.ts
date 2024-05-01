@@ -106,20 +106,43 @@ export const createCharacterCustomizeUI = (): void => {
   // Preview sprite
   createPlayerSprite({
     clothesDyeID: (): string =>
-      getDefinable(Item, getCharacterCustomizeState().values.clothesDyeItemID)
-        .clothesDye.id,
+      getDefinable(
+        Item,
+        getClass().getCharacterCustomizeClothesDyeItem(
+          getCharacterCustomizeState().values.clothesDyeItemPrimaryColorIndex,
+          getCharacterCustomizeState().values.clothesDyeItemSecondaryColorIndex,
+        ).id,
+      ).clothesDye.id,
     condition,
-    figureID: (): string => getCharacterCustomizeState().values.figureID,
+    figureID: (): string =>
+      getClass().getCharacterCustomizeFigure(
+        getCharacterCustomizeState().values.figureIndex,
+      ).id,
     hairDyeID: (): string =>
-      getDefinable(Item, getCharacterCustomizeState().values.hairDyeItemID)
-        .hairDye.id,
+      getDefinable(
+        Item,
+        getClass().getCharacterCustomizeHairDyeItem(
+          getCharacterCustomizeState().values.hairDyeItemIndex,
+        ).id,
+      ).hairDye.id,
     maskID: (): string =>
-      getDefinable(Item, getCharacterCustomizeState().values.maskItemID).mask
-        .id,
+      getDefinable(
+        Item,
+        getClass().getCharacterCustomizeMaskItem(
+          getCharacterCustomizeState().values.maskItemIndex,
+        ).id,
+      ).mask.id,
     outfitID: (): string =>
-      getDefinable(Item, getCharacterCustomizeState().values.outfitItemID)
-        .outfit.id,
-    skinColorID: (): string => getCharacterCustomizeState().values.skinColorID,
+      getDefinable(
+        Item,
+        getClass().getCharacterCustomizeOutfitItem(
+          getCharacterCustomizeState().values.outfitItemIndex,
+        ).id,
+      ).outfit.id,
+    skinColorID: (): string =>
+      getClass().getCharacterCustomizeSkinColor(
+        getCharacterCustomizeState().values.skinColorIndex,
+      ).id,
     x: 144,
     y: 74,
   });

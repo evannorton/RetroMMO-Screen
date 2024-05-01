@@ -1,5 +1,5 @@
 import { ClassDefinition } from "retrommo-types";
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable, getDefinables } from "../definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { SkinColor } from "./SkinColor";
@@ -10,6 +10,12 @@ export interface ClassOptions {
 }
 export class Class extends Definable {
   private readonly _abbreviation: string;
+  private readonly _characterCustomizeClothesDyeItemIDs: string[][] = [];
+  private readonly _characterCustomizeFigureIDs: string[] = [];
+  private readonly _characterCustomizeHairDyeItemIDs: string[] = [];
+  private readonly _characterCustomizeMaskItemIDs: string[] = [];
+  private readonly _characterCustomizeOutfitItemIDs: string[] = [];
+  private readonly _characterCustomizeSkinColorIDs: string[] = [];
   private readonly _description: string;
   private readonly _defaultClothesDyeID: string;
   private readonly _defaultFigureID: string;
@@ -71,5 +77,91 @@ export class Class extends Definable {
 
   public get order(): number {
     return this._order;
+  }
+
+  public getCharacterCustomizeClothesDyeItem(
+    indexX: number,
+    indexY: number,
+  ): Item {
+    return getDefinable(
+      Item,
+      this._characterCustomizeClothesDyeItemIDs[indexX][indexY],
+    );
+  }
+
+  public getCharacterCustomizeFigure(index: number): Figure {
+    return getDefinable(Figure, this._characterCustomizeFigureIDs[index]);
+  }
+
+  public getCharacterCustomizeHairDyeItem(index: number): Item {
+    return getDefinable(Item, this._characterCustomizeHairDyeItemIDs[index]);
+  }
+
+  public getCharacterCustomizeMaskItem(index: number): Item {
+    return getDefinable(Item, this._characterCustomizeMaskItemIDs[index]);
+  }
+
+  public getCharacterCustomizeOutfitItem(index: number): Item {
+    return getDefinable(Item, this._characterCustomizeOutfitItemIDs[index]);
+  }
+
+  public getCharacterCustomizeSkinColor(index: number): SkinColor {
+    return getDefinable(SkinColor, this._characterCustomizeSkinColorIDs[index]);
+  }
+
+  public populateCharacterCustomizeOptions(): void {
+    for (const skinColor of getDefinables(SkinColor).values()) {
+      if (typeof skinColor.characterCustomizeOrder !== "undefined") {
+        this._characterCustomizeSkinColorIDs[
+          skinColor.characterCustomizeOrder
+        ] = skinColor.id;
+      }
+    }
+    for (const figure of getDefinables(Figure).values()) {
+      if (typeof figure.characterCustomizeOrder !== "undefined") {
+        this._characterCustomizeFigureIDs[figure.characterCustomizeOrder] =
+          figure.id;
+      }
+    }
+    for (const clothesDyeItem of getDefinables(Item).values()) {
+      if (
+        typeof clothesDyeItem.characterCustomizeClothesDyeOrder !== "undefined"
+      ) {
+        const [x, y] = clothesDyeItem.characterCustomizeClothesDyeOrder;
+        if (
+          typeof this._characterCustomizeClothesDyeItemIDs[x] === "undefined"
+        ) {
+          this._characterCustomizeClothesDyeItemIDs[x] = [];
+        }
+        this._characterCustomizeClothesDyeItemIDs[x][y] = clothesDyeItem.id;
+      }
+    }
+    for (const hairDyeItem of getDefinables(Item).values()) {
+      if (typeof hairDyeItem.characterCustomizeHairDyeOrder !== "undefined") {
+        this._characterCustomizeHairDyeItemIDs[
+          hairDyeItem.characterCustomizeHairDyeOrder
+        ] = hairDyeItem.id;
+      }
+    }
+    for (const maskItem of getDefinables(Item).values()) {
+      if (
+        typeof maskItem.characterCustomizeMaskOrder !== "undefined" &&
+        maskItem.mask.canClassEquip(this._id)
+      ) {
+        this._characterCustomizeMaskItemIDs[
+          maskItem.characterCustomizeMaskOrder
+        ] = maskItem.id;
+      }
+    }
+    for (const outfitItem of getDefinables(Item).values()) {
+      if (
+        typeof outfitItem.characterCustomizeOutfitOrder !== "undefined" &&
+        outfitItem.outfit.canClassEquip(this._id)
+      ) {
+        this._characterCustomizeOutfitItemIDs[
+          outfitItem.characterCustomizeOutfitOrder
+        ] = outfitItem.id;
+      }
+    }
   }
 }

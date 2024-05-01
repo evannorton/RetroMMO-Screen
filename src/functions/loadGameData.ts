@@ -284,4 +284,7 @@ export const loadGameData = async (): Promise<void> => {
     defaultMaskID: defaultMask[1].id,
     defaultOutfitID: defaultOutfit[1].id,
   });
+  for (const classObject of getDefinables(Class).values()) {
+    classObject.populateCharacterCustomizeOptions();
+  }
 };

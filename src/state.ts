@@ -2,12 +2,13 @@ import { State } from "pixel-pigeon";
 
 export interface CharacterCustomizeStateSchema {
   classID: string;
-  clothesDyeItemID: string;
-  figureID: string;
-  hairDyeItemID: string;
-  maskItemID: string;
-  outfitItemID: string;
-  skinColorID: string;
+  clothesDyeItemPrimaryColorIndex: number;
+  clothesDyeItemSecondaryColorIndex: number;
+  figureIndex: number;
+  hairDyeItemIndex: number;
+  maskItemIndex: number;
+  outfitItemIndex: number;
+  skinColorIndex: number;
 }
 export interface CharacterCreateStateSchema {}
 export interface CharacterSelectStateSchema {
