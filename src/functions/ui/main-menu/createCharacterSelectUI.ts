@@ -11,6 +11,7 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
+import { Direction } from "retrommo-types";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
@@ -174,6 +175,7 @@ export const createCharacterSelectUI = (): void => {
     createPlayerSprite({
       clothesDyeID: (): string => getCharacter().getClothesDye().id,
       condition: characterCondition,
+      direction: Direction.Down,
       figureID: (): string => getCharacter().figure.id,
       hairDyeID: (): string => getCharacter().getHairDye().id,
       maskID: (): string => getCharacter().getMask().id,

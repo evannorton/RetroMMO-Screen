@@ -1,4 +1,5 @@
 import { Class } from "../../../classes/Class";
+import { Direction } from "retrommo-types";
 import {
   createButton,
   createLabel,
@@ -119,6 +120,7 @@ export const createCharacterCreateUI = (): void => {
       createPlayerSprite({
         clothesDyeID: sortedClass.defaultClothesDyeItem.clothesDye.id,
         condition,
+        direction: Direction.Down,
         figureID: sortedClass.defaultFigure.id,
         hairDyeID: sortedClass.defaultHairDyeItem.hairDye.id,
         maskID: sortedClass.defaultMaskItem.mask.id,

@@ -1,9 +1,11 @@
 import { ClothesDye } from "../../../classes/ClothesDye";
 import {
+  CreateSpriteOptionsAnimation,
   CreateSpriteOptionsRecolor,
   Scriptable,
   createSprite,
 } from "pixel-pigeon";
+import { Direction } from "retrommo-types";
 import { HairDye } from "../../../classes/HairDye";
 import { Mask } from "../../../classes/Mask";
 import { Outfit } from "../../../classes/Outfit";
@@ -13,6 +15,7 @@ import { getDefinable } from "../../../definables";
 export interface CreatePlayerSpriteOptions {
   condition?: () => boolean;
   clothesDyeID: Scriptable<string>;
+  direction: Scriptable<Direction>;
   figureID: Scriptable<string>;
   hairDyeID: Scriptable<string>;
   maskID: Scriptable<string>;
@@ -24,6 +27,7 @@ export interface CreatePlayerSpriteOptions {
 export const createPlayerSprite = ({
   condition,
   clothesDyeID,
+  direction,
   figureID,
   hairDyeID,
   maskID,
@@ -105,51 +109,176 @@ export const createPlayerSprite = ({
       },
     ];
   };
+  const animationID: Scriptable<string> = direction;
+  const animations: CreateSpriteOptionsAnimation[] = [
+    {
+      frames: [
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 0,
+          sourceY: 0,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 16,
+          sourceY: 0,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 32,
+          sourceY: 0,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 48,
+          sourceY: 0,
+          width: 16,
+        },
+      ],
+      id: Direction.Down,
+    },
+    {
+      frames: [
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 0,
+          sourceY: 16,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 16,
+          sourceY: 16,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 32,
+          sourceY: 16,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 48,
+          sourceY: 16,
+          width: 16,
+        },
+      ],
+      id: Direction.Left,
+    },
+    {
+      frames: [
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 0,
+          sourceY: 32,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 16,
+          sourceY: 32,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 32,
+          sourceY: 32,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 48,
+          sourceY: 32,
+          width: 16,
+        },
+      ],
+      id: Direction.Right,
+    },
+    {
+      frames: [
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 0,
+          sourceY: 48,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 16,
+          sourceY: 48,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 32,
+          sourceY: 48,
+          width: 16,
+        },
+        {
+          duration: 250,
+          height: 16,
+          sourceHeight: 16,
+          sourceWidth: 16,
+          sourceX: 48,
+          sourceY: 48,
+          width: 16,
+        },
+      ],
+      id: Direction.Up,
+    },
+  ];
   createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 0,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 16,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 32,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 48,
-            sourceY: 0,
-            width: 16,
-          },
-        ],
-        id: "default",
-      },
-    ],
+    animationID,
+    animations,
     coordinates: {
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
@@ -172,50 +301,8 @@ export const createPlayerSprite = ({
     recolors,
   });
   createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 0,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 16,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 32,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 48,
-            sourceY: 0,
-            width: 16,
-          },
-        ],
-        id: "default",
-      },
-    ],
+    animationID,
+    animations,
     coordinates: {
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {
@@ -237,50 +324,8 @@ export const createPlayerSprite = ({
     recolors,
   });
   createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 0,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 16,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 32,
-            sourceY: 0,
-            width: 16,
-          },
-          {
-            duration: 250,
-            height: 16,
-            sourceHeight: 16,
-            sourceWidth: 16,
-            sourceX: 48,
-            sourceY: 0,
-            width: 16,
-          },
-        ],
-        id: "default",
-      },
-    ],
+    animationID,
+    animations,
     coordinates: {
       condition: (): boolean => {
         if (typeof condition === "undefined" || condition()) {

@@ -1,8 +1,11 @@
+import { CharacterCustomizeStateSchema } from "../state";
 import { ClassDefinition } from "retrommo-types";
 import { Definable, getDefinable, getDefinables } from "../definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { SkinColor } from "./SkinColor";
+import { State } from "pixel-pigeon";
+import { getCharacterCustomizeState } from "../functions/state/main-menu/getCharacterCustomizeState";
 
 export interface ClassOptions {
   definition: ClassDefinition;
@@ -42,6 +45,13 @@ export class Class extends Definable {
 
   public get abbreviation(): string {
     return this._abbreviation;
+  }
+
+  public get clothesDyeItemOrderOffset(): [number, number] {
+    if (typeof this._clothesDyeItemOrderOffset !== "undefined") {
+      return this._clothesDyeItemOrderOffset;
+    }
+    throw new Error(this.getAccessorErrorMessage("clothesDyeItemOrderOffset"));
   }
 
   public get description(): string {
@@ -84,17 +94,9 @@ export class Class extends Definable {
     indexX: number,
     indexY: number,
   ): Item {
-    if (typeof this._clothesDyeItemOrderOffset === "undefined") {
-      throw new Error(
-        "Attempted to get character customize clothes dye item with no clothes dye item order offset.",
-      );
-    }
-    const [offsetX, offsetY]: number[] = this._clothesDyeItemOrderOffset;
     return getDefinable(
       Item,
-      this._characterCustomizeClothesDyeItemIDs[indexX + offsetX][
-        indexY + offsetY
-      ],
+      this._characterCustomizeClothesDyeItemIDs[indexX][indexY],
     );
   }
 
@@ -116,6 +118,202 @@ export class Class extends Definable {
 
   public getCharacterCustomizeSkinColor(index: number): SkinColor {
     return getDefinable(SkinColor, this._characterCustomizeSkinColorIDs[index]);
+  }
+
+  public goToNextCharacterCustomizeClothesDyeItemPrimaryColor(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastClothesDyeItemPrimaryColorIndex: number =
+      characterCustomizeState.values.clothesDyeItemPrimaryColorIndex;
+    const clothesDyeItemPrimaryColorIndex: number =
+      lastClothesDyeItemPrimaryColorIndex ===
+      this._characterCustomizeClothesDyeItemIDs.length - 1
+        ? 0
+        : lastClothesDyeItemPrimaryColorIndex + 1;
+    characterCustomizeState.setValues({
+      clothesDyeItemPrimaryColorIndex,
+    });
+  }
+
+  public goToNextCharacterCustomizeClothesDyeItemSecondaryColor(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastClothesDyeItemSecondaryColorIndex: number =
+      characterCustomizeState.values.clothesDyeItemSecondaryColorIndex;
+    const clothesDyeItemSecondaryColorIndex: number =
+      lastClothesDyeItemSecondaryColorIndex ===
+      this._characterCustomizeClothesDyeItemIDs.length - 1
+        ? 0
+        : lastClothesDyeItemSecondaryColorIndex + 1;
+    characterCustomizeState.setValues({
+      clothesDyeItemSecondaryColorIndex,
+    });
+  }
+
+  public goToNextCharacterCustomizeFigure(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastFigureIndex: number = characterCustomizeState.values.figureIndex;
+    const figureIndex: number =
+      lastFigureIndex === 0
+        ? this._characterCustomizeFigureIDs.length - 1
+        : lastFigureIndex - 1;
+    characterCustomizeState.setValues({
+      figureIndex,
+    });
+  }
+
+  public goToNextCharacterCustomizeHairDyeItem(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastHairDyeItemIndex: number =
+      characterCustomizeState.values.hairDyeItemIndex;
+    const hairDyeItemIndex: number =
+      lastHairDyeItemIndex === this._characterCustomizeHairDyeItemIDs.length - 1
+        ? 0
+        : lastHairDyeItemIndex + 1;
+    characterCustomizeState.setValues({
+      hairDyeItemIndex,
+    });
+  }
+
+  public goToNextCharacterCustomizeMaskItem(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastMaskItemIndex: number =
+      characterCustomizeState.values.maskItemIndex;
+    const maskItemIndex: number =
+      lastMaskItemIndex === this._characterCustomizeMaskItemIDs.length - 1
+        ? 0
+        : lastMaskItemIndex + 1;
+    characterCustomizeState.setValues({
+      maskItemIndex,
+    });
+  }
+
+  public goToNextCharacterCustomizeOutfitItem(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastOutfitItemIndex: number =
+      characterCustomizeState.values.outfitItemIndex;
+    const outfitItemIndex: number =
+      lastOutfitItemIndex === this._characterCustomizeOutfitItemIDs.length - 1
+        ? 0
+        : lastOutfitItemIndex + 1;
+    characterCustomizeState.setValues({
+      outfitItemIndex,
+    });
+  }
+
+  public goToNextCharacterCustomizeSkinColor(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastSkinColorIndex: number =
+      characterCustomizeState.values.skinColorIndex;
+    const skinColorIndex: number =
+      lastSkinColorIndex === this._characterCustomizeSkinColorIDs.length - 1
+        ? 0
+        : lastSkinColorIndex + 1;
+    characterCustomizeState.setValues({
+      skinColorIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeClothesDyeItemPrimaryColor(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastClothesDyeItemPrimaryColorIndex: number =
+      characterCustomizeState.values.clothesDyeItemPrimaryColorIndex;
+    const clothesDyeItemPrimaryColorIndex: number =
+      lastClothesDyeItemPrimaryColorIndex === 0
+        ? this._characterCustomizeClothesDyeItemIDs.length - 1
+        : lastClothesDyeItemPrimaryColorIndex - 1;
+    characterCustomizeState.setValues({
+      clothesDyeItemPrimaryColorIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeClothesDyeItemSecondaryColor(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastClothesDyeItemSecondaryColorIndex: number =
+      characterCustomizeState.values.clothesDyeItemSecondaryColorIndex;
+    const clothesDyeItemSecondaryColorIndex: number =
+      lastClothesDyeItemSecondaryColorIndex === 0
+        ? this._characterCustomizeClothesDyeItemIDs.length - 1
+        : lastClothesDyeItemSecondaryColorIndex - 1;
+    characterCustomizeState.setValues({
+      clothesDyeItemSecondaryColorIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeFigure(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastFigureIndex: number = characterCustomizeState.values.figureIndex;
+    const figureIndex: number =
+      lastFigureIndex === this._characterCustomizeFigureIDs.length - 1
+        ? 0
+        : lastFigureIndex + 1;
+    characterCustomizeState.setValues({
+      figureIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeHairDyeItem(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastHairDyeItemIndex: number =
+      characterCustomizeState.values.hairDyeItemIndex;
+    const hairDyeItemIndex: number =
+      lastHairDyeItemIndex === 0
+        ? this._characterCustomizeHairDyeItemIDs.length - 1
+        : lastHairDyeItemIndex - 1;
+    characterCustomizeState.setValues({
+      hairDyeItemIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeMaskItem(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastMaskItemIndex: number =
+      characterCustomizeState.values.maskItemIndex;
+    const maskItemIndex: number =
+      lastMaskItemIndex === 0
+        ? this._characterCustomizeMaskItemIDs.length - 1
+        : lastMaskItemIndex - 1;
+    characterCustomizeState.setValues({
+      maskItemIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeOutfitItem(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastOutfitItemIndex: number =
+      characterCustomizeState.values.outfitItemIndex;
+    const outfitItemIndex: number =
+      lastOutfitItemIndex === 0
+        ? this._characterCustomizeOutfitItemIDs.length - 1
+        : lastOutfitItemIndex - 1;
+    characterCustomizeState.setValues({
+      outfitItemIndex,
+    });
+  }
+
+  public goToPreviousCharacterCustomizeSkinColor(): void {
+    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
+      getCharacterCustomizeState();
+    const lastSkinColorIndex: number =
+      characterCustomizeState.values.skinColorIndex;
+    const skinColorIndex: number =
+      lastSkinColorIndex === 0
+        ? this._characterCustomizeSkinColorIDs.length - 1
+        : lastSkinColorIndex - 1;
+    characterCustomizeState.setValues({
+      skinColorIndex,
+    });
   }
 
   public populateCharacterCustomizeOptions(): void {

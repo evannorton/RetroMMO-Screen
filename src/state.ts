@@ -1,9 +1,11 @@
+import { Direction } from "retrommo-types";
 import { State } from "pixel-pigeon";
 
 export interface CharacterCustomizeStateSchema {
   classID: string;
   clothesDyeItemPrimaryColorIndex: number;
   clothesDyeItemSecondaryColorIndex: number;
+  direction: Direction;
   figureIndex: number;
   hairDyeItemIndex: number;
   maskItemIndex: number;
