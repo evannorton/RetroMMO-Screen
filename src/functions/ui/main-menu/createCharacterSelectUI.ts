@@ -10,6 +10,7 @@ import {
   emitToSocketioServer,
   getGameHeight,
   getGameWidth,
+  postWindowMessage,
 } from "pixel-pigeon";
 import { Direction } from "retrommo-types";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
@@ -77,10 +78,22 @@ export const createCharacterSelectUI = (): void => {
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      getMainMenuState().setValues({
-        characterCreateState: createCharacterCreateState(),
-        characterSelectState: null,
-      });
+      if (state.values.constants === null) {
+        throw new Error("Attempted to create character with no constants.");
+      }
+      const maxCharacters: number = state.values.isSubscribed
+        ? state.values.constants["paid-character-slots"]
+        : state.values.constants["free-character-slots"];
+      console.log(state.values.isSubscribed);
+      if (state.values.characterIDs.length >= maxCharacters) {
+        postWindowMessage("subscribe");
+        console.log("yo");
+      } else {
+        getMainMenuState().setValues({
+          characterCreateState: createCharacterCreateState(),
+          characterSelectState: null,
+        });
+      }
     },
     text: { value: "Create" },
     width: 48,
