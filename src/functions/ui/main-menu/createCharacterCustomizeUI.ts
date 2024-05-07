@@ -4,14 +4,18 @@ import {
   createButton,
   createLabel,
   createSprite,
+  emitToSocketioServer,
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
 import { Direction } from "retrommo-types";
+import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
+import { SkinColor } from "../../../classes/SkinColor";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
+import { createPressableButton } from "../components/createPressableButton";
 import { getCharacterCustomizeState } from "../../state/main-menu/getCharacterCustomizeState";
 import { getDefinable } from "../../../definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
@@ -23,6 +27,43 @@ export const createCharacterCustomizeUI = (): void => {
     state.values.mainMenuState.values.characterCustomizeState !== null;
   const getClass = (): Class =>
     getDefinable(Class, getCharacterCustomizeState().values.classID);
+  const getFigure = (): Figure =>
+    getClass().getCharacterCustomizeFigure(
+      getCharacterCustomizeState().values.figureIndex,
+    );
+  const getSkinColor = (): SkinColor =>
+    getClass().getCharacterCustomizeSkinColor(
+      getCharacterCustomizeState().values.skinColorIndex,
+    );
+  const getClothesDyeItem = (): Item =>
+    getDefinable(
+      Item,
+      getClass().getCharacterCustomizeClothesDyeItem(
+        getCharacterCustomizeState().values.clothesDyeItemPrimaryColorIndex,
+        getCharacterCustomizeState().values.clothesDyeItemSecondaryColorIndex,
+      ).id,
+    );
+  const getHairDyeItem = (): Item =>
+    getDefinable(
+      Item,
+      getClass().getCharacterCustomizeHairDyeItem(
+        getCharacterCustomizeState().values.hairDyeItemIndex,
+      ).id,
+    );
+  const getOutfitItem = (): Item =>
+    getDefinable(
+      Item,
+      getClass().getCharacterCustomizeOutfitItem(
+        getCharacterCustomizeState().values.outfitItemIndex,
+      ).id,
+    );
+  const getMaskItem = (): Item =>
+    getDefinable(
+      Item,
+      getClass().getCharacterCustomizeMaskItem(
+        getCharacterCustomizeState().values.maskItemIndex,
+      ).id,
+    );
   // Background panel
   createPanel({
     condition,
@@ -106,45 +147,14 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Preview sprite
   createPlayerSprite({
-    clothesDyeID: (): string =>
-      getDefinable(
-        Item,
-        getClass().getCharacterCustomizeClothesDyeItem(
-          getCharacterCustomizeState().values.clothesDyeItemPrimaryColorIndex,
-          getCharacterCustomizeState().values.clothesDyeItemSecondaryColorIndex,
-        ).id,
-      ).clothesDye.id,
+    clothesDyeID: (): string => getClothesDyeItem().clothesDye.id,
     condition,
     direction: (): Direction => getCharacterCustomizeState().values.direction,
-    figureID: (): string =>
-      getClass().getCharacterCustomizeFigure(
-        getCharacterCustomizeState().values.figureIndex,
-      ).id,
-    hairDyeID: (): string =>
-      getDefinable(
-        Item,
-        getClass().getCharacterCustomizeHairDyeItem(
-          getCharacterCustomizeState().values.hairDyeItemIndex,
-        ).id,
-      ).hairDye.id,
-    maskID: (): string =>
-      getDefinable(
-        Item,
-        getClass().getCharacterCustomizeMaskItem(
-          getCharacterCustomizeState().values.maskItemIndex,
-        ).id,
-      ).mask.id,
-    outfitID: (): string =>
-      getDefinable(
-        Item,
-        getClass().getCharacterCustomizeOutfitItem(
-          getCharacterCustomizeState().values.outfitItemIndex,
-        ).id,
-      ).outfit.id,
-    skinColorID: (): string =>
-      getClass().getCharacterCustomizeSkinColor(
-        getCharacterCustomizeState().values.skinColorIndex,
-      ).id,
+    figureID: (): string => getFigure().id,
+    hairDyeID: (): string => getHairDyeItem().hairDye.id,
+    maskID: (): string => getMaskItem().mask.id,
+    outfitID: (): string => getOutfitItem().outfit.id,
+    skinColorID: (): string => getSkinColor().id,
     x: 144,
     y: 74,
   });
@@ -931,5 +941,29 @@ export const createCharacterCustomizeUI = (): void => {
       getClass().goToNextCharacterCustomizeClothesDyeItemSecondaryColor();
     },
     width: clothesDyeSecondaryRightWidth,
+  });
+  // Finish button
+  createPressableButton({
+    condition,
+    height: 16,
+    imagePath: "pressable-buttons/gray",
+    onClick: (): void => {
+      emitToSocketioServer({
+        data: {
+          classID: getClass().id,
+          clothesDyeItemID: getClothesDyeItem().id,
+          figureID: getFigure().id,
+          hairDyeItemID: getHairDyeItem().id,
+          maskItemID: getMaskItem().id,
+          outfitItemID: getOutfitItem().id,
+          skinColorID: getSkinColor().id,
+        },
+        event: "character-customize/create-character",
+      });
+    },
+    text: { value: "Finish" },
+    width: 52,
+    x: 126,
+    y: 207,
   });
 };

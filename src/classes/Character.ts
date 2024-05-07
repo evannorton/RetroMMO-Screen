@@ -126,6 +126,22 @@ export class Character extends Definable {
     return getDefinable(Outfit, state.values.defaultOutfitID);
   }
 
+  public remove(): void {
+    super.remove();
+    if (this._clothesDyeItemInstanceID !== null) {
+      this.clothesDyeItemInstance.remove();
+    }
+    if (this._hairDyeItemInstanceID !== null) {
+      this.hairDyeItemInstance.remove();
+    }
+    if (this._maskItemInstanceID !== null) {
+      this.maskItemInstance.remove();
+    }
+    if (this._outfitItemInstanceID !== null) {
+      this.outfitItemInstance.remove();
+    }
+  }
+
   private hasClothesDyeItemInstance(): boolean {
     return this._clothesDyeItemInstanceID !== null;
   }

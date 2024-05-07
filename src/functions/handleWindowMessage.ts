@@ -1,8 +1,9 @@
 import { Character } from "../classes/Character";
-import { InitialUpdate, MainState } from "retrommo-types";
+import { InitialUpdate, MainState, SavefileItemInstance } from "retrommo-types";
 import { ItemInstance } from "../classes/ItemInstance";
 import { connectToSocketioServer, listenToSocketioEvent } from "pixel-pigeon";
 import { createBattleState } from "./state/createBattleState";
+import { createCharacterSelectState } from "./state/main-menu/createCharacterSelectState";
 import { createMainMenuState } from "./state/main-menu/createMainMenuState";
 import { createWorldState } from "./state/createWorldState";
 import { getDefinable, getDefinables } from "../definables";
@@ -65,6 +66,69 @@ export const handleWindowMessage = (message: unknown): void => {
                 });
                 break;
             }
+          },
+        });
+        listenToSocketioEvent({
+          event: "character-customize/create-character",
+          onMessage: (data: unknown): void => {
+            if (state.values.mainMenuState === null) {
+              throw new Error("No main menu state.");
+            }
+            const {
+              classID,
+              clothesDyeSavefileItemInstance,
+              figureID,
+              hairDyeSavefileItemInstance,
+              id,
+              level,
+              maskSavefileItemInstance,
+              outfitSavefileItemInstance,
+              skinColorID,
+            } = data as {
+              classID: string;
+              clothesDyeSavefileItemInstance: SavefileItemInstance;
+              figureID: string;
+              hairDyeSavefileItemInstance: SavefileItemInstance;
+              id: string;
+              level: number;
+              maskSavefileItemInstance: SavefileItemInstance;
+              outfitSavefileItemInstance: SavefileItemInstance;
+              skinColorID: string;
+            };
+            new ItemInstance({
+              id: clothesDyeSavefileItemInstance.id,
+              itemID: clothesDyeSavefileItemInstance.itemID,
+            });
+            new ItemInstance({
+              id: hairDyeSavefileItemInstance.id,
+              itemID: hairDyeSavefileItemInstance.itemID,
+            });
+            new ItemInstance({
+              id: maskSavefileItemInstance.id,
+              itemID: maskSavefileItemInstance.itemID,
+            });
+            new ItemInstance({
+              id: outfitSavefileItemInstance.id,
+              itemID: outfitSavefileItemInstance.itemID,
+            });
+            const characterID: string = new Character({
+              classID,
+              clothesDyeItemInstanceID: clothesDyeSavefileItemInstance.id,
+              figureID,
+              hairDyeItemInstanceID: hairDyeSavefileItemInstance.id,
+              id,
+              level,
+              maskItemInstanceID: maskSavefileItemInstance.id,
+              outfitItemInstanceID: outfitSavefileItemInstance.id,
+              skinColorID,
+            }).id;
+            state.setValues({
+              characterIDs: [...state.values.characterIDs, characterID],
+            });
+            state.values.mainMenuState.setValues({
+              characterCustomizeState: null,
+              characterSelectState: createCharacterSelectState(),
+            });
           },
         });
         listenToSocketioEvent({
