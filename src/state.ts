@@ -1,4 +1,4 @@
-import { Direction } from "retrommo-types";
+import { Constants, Direction } from "retrommo-types";
 import { State } from "pixel-pigeon";
 
 export interface CharacterCustomizeStateSchema {
@@ -29,10 +29,12 @@ export interface BattleStateSchema {}
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
   characterIDs: string[];
+  constants: Constants | null;
   defaultClothesDyeID: string | null;
   defaultHairDyeID: string | null;
   defaultMaskID: string | null;
   defaultOutfitID: string | null;
+  isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
   serverURL: string | null;
   worldState: State<WorldStateSchema> | null;
@@ -41,10 +43,12 @@ interface StateSchema {
 export const state: State<StateSchema> = new State<StateSchema>({
   battleState: null,
   characterIDs: [],
+  constants: null,
   defaultClothesDyeID: null,
   defaultHairDyeID: null,
   defaultMaskID: null,
   defaultOutfitID: null,
+  isSubscribed: false,
   mainMenuState: null,
   serverURL: null,
   worldState: null,

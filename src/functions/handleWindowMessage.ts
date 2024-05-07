@@ -45,6 +45,7 @@ export const handleWindowMessage = (message: unknown): void => {
             }
             state.setValues({
               battleState: null,
+              isSubscribed: initialUpdate.isSubscribed,
               mainMenuState: null,
               worldState: null,
             });

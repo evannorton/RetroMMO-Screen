@@ -4,6 +4,7 @@ import {
   ClassDefinition,
   ClothesColorDefinition,
   ClothesDyeDefinition,
+  Constants,
   Definition,
   FigureDefinition,
   HairColorDefinition,
@@ -33,15 +34,22 @@ export const loadGameData = async (): Promise<void> => {
   if (state.values.serverURL === null) {
     throw new Error("Attempted to load game data with no server URL.");
   }
-  const gameData: Response = await makeHTTPRequest({
+  const constantsReponse: Response = await makeHTTPRequest({
+    url: `${state.values.serverURL}/constants.json`,
+  });
+  const constants: Constants = (await constantsReponse.json()) as Constants;
+  const gameDataResponse: Response = await makeHTTPRequest({
     url: `${state.values.serverURL}/game-data.json`,
   });
-  const data: Record<
+  const gameData: Record<
     string,
     Record<string, Definition>
-  > = (await gameData.json()) as Record<string, Record<string, Definition>>;
-  for (const className in data) {
-    for (const id in data[className]) {
+  > = (await gameDataResponse.json()) as Record<
+    string,
+    Record<string, Definition>
+  >;
+  for (const className in gameData) {
+    for (const id in gameData[className]) {
       switch (className) {
         case "Ability":
           // new Ability();
@@ -56,7 +64,7 @@ export const loadGameData = async (): Promise<void> => {
           // new BattleImpactAnimation();
           break;
         case "BodyCosmetic": {
-          const definition: BodyCosmeticDefinition = data[className][
+          const definition: BodyCosmeticDefinition = gameData[className][
             id
           ] as BodyCosmeticDefinition;
           new BodyCosmetic({
@@ -69,7 +77,7 @@ export const loadGameData = async (): Promise<void> => {
           // new Chest();
           break;
         case "Class": {
-          const definition: ClassDefinition = data[className][
+          const definition: ClassDefinition = gameData[className][
             id
           ] as ClassDefinition;
           new Class({
@@ -79,7 +87,7 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "ClothesColor": {
-          const definition: ClothesColorDefinition = data[className][
+          const definition: ClothesColorDefinition = gameData[className][
             id
           ] as ClothesColorDefinition;
           new ClothesColor({
@@ -89,7 +97,7 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "ClothesDye": {
-          const definition: ClothesDyeDefinition = data[className][
+          const definition: ClothesDyeDefinition = gameData[className][
             id
           ] as ClothesDyeDefinition;
           new ClothesDye({
@@ -108,7 +116,7 @@ export const loadGameData = async (): Promise<void> => {
           // new Enterable();
           break;
         case "Figure": {
-          const definition: FigureDefinition = data[className][
+          const definition: FigureDefinition = gameData[className][
             id
           ] as FigureDefinition;
           new Figure({
@@ -118,7 +126,7 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "HairColor": {
-          const definition: HairColorDefinition = data[className][
+          const definition: HairColorDefinition = gameData[className][
             id
           ] as HairColorDefinition;
           new HairColor({
@@ -128,7 +136,7 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "HairDye": {
-          const definition: HairDyeDefinition = data[className][
+          const definition: HairDyeDefinition = gameData[className][
             id
           ] as HairDyeDefinition;
           new HairDye({
@@ -138,7 +146,7 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "HeadCosmetic": {
-          const definition: HeadCosmeticDefinition = data[className][
+          const definition: HeadCosmeticDefinition = gameData[className][
             id
           ] as HeadCosmeticDefinition;
           new HeadCosmetic({
@@ -151,7 +159,7 @@ export const loadGameData = async (): Promise<void> => {
           // new ImageSource();
           break;
         case "Item": {
-          const definition: ItemDefinition = data[className][
+          const definition: ItemDefinition = gameData[className][
             id
           ] as ItemDefinition;
           new Item({
@@ -167,7 +175,7 @@ export const loadGameData = async (): Promise<void> => {
           // new Landscape();
           break;
         case "Mask": {
-          const definition: MaskDefinition = data[className][
+          const definition: MaskDefinition = gameData[className][
             id
           ] as MaskDefinition;
           new Mask({
@@ -189,7 +197,7 @@ export const loadGameData = async (): Promise<void> => {
           // new Noise();
           break;
         case "Outfit": {
-          const definition: OutfitDefinition = data[className][
+          const definition: OutfitDefinition = gameData[className][
             id
           ] as OutfitDefinition;
           new Outfit({
@@ -214,7 +222,7 @@ export const loadGameData = async (): Promise<void> => {
           // new ResourceBar();
           break;
         case "SkinColor": {
-          const definition: SkinColorDefinition = data[className][
+          const definition: SkinColorDefinition = gameData[className][
             id
           ] as SkinColorDefinition;
           new SkinColor({
@@ -279,6 +287,7 @@ export const loadGameData = async (): Promise<void> => {
     throw new Error("Default outfit is undefined");
   }
   state.setValues({
+    constants,
     defaultClothesDyeID: defaultClothesDye[1].id,
     defaultHairDyeID: defaultHairDye[1].id,
     defaultMaskID: defaultMask[1].id,
