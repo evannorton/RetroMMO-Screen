@@ -84,10 +84,8 @@ export const createCharacterSelectUI = (): void => {
       const maxCharacters: number = state.values.isSubscribed
         ? state.values.constants["paid-character-slots"]
         : state.values.constants["free-character-slots"];
-      console.log(state.values.isSubscribed);
       if (state.values.characterIDs.length >= maxCharacters) {
-        postWindowMessage("subscribe");
-        console.log("yo");
+        postWindowMessage("subscribe/character-limit");
       } else {
         getMainMenuState().setValues({
           characterCreateState: createCharacterCreateState(),
