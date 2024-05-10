@@ -170,7 +170,7 @@ export const handleWindowMessage = (message: unknown): void => {
             const targetIndex: number =
               characterIndex === 0
                 ? state.values.characterIDs.length - 1
-                : characterIndex + 1;
+                : characterIndex - 1;
             const targetCharacterID: string =
               state.values.characterIDs[targetIndex];
             const characterIDs: string[] = [...state.values.characterIDs];
