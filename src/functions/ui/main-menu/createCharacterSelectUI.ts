@@ -102,6 +102,7 @@ export const createCharacterSelectUI = (): void => {
   createPressableButton({
     condition: (): boolean =>
       condition() &&
+      state.values.characterIDs.length > 0 &&
       getCharacterSelectState().values.characterIDToDelete === null,
     height: 16,
     imagePath: "pressable-buttons/gray",
@@ -133,10 +134,6 @@ export const createCharacterSelectUI = (): void => {
         data: getCharacterSelectState().values.characterIDToDelete,
         event: "character-select/delete-character",
       });
-      getCharacterSelectState().setValues({
-        characterIDToDelete: null,
-        isDeleting: false,
-      });
     },
     text: { value: "Confirm" },
     width: 48,
@@ -145,7 +142,8 @@ export const createCharacterSelectUI = (): void => {
   });
   // Delete character button
   createPressableButton({
-    condition,
+    condition: (): boolean =>
+      condition() && state.values.characterIDs.length > 0,
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {

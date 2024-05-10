@@ -6,6 +6,7 @@ import { createBattleState } from "./state/createBattleState";
 import { createCharacterSelectState } from "./state/main-menu/createCharacterSelectState";
 import { createMainMenuState } from "./state/main-menu/createMainMenuState";
 import { createWorldState } from "./state/createWorldState";
+import { getCharacterSelectState } from "./state/main-menu/getCharacterSelectState";
 import { getDefinable, getDefinables } from "../definables";
 import { loadSavefile } from "./loadSavefile";
 import { state } from "../state";
@@ -143,6 +144,10 @@ export const handleWindowMessage = (message: unknown): void => {
                 (loopedCharacterID: string): boolean =>
                   loopedCharacterID !== character.id,
               ),
+            });
+            getCharacterSelectState().setValues({
+              characterIDToDelete: null,
+              isDeleting: false,
             });
           },
         });
