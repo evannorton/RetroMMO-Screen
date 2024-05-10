@@ -255,10 +255,21 @@ export const createCharacterSelectUI = (): void => {
       },
       height: playHeight,
       onClick: (): void => {
-        emitToSocketioServer({
-          data: state.values.characterIDs[getOffsetIndex(i)],
-          event: "character-select/select-character",
-        });
+        if (state.values.constants === null) {
+          throw new Error("Attempted to select character with no constants.");
+        }
+        const maxCharacters: number = state.values.isSubscribed
+          ? state.values.constants["paid-character-slots"]
+          : state.values.constants["free-character-slots"];
+        const index: number = getOffsetIndex(i);
+        if (index >= maxCharacters) {
+          postWindowMessage("subscribe/character-limit");
+        } else {
+          emitToSocketioServer({
+            data: state.values.characterIDs[index],
+            event: "character-select/select-character",
+          });
+        }
       },
       width: playWidth,
     });
