@@ -49,6 +49,15 @@ export const createCharacterSelectUI = (): void => {
       ),
     });
   };
+  const canPlayCharacter = (index: number): boolean => {
+    if (state.values.constants === null) {
+      throw new Error("Attempted to select character with no constants.");
+    }
+    const maxCharacters: number = state.values.isSubscribed
+      ? state.values.constants["paid-character-slots"]
+      : state.values.constants["free-character-slots"];
+    return index < maxCharacters;
+  };
   // Background panel
   createPanel({
     condition,
@@ -245,7 +254,10 @@ export const createCharacterSelectUI = (): void => {
         x: playX,
         y: playY,
       },
-      imagePath: "arrows/green",
+      imagePath: (): string =>
+        canPlayCharacter(getOffsetIndex(i))
+          ? "arrows/green"
+          : "arrows/right-small",
     });
     createButton({
       coordinates: {
@@ -255,20 +267,14 @@ export const createCharacterSelectUI = (): void => {
       },
       height: playHeight,
       onClick: (): void => {
-        if (state.values.constants === null) {
-          throw new Error("Attempted to select character with no constants.");
-        }
-        const maxCharacters: number = state.values.isSubscribed
-          ? state.values.constants["paid-character-slots"]
-          : state.values.constants["free-character-slots"];
         const index: number = getOffsetIndex(i);
-        if (index >= maxCharacters) {
-          postWindowMessage("subscribe/character-limit");
-        } else {
+        if (canPlayCharacter(i)) {
           emitToSocketioServer({
             data: state.values.characterIDs[index],
             event: "character-select/select-character",
           });
+        } else {
+          postWindowMessage("subscribe/character-limit");
         }
       },
       width: playWidth,
