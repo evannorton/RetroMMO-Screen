@@ -8,6 +8,7 @@ import { createMainMenuState } from "./state/main-menu/createMainMenuState";
 import { createWorldState } from "./state/createWorldState";
 import { getCharacterSelectState } from "./state/main-menu/getCharacterSelectState";
 import { getDefinable, getDefinables } from "../definables";
+import { getLastPlayableCharacterIndex } from "./getLastPlayableCharacterIndex";
 import { loadSavefile } from "./loadSavefile";
 import { state } from "../state";
 
@@ -169,7 +170,7 @@ export const handleWindowMessage = (message: unknown): void => {
               state.values.characterIDs.indexOf(characterID);
             const targetIndex: number =
               characterIndex === 0
-                ? state.values.characterIDs.length - 1
+                ? getLastPlayableCharacterIndex()
                 : characterIndex - 1;
             const targetCharacterID: string =
               state.values.characterIDs[targetIndex];
@@ -186,7 +187,7 @@ export const handleWindowMessage = (message: unknown): void => {
             const characterIndex: number =
               state.values.characterIDs.indexOf(characterID);
             const targetIndex: number =
-              characterIndex === state.values.characterIDs.length - 1
+              characterIndex === getLastPlayableCharacterIndex()
                 ? 0
                 : characterIndex + 1;
             const targetCharacterID: string =

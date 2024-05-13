@@ -21,6 +21,7 @@ import { getCharacterSelectState } from "../../state/main-menu/getCharacterSelec
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefinable } from "../../../definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
+import { getMaxCharacters } from "../../getMaxCharacters";
 
 export const createCharacterSelectUI = (): void => {
   const condition = (): boolean =>
@@ -48,15 +49,6 @@ export const createCharacterSelectUI = (): void => {
         pages,
       ),
     });
-  };
-  const canPlayCharacter = (index: number): boolean => {
-    if (state.values.constants === null) {
-      throw new Error("Attempted to select character with no constants.");
-    }
-    const maxCharacters: number = state.values.isSubscribed
-      ? state.values.constants["paid-character-slots"]
-      : state.values.constants["free-character-slots"];
-    return index < maxCharacters;
   };
   // Background panel
   createPanel({
@@ -87,13 +79,7 @@ export const createCharacterSelectUI = (): void => {
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      if (state.values.constants === null) {
-        throw new Error("Attempted to create character with no constants.");
-      }
-      const maxCharacters: number = state.values.isSubscribed
-        ? state.values.constants["paid-character-slots"]
-        : state.values.constants["free-character-slots"];
-      if (state.values.characterIDs.length >= maxCharacters) {
+      if (state.values.characterIDs.length >= getMaxCharacters()) {
         postWindowMessage("subscribe/character-limit");
       } else {
         getMainMenuState().setValues({
@@ -178,6 +164,10 @@ export const createCharacterSelectUI = (): void => {
       }
       return false;
     };
+    const canPlayCharacter = (): boolean => {
+      const index: number = getOffsetIndex(i);
+      return index < getMaxCharacters();
+    };
     const getCharacter = (): Character =>
       getDefinable(Character, state.values.characterIDs[getOffsetIndex(i)]);
     // Character panel
@@ -255,9 +245,7 @@ export const createCharacterSelectUI = (): void => {
         y: playY,
       },
       imagePath: (): string =>
-        canPlayCharacter(getOffsetIndex(i))
-          ? "arrows/green"
-          : "arrows/right-small",
+        canPlayCharacter() ? "arrows/green" : "arrows/right-small",
     });
     createButton({
       coordinates: {
@@ -268,7 +256,7 @@ export const createCharacterSelectUI = (): void => {
       height: playHeight,
       onClick: (): void => {
         const index: number = getOffsetIndex(i);
-        if (canPlayCharacter(i)) {
+        if (canPlayCharacter()) {
           emitToSocketioServer({
             data: state.values.characterIDs[index],
             event: "character-select/select-character",
@@ -281,7 +269,9 @@ export const createCharacterSelectUI = (): void => {
     });
     // Sort left arrow
     const sortCondition = (): boolean =>
-      characterCondition() && getCharacterSelectState().values.isSorting;
+      characterCondition() &&
+      getCharacterSelectState().values.isSorting &&
+      canPlayCharacter();
     const sortLeftX: number = i % 2 === 0 ? 114 : 250;
     const sortLeftY: number = 71 + 42 * Math.floor(i / 2);
     const sortLeftWidth: number = 10;
