@@ -158,6 +158,7 @@ export const handleWindowMessage = (message: unknown): void => {
             const characterID: string = data as string;
             state.setValues({
               mainMenuState: null,
+              worldState: createWorldState(),
             });
             console.log(`Selected character ${characterID}`);
           },

@@ -18,7 +18,7 @@ export const createPanel = ({
   width,
 }: CreatePanelOptions): void => {
   createNineSlice({
-    bottomHeight: 16,
+    bottomHeight: 8,
     coordinates: {
       condition,
       x,
@@ -26,9 +26,9 @@ export const createPanel = ({
     },
     height,
     imagePath,
-    leftWidth: 16,
-    rightWidth: 16,
-    topHeight: 16,
+    leftWidth: 8,
+    rightWidth: 8,
+    topHeight: 8,
     width,
   });
 };
