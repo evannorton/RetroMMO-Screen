@@ -7,6 +7,10 @@ import {
   createSprite,
 } from "pixel-pigeon";
 
+interface PressableButtonStateSchema {
+  isPressed: boolean;
+}
+
 export interface CreatePressableButtonOptions {
   condition: () => boolean;
   onClick: () => void;
@@ -17,10 +21,6 @@ export interface CreatePressableButtonOptions {
   x: number;
   y: number;
 }
-interface PressableButtonStateSchema {
-  isPressed: boolean;
-}
-
 export const createPressableButton = ({
   condition,
   height,
