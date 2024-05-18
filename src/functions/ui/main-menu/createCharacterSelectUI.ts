@@ -10,7 +10,6 @@ import {
   emitToSocketioServer,
   getGameHeight,
   getGameWidth,
-  postWindowMessage,
 } from "pixel-pigeon";
 import { Direction } from "retrommo-types";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
@@ -22,6 +21,7 @@ import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefinable } from "../../../definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { getMaxCharacters } from "../../getMaxCharacters";
+import { postWindowMessage } from "../../postWindowMessage";
 
 export const createCharacterSelectUI = (): void => {
   const condition = (): boolean =>
@@ -80,7 +80,7 @@ export const createCharacterSelectUI = (): void => {
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
       if (state.values.characterIDs.length >= getMaxCharacters()) {
-        postWindowMessage("subscribe/character-limit");
+        postWindowMessage({ event: "subscribe/character-limit" });
       } else {
         getMainMenuState().setValues({
           characterCreateState: createCharacterCreateState(),
@@ -262,7 +262,7 @@ export const createCharacterSelectUI = (): void => {
             event: "character-select/select-character",
           });
         } else {
-          postWindowMessage("subscribe/character-limit");
+          postWindowMessage({ event: "subscribe/character-limit" });
         }
       },
       width: playWidth,
