@@ -52,16 +52,12 @@ export const loadGameData = async (): Promise<void> => {
     for (const id in gameData[className]) {
       switch (className) {
         case "Ability":
-          // new Ability();
           break;
         case "AudioSource":
-          // new AudioSource();
           break;
         case "Bank":
-          // new Bank();
           break;
         case "BattleImpactAnimation":
-          // new BattleImpactAnimation();
           break;
         case "BodyCosmetic": {
           const definition: BodyCosmeticDefinition = gameData[className][
@@ -74,7 +70,6 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "Chest":
-          // new Chest();
           break;
         case "Class": {
           const definition: ClassDefinition = gameData[className][
@@ -107,13 +102,10 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "CombinationLock":
-          // new CombinationLock();
           break;
         case "Emote":
-          // new Emote();
           break;
         case "Enterable":
-          // new Enterable();
           break;
         case "Figure": {
           const definition: FigureDefinition = gameData[className][
@@ -156,7 +148,6 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "ImageSource":
-          // new ImageSource();
           break;
         case "Item": {
           const definition: ItemDefinition = gameData[className][
@@ -169,10 +160,8 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "Label":
-          // new Label();
           break;
         case "Landscape":
-          // new Landscape();
           break;
         case "Mask": {
           const definition: MaskDefinition = gameData[className][
@@ -185,16 +174,12 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "Monster":
-          // new Monster();
           break;
         case "MusicTrack":
-          // new MusicTrack();
           break;
         case "NPC":
-          // new NPC();
           break;
         case "Noise":
-          // new Noise();
           break;
         case "Outfit": {
           const definition: OutfitDefinition = gameData[className][
@@ -207,19 +192,14 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "Panel":
-          // new Panel();
           break;
         case "Picture":
-          // new Picture();
           break;
         case "Reachable":
-          // new Reachable();
           break;
         case "Rectangle":
-          // new Rectangle();
           break;
         case "ResourceBar":
-          // new ResourceBar();
           break;
         case "SkinColor": {
           const definition: SkinColorDefinition = gameData[className][
@@ -232,28 +212,12 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "Switch":
-          // new Switch();
           break;
         case "Tilemap":
-          // new Tilemap();
-          break;
-        case "TilemapTile":
-          // new TilemapTile();
-          break;
-        case "TilemapTileset":
-          // new TilemapTileset();
           break;
         case "Tileset":
-          // new Tileset();
-          break;
-        case "TilesetTileAnimationFrame":
-          // new TilesetTileAnimationFrame();
-          break;
-        case "TilesetTile":
-          // new TilesetTile();
           break;
         case "Transport":
-          // new Transport();
           break;
         default:
           throw new Error(`Unknown class name: ${className}`);
