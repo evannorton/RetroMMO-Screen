@@ -7,6 +7,7 @@ import { ItemInstance } from "./ItemInstance";
 import { Mask } from "./Mask";
 import { Outfit } from "./Outfit";
 import { SkinColor } from "./SkinColor";
+import { goToLevel } from "pixel-pigeon";
 import { state } from "../state";
 
 export interface CharacterOptions {
@@ -140,6 +141,10 @@ export class Character extends Definable {
     if (this._outfitItemInstanceID !== null) {
       this.outfitItemInstance.remove();
     }
+  }
+
+  public selectCharacter(): void {
+    goToLevel("overworld");
   }
 
   private hasClothesDyeItemInstance(): boolean {

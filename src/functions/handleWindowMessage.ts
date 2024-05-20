@@ -1,7 +1,11 @@
 import { Character } from "../classes/Character";
 import { InitialUpdate, MainState, SavefileItemInstance } from "retrommo-types";
 import { ItemInstance } from "../classes/ItemInstance";
-import { connectToSocketioServer, listenToSocketioEvent } from "pixel-pigeon";
+import {
+  connectToSocketioServer,
+  exitLevel,
+  listenToSocketioEvent,
+} from "pixel-pigeon";
 import { createBattleState } from "./state/createBattleState";
 import { createCharacterSelectState } from "./state/main-menu/createCharacterSelectState";
 import { createMainMenuState } from "./state/main-menu/createMainMenuState";
@@ -63,11 +67,22 @@ export const handleWindowMessage = (message: unknown): void => {
                   mainMenuState: createMainMenuState(),
                 });
                 break;
-              case MainState.World:
+              case MainState.World: {
+                if (typeof initialUpdate.world === "undefined") {
+                  throw new Error(
+                    "Initial update in World MainState is missing world.",
+                  );
+                }
                 state.setValues({
-                  worldState: createWorldState(),
+                  worldState: createWorldState(initialUpdate.world.characterID),
                 });
+                const character: Character = getDefinable(
+                  Character,
+                  initialUpdate.world.characterID,
+                );
+                character.selectCharacter();
                 break;
+              }
             }
           },
         });
@@ -158,9 +173,10 @@ export const handleWindowMessage = (message: unknown): void => {
             const characterID: string = data as string;
             state.setValues({
               mainMenuState: null,
-              worldState: createWorldState(),
+              worldState: createWorldState(characterID),
             });
-            console.log(`Selected character ${characterID}`);
+            const character: Character = getDefinable(Character, characterID);
+            character.selectCharacter();
           },
         });
         listenToSocketioEvent({
@@ -206,6 +222,7 @@ export const handleWindowMessage = (message: unknown): void => {
               mainMenuState: createMainMenuState(),
               worldState: null,
             });
+            exitLevel();
           },
         });
         break;

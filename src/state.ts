@@ -24,7 +24,9 @@ export interface MainMenuStateSchema {
   characterCustomizeState: State<CharacterCustomizeStateSchema> | null;
   characterSelectState: State<CharacterSelectStateSchema> | null;
 }
-export interface WorldStateSchema {}
+export interface WorldStateSchema {
+  characterID: string;
+}
 export interface BattleStateSchema {}
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
