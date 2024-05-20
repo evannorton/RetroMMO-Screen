@@ -44,6 +44,7 @@ const validIDCharacters: string[] = [
   "-",
   "/",
 ];
+
 export const getToken = (): string => {
   const pieces: string[] = [];
   for (let i: number = 0; i < 20; i++) {
@@ -53,7 +54,6 @@ export const getToken = (): string => {
   }
   return pieces.join("");
 };
-
 export abstract class Definable {
   protected readonly _id: string;
 
