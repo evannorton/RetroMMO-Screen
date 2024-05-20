@@ -44,7 +44,7 @@ const validIDCharacters: string[] = [
   "-",
   "/",
 ];
-const getToken = (): string => {
+export const getToken = (): string => {
   const pieces: string[] = [];
   for (let i: number = 0; i < 20; i++) {
     pieces.push(

@@ -11,6 +11,7 @@ import { Mask } from "../../../classes/Mask";
 import { Outfit } from "../../../classes/Outfit";
 import { SkinColor } from "../../../classes/SkinColor";
 import { getDefinable } from "../../../definables";
+import { getConstants } from "../../getConstants";
 
 export interface CreatePlayerSpriteOptions {
   condition?: () => boolean;
@@ -112,8 +113,9 @@ export const createPlayerSprite = ({
   const animationID: Scriptable<string> = direction;
   const animationStartedAt: number = 0;
   const duration: number = 250;
-  const width: number = 16;
-  const height: number = 16;
+  const tileSize: number = getConstants()["tile-size"];
+  const width: number = tileSize
+  const height: number = tileSize;
   const animations: CreateSpriteOptionsAnimation[] = [
     {
       frames: [
@@ -131,7 +133,7 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 16,
+          sourceX: tileSize,
           sourceY: 0,
           width,
         },
@@ -140,7 +142,7 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 32,
+          sourceX: tileSize *2,
           sourceY: 0,
           width,
         },
@@ -149,7 +151,7 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 48,
+          sourceX: tileSize * 3,
           sourceY: 0,
           width,
         },
@@ -164,7 +166,7 @@ export const createPlayerSprite = ({
           sourceHeight: height,
           sourceWidth: width,
           sourceX: 0,
-          sourceY: 16,
+          sourceY: tileSize,
           width,
         },
         {
@@ -172,8 +174,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 16,
-          sourceY: 16,
+          sourceX: tileSize,
+          sourceY: tileSize,
           width,
         },
         {
@@ -181,8 +183,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 32,
-          sourceY: 16,
+          sourceX: tileSize *2,
+          sourceY: tileSize,
           width,
         },
         {
@@ -190,8 +192,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 48,
-          sourceY: 16,
+          sourceX: tileSize * 3,
+          sourceY: tileSize,
           width,
         },
       ],
@@ -205,7 +207,7 @@ export const createPlayerSprite = ({
           sourceHeight: height,
           sourceWidth: width,
           sourceX: 0,
-          sourceY: 32,
+          sourceY: tileSize *2,
           width,
         },
         {
@@ -213,8 +215,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 16,
-          sourceY: 32,
+          sourceX: tileSize,
+          sourceY: tileSize *2,
           width,
         },
         {
@@ -222,8 +224,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 32,
-          sourceY: 32,
+          sourceX: tileSize *2,
+          sourceY: tileSize *2,
           width,
         },
         {
@@ -231,8 +233,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 48,
-          sourceY: 32,
+          sourceX: tileSize * 3,
+          sourceY: tileSize *2,
           width,
         },
       ],
@@ -246,7 +248,7 @@ export const createPlayerSprite = ({
           sourceHeight: height,
           sourceWidth: width,
           sourceX: 0,
-          sourceY: 48,
+          sourceY: tileSize * 3,
           width,
         },
         {
@@ -254,8 +256,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 16,
-          sourceY: 48,
+          sourceX: tileSize,
+          sourceY: tileSize * 3,
           width,
         },
         {
@@ -263,8 +265,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 32,
-          sourceY: 48,
+          sourceX: tileSize *2,
+          sourceY: tileSize * 3,
           width,
         },
         {
@@ -272,8 +274,8 @@ export const createPlayerSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
-          sourceX: 48,
-          sourceY: 48,
+          sourceX: tileSize * 3,
+          sourceY: tileSize * 3,
           width,
         },
       ],

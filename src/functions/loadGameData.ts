@@ -14,6 +14,9 @@ import {
   MaskDefinition,
   OutfitDefinition,
   SkinColorDefinition,
+  TilemapDefinition,
+  TilemapTilesetDefinition,
+  TilesetDefinition,
 } from "retrommo-types";
 import { Class } from "../classes/Class";
 import { ClothesColor } from "../classes/ClothesColor";
@@ -27,7 +30,7 @@ import { Mask } from "../classes/Mask";
 import { Outfit } from "../classes/Outfit";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "../definables";
-import { makeHTTPRequest } from "pixel-pigeon";
+import { CreateTilesetOptionsTile, createTileset, makeHTTPRequest, createLevel, CreateLevelOptionsLayer } from "pixel-pigeon";
 import { state } from "../state";
 
 export const loadGameData = async (): Promise<void> => {
@@ -213,10 +216,115 @@ export const loadGameData = async (): Promise<void> => {
         }
         case "Switch":
           break;
-        case "Tilemap":
+        case "Tilemap": {
+          const definition: TilemapDefinition = gameData[className][
+            id
+          ] as TilemapDefinition;
+          const getTilemapTilesetDefinitionAtIndex = (
+            index: number,
+          ): TilemapTilesetDefinition => {
+            for (let i: number = definition.tilesets.length - 1; i >= 0; i--) {
+              const tileset: TilemapTilesetDefinition = definition.tilesets[i];
+              if (tileset.firstTileID <= index) {
+                return tileset;
+              }
+            }
+            throw new Error(
+              `Tilemap "${id}" does not have TilemapTilesetDefinition at index ${index}.`,
+            );
+          }
+          const getTileXAtIndex = (index: number, width: number): number => {
+            return index % width;
+          }
+          const getTileYAtIndex = (index: number, width: number): number => {
+            return Math.floor(index / width);
+          }
+          const layers: CreateLevelOptionsLayer[] = [];
+          definition.tiles.forEach((row, x) => {
+            row.forEach((tile, y) => {
+              tile.belowIndices.forEach((index: number, layerIndex: number) => {
+                const tilesetDefinition: TilemapTilesetDefinition = getTilemapTilesetDefinitionAtIndex(index);
+                const tileset: TilesetDefinition = gameData.Tileset[tilesetDefinition.tileset] as TilesetDefinition;
+                const tilesetX: number = getTileXAtIndex(index - 1, tileset.width);
+                const tilesetY: number = getTileYAtIndex(index - 1, tileset.width);
+                const layerID: string = `below-${layerIndex}`;
+                let layer: CreateLevelOptionsLayer | undefined = layers.find((layer: CreateLevelOptionsLayer): boolean => layer.id === layerID);
+                if (!layer) {
+                  layer = {
+                    id: layerID,
+                    tiles: [],
+                  }
+                  layers.push(layer);
+                }
+                layer.tiles.push({
+                  tilesetX,
+                  tilesetY,
+                  tilesetID: tilesetDefinition.tileset,
+                  x: x * 16,
+                  y: y * 16
+                })
+              });
+            });
+          });
+          definition.tiles.forEach((row, x) => {
+            row.forEach((tile, y) => {
+              tile.aboveIndices.forEach((index: number, layerIndex: number) => {
+                const tilesetDefinition: TilemapTilesetDefinition = getTilemapTilesetDefinitionAtIndex(index);
+                const tileset: TilesetDefinition = gameData.Tileset[tilesetDefinition.tileset] as TilesetDefinition;
+                const tilesetX: number = getTileXAtIndex(index - 1, tileset.width);
+                const tilesetY: number = getTileYAtIndex(index - 1, tileset.width);
+                const layerID: string = `above-${layerIndex}`;
+                let layer: CreateLevelOptionsLayer | undefined = layers.find((layer: CreateLevelOptionsLayer): boolean => layer.id === layerID);
+                if (!layer) {
+                  layer = {
+                    id: layerID,
+                    tiles: [],
+                  }
+                  layers.push(layer);
+                }
+                layer.tiles.push({
+                  tilesetX,
+                  tilesetY,
+                  tilesetID: tilesetDefinition.tileset,
+                  x: x * 16,
+                  y: y * 16
+                })
+              });
+            });
+          });
+          createLevel({
+            height: definition.height * constants["tile-size"],
+            id,
+            layers,
+            tileSize: constants["tile-size"],
+            width: definition.width * constants["tile-size"],
+          });
           break;
-        case "Tileset":
+        }
+        case "Tileset": {
+          const definition: TilesetDefinition = gameData[className][
+            id
+          ] as TilesetDefinition;
+          const tiles: CreateTilesetOptionsTile[] = [];
+          definition.tiles.forEach((row, tilesetX) => {
+            row.forEach((tile, tilesetY) => {
+              tiles.push({
+                isCollidable: tile.collision,
+                tilesetX,
+                tilesetY,
+              });
+            });
+          });
+          createTileset({
+            height: definition.height * constants["tile-size"],
+            imagePath: `tilesets/${id}`,
+            id,
+            tileSize: constants["tile-size"],
+            tiles,
+            width: definition.width * constants["tile-size"],
+          });
           break;
+        }
         case "Transport":
           break;
         default:
