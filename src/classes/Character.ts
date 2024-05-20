@@ -20,6 +20,7 @@ export interface CharacterOptions {
   maskItemInstanceID: string | null;
   outfitItemInstanceID: string | null;
   skinColorID: string;
+  tilemapID: string;
 }
 export class Character extends Definable {
   private readonly _classID: string;
@@ -30,6 +31,7 @@ export class Character extends Definable {
   private readonly _maskItemInstanceID: string | null;
   private readonly _outfitItemInstanceID: string | null;
   private readonly _skinColorID: string;
+  private readonly _tilemapID: string;
 
   public constructor(options: CharacterOptions) {
     super(options.id);
@@ -41,6 +43,7 @@ export class Character extends Definable {
     this._maskItemInstanceID = options.maskItemInstanceID;
     this._outfitItemInstanceID = options.outfitItemInstanceID;
     this._skinColorID = options.skinColorID;
+    this._tilemapID = options.tilemapID;
   }
 
   public get class(): Class {
@@ -144,7 +147,7 @@ export class Character extends Definable {
   }
 
   public selectCharacter(): void {
-    goToLevel("overworld");
+    goToLevel(this._tilemapID);
   }
 
   private hasClothesDyeItemInstance(): boolean {

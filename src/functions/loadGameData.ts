@@ -257,11 +257,11 @@ export const loadGameData = async (): Promise<void> => {
                       tilesetDefinition.tileset
                     ] as TilesetDefinition;
                     const tilesetX: number = getTileXAtIndex(
-                      index - 1,
+                      index - tilesetDefinition.firstTileID,
                       tileset.width,
                     );
                     const tilesetY: number = getTileYAtIndex(
-                      index - 1,
+                      index - tilesetDefinition.firstTileID,
                       tileset.width,
                     );
                     const layerID: string = `below-${layerIndex}`;
@@ -300,11 +300,11 @@ export const loadGameData = async (): Promise<void> => {
                       tilesetDefinition.tileset
                     ] as TilesetDefinition;
                     const tilesetX: number = getTileXAtIndex(
-                      index - 1,
+                      index - tilesetDefinition.firstTileID,
                       tileset.width,
                     );
                     const tilesetY: number = getTileYAtIndex(
-                      index - 1,
+                      index - tilesetDefinition.firstTileID,
                       tileset.width,
                     );
                     const layerID: string = `above-${layerIndex}`;

@@ -102,6 +102,7 @@ export const handleWindowMessage = (message: unknown): void => {
               maskSavefileItemInstance,
               outfitSavefileItemInstance,
               skinColorID,
+              tilemapID,
             } = data as {
               classID: string;
               clothesDyeSavefileItemInstance: SavefileItemInstance;
@@ -112,6 +113,7 @@ export const handleWindowMessage = (message: unknown): void => {
               maskSavefileItemInstance: SavefileItemInstance;
               outfitSavefileItemInstance: SavefileItemInstance;
               skinColorID: string;
+              tilemapID: string;
             };
             new ItemInstance({
               id: clothesDyeSavefileItemInstance.id,
@@ -139,6 +141,7 @@ export const handleWindowMessage = (message: unknown): void => {
               maskItemInstanceID: maskSavefileItemInstance.id,
               outfitItemInstanceID: outfitSavefileItemInstance.id,
               skinColorID,
+              tilemapID,
             }).id;
             state.setValues({
               characterIDs: [...state.values.characterIDs, characterID],
