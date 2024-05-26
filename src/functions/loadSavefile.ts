@@ -4,6 +4,9 @@ import { Savefile } from "retrommo-types";
 import { state } from "../state";
 
 export const loadSavefile = (savefile: Savefile): void => {
+  if (state.values.username === null) {
+    throw new Error("Username is null");
+  }
   const characterIDs: string[] = [];
   for (const character of savefile.characters) {
     const clothesDyeItemInstanceID: string | null =
@@ -46,6 +49,7 @@ export const loadSavefile = (savefile: Savefile): void => {
         outfitItemInstanceID,
         skinColorID: character.skinColorID,
         tilemapID: character.tilemapID,
+        username: state.values.username,
         x: character.x,
         y: character.y,
       }).id,

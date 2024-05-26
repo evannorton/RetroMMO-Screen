@@ -28,6 +28,7 @@ export interface CharacterOptions {
   outfitItemInstanceID: string | null;
   skinColorID: string;
   tilemapID: string;
+  username: string;
   x: number;
   y: number;
 }
@@ -42,6 +43,7 @@ export class Character extends Definable {
   private readonly _outfitItemInstanceID: string | null;
   private readonly _skinColorID: string;
   private readonly _tilemapID: string;
+  private readonly _username: string;
   private readonly _x: number;
   private readonly _y: number;
 
@@ -56,8 +58,10 @@ export class Character extends Definable {
     this._outfitItemInstanceID = options.outfitItemInstanceID;
     this._skinColorID = options.skinColorID;
     this._tilemapID = options.tilemapID;
+    this._username = options.username;
     this._x = options.x;
     this._y = options.y;
+    console.log(this._username);
   }
 
   public get class(): Class {
@@ -102,6 +106,29 @@ export class Character extends Definable {
       return getDefinable(ItemInstance, this._outfitItemInstanceID);
     }
     throw new Error(this.getAccessorErrorMessage("outfitItemInstance"));
+  }
+
+  public addToWorld(): void {
+    const tileSize: number = getConstants()["tile-size"];
+    this._entityID = createEntity({
+      height: tileSize,
+      layerID: "characters",
+      levelID: this._tilemapID,
+      position: {
+        x: this._x * tileSize,
+        y: this._y * tileSize,
+      },
+      quadrilaterals: [
+        {
+          quadrilateralID: createQuadrilateral({
+            color: "#ffffff",
+            height: tileSize,
+            width: tileSize,
+          }),
+        },
+      ],
+      width: tileSize,
+    });
   }
 
   public getClothesDye(): ClothesDye {
@@ -172,29 +199,9 @@ export class Character extends Definable {
   public selectCharacter(): void {
     goToLevel(this._tilemapID);
     this.addToWorld();
-  }
-
-  private addToWorld(): void {
-    const tileSize: number = getConstants()["tile-size"];
-    this._entityID = createEntity({
-      height: tileSize,
-      layerID: "characters",
-      levelID: this._tilemapID,
-      position: {
-        x: this._x * tileSize,
-        y: this._y * tileSize,
-      },
-      quadrilaterals: [
-        {
-          quadrilateralID: createQuadrilateral({
-            color: "#ffffff",
-            height: tileSize,
-            width: tileSize,
-          }),
-        },
-      ],
-      width: tileSize,
-    });
+    if (this._entityID === null) {
+      throw new Error("Entity ID is null");
+    }
     lockCameraToEntity(this._entityID);
   }
 

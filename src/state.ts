@@ -39,6 +39,7 @@ interface StateSchema {
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
   serverURL: string | null;
+  username: string | null;
   worldState: State<WorldStateSchema> | null;
 }
 
@@ -53,5 +54,6 @@ export const state: State<StateSchema> = new State<StateSchema>({
   isSubscribed: false,
   mainMenuState: null,
   serverURL: null,
+  username: null,
   worldState: null,
 });

@@ -18,6 +18,7 @@ import { exitLevel, listenToSocketioEvent } from "pixel-pigeon";
 import { getCharacterSelectState } from "./state/main-menu/getCharacterSelectState";
 import { getDefinable, getDefinables } from "../definables";
 import { getLastPlayableCharacterIndex } from "./getLastPlayableCharacterIndex";
+import { loadCharacterUpdate } from "./loadCharacterUpdate";
 import { loadSavefile } from "./loadSavefile";
 import { state } from "../state";
 
@@ -47,6 +48,7 @@ export const listenForUpdates = (): void => {
         battleState: null,
         isSubscribed: update.isSubscribed,
         mainMenuState: null,
+        username: update.username,
         worldState: null,
       });
       loadSavefile(update.savefile);
@@ -75,6 +77,9 @@ export const listenForUpdates = (): void => {
             update.world.characterID,
           );
           character.selectCharacter();
+          for (const characterUpdate of update.world.characters) {
+            loadCharacterUpdate(characterUpdate);
+          }
           break;
         }
       }
@@ -85,6 +90,9 @@ export const listenForUpdates = (): void => {
     (update: CreateCharacterUpdate): void => {
       if (state.values.mainMenuState === null) {
         throw new Error("No main menu state.");
+      }
+      if (state.values.username === null) {
+        throw new Error("No username.");
       }
       new ItemInstance({
         id: update.clothesDyeSavefileItemInstance.id,
@@ -113,6 +121,7 @@ export const listenForUpdates = (): void => {
         outfitItemInstanceID: update.outfitSavefileItemInstance.id,
         skinColorID: update.skinColorID,
         tilemapID: update.tilemapID,
+        username: state.values.username,
         x: update.x,
         y: update.y,
       }).id;
@@ -151,6 +160,9 @@ export const listenForUpdates = (): void => {
       });
       const character: Character = getDefinable(Character, update.characterID);
       character.selectCharacter();
+      for (const characterUpdate of update.characters) {
+        loadCharacterUpdate(characterUpdate);
+      }
     },
   );
   listenForUpdate<SortCharacterLeftUpdate>(
@@ -196,6 +208,11 @@ export const listenForUpdates = (): void => {
       state.values.worldState.values.characterID,
     );
     character.removeFromWorld();
+    getDefinables(Character).forEach((loopedCharacter: Character): void => {
+      if (loopedCharacter !== character) {
+        loopedCharacter.remove();
+      }
+    });
     state.setValues({
       mainMenuState: createMainMenuState(),
       worldState: null,
