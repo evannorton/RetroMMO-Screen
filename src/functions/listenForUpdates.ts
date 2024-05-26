@@ -1,5 +1,6 @@
 import { Character } from "../classes/Character";
 import {
+  CharacterUpdate,
   CreateCharacterUpdate,
   DeleteCharacterUpdate,
   ExitToMainMenuUpdate,
@@ -197,6 +198,12 @@ export const listenForUpdates = (): void => {
       characterIDs[targetIndex] = update.characterID;
       characterIDs[characterIndex] = targetCharacterID;
       state.setValues({ characterIDs });
+    },
+  );
+  listenForUpdate<CharacterUpdate>(
+    "world/enter-player",
+    (update: CharacterUpdate): void => {
+      loadCharacterUpdate(update);
     },
   );
   listenForUpdate<ExitToMainMenuUpdate>("world/exit-to-main-menu", (): void => {
