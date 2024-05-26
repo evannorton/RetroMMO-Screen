@@ -7,7 +7,14 @@ import { ItemInstance } from "./ItemInstance";
 import { Mask } from "./Mask";
 import { Outfit } from "./Outfit";
 import { SkinColor } from "./SkinColor";
-import { goToLevel } from "pixel-pigeon";
+import {
+  createEntity,
+  createQuadrilateral,
+  goToLevel,
+  lockCameraToEntity,
+  removeEntity,
+} from "pixel-pigeon";
+import { getConstants } from "../functions/getConstants";
 import { state } from "../state";
 
 export interface CharacterOptions {
@@ -21,10 +28,13 @@ export interface CharacterOptions {
   outfitItemInstanceID: string | null;
   skinColorID: string;
   tilemapID: string;
+  x: number;
+  y: number;
 }
 export class Character extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemInstanceID: string | null;
+  private _entityID: string | null = null;
   private readonly _figureID: string;
   private readonly _hairDyeItemInstanceID: string | null;
   private readonly _level: number;
@@ -32,6 +42,8 @@ export class Character extends Definable {
   private readonly _outfitItemInstanceID: string | null;
   private readonly _skinColorID: string;
   private readonly _tilemapID: string;
+  private readonly _x: number;
+  private readonly _y: number;
 
   public constructor(options: CharacterOptions) {
     super(options.id);
@@ -44,6 +56,8 @@ export class Character extends Definable {
     this._outfitItemInstanceID = options.outfitItemInstanceID;
     this._skinColorID = options.skinColorID;
     this._tilemapID = options.tilemapID;
+    this._x = options.x;
+    this._y = options.y;
   }
 
   public get class(): Class {
@@ -144,10 +158,44 @@ export class Character extends Definable {
     if (this._outfitItemInstanceID !== null) {
       this.outfitItemInstance.remove();
     }
+    if (this._entityID !== null) {
+      removeEntity(this._entityID);
+    }
+  }
+
+  public removeFromWorld(): void {
+    if (this._entityID !== null) {
+      removeEntity(this._entityID);
+    }
   }
 
   public selectCharacter(): void {
     goToLevel(this._tilemapID);
+    this.addToWorld();
+  }
+
+  private addToWorld(): void {
+    const tileSize: number = getConstants()["tile-size"];
+    this._entityID = createEntity({
+      height: tileSize,
+      layerID: "characters",
+      levelID: this._tilemapID,
+      position: {
+        x: this._x * tileSize,
+        y: this._y * tileSize,
+      },
+      quadrilaterals: [
+        {
+          quadrilateralID: createQuadrilateral({
+            color: "#ffffff",
+            height: tileSize,
+            width: tileSize,
+          }),
+        },
+      ],
+      width: tileSize,
+    });
+    lockCameraToEntity(this._entityID);
   }
 
   private hasClothesDyeItemInstance(): boolean {

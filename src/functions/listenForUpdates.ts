@@ -113,6 +113,8 @@ export const listenForUpdates = (): void => {
         outfitItemInstanceID: update.outfitSavefileItemInstance.id,
         skinColorID: update.skinColorID,
         tilemapID: update.tilemapID,
+        x: update.x,
+        y: update.y,
       }).id;
       state.setValues({
         characterIDs: [...state.values.characterIDs, characterID],
@@ -186,6 +188,14 @@ export const listenForUpdates = (): void => {
     },
   );
   listenForUpdate<ExitToMainMenuUpdate>("world/exit-to-main-menu", (): void => {
+    if (state.values.worldState === null) {
+      throw new Error("No world state.");
+    }
+    const character: Character = getDefinable(
+      Character,
+      state.values.worldState.values.characterID,
+    );
+    character.removeFromWorld();
     state.setValues({
       mainMenuState: createMainMenuState(),
       worldState: null,

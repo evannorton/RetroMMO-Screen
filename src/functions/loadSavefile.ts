@@ -46,6 +46,8 @@ export const loadSavefile = (savefile: Savefile): void => {
         outfitItemInstanceID,
         skinColorID: character.skinColorID,
         tilemapID: character.tilemapID,
+        x: character.x,
+        y: character.y,
       }).id,
     );
   }

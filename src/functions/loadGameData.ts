@@ -246,11 +246,14 @@ export const loadGameData = async (): Promise<void> => {
           const getTileYAtIndex = (index: number, width: number): number =>
             Math.floor(index / width);
           const layers: CreateLevelOptionsLayer[] = [];
-          definition.tiles.forEach(
-            (row: TilemapTileDefinition[], x: number): void => {
-              row.forEach((tile: TilemapTileDefinition, y: number): void => {
-                tile.belowIndices.forEach(
-                  (index: number, layerIndex: number): void => {
+          const addTiles = (zLayer: string): void => {
+            definition.tiles.forEach(
+              (row: TilemapTileDefinition[], x: number): void => {
+                row.forEach((tile: TilemapTileDefinition, y: number): void => {
+                  (zLayer === "below"
+                    ? tile.belowIndices
+                    : tile.aboveIndices
+                  ).forEach((index: number, layerIndex: number): void => {
                     const tilesetDefinition: TilemapTilesetDefinition =
                       getTilemapTilesetDefinitionAtIndex(index);
                     const tileset: TilesetDefinition = gameData.Tileset[
@@ -264,7 +267,7 @@ export const loadGameData = async (): Promise<void> => {
                       index - tilesetDefinition.firstTileID,
                       tileset.width,
                     );
-                    const layerID: string = `below-${layerIndex}`;
+                    const layerID: string = `${zLayer}-${layerIndex}`;
                     let layer: CreateLevelOptionsLayer | undefined =
                       layers.find(
                         (layerInLoop: CreateLevelOptionsLayer): boolean =>
@@ -284,54 +287,17 @@ export const loadGameData = async (): Promise<void> => {
                       x: x * 16,
                       y: y * 16,
                     });
-                  },
-                );
-              });
-            },
-          );
-          definition.tiles.forEach(
-            (row: TilemapTileDefinition[], x: number): void => {
-              row.forEach((tile: TilemapTileDefinition, y: number): void => {
-                tile.aboveIndices.forEach(
-                  (index: number, layerIndex: number): void => {
-                    const tilesetDefinition: TilemapTilesetDefinition =
-                      getTilemapTilesetDefinitionAtIndex(index);
-                    const tileset: TilesetDefinition = gameData.Tileset[
-                      tilesetDefinition.tileset
-                    ] as TilesetDefinition;
-                    const tilesetX: number = getTileXAtIndex(
-                      index - tilesetDefinition.firstTileID,
-                      tileset.width,
-                    );
-                    const tilesetY: number = getTileYAtIndex(
-                      index - tilesetDefinition.firstTileID,
-                      tileset.width,
-                    );
-                    const layerID: string = `above-${layerIndex}`;
-                    let layer: CreateLevelOptionsLayer | undefined =
-                      layers.find(
-                        (layerInLoop: CreateLevelOptionsLayer): boolean =>
-                          layerInLoop.id === layerID,
-                      );
-                    if (!layer) {
-                      layer = {
-                        id: layerID,
-                        tiles: [],
-                      };
-                      layers.push(layer);
-                    }
-                    layer.tiles.push({
-                      tilesetID: tilesetDefinition.tileset,
-                      tilesetX,
-                      tilesetY,
-                      x: x * 16,
-                      y: y * 16,
-                    });
-                  },
-                );
-              });
-            },
-          );
+                  });
+                });
+              },
+            );
+          };
+          addTiles("below");
+          layers.push({
+            id: "characters",
+            tiles: [],
+          });
+          addTiles("above");
           createLevel({
             height: definition.height * constants["tile-size"],
             id,
