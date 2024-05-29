@@ -3,6 +3,7 @@ import {
   CharacterUpdate,
   CreateCharacterUpdate,
   DeleteCharacterUpdate,
+  ExitCharacterUpdate,
   ExitToMainMenuUpdate,
   InitialUpdate,
   MainState,
@@ -49,6 +50,7 @@ export const listenForUpdates = (): void => {
         battleState: null,
         isSubscribed: update.isSubscribed,
         mainMenuState: null,
+        userID: update.userID,
         username: update.username,
         worldState: null,
       });
@@ -95,6 +97,9 @@ export const listenForUpdates = (): void => {
       if (state.values.username === null) {
         throw new Error("No username.");
       }
+      if (state.values.userID === null) {
+        throw new Error("No userID.");
+      }
       new ItemInstance({
         id: update.clothesDyeSavefileItemInstance.id,
         itemID: update.clothesDyeSavefileItemInstance.itemID,
@@ -122,6 +127,7 @@ export const listenForUpdates = (): void => {
         outfitItemInstanceID: update.outfitSavefileItemInstance.id,
         skinColorID: update.skinColorID,
         tilemapID: update.tilemapID,
+        userID: state.values.userID,
         username: state.values.username,
         x: update.x,
         y: update.y,
@@ -201,9 +207,15 @@ export const listenForUpdates = (): void => {
     },
   );
   listenForUpdate<CharacterUpdate>(
-    "world/enter-player",
+    "world/enter-character",
     (update: CharacterUpdate): void => {
       loadCharacterUpdate(update);
+    },
+  );
+  listenForUpdate<ExitCharacterUpdate>(
+    "world/exit-character",
+    (update: ExitCharacterUpdate): void => {
+      getDefinable(Character, update.characterID).remove();
     },
   );
   listenForUpdate<ExitToMainMenuUpdate>("world/exit-to-main-menu", (): void => {
@@ -216,7 +228,7 @@ export const listenForUpdates = (): void => {
     );
     character.removeFromWorld();
     getDefinables(Character).forEach((loopedCharacter: Character): void => {
-      if (loopedCharacter !== character) {
+      if (loopedCharacter.belongsToPlayer() === false) {
         loopedCharacter.remove();
       }
     });

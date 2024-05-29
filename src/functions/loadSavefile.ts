@@ -7,6 +7,9 @@ export const loadSavefile = (savefile: Savefile): void => {
   if (state.values.username === null) {
     throw new Error("Username is null");
   }
+  if (state.values.userID === null) {
+    throw new Error("User ID is null");
+  }
   const characterIDs: string[] = [];
   for (const character of savefile.characters) {
     const clothesDyeItemInstanceID: string | null =
@@ -49,6 +52,7 @@ export const loadSavefile = (savefile: Savefile): void => {
         outfitItemInstanceID,
         skinColorID: character.skinColorID,
         tilemapID: character.tilemapID,
+        userID: state.values.userID,
         username: state.values.username,
         x: character.x,
         y: character.y,

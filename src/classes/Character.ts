@@ -28,6 +28,7 @@ export interface CharacterOptions {
   outfitItemInstanceID: string | null;
   skinColorID: string;
   tilemapID: string;
+  userID: number;
   username: string;
   x: number;
   y: number;
@@ -43,6 +44,7 @@ export class Character extends Definable {
   private readonly _outfitItemInstanceID: string | null;
   private readonly _skinColorID: string;
   private readonly _tilemapID: string;
+  private readonly _userID: number;
   private readonly _username: string;
   private readonly _x: number;
   private readonly _y: number;
@@ -58,6 +60,7 @@ export class Character extends Definable {
     this._outfitItemInstanceID = options.outfitItemInstanceID;
     this._skinColorID = options.skinColorID;
     this._tilemapID = options.tilemapID;
+    this._userID = options.userID;
     this._username = options.username;
     this._x = options.x;
     this._y = options.y;
@@ -129,6 +132,10 @@ export class Character extends Definable {
       ],
       width: tileSize,
     });
+  }
+
+  public belongsToPlayer(): boolean {
+    return this._userID === state.values.userID;
   }
 
   public getClothesDye(): ClothesDye {

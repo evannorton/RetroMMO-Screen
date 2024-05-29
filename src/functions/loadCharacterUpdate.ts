@@ -39,6 +39,7 @@ export const loadCharacterUpdate = (characterUpdate: CharacterUpdate): void => {
     outfitItemInstanceID: characterUpdate.outfitItemInstance?.id ?? null,
     skinColorID: characterUpdate.skinColorID,
     tilemapID: characterUpdate.tilemapID,
+    userID: characterUpdate.userID,
     username: characterUpdate.username,
     x: characterUpdate.x,
     y: characterUpdate.y,
