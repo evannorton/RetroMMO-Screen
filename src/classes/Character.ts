@@ -1,19 +1,23 @@
 import { Class } from "./Class";
 import { ClothesDye } from "./ClothesDye";
+import { Constants, Direction } from "retrommo-types";
 import { Definable, getDefinable } from "../definables";
+import {
+  EntityPosition,
+  createEntity,
+  createQuadrilateral,
+  getEntityPosition,
+  goToLevel,
+  lockCameraToEntity,
+  removeEntity,
+  setEntityPosition,
+} from "pixel-pigeon";
 import { Figure } from "./Figure";
 import { HairDye } from "./HairDye";
 import { ItemInstance } from "./ItemInstance";
 import { Mask } from "./Mask";
 import { Outfit } from "./Outfit";
 import { SkinColor } from "./SkinColor";
-import {
-  createEntity,
-  createQuadrilateral,
-  goToLevel,
-  lockCameraToEntity,
-  removeEntity,
-} from "pixel-pigeon";
 import { getConstants } from "../functions/getConstants";
 import { state } from "../state";
 
@@ -46,8 +50,8 @@ export class Character extends Definable {
   private readonly _tilemapID: string;
   private readonly _userID: number;
   private readonly _username: string;
-  private readonly _x: number;
-  private readonly _y: number;
+  private _x: number;
+  private _y: number;
 
   public constructor(options: CharacterOptions) {
     super(options.id);
@@ -176,6 +180,44 @@ export class Character extends Definable {
       throw new Error("Default outfit is null");
     }
     return getDefinable(Outfit, state.values.defaultOutfitID);
+  }
+
+  public move(direction: Direction): void {
+    if (this._entityID === null) {
+      throw new Error("Entity ID is null");
+    }
+    const constants: Constants = getConstants();
+    const entityPosition: EntityPosition = getEntityPosition(this._entityID);
+    switch (direction) {
+      case Direction.Down:
+        this._y++;
+        setEntityPosition(this._entityID, {
+          x: entityPosition.x,
+          y: entityPosition.y + constants["tile-size"],
+        });
+        break;
+      case Direction.Left:
+        this._x--;
+        setEntityPosition(this._entityID, {
+          x: entityPosition.x - constants["tile-size"],
+          y: entityPosition.y,
+        });
+        break;
+      case Direction.Right:
+        this._x++;
+        setEntityPosition(this._entityID, {
+          x: entityPosition.x + constants["tile-size"],
+          y: entityPosition.y,
+        });
+        break;
+      case Direction.Up:
+        this._y--;
+        setEntityPosition(this._entityID, {
+          x: entityPosition.x,
+          y: entityPosition.y - constants["tile-size"],
+        });
+        break;
+    }
   }
 
   public remove(): void {

@@ -7,6 +7,7 @@ import {
   ExitToMainMenuUpdate,
   InitialUpdate,
   MainState,
+  MoveCharacterUpdate,
   SelectCharacterUpdate,
   SortCharacterLeftUpdate,
   SortCharacterRightUpdate,
@@ -216,6 +217,13 @@ export const listenForUpdates = (): void => {
     "world/exit-character",
     (update: ExitCharacterUpdate): void => {
       getDefinable(Character, update.characterID).remove();
+    },
+  );
+  listenForUpdate<MoveCharacterUpdate>(
+    "world/move-character",
+    (update: MoveCharacterUpdate): void => {
+      const character: Character = getDefinable(Character, update.characterID);
+      character.move(update.direction);
     },
   );
   listenForUpdate<ExitToMainMenuUpdate>("world/exit-to-main-menu", (): void => {
