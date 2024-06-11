@@ -127,7 +127,7 @@ export const createCharacterSelectUI = (): void => {
     onClick: (): void => {
       emitToSocketioServer({
         data: getCharacterSelectState().values.characterIDToDelete,
-        event: "character-select/delete-character",
+        event: "main-menu/character-select/delete-character",
       });
     },
     text: { value: "Confirm" },
@@ -259,7 +259,7 @@ export const createCharacterSelectUI = (): void => {
         if (canPlayCharacter()) {
           emitToSocketioServer({
             data: state.values.characterIDs[index],
-            event: "character-select/select-character",
+            event: "main-menu/character-select/select-character",
           });
         } else {
           postWindowMessage({ event: "subscribe/character-limit" });
@@ -310,7 +310,7 @@ export const createCharacterSelectUI = (): void => {
       onClick: (): void => {
         emitToSocketioServer({
           data: state.values.characterIDs[getOffsetIndex(i)],
-          event: "character-select/sort-character-left",
+          event: "main-menu/character-select/sort-character-left",
         });
       },
       width: sortLeftWidth,
@@ -354,7 +354,7 @@ export const createCharacterSelectUI = (): void => {
       onClick: (): void => {
         emitToSocketioServer({
           data: state.values.characterIDs[getOffsetIndex(i)],
-          event: "character-select/sort-character-right",
+          event: "main-menu/character-select/sort-character-right",
         });
       },
       width: sortRightWidth,

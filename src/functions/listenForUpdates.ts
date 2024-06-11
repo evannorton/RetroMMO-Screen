@@ -1,28 +1,39 @@
-import { Character } from "../classes/Character";
 import {
-  CharacterUpdate,
-  CreateCharacterUpdate,
-  DeleteCharacterUpdate,
-  ExitCharacterUpdate,
-  ExitToMainMenuUpdate,
+  BattleExitToWorldUpdate,
+  Constants,
   InitialUpdate,
+  MainMenuCharacterCustomizeCreateCharacterUpdate,
+  MainMenuCharacterSelectDeleteCharacterUpdate,
+  MainMenuCharacterSelectSelectCharacterUpdate,
+  MainMenuCharacterSelectSortCharacterLeftUpdate,
+  MainMenuCharacterSelectSortCharacterRightUpdate,
   MainState,
-  MoveCharacterUpdate,
-  SelectCharacterUpdate,
-  SortCharacterLeftUpdate,
-  SortCharacterRightUpdate,
+  WorldEnterCharacterUpdate,
+  WorldExitCharacterUpdate,
+  WorldExitToMainMenuUpdate,
+  WorldMoveCharacterUpdate,
+  WorldPositionUpdate,
+  WorldStartBattleUpdate,
 } from "retrommo-types";
+import { Character } from "../classes/Character";
 import { ItemInstance } from "../classes/ItemInstance";
 import { createBattleState } from "./state/createBattleState";
 import { createCharacterSelectState } from "./state/main-menu/createCharacterSelectState";
 import { createMainMenuState } from "./state/main-menu/createMainMenuState";
 import { createWorldState } from "./state/createWorldState";
-import { exitLevel, listenToSocketioEvent } from "pixel-pigeon";
+import {
+  exitLevel,
+  goToLevel,
+  listenToSocketioEvent,
+  setEntityLevel,
+  setEntityPosition,
+} from "pixel-pigeon";
 import { getCharacterSelectState } from "./state/main-menu/getCharacterSelectState";
+import { getConstants } from "./getConstants";
 import { getDefinable, getDefinables } from "../definables";
 import { getLastPlayableCharacterIndex } from "./getLastPlayableCharacterIndex";
-import { loadCharacterUpdate } from "./loadCharacterUpdate";
 import { loadSavefile } from "./loadSavefile";
+import { loadWorldCharacterUpdate } from "./loadWorldCharacterUpdate";
 import { state } from "../state";
 
 const listenForUpdate = <Update>(
@@ -82,16 +93,33 @@ export const listenForUpdates = (): void => {
           );
           character.selectCharacter();
           for (const characterUpdate of update.world.characters) {
-            loadCharacterUpdate(characterUpdate);
+            loadWorldCharacterUpdate(characterUpdate);
           }
           break;
         }
       }
     },
   );
-  listenForUpdate<CreateCharacterUpdate>(
-    "character-customize/create-character",
-    (update: CreateCharacterUpdate): void => {
+  listenForUpdate<BattleExitToWorldUpdate>(
+    "battle/exit-to-world",
+    (update: BattleExitToWorldUpdate): void => {
+      state.setValues({
+        battleState: null,
+        worldState: createWorldState(update.characterID),
+      });
+      const character: Character = getDefinable(Character, update.characterID);
+      character.tilemapID = update.tilemapID;
+      character.x = update.x;
+      character.y = update.y;
+      character.selectCharacter();
+      for (const characterUpdate of update.characters) {
+        loadWorldCharacterUpdate(characterUpdate);
+      }
+    },
+  );
+  listenForUpdate<MainMenuCharacterCustomizeCreateCharacterUpdate>(
+    "main-menu/character-customize/create-character",
+    (update: MainMenuCharacterCustomizeCreateCharacterUpdate): void => {
       if (state.values.mainMenuState === null) {
         throw new Error("No main menu state.");
       }
@@ -142,9 +170,9 @@ export const listenForUpdates = (): void => {
       });
     },
   );
-  listenForUpdate<DeleteCharacterUpdate>(
-    "character-select/delete-character",
-    (update: DeleteCharacterUpdate): void => {
+  listenForUpdate<MainMenuCharacterSelectDeleteCharacterUpdate>(
+    "main-menu/character-select/delete-character",
+    (update: MainMenuCharacterSelectDeleteCharacterUpdate): void => {
       const character: Character = getDefinable(Character, update.characterID);
       character.remove();
       state.setValues({
@@ -159,9 +187,9 @@ export const listenForUpdates = (): void => {
       });
     },
   );
-  listenForUpdate<SelectCharacterUpdate>(
-    "character-select/select-character",
-    (update: SelectCharacterUpdate): void => {
+  listenForUpdate<MainMenuCharacterSelectSelectCharacterUpdate>(
+    "main-menu/character-select/select-character",
+    (update: MainMenuCharacterSelectSelectCharacterUpdate): void => {
       state.setValues({
         mainMenuState: null,
         worldState: createWorldState(update.characterID),
@@ -169,13 +197,13 @@ export const listenForUpdates = (): void => {
       const character: Character = getDefinable(Character, update.characterID);
       character.selectCharacter();
       for (const characterUpdate of update.characters) {
-        loadCharacterUpdate(characterUpdate);
+        loadWorldCharacterUpdate(characterUpdate);
       }
     },
   );
-  listenForUpdate<SortCharacterLeftUpdate>(
-    "character-select/sort-character-left",
-    (update: SortCharacterLeftUpdate): void => {
+  listenForUpdate<MainMenuCharacterSelectSortCharacterLeftUpdate>(
+    "main-menu/character-select/sort-character-left",
+    (update: MainMenuCharacterSelectSortCharacterLeftUpdate): void => {
       const characterIndex: number = state.values.characterIDs.indexOf(
         update.characterID,
       );
@@ -190,9 +218,9 @@ export const listenForUpdates = (): void => {
       state.setValues({ characterIDs });
     },
   );
-  listenForUpdate<SortCharacterRightUpdate>(
-    "character-select/sort-character-right",
-    (update: SortCharacterRightUpdate): void => {
+  listenForUpdate<MainMenuCharacterSelectSortCharacterRightUpdate>(
+    "main-menu/character-select/sort-character-right",
+    (update: MainMenuCharacterSelectSortCharacterRightUpdate): void => {
       const characterIndex: number = state.values.characterIDs.indexOf(
         update.characterID,
       );
@@ -207,26 +235,79 @@ export const listenForUpdates = (): void => {
       state.setValues({ characterIDs });
     },
   );
-  listenForUpdate<CharacterUpdate>(
+  listenForUpdate<WorldEnterCharacterUpdate>(
     "world/enter-character",
-    (update: CharacterUpdate): void => {
-      loadCharacterUpdate(update);
+    (update: WorldEnterCharacterUpdate): void => {
+      loadWorldCharacterUpdate(update.character);
     },
   );
-  listenForUpdate<ExitCharacterUpdate>(
+  listenForUpdate<WorldExitCharacterUpdate>(
     "world/exit-character",
-    (update: ExitCharacterUpdate): void => {
+    (update: WorldExitCharacterUpdate): void => {
       getDefinable(Character, update.characterID).remove();
     },
   );
-  listenForUpdate<MoveCharacterUpdate>(
+  listenForUpdate<WorldExitToMainMenuUpdate>(
+    "world/exit-to-main-menu",
+    (): void => {
+      if (state.values.worldState === null) {
+        throw new Error("No world state.");
+      }
+      const character: Character = getDefinable(
+        Character,
+        state.values.worldState.values.characterID,
+      );
+      character.removeFromWorld();
+      getDefinables(Character).forEach((loopedCharacter: Character): void => {
+        if (loopedCharacter.belongsToPlayer() === false) {
+          loopedCharacter.remove();
+        }
+      });
+      state.setValues({
+        mainMenuState: createMainMenuState(),
+        worldState: null,
+      });
+      exitLevel();
+    },
+  );
+  listenForUpdate<WorldMoveCharacterUpdate>(
     "world/move-character",
-    (update: MoveCharacterUpdate): void => {
+    (update: WorldMoveCharacterUpdate): void => {
       const character: Character = getDefinable(Character, update.characterID);
       character.move(update.direction);
     },
   );
-  listenForUpdate<ExitToMainMenuUpdate>("world/exit-to-main-menu", (): void => {
+  listenForUpdate<WorldPositionUpdate>(
+    "world/position",
+    (update: WorldPositionUpdate): void => {
+      if (state.values.worldState === null) {
+        throw new Error("No world state.");
+      }
+      const constants: Constants = getConstants();
+      const character: Character = getDefinable(
+        Character,
+        state.values.worldState.values.characterID,
+      );
+      character.x = update.x;
+      character.y = update.y;
+      character.tilemapID = update.tilemapID;
+      goToLevel(update.tilemapID);
+      setEntityLevel(character.entityID, update.tilemapID);
+      setEntityPosition(character.entityID, {
+        x: update.x * constants["tile-size"],
+        y: update.y * constants["tile-size"],
+      });
+      getDefinables(Character).forEach((loopedCharacter: Character): void => {
+        if (loopedCharacter.belongsToPlayer() === false) {
+          loopedCharacter.remove();
+        }
+      });
+      for (const updateCharacter of update.characters) {
+        loadWorldCharacterUpdate(updateCharacter);
+      }
+    },
+  );
+  listenForUpdate<WorldStartBattleUpdate>("world/start-battle", (): void => {
     if (state.values.worldState === null) {
       throw new Error("No world state.");
     }
@@ -241,7 +322,7 @@ export const listenForUpdates = (): void => {
       }
     });
     state.setValues({
-      mainMenuState: createMainMenuState(),
+      battleState: createBattleState(),
       worldState: null,
     });
     exitLevel();

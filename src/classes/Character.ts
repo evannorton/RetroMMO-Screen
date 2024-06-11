@@ -47,7 +47,7 @@ export class Character extends Definable {
   private readonly _maskItemInstanceID: string | null;
   private readonly _outfitItemInstanceID: string | null;
   private readonly _skinColorID: string;
-  private readonly _tilemapID: string;
+  private _tilemapID: string;
   private readonly _userID: number;
   private readonly _username: string;
   private _x: number;
@@ -68,11 +68,18 @@ export class Character extends Definable {
     this._username = options.username;
     this._x = options.x;
     this._y = options.y;
-    console.log(this._username);
+    console.log(`Username ${this._username}`);
   }
 
   public get class(): Class {
     return getDefinable(Class, this._classID);
+  }
+
+  public get entityID(): string {
+    if (this._entityID !== null) {
+      return this._entityID;
+    }
+    throw new Error(this.getAccessorErrorMessage("entityID"));
   }
 
   public get figure(): Figure {
@@ -85,6 +92,18 @@ export class Character extends Definable {
 
   public get skinColor(): SkinColor {
     return getDefinable(SkinColor, this._skinColorID);
+  }
+
+  public get tilemapID(): string {
+    return this._tilemapID;
+  }
+
+  public get x(): number {
+    return this._x;
+  }
+
+  public get y(): number {
+    return this._y;
   }
 
   private get clothesDyeItemInstance(): ItemInstance {
@@ -113,6 +132,18 @@ export class Character extends Definable {
       return getDefinable(ItemInstance, this._outfitItemInstanceID);
     }
     throw new Error(this.getAccessorErrorMessage("outfitItemInstance"));
+  }
+
+  public set tilemapID(tilemapID: string) {
+    this._tilemapID = tilemapID;
+  }
+
+  public set x(x: number) {
+    this._x = x;
+  }
+
+  public set y(y: number) {
+    this._y = y;
   }
 
   public addToWorld(): void {

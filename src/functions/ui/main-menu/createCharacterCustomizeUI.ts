@@ -958,7 +958,7 @@ export const createCharacterCustomizeUI = (): void => {
           outfitItemID: getOutfitItem().id,
           skinColorID: getSkinColor().id,
         },
-        event: "character-customize/create-character",
+        event: "main-menu/character-customize/create-character",
       });
     },
     text: { value: "Finish" },

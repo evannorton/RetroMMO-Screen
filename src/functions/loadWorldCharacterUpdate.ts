@@ -1,8 +1,10 @@
 import { Character } from "../classes/Character";
-import { CharacterUpdate } from "retrommo-types";
 import { ItemInstance } from "../classes/ItemInstance";
+import { WorldCharacterUpdate } from "retrommo-types";
 
-export const loadCharacterUpdate = (characterUpdate: CharacterUpdate): void => {
+export const loadWorldCharacterUpdate = (
+  characterUpdate: WorldCharacterUpdate,
+): void => {
   if (characterUpdate.clothesDyeItemInstance !== null) {
     new ItemInstance({
       id: characterUpdate.clothesDyeItemInstance.id,
