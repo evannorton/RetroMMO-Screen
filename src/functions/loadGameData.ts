@@ -18,6 +18,7 @@ import {
   TilemapTileDefinition,
   TilemapTilesetDefinition,
   TilesetDefinition,
+  TilesetTileAnimationFrameDefinition,
   TilesetTileDefinition,
 } from "retrommo-types";
 import { Class } from "../classes/Class";
@@ -30,6 +31,7 @@ import {
   createTileset,
   makeHTTPRequest,
 } from "pixel-pigeon";
+import { CreateTilesetOptionsTileAnimationFrame } from "pixel-pigeon/api/functions/createTileset";
 import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
 import { HairDye } from "../classes/HairDye";
@@ -61,6 +63,10 @@ export const loadGameData = async (): Promise<void> => {
   >;
   for (const className in gameData) {
     for (const id in gameData[className]) {
+      const getTileXAtIndex = (index: number, width: number): number =>
+        index % width;
+      const getTileYAtIndex = (index: number, width: number): number =>
+        Math.floor(index / width);
       switch (className) {
         case "Ability":
           break;
@@ -241,10 +247,6 @@ export const loadGameData = async (): Promise<void> => {
               `Tilemap "${id}" does not have TilemapTilesetDefinition at index ${index}.`,
             );
           };
-          const getTileXAtIndex = (index: number, width: number): number =>
-            index % width;
-          const getTileYAtIndex = (index: number, width: number): number =>
-            Math.floor(index / width);
           const layers: CreateLevelOptionsLayer[] = [];
           const addTiles = (zLayer: string): void => {
             definition.tiles.forEach(
@@ -284,8 +286,8 @@ export const loadGameData = async (): Promise<void> => {
                       tilesetID: tilesetDefinition.tileset,
                       tilesetX,
                       tilesetY,
-                      x: x * 16,
-                      y: y * 16,
+                      x: x * constants["tile-size"],
+                      y: y * constants["tile-size"],
                     });
                   });
                 });
@@ -316,7 +318,29 @@ export const loadGameData = async (): Promise<void> => {
             (row: TilesetTileDefinition[], tilesetX: number): void => {
               row.forEach(
                 (tile: TilesetTileDefinition, tilesetY: number): void => {
+                  const animationFrames: CreateTilesetOptionsTileAnimationFrame[] =
+                    [];
+                  tile.animationFrames.forEach(
+                    (
+                      animationFrame: TilesetTileAnimationFrameDefinition,
+                    ): void => {
+                      const animationTilesetX: number = getTileXAtIndex(
+                        animationFrame.index,
+                        definition.width,
+                      );
+                      const animationTilesetY: number = getTileYAtIndex(
+                        animationFrame.index,
+                        definition.width,
+                      );
+                      animationFrames.push({
+                        duration: animationFrame.duration,
+                        tilesetX: animationTilesetX,
+                        tilesetY: animationTilesetY,
+                      });
+                    },
+                  );
                   tiles.push({
+                    animationFrames,
                     isCollidable: tile.collision,
                     tilesetX,
                     tilesetY,
