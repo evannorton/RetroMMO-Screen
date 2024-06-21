@@ -27,7 +27,6 @@ import { state } from "../../state";
 
 export const listenForWorldUpdates = (): void => {
   listenForUpdate<WorldBonkUpdate>("world/bonk", (): void => {
-    console.log("bonk");
     playAudioSource("sfx/bonk", {
       volumeChannelID: sfxVolumeChannelID,
     });
