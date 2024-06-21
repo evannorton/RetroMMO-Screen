@@ -1,5 +1,5 @@
 import { connectToSocketioServer } from "pixel-pigeon";
-import { listenForUpdates } from "./listenForUpdates";
+import { listenForUpdates } from "./updates/listenForUpdates";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
