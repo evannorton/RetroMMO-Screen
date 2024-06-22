@@ -123,4 +123,9 @@ export const listenForWorldUpdates = (): void => {
     });
     exitLevel();
   });
+  listenForUpdate<WorldBonkUpdate>("world/teleport", (): void => {
+    playAudioSource("sfx/teleport", {
+      volumeChannelID: sfxVolumeChannelID,
+    });
+  });
 };
