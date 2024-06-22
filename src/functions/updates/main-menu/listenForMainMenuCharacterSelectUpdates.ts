@@ -55,7 +55,11 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         characterIndex === 0
           ? getLastPlayableCharacterIndex()
           : characterIndex - 1;
-      const targetCharacterID: string = state.values.characterIDs[targetIndex];
+      const targetCharacterID: string | undefined =
+        state.values.characterIDs[targetIndex];
+      if (typeof targetCharacterID === "undefined") {
+        throw new Error("Out of bounds character IDs index");
+      }
       const characterIDs: string[] = [...state.values.characterIDs];
       characterIDs[targetIndex] = update.characterID;
       characterIDs[characterIndex] = targetCharacterID;
@@ -72,7 +76,11 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         characterIndex === getLastPlayableCharacterIndex()
           ? 0
           : characterIndex + 1;
-      const targetCharacterID: string = state.values.characterIDs[targetIndex];
+      const targetCharacterID: string | undefined =
+        state.values.characterIDs[targetIndex];
+      if (typeof targetCharacterID === "undefined") {
+        throw new Error("Out of bounds character IDs index");
+      }
       const characterIDs: string[] = [...state.values.characterIDs];
       characterIDs[targetIndex] = update.characterID;
       characterIDs[characterIndex] = targetCharacterID;

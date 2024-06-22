@@ -1,0 +1,6 @@
+{
+  "extends": "../node_modules/pixel-pigeon/api/tsconfig.json",
+  "include": [
+    "./**/*.ts"
+  ]
+}

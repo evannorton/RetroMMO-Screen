@@ -169,7 +169,10 @@ export const createCharacterSelectUI = (): void => {
       return index < getMaxCharacters();
     };
     const getCharacter = (): Character =>
-      getDefinable(Character, state.values.characterIDs[getOffsetIndex(i)]);
+      getDefinable(
+        Character,
+        state.values.characterIDs[getOffsetIndex(i)] as string,
+      );
     // Character panel
     createPanel({
       condition: characterCondition,

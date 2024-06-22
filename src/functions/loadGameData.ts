@@ -77,9 +77,9 @@ export const loadGameData = async (): Promise<void> => {
         case "BattleImpactAnimation":
           break;
         case "BodyCosmetic": {
-          const definition: BodyCosmeticDefinition = gameData[className][
-            id
-          ] as BodyCosmeticDefinition;
+          const definition: BodyCosmeticDefinition = (
+            gameData[className] as Record<string, BodyCosmeticDefinition>
+          )[id] as BodyCosmeticDefinition;
           new BodyCosmetic({
             definition,
             id,
@@ -89,9 +89,9 @@ export const loadGameData = async (): Promise<void> => {
         case "Chest":
           break;
         case "Class": {
-          const definition: ClassDefinition = gameData[className][
-            id
-          ] as ClassDefinition;
+          const definition: ClassDefinition = (
+            gameData[className] as Record<string, ClassDefinition>
+          )[id] as ClassDefinition;
           new Class({
             definition,
             id,
@@ -99,9 +99,9 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "ClothesColor": {
-          const definition: ClothesColorDefinition = gameData[className][
-            id
-          ] as ClothesColorDefinition;
+          const definition: ClothesColorDefinition = (
+            gameData[className] as Record<string, ClothesColorDefinition>
+          )[id] as ClothesColorDefinition;
           new ClothesColor({
             definition,
             id,
@@ -109,9 +109,9 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "ClothesDye": {
-          const definition: ClothesDyeDefinition = gameData[className][
-            id
-          ] as ClothesDyeDefinition;
+          const definition: ClothesDyeDefinition = (
+            gameData[className] as Record<string, ClothesDyeDefinition>
+          )[id] as ClothesDyeDefinition;
           new ClothesDye({
             definition,
             id,
@@ -125,9 +125,9 @@ export const loadGameData = async (): Promise<void> => {
         case "Enterable":
           break;
         case "Figure": {
-          const definition: FigureDefinition = gameData[className][
-            id
-          ] as FigureDefinition;
+          const definition: FigureDefinition = (
+            gameData[className] as Record<string, FigureDefinition>
+          )[id] as FigureDefinition;
           new Figure({
             definition,
             id,
@@ -135,9 +135,9 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "HairColor": {
-          const definition: HairColorDefinition = gameData[className][
-            id
-          ] as HairColorDefinition;
+          const definition: HairColorDefinition = (
+            gameData[className] as Record<string, HairColorDefinition>
+          )[id] as HairColorDefinition;
           new HairColor({
             definition,
             id,
@@ -145,9 +145,9 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "HairDye": {
-          const definition: HairDyeDefinition = gameData[className][
-            id
-          ] as HairDyeDefinition;
+          const definition: HairDyeDefinition = (
+            gameData[className] as Record<string, HairDyeDefinition>
+          )[id] as HairDyeDefinition;
           new HairDye({
             definition,
             id,
@@ -155,9 +155,9 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "HeadCosmetic": {
-          const definition: HeadCosmeticDefinition = gameData[className][
-            id
-          ] as HeadCosmeticDefinition;
+          const definition: HeadCosmeticDefinition = (
+            gameData[className] as Record<string, HeadCosmeticDefinition>
+          )[id] as HeadCosmeticDefinition;
           new HeadCosmetic({
             definition,
             id,
@@ -167,9 +167,9 @@ export const loadGameData = async (): Promise<void> => {
         case "ImageSource":
           break;
         case "Item": {
-          const definition: ItemDefinition = gameData[className][
-            id
-          ] as ItemDefinition;
+          const definition: ItemDefinition = (
+            gameData[className] as Record<string, ItemDefinition>
+          )[id] as ItemDefinition;
           new Item({
             definition,
             id,
@@ -181,9 +181,9 @@ export const loadGameData = async (): Promise<void> => {
         case "Landscape":
           break;
         case "Mask": {
-          const definition: MaskDefinition = gameData[className][
-            id
-          ] as MaskDefinition;
+          const definition: MaskDefinition = (
+            gameData[className] as Record<string, MaskDefinition>
+          )[id] as MaskDefinition;
           new Mask({
             definition,
             id,
@@ -199,9 +199,9 @@ export const loadGameData = async (): Promise<void> => {
         case "Noise":
           break;
         case "Outfit": {
-          const definition: OutfitDefinition = gameData[className][
-            id
-          ] as OutfitDefinition;
+          const definition: OutfitDefinition = (
+            gameData[className] as Record<string, OutfitDefinition>
+          )[id] as OutfitDefinition;
           new Outfit({
             definition,
             id,
@@ -219,9 +219,9 @@ export const loadGameData = async (): Promise<void> => {
         case "ResourceBar":
           break;
         case "SkinColor": {
-          const definition: SkinColorDefinition = gameData[className][
-            id
-          ] as SkinColorDefinition;
+          const definition: SkinColorDefinition = (
+            gameData[className] as Record<string, SkinColorDefinition>
+          )[id] as SkinColorDefinition;
           new SkinColor({
             definition,
             id,
@@ -231,14 +231,16 @@ export const loadGameData = async (): Promise<void> => {
         case "Switch":
           break;
         case "Tilemap": {
-          const definition: TilemapDefinition = gameData[className][
-            id
-          ] as TilemapDefinition;
+          const definition: TilemapDefinition = (
+            gameData[className] as Record<string, TilemapDefinition>
+          )[id] as TilemapDefinition;
           const getTilemapTilesetDefinitionAtIndex = (
             index: number,
           ): TilemapTilesetDefinition => {
             for (let i: number = definition.tilesets.length - 1; i >= 0; i--) {
-              const tileset: TilemapTilesetDefinition = definition.tilesets[i];
+              const tileset: TilemapTilesetDefinition = definition.tilesets[
+                i
+              ] as TilemapTilesetDefinition;
               if (tileset.firstTileID <= index) {
                 return tileset;
               }
@@ -258,9 +260,9 @@ export const loadGameData = async (): Promise<void> => {
                   ).forEach((index: number, layerIndex: number): void => {
                     const tilesetDefinition: TilemapTilesetDefinition =
                       getTilemapTilesetDefinitionAtIndex(index);
-                    const tileset: TilesetDefinition = gameData.Tileset[
-                      tilesetDefinition.tileset
-                    ] as TilesetDefinition;
+                    const tileset: TilesetDefinition = (
+                      gameData.Tileset as Record<string, TilesetDefinition>
+                    )[tilesetDefinition.tileset] as TilesetDefinition;
                     const tilesetX: number = getTileXAtIndex(
                       index - tilesetDefinition.firstTileID,
                       tileset.width,
@@ -310,9 +312,9 @@ export const loadGameData = async (): Promise<void> => {
           break;
         }
         case "Tileset": {
-          const definition: TilesetDefinition = gameData[className][
-            id
-          ] as TilesetDefinition;
+          const definition: TilesetDefinition = (
+            gameData[className] as Record<string, TilesetDefinition>
+          )[id] as TilesetDefinition;
           const tiles: CreateTilesetOptionsTile[] = [];
           definition.tiles.forEach(
             (row: TilesetTileDefinition[], tilesetX: number): void => {

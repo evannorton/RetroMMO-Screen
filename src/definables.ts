@@ -49,7 +49,9 @@ export const getToken = (): string => {
   const pieces: string[] = [];
   for (let i: number = 0; i < 20; i++) {
     pieces.push(
-      validIDCharacters[Math.floor(Math.random() * validIDCharacters.length)],
+      validIDCharacters[
+        Math.floor(Math.random() * validIDCharacters.length)
+      ] as string,
     );
   }
   return pieces.join("");

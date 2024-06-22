@@ -328,7 +328,7 @@ export const createPlayerSprite = ({
     imagePath: (): string =>
       getOutfit().bodyCosmetic.imagePaths[
         typeof figureID === "function" ? figureID() : figureID
-      ],
+      ] as string,
     recolors,
   });
   createSprite({

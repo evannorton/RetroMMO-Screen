@@ -94,30 +94,65 @@ export class Class extends Definable {
     indexX: number,
     indexY: number,
   ): Item {
-    return getDefinable(
-      Item,
-      this._characterCustomizeClothesDyeItemIDs[indexX][indexY],
-    );
+    const clothesDyeItemIDs: string[] | undefined =
+      this._characterCustomizeClothesDyeItemIDs[indexX];
+    if (typeof clothesDyeItemIDs === "undefined") {
+      throw new Error(
+        "Out of bounds character customize clothes dye item IDs index",
+      );
+    }
+    const clothesDyeItemID: string | undefined = clothesDyeItemIDs[indexY];
+    if (typeof clothesDyeItemID === "undefined") {
+      throw new Error(
+        "Out of bounds character customize clothes dye item ID index",
+      );
+    }
+    return getDefinable(Item, clothesDyeItemID);
   }
 
   public getCharacterCustomizeFigure(index: number): Figure {
-    return getDefinable(Figure, this._characterCustomizeFigureIDs[index]);
+    const figureID: string | undefined =
+      this._characterCustomizeFigureIDs[index];
+    if (typeof figureID === "undefined") {
+      throw new Error("Out of bounds character customize figure index");
+    }
+    return getDefinable(Figure, figureID);
   }
 
   public getCharacterCustomizeHairDyeItem(index: number): Item {
-    return getDefinable(Item, this._characterCustomizeHairDyeItemIDs[index]);
+    const hairDyeItemID: string | undefined =
+      this._characterCustomizeHairDyeItemIDs[index];
+    if (typeof hairDyeItemID === "undefined") {
+      throw new Error("Out of bounds character customize figure index");
+    }
+    return getDefinable(Item, hairDyeItemID);
   }
 
   public getCharacterCustomizeMaskItem(index: number): Item {
-    return getDefinable(Item, this._characterCustomizeMaskItemIDs[index]);
+    const maskItemID: string | undefined =
+      this._characterCustomizeMaskItemIDs[index];
+    if (typeof maskItemID === "undefined") {
+      throw new Error("Out of bounds character customize figure index");
+    }
+    return getDefinable(Item, maskItemID);
   }
 
   public getCharacterCustomizeOutfitItem(index: number): Item {
-    return getDefinable(Item, this._characterCustomizeOutfitItemIDs[index]);
+    const outfitItemID: string | undefined =
+      this._characterCustomizeOutfitItemIDs[index];
+    if (typeof outfitItemID === "undefined") {
+      throw new Error("Out of bounds character customize figure index");
+    }
+    return getDefinable(Item, outfitItemID);
   }
 
   public getCharacterCustomizeSkinColor(index: number): SkinColor {
-    return getDefinable(SkinColor, this._characterCustomizeSkinColorIDs[index]);
+    const skinColorID: string | undefined =
+      this._characterCustomizeSkinColorIDs[index];
+    if (typeof skinColorID === "undefined") {
+      throw new Error("Out of bounds character customize figure index");
+    }
+    return getDefinable(SkinColor, skinColorID);
   }
 
   public goToNextCharacterCustomizeClothesDyeItemPrimaryColor(): void {
@@ -340,7 +375,14 @@ export class Class extends Definable {
         ) {
           this._characterCustomizeClothesDyeItemIDs[x] = [];
         }
-        this._characterCustomizeClothesDyeItemIDs[x][y] = clothesDyeItem.id;
+        const clothesDyeItemIDs: string[] | undefined =
+          this._characterCustomizeClothesDyeItemIDs[x];
+        if (typeof clothesDyeItemIDs === "undefined") {
+          throw new Error(
+            "Out of bounds character customize clothes dye item IDs index",
+          );
+        }
+        clothesDyeItemIDs[y] = clothesDyeItem.id;
       }
     }
     for (const item of getDefinables(Item).values()) {
