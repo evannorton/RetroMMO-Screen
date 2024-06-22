@@ -1,8 +1,8 @@
-name: Build and deploy
+name: CI
 
 on:
   push:
-    branches: [ "production" ]
+    branches: [ "main" ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -14,15 +14,12 @@ permissions:
 
 # Allow one concurrent deployment
 concurrency:
-  group: "pages"
+  group: "ci"
   cancel-in-progress: true
 
 
 jobs:
-  build-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  ci:
     runs-on: ubuntu-latest
 
     strategy:
@@ -48,14 +45,3 @@ jobs:
         npm run zip
       env:
         GITHUB_ENV_VARS: ${{ toJSON(vars) }}
-
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        # Upload entire repository
-        path: './out'
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@main
