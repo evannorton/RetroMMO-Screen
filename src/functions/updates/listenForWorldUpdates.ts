@@ -14,38 +14,41 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import {
   exitLevel,
   goToLevel,
+  listenToSocketioEvent,
   playAudioSource,
   setEntityLevel,
   setEntityPosition,
 } from "pixel-pigeon";
 import { getConstants } from "../getConstants";
 import { getDefinable, getDefinables } from "../../definables";
-import { listenForUpdate } from "./listenForUpdate";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
 
 export const listenForWorldUpdates = (): void => {
-  listenForUpdate<WorldBonkUpdate>("world/bonk", (): void => {
-    playAudioSource("sfx/bonk", {
-      volumeChannelID: sfxVolumeChannelID,
-    });
+  listenToSocketioEvent<WorldBonkUpdate>({
+    event: "world/bonk",
+    onMessage: (): void => {
+      playAudioSource("sfx/bonk", {
+        volumeChannelID: sfxVolumeChannelID,
+      });
+    },
   });
-  listenForUpdate<WorldEnterCharacterUpdate>(
-    "world/enter-character",
-    (update: WorldEnterCharacterUpdate): void => {
+  listenToSocketioEvent<WorldEnterCharacterUpdate>({
+    event: "world/enter-character",
+    onMessage: (update: WorldEnterCharacterUpdate): void => {
       loadWorldCharacterUpdate(update.character);
     },
-  );
-  listenForUpdate<WorldExitCharacterUpdate>(
-    "world/exit-character",
-    (update: WorldExitCharacterUpdate): void => {
+  });
+  listenToSocketioEvent<WorldExitCharacterUpdate>({
+    event: "world/exit-character",
+    onMessage: (update: WorldExitCharacterUpdate): void => {
       getDefinable(Character, update.characterID).remove();
     },
-  );
-  listenForUpdate<WorldExitToMainMenuUpdate>(
-    "world/exit-to-main-menu",
-    (): void => {
+  });
+  listenToSocketioEvent<WorldExitToMainMenuUpdate>({
+    event: "world/exit-to-main-menu",
+    onMessage: (): void => {
       if (state.values.worldState === null) {
         throw new Error("No world state.");
       }
@@ -65,17 +68,17 @@ export const listenForWorldUpdates = (): void => {
       });
       exitLevel();
     },
-  );
-  listenForUpdate<WorldMoveCharacterUpdate>(
-    "world/move-character",
-    (update: WorldMoveCharacterUpdate): void => {
+  });
+  listenToSocketioEvent<WorldMoveCharacterUpdate>({
+    event: "world/move-character",
+    onMessage: (update: WorldMoveCharacterUpdate): void => {
       const character: Character = getDefinable(Character, update.characterID);
       character.move(update.direction);
     },
-  );
-  listenForUpdate<WorldPositionUpdate>(
-    "world/position",
-    (update: WorldPositionUpdate): void => {
+  });
+  listenToSocketioEvent<WorldPositionUpdate>({
+    event: "world/position",
+    onMessage: (update: WorldPositionUpdate): void => {
       if (state.values.worldState === null) {
         throw new Error("No world state.");
       }
@@ -102,30 +105,36 @@ export const listenForWorldUpdates = (): void => {
         loadWorldCharacterUpdate(updateCharacter);
       }
     },
-  );
-  listenForUpdate<WorldStartBattleUpdate>("world/start-battle", (): void => {
-    if (state.values.worldState === null) {
-      throw new Error("No world state.");
-    }
-    const character: Character = getDefinable(
-      Character,
-      state.values.worldState.values.characterID,
-    );
-    character.removeFromWorld();
-    getDefinables(Character).forEach((loopedCharacter: Character): void => {
-      if (loopedCharacter.belongsToPlayer() === false) {
-        loopedCharacter.remove();
-      }
-    });
-    state.setValues({
-      battleState: createBattleState(),
-      worldState: null,
-    });
-    exitLevel();
   });
-  listenForUpdate<WorldBonkUpdate>("world/teleport", (): void => {
-    playAudioSource("sfx/teleport", {
-      volumeChannelID: sfxVolumeChannelID,
-    });
+  listenToSocketioEvent<WorldStartBattleUpdate>({
+    event: "world/start-battle",
+    onMessage: (): void => {
+      if (state.values.worldState === null) {
+        throw new Error("No world state.");
+      }
+      const character: Character = getDefinable(
+        Character,
+        state.values.worldState.values.characterID,
+      );
+      character.removeFromWorld();
+      getDefinables(Character).forEach((loopedCharacter: Character): void => {
+        if (loopedCharacter.belongsToPlayer() === false) {
+          loopedCharacter.remove();
+        }
+      });
+      state.setValues({
+        battleState: createBattleState(),
+        worldState: null,
+      });
+      exitLevel();
+    },
+  });
+  listenToSocketioEvent<WorldBonkUpdate>({
+    event: "world/teleport",
+    onMessage: (): void => {
+      playAudioSource("sfx/teleport", {
+        volumeChannelID: sfxVolumeChannelID,
+      });
+    },
   });
 };

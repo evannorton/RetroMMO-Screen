@@ -11,7 +11,13 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import { Direction } from "retrommo-types";
+import {
+  Direction,
+  MainMenuCharacterSelectDeleteCharacterRequest,
+  MainMenuCharacterSelectSelectCharacterRequest,
+  MainMenuCharacterSelectSortCharacterLeftRequest,
+  MainMenuCharacterSelectSortCharacterRightRequest,
+} from "retrommo-types";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
@@ -125,8 +131,15 @@ export const createCharacterSelectUI = (): void => {
     height: 16,
     imagePath: "pressable-buttons/red",
     onClick: (): void => {
-      emitToSocketioServer({
-        data: getCharacterSelectState().values.characterIDToDelete,
+      const { characterIDToDelete: characterID } =
+        getCharacterSelectState().values;
+      if (characterID === null) {
+        throw new Error("Character ID to delete is null");
+      }
+      emitToSocketioServer<MainMenuCharacterSelectDeleteCharacterRequest>({
+        data: {
+          characterID,
+        },
         event: "main-menu/character-select/delete-character",
       });
     },
@@ -259,9 +272,16 @@ export const createCharacterSelectUI = (): void => {
       height: playHeight,
       onClick: (): void => {
         const index: number = getOffsetIndex(i);
+        const characterID: string | undefined =
+          state.values.characterIDs[index];
+        if (typeof characterID === "undefined") {
+          throw new Error("Out of bounds character IDs index");
+        }
         if (canPlayCharacter()) {
-          emitToSocketioServer({
-            data: state.values.characterIDs[index],
+          emitToSocketioServer<MainMenuCharacterSelectSelectCharacterRequest>({
+            data: {
+              characterID,
+            },
             event: "main-menu/character-select/select-character",
           });
         } else {
@@ -311,8 +331,13 @@ export const createCharacterSelectUI = (): void => {
       },
       height: sortLeftHeight,
       onClick: (): void => {
-        emitToSocketioServer({
-          data: state.values.characterIDs[getOffsetIndex(i)],
+        const characterID: string | undefined =
+          state.values.characterIDs[getOffsetIndex(i)];
+        if (typeof characterID === "undefined") {
+          throw new Error("Out of bounds character IDs index");
+        }
+        emitToSocketioServer<MainMenuCharacterSelectSortCharacterLeftRequest>({
+          data: { characterID },
           event: "main-menu/character-select/sort-character-left",
         });
       },
@@ -355,8 +380,13 @@ export const createCharacterSelectUI = (): void => {
       },
       height: sortRightHeight,
       onClick: (): void => {
-        emitToSocketioServer({
-          data: state.values.characterIDs[getOffsetIndex(i)],
+        const characterID: string | undefined =
+          state.values.characterIDs[getOffsetIndex(i)];
+        if (typeof characterID === "undefined") {
+          throw new Error("Out of bounds character IDs index");
+        }
+        emitToSocketioServer<MainMenuCharacterSelectSortCharacterRightRequest>({
+          data: { characterID },
           event: "main-menu/character-select/sort-character-right",
         });
       },

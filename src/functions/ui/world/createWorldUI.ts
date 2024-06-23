@@ -1,3 +1,4 @@
+import { WorldExitToMainMenuRequest } from "retrommo-types";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createButton, createSprite, emitToSocketioServer } from "pixel-pigeon";
 import { createPanel } from "../components/createPanel";
@@ -51,7 +52,8 @@ export const createWorldUI = (): void => {
     },
     height: 14,
     onClick: (): void => {
-      emitToSocketioServer({
+      emitToSocketioServer<WorldExitToMainMenuRequest>({
+        data: {},
         event: "world/exit-to-main-menu",
       });
     },
@@ -71,7 +73,10 @@ export const createWorldUI = (): void => {
     condition,
     inputCollectionID: statsInputCollectionID,
     legacyOpen: (): void => {
-      emitToSocketioServer({ event: "legacy/open-stats" });
+      emitToSocketioServer({
+        data: {},
+        event: "legacy/open-stats",
+      });
     },
     selectedImagePath: "bottom-bar-icons/stats/selected",
     unselectedImagePath: "bottom-bar-icons/stats/unselected",
@@ -83,7 +88,10 @@ export const createWorldUI = (): void => {
     condition,
     inputCollectionID: spellbookInputCollectionID,
     legacyOpen: (): void => {
-      emitToSocketioServer({ event: "legacy/open-spellbook" });
+      emitToSocketioServer({
+        data: {},
+        event: "legacy/open-spellbook",
+      });
     },
     selectedImagePath: "bottom-bar-icons/spellbook/selected",
     unselectedImagePath: "bottom-bar-icons/spellbook/unselected",
@@ -95,7 +103,10 @@ export const createWorldUI = (): void => {
     condition,
     inputCollectionID: inventoryInputCollectionID,
     legacyOpen: (): void => {
-      emitToSocketioServer({ event: "legacy/open-inventory" });
+      emitToSocketioServer({
+        data: {},
+        event: "legacy/open-inventory",
+      });
     },
     selectedImagePath: "bottom-bar-icons/inventory/selected",
     unselectedImagePath: "bottom-bar-icons/inventory/unselected",

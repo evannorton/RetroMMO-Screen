@@ -8,7 +8,10 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import { Direction } from "retrommo-types";
+import {
+  Direction,
+  MainMenuCharacterCustomizeCreateCharacterRequest,
+} from "retrommo-types";
 import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
 import { SkinColor } from "../../../classes/SkinColor";
@@ -948,7 +951,7 @@ export const createCharacterCustomizeUI = (): void => {
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      emitToSocketioServer({
+      emitToSocketioServer<MainMenuCharacterCustomizeCreateCharacterRequest>({
         data: {
           classID: getClass().id,
           clothesDyeItemID: getClothesDyeItem().id,

@@ -7,8 +7,8 @@ import { createWorldState } from "../state/createWorldState";
 import { getDefinable, getDefinables } from "../../definables";
 import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
-import { listenForUpdate } from "./listenForUpdate";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
+import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadSavefile } from "../loadSavefile";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
 import { state } from "../../state";
@@ -17,9 +17,9 @@ export const listenForUpdates = (): void => {
   listenForMainMenuUpdates();
   listenForWorldUpdates();
   listenForBattleUpdates();
-  listenForUpdate<InitialUpdate>(
-    "initial-update",
-    (update: InitialUpdate): void => {
+  listenToSocketioEvent<InitialUpdate>({
+    event: "initial-update",
+    onMessage: (update: InitialUpdate): void => {
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
       }
@@ -67,5 +67,5 @@ export const listenForUpdates = (): void => {
         }
       }
     },
-  );
+  });
 };

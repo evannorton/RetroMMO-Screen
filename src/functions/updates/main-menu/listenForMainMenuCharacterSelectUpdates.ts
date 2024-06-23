@@ -9,14 +9,14 @@ import { createWorldState } from "../../state/createWorldState";
 import { getCharacterSelectState } from "../../state/main-menu/getCharacterSelectState";
 import { getDefinable } from "../../../definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
-import { listenForUpdate } from "../listenForUpdate";
+import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../../loadWorldCharacterUpdate";
 import { state } from "../../../state";
 
 export const listenForMainMenuCharacterSelectUpdates = (): void => {
-  listenForUpdate<MainMenuCharacterSelectDeleteCharacterUpdate>(
-    "main-menu/character-select/delete-character",
-    (update: MainMenuCharacterSelectDeleteCharacterUpdate): void => {
+  listenToSocketioEvent<MainMenuCharacterSelectDeleteCharacterUpdate>({
+    event: "main-menu/character-select/delete-character",
+    onMessage: (update: MainMenuCharacterSelectDeleteCharacterUpdate): void => {
       const character: Character = getDefinable(Character, update.characterID);
       character.remove();
       state.setValues({
@@ -30,10 +30,10 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         isDeleting: false,
       });
     },
-  );
-  listenForUpdate<MainMenuCharacterSelectSelectCharacterUpdate>(
-    "main-menu/character-select/select-character",
-    (update: MainMenuCharacterSelectSelectCharacterUpdate): void => {
+  });
+  listenToSocketioEvent<MainMenuCharacterSelectSelectCharacterUpdate>({
+    event: "main-menu/character-select/select-character",
+    onMessage: (update: MainMenuCharacterSelectSelectCharacterUpdate): void => {
       state.setValues({
         mainMenuState: null,
         worldState: createWorldState(update.characterID),
@@ -44,10 +44,12 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         loadWorldCharacterUpdate(characterUpdate);
       }
     },
-  );
-  listenForUpdate<MainMenuCharacterSelectSortCharacterLeftUpdate>(
-    "main-menu/character-select/sort-character-left",
-    (update: MainMenuCharacterSelectSortCharacterLeftUpdate): void => {
+  });
+  listenToSocketioEvent<MainMenuCharacterSelectSortCharacterLeftUpdate>({
+    event: "main-menu/character-select/sort-character-left",
+    onMessage: (
+      update: MainMenuCharacterSelectSortCharacterLeftUpdate,
+    ): void => {
       const characterIndex: number = state.values.characterIDs.indexOf(
         update.characterID,
       );
@@ -65,10 +67,12 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       characterIDs[characterIndex] = targetCharacterID;
       state.setValues({ characterIDs });
     },
-  );
-  listenForUpdate<MainMenuCharacterSelectSortCharacterRightUpdate>(
-    "main-menu/character-select/sort-character-right",
-    (update: MainMenuCharacterSelectSortCharacterRightUpdate): void => {
+  });
+  listenToSocketioEvent<MainMenuCharacterSelectSortCharacterRightUpdate>({
+    event: "main-menu/character-select/sort-character-right",
+    onMessage: (
+      update: MainMenuCharacterSelectSortCharacterRightUpdate,
+    ): void => {
       const characterIndex: number = state.values.characterIDs.indexOf(
         update.characterID,
       );
@@ -86,5 +90,5 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       characterIDs[characterIndex] = targetCharacterID;
       state.setValues({ characterIDs });
     },
-  );
+  });
 };

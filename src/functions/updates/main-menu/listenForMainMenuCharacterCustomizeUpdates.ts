@@ -2,13 +2,15 @@ import { Character } from "../../../classes/Character";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { MainMenuCharacterCustomizeCreateCharacterUpdate } from "retrommo-types";
 import { createCharacterSelectState } from "../../state/main-menu/createCharacterSelectState";
-import { listenForUpdate } from "../listenForUpdate";
+import { listenToSocketioEvent } from "pixel-pigeon";
 import { state } from "../../../state";
 
 export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
-  listenForUpdate<MainMenuCharacterCustomizeCreateCharacterUpdate>(
-    "main-menu/character-customize/create-character",
-    (update: MainMenuCharacterCustomizeCreateCharacterUpdate): void => {
+  listenToSocketioEvent<MainMenuCharacterCustomizeCreateCharacterUpdate>({
+    event: "main-menu/character-customize/create-character",
+    onMessage: (
+      update: MainMenuCharacterCustomizeCreateCharacterUpdate,
+    ): void => {
       if (state.values.mainMenuState === null) {
         throw new Error("No main menu state.");
       }
@@ -58,5 +60,5 @@ export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
         characterSelectState: createCharacterSelectState(),
       });
     },
-  );
+  });
 };

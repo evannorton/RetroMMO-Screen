@@ -2,14 +2,14 @@ import { BattleExitToWorldUpdate } from "retrommo-types";
 import { Character } from "../../classes/Character";
 import { createWorldState } from "../state/createWorldState";
 import { getDefinable } from "../../definables";
-import { listenForUpdate } from "./listenForUpdate";
+import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
 import { state } from "../../state";
 
 export const listenForBattleUpdates = (): void => {
-  listenForUpdate<BattleExitToWorldUpdate>(
-    "battle/exit-to-world",
-    (update: BattleExitToWorldUpdate): void => {
+  listenToSocketioEvent<BattleExitToWorldUpdate>({
+    event: "battle/exit-to-world",
+    onMessage: (update: BattleExitToWorldUpdate): void => {
       state.setValues({
         battleState: null,
         worldState: createWorldState(update.characterID),
@@ -23,5 +23,5 @@ export const listenForBattleUpdates = (): void => {
         loadWorldCharacterUpdate(characterUpdate);
       }
     },
-  );
+  });
 };

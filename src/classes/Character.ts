@@ -68,7 +68,6 @@ export class Character extends Definable {
     this._username = options.username;
     this._x = options.x;
     this._y = options.y;
-    console.log(`Username ${this._username}`);
   }
 
   public get class(): Class {
@@ -96,6 +95,10 @@ export class Character extends Definable {
 
   public get tilemapID(): string {
     return this._tilemapID;
+  }
+
+  public get username(): string {
+    return this._username;
   }
 
   public get x(): number {

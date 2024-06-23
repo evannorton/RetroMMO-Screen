@@ -73,19 +73,28 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: emotesInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({ event: "legacy/open-emotes" });
+    emitToSocketioServer({
+      data: {},
+      event: "legacy/open-emotes",
+    });
   },
 });
 createInputPressHandler({
   inputCollectionID: lastEmoteInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({ event: "legacy/use-last-emote" });
+    emitToSocketioServer({
+      data: {},
+      event: "legacy/use-last-emote",
+    });
   },
 });
 createInputPressHandler({
   inputCollectionID: actionInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({ event: "legacy/action" });
+    emitToSocketioServer({
+      data: {},
+      event: "legacy/action",
+    });
   },
 });
 createInputPressHandler({
