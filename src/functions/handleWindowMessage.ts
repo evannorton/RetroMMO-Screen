@@ -1,5 +1,10 @@
-import { connectToSocketioServer } from "pixel-pigeon";
+import {
+  connectToSocketioServer,
+  setMainVolume,
+  setVolumeChannelVolume,
+} from "pixel-pigeon";
 import { listenForUpdates } from "./updates/listenForUpdates";
+import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
@@ -26,6 +31,35 @@ export const handleWindowMessage = (message: unknown): void => {
           url,
         });
         listenForUpdates();
+        break;
+      }
+      case "main-volume": {
+        if (typeof message.value !== "number") {
+          throw new Error("Invalid main volume message value.");
+        }
+        setMainVolume({
+          volume: message.value,
+        });
+        break;
+      }
+      case "music-volume": {
+        if (typeof message.value !== "number") {
+          throw new Error("Invalid music volume message value.");
+        }
+        setVolumeChannelVolume({
+          id: musicVolumeChannelID,
+          volume: message.value,
+        });
+        break;
+      }
+      case "sfx-volume": {
+        if (typeof message.value !== "number") {
+          throw new Error("Invalid sfx volume message value.");
+        }
+        setVolumeChannelVolume({
+          id: sfxVolumeChannelID,
+          volume: message.value,
+        });
         break;
       }
     }
