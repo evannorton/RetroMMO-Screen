@@ -7,7 +7,8 @@
         "lint:fix": "pigeon lint:fix",
         "png": "pigeon png",
         "xD": "pigeon xD",
-        "zip": "pigeon zip"
+        "zip": "pigeon zip",
+        "verifyImagesContents": "node scripts/verifyImagesContents"
     },
     "dependencies": {
         "pixel-pigeon": "evannorton/Pixel-Pigeon",
