@@ -8,7 +8,7 @@
         "png": "pigeon png",
         "xD": "pigeon xD",
         "zip": "pigeon zip",
-        "verifyImagesContents": "node scripts/verifyImagesContents"
+        "verifyImagesContents": "node scripts/verifyImagesContents  -A -d -e -l -o"
     },
     "dependencies": {
         "pixel-pigeon": "evannorton/Pixel-Pigeon",
