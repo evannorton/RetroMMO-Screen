@@ -66,10 +66,7 @@ export const createCharacterCreateUI = (): void => {
     },
     height: backHeight,
     onClick: (): void => {
-      if (state.values.mainMenuState === null) {
-        throw new Error("mainMenuState is null");
-      }
-      state.values.mainMenuState.setValues({
+      getMainMenuState().setValues({
         characterCreateState: null,
         characterSelectState: createCharacterSelectState(),
       });

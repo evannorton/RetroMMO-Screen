@@ -19,16 +19,16 @@ export class Class extends Definable {
   private readonly _characterCustomizeMaskItemIDs: string[] = [];
   private readonly _characterCustomizeOutfitItemIDs: string[] = [];
   private readonly _characterCustomizeSkinColorIDs: string[] = [];
-  private _clothesDyeItemOrderOffset?: [number, number] = undefined;
+  private _clothesDyeItemOrderOffset: [number, number] | null = null;
   private readonly _description: string;
   private readonly _defaultClothesDyeID: string;
   private readonly _defaultFigureID: string;
   private readonly _defaultHairDyeID: string;
   private readonly _defaultMaskItemID: string;
   private readonly _defaultOutfitItemID: string;
+  private readonly _defaultSkinColorID: string;
   private readonly _name: string;
   private readonly _order: number;
-  private readonly _skinColorID: string;
   public constructor(options: ClassOptions) {
     super(options.id);
     this._abbreviation = options.definition.abbreviation;
@@ -38,9 +38,9 @@ export class Class extends Definable {
     this._defaultHairDyeID = options.definition.defaultHairDyeItemID;
     this._defaultMaskItemID = options.definition.defaultMaskItemID;
     this._defaultOutfitItemID = options.definition.defaultOutfitItemID;
+    this._defaultSkinColorID = options.definition.defaultSkinColorID;
     this._name = options.definition.name;
     this._order = options.definition.order;
-    this._skinColorID = options.definition.defaultSkinColorID;
   }
 
   public get abbreviation(): string {
@@ -48,7 +48,7 @@ export class Class extends Definable {
   }
 
   public get clothesDyeItemOrderOffset(): [number, number] {
-    if (typeof this._clothesDyeItemOrderOffset !== "undefined") {
+    if (this._clothesDyeItemOrderOffset !== null) {
       return this._clothesDyeItemOrderOffset;
     }
     throw new Error(this.getAccessorErrorMessage("clothesDyeItemOrderOffset"));
@@ -79,7 +79,7 @@ export class Class extends Definable {
   }
 
   public get defaultSkinColor(): SkinColor {
-    return getDefinable(SkinColor, this._skinColorID);
+    return getDefinable(SkinColor, this._defaultSkinColorID);
   }
 
   public get name(): string {
