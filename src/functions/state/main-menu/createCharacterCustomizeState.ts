@@ -10,21 +10,27 @@ export interface CreateCharacterCustomizeStateOptions {
 export const createCharacterCustomizeState = (
   options: CreateCharacterCustomizeStateOptions,
 ): State<CharacterCustomizeStateSchema> => {
+  const characterClass: Class = getDefinable(Class, options.classID);
   const [clothesDyeItemPrimaryColorIndex, clothesDyeItemSecondaryColorIndex]: [
     number,
     number,
-  ] = getDefinable(Class, options.classID).clothesDyeItemOrderOffset;
+  ] = characterClass.clothesDyeItemOrderOffset;
+  const figureIndex: number = characterClass.figureOrderOffset;
+  const skinColorIndex: number = characterClass.skinColorOrderOffset;
+  const hairDyeItemIndex: number = characterClass.hairDyeItemOrderOffset;
+  const maskItemIndex: number = characterClass.maskItemOrderOffset;
+  const outfitItemIndex: number = characterClass.outfitItemOrderOffset;
   const state: State<CharacterCustomizeStateSchema> =
     new State<CharacterCustomizeStateSchema>({
       classID: options.classID,
       clothesDyeItemPrimaryColorIndex,
       clothesDyeItemSecondaryColorIndex,
       direction: Direction.Down,
-      figureIndex: 0,
-      hairDyeItemIndex: 0,
-      maskItemIndex: 0,
-      outfitItemIndex: 0,
-      skinColorIndex: 0,
+      figureIndex,
+      hairDyeItemIndex,
+      maskItemIndex,
+      outfitItemIndex,
+      skinColorIndex,
     });
   return state;
 };

@@ -21,21 +21,26 @@ export class Class extends Definable {
   private readonly _characterCustomizeSkinColorIDs: string[] = [];
   private _clothesDyeItemOrderOffset: [number, number] | null = null;
   private readonly _description: string;
-  private readonly _defaultClothesDyeID: string;
+  private readonly _defaultClothesDyeItemID: string;
   private readonly _defaultFigureID: string;
-  private readonly _defaultHairDyeID: string;
+  private readonly _defaultHairDyeItemID: string;
   private readonly _defaultMaskItemID: string;
   private readonly _defaultOutfitItemID: string;
   private readonly _defaultSkinColorID: string;
+  private _figureOrderOffset: number | null = null;
+  private _hairDyeItemOrderOffset: number | null = null;
+  private _maskItemOrderOffset: number | null = null;
   private readonly _name: string;
   private readonly _order: number;
+  private _outfitItemOrderOffset: number | null = null;
+  private _skinColorOrderOffset: number | null = null;
   public constructor(options: ClassOptions) {
     super(options.id);
     this._abbreviation = options.definition.abbreviation;
     this._description = options.definition.description;
-    this._defaultClothesDyeID = options.definition.defaultClothesDyeItemID;
+    this._defaultClothesDyeItemID = options.definition.defaultClothesDyeItemID;
     this._defaultFigureID = options.definition.defaultFigureID;
-    this._defaultHairDyeID = options.definition.defaultHairDyeItemID;
+    this._defaultHairDyeItemID = options.definition.defaultHairDyeItemID;
     this._defaultMaskItemID = options.definition.defaultMaskItemID;
     this._defaultOutfitItemID = options.definition.defaultOutfitItemID;
     this._defaultSkinColorID = options.definition.defaultSkinColorID;
@@ -59,7 +64,7 @@ export class Class extends Definable {
   }
 
   public get defaultClothesDyeItem(): Item {
-    return getDefinable(Item, this._defaultClothesDyeID);
+    return getDefinable(Item, this._defaultClothesDyeItemID);
   }
 
   public get defaultFigure(): Figure {
@@ -67,7 +72,7 @@ export class Class extends Definable {
   }
 
   public get defaultHairDyeItem(): Item {
-    return getDefinable(Item, this._defaultHairDyeID);
+    return getDefinable(Item, this._defaultHairDyeItemID);
   }
 
   public get defaultMaskItem(): Item {
@@ -82,12 +87,47 @@ export class Class extends Definable {
     return getDefinable(SkinColor, this._defaultSkinColorID);
   }
 
+  public get figureOrderOffset(): number {
+    if (this._figureOrderOffset !== null) {
+      return this._figureOrderOffset;
+    }
+    throw new Error(this.getAccessorErrorMessage("figureOrderOffset"));
+  }
+
+  public get hairDyeItemOrderOffset(): number {
+    if (this._hairDyeItemOrderOffset !== null) {
+      return this._hairDyeItemOrderOffset;
+    }
+    throw new Error(this.getAccessorErrorMessage("hairDyeItemOrderOffset"));
+  }
+
+  public get maskItemOrderOffset(): number {
+    if (this._maskItemOrderOffset !== null) {
+      return this._maskItemOrderOffset;
+    }
+    throw new Error(this.getAccessorErrorMessage("maskItemOrderOffset"));
+  }
+
   public get name(): string {
     return this._name;
   }
 
   public get order(): number {
     return this._order;
+  }
+
+  public get outfitItemOrderOffset(): number {
+    if (this._outfitItemOrderOffset !== null) {
+      return this._outfitItemOrderOffset;
+    }
+    throw new Error(this.getAccessorErrorMessage("outfitItemOrderOffset"));
+  }
+
+  public get skinColorOrderOffset(): number {
+    if (this._skinColorOrderOffset !== null) {
+      return this._skinColorOrderOffset;
+    }
+    throw new Error(this.getAccessorErrorMessage("skinColorOrderOffset"));
   }
 
   public getCharacterCustomizeClothesDyeItem(
@@ -387,11 +427,56 @@ export class Class extends Definable {
     }
     for (const item of getDefinables(Item).values()) {
       if (
-        item.id === this._defaultClothesDyeID &&
+        item.id === this._defaultClothesDyeItemID &&
         typeof item.characterCustomizeClothesDyeOrder !== "undefined"
       ) {
         this._clothesDyeItemOrderOffset =
           item.characterCustomizeClothesDyeOrder;
+        break;
+      }
+    }
+    for (const figure of getDefinables(Figure).values()) {
+      if (
+        figure.id === this._defaultFigureID &&
+        typeof figure.characterCustomizeOrder !== "undefined"
+      ) {
+        this._figureOrderOffset = figure.characterCustomizeOrder;
+        break;
+      }
+    }
+    for (const item of getDefinables(Item).values()) {
+      if (
+        item.id === this._defaultHairDyeItemID &&
+        typeof item.characterCustomizeHairDyeOrder !== "undefined"
+      ) {
+        this._hairDyeItemOrderOffset = item.characterCustomizeHairDyeOrder;
+        break;
+      }
+    }
+    for (const item of getDefinables(Item).values()) {
+      if (
+        item.id === this._defaultMaskItemID &&
+        typeof item.characterCustomizeMaskOrder !== "undefined"
+      ) {
+        this._maskItemOrderOffset = item.characterCustomizeMaskOrder;
+        break;
+      }
+    }
+    for (const item of getDefinables(Item).values()) {
+      if (
+        item.id === this._defaultOutfitItemID &&
+        typeof item.characterCustomizeOutfitOrder !== "undefined"
+      ) {
+        this._outfitItemOrderOffset = item.characterCustomizeOutfitOrder;
+        break;
+      }
+    }
+    for (const skinColor of getDefinables(SkinColor).values()) {
+      if (
+        skinColor.id === this._defaultSkinColorID &&
+        typeof skinColor.characterCustomizeOrder !== "undefined"
+      ) {
+        this._skinColorOrderOffset = skinColor.characterCustomizeOrder;
         break;
       }
     }
