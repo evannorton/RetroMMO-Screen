@@ -8,13 +8,13 @@ import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
-  if (typeof message !== "object" || message === null) {
-    throw new Error("Invalid message.");
-  }
-  if ("type" in message && "value" in message) {
-    if (typeof message.type !== "string") {
-      throw new Error("Invalid message type.");
-    }
+  if (
+    typeof message === "object" &&
+    message !== null &&
+    "type" in message &&
+    "value" in message &&
+    typeof message.type === "string"
+  ) {
     switch (message.type) {
       case "auth": {
         if (typeof message.value !== "string") {
@@ -63,7 +63,5 @@ export const handleWindowMessage = (message: unknown): void => {
         break;
       }
     }
-  } else {
-    throw new Error("Invalid message type");
   }
 };
