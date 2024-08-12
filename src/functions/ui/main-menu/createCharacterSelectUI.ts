@@ -202,6 +202,7 @@ export const createCharacterSelectUI = (): void => {
       direction: Direction.Down,
       figureID: (): string => getCharacter().figure.id,
       hairDyeID: (): string => getCharacter().getHairDye().id,
+      isAnimated: true,
       maskID: (): string => getCharacter().getMask().id,
       outfitID: (): string => getCharacter().getOutfit().id,
       skinColorID: (): string => getCharacter().skinColor.id,

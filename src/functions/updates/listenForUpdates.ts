@@ -1,17 +1,20 @@
 import { Character } from "../../classes/Character";
 import { InitialUpdate, MainState } from "retrommo-types";
 import { ItemInstance } from "../../classes/ItemInstance";
+import { Party } from "../../classes/Party";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
-import { getDefinable, getDefinables } from "../../definables";
+import { getDefinables } from "../../definables";
 import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadSavefile } from "../loadSavefile";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
+import { selectCharacter } from "../selectCharacter";
 import { state } from "../../state";
+import { updateCharacterParty } from "../updateCharacterParty";
 
 export const listenForUpdates = (): void => {
   listenForMainMenuUpdates();
@@ -25,6 +28,9 @@ export const listenForUpdates = (): void => {
       }
       for (const character of getDefinables(Character).values()) {
         character.remove();
+      }
+      for (const party of getDefinables(Party).values()) {
+        party.remove();
       }
       state.setValues({
         battleState: null,
@@ -55,11 +61,8 @@ export const listenForUpdates = (): void => {
           state.setValues({
             worldState: createWorldState(update.world.characterID),
           });
-          const character: Character = getDefinable(
-            Character,
-            update.world.characterID,
-          );
-          character.selectCharacter();
+          selectCharacter(update.world.characterID);
+          updateCharacterParty(update.world.characterID, update.world.partyID);
           for (const characterUpdate of update.world.characters) {
             loadWorldCharacterUpdate(characterUpdate);
           }

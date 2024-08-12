@@ -1,10 +1,10 @@
 import { Character } from "../../classes/Character";
 import {
-  Constants,
   WorldBonkUpdate,
   WorldEnterCharacterUpdate,
   WorldExitCharacterUpdate,
   WorldExitToMainMenuUpdate,
+  WorldJoinPartyUpdate,
   WorldMoveCharacterUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
@@ -17,13 +17,15 @@ import {
   listenToSocketioEvent,
   playAudioSource,
   setEntityLevel,
-  setEntityPosition,
 } from "pixel-pigeon";
-import { getConstants } from "../getConstants";
 import { getDefinable, getDefinables } from "../../definables";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
+import { moveCharacter } from "../moveCharacter";
+import { resetPartyPosition } from "../resetPartyPosition";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
+import { updateCharacterParty } from "../updateCharacterParty";
+import { updateCharacterPosition } from "../updateCharacterPosition";
 
 export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldBonkUpdate>({
@@ -69,11 +71,19 @@ export const listenForWorldUpdates = (): void => {
       exitLevel();
     },
   });
+  listenToSocketioEvent<WorldJoinPartyUpdate>({
+    event: "world/join-party",
+    onMessage: (update: WorldJoinPartyUpdate): void => {
+      updateCharacterParty(update.characterID, update.partyID);
+      resetPartyPosition(update.partyID);
+    },
+  });
   listenToSocketioEvent<WorldMoveCharacterUpdate>({
     event: "world/move-character",
     onMessage: (update: WorldMoveCharacterUpdate): void => {
       const character: Character = getDefinable(Character, update.characterID);
-      character.move(update.direction);
+      character.direction = update.direction;
+      moveCharacter(update.characterID);
     },
   });
   listenToSocketioEvent<WorldPositionUpdate>({
@@ -82,20 +92,14 @@ export const listenForWorldUpdates = (): void => {
       if (state.values.worldState === null) {
         throw new Error("No world state.");
       }
-      const constants: Constants = getConstants();
       const character: Character = getDefinable(
         Character,
         state.values.worldState.values.characterID,
       );
-      character.x = update.x;
-      character.y = update.y;
       character.tilemapID = update.tilemapID;
       goToLevel(update.tilemapID);
       setEntityLevel(character.entityID, update.tilemapID);
-      setEntityPosition(character.entityID, {
-        x: update.x * constants["tile-size"],
-        y: update.y * constants["tile-size"],
-      });
+      updateCharacterPosition(character.id, update.x, update.y);
       getDefinables(Character).forEach((loopedCharacter: Character): void => {
         if (loopedCharacter.belongsToPlayer() === false) {
           loopedCharacter.remove();

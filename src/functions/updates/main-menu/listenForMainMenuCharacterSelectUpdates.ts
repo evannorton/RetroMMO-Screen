@@ -11,7 +11,9 @@ import { getDefinable } from "../../../definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
 import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../../loadWorldCharacterUpdate";
+import { selectCharacter } from "../../selectCharacter";
 import { state } from "../../../state";
+import { updateCharacterParty } from "../../updateCharacterParty";
 
 export const listenForMainMenuCharacterSelectUpdates = (): void => {
   listenToSocketioEvent<MainMenuCharacterSelectDeleteCharacterUpdate>({
@@ -38,8 +40,8 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         mainMenuState: null,
         worldState: createWorldState(update.characterID),
       });
-      const character: Character = getDefinable(Character, update.characterID);
-      character.selectCharacter();
+      selectCharacter(update.characterID);
+      updateCharacterParty(update.characterID, update.partyID);
       for (const characterUpdate of update.characters) {
         loadWorldCharacterUpdate(characterUpdate);
       }

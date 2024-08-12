@@ -1,6 +1,8 @@
 import { Character } from "../classes/Character";
 import { ItemInstance } from "../classes/ItemInstance";
 import { WorldCharacterUpdate } from "retrommo-types";
+import { addCharacterToWorld } from "./addCharacterToWorld";
+import { updateCharacterParty } from "./updateCharacterParty";
 
 export const loadWorldCharacterUpdate = (
   characterUpdate: WorldCharacterUpdate,
@@ -33,6 +35,7 @@ export const loadWorldCharacterUpdate = (
     classID: characterUpdate.classID,
     clothesDyeItemInstanceID:
       characterUpdate.clothesDyeItemInstance?.id ?? null,
+    direction: characterUpdate.direction,
     figureID: characterUpdate.figureID,
     hairDyeItemInstanceID: characterUpdate.hairDyeItemInstance?.id ?? null,
     id: characterUpdate.id,
@@ -46,5 +49,6 @@ export const loadWorldCharacterUpdate = (
     x: characterUpdate.x,
     y: characterUpdate.y,
   });
-  worldCharacter.addToWorld();
+  addCharacterToWorld(worldCharacter.id);
+  updateCharacterParty(worldCharacter.id, characterUpdate.partyID);
 };

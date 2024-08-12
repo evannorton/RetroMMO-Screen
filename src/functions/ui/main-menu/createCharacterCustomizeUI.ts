@@ -155,6 +155,7 @@ export const createCharacterCustomizeUI = (): void => {
     direction: (): Direction => getCharacterCustomizeState().values.direction,
     figureID: (): string => getFigure().id,
     hairDyeID: (): string => getHairDyeItem().hairDye.id,
+    isAnimated: true,
     maskID: (): string => getMaskItem().mask.id,
     outfitID: (): string => getOutfitItem().outfit.id,
     skinColorID: (): string => getSkinColor().id,

@@ -44,6 +44,7 @@ export const loadSavefile = (savefile: Savefile): void => {
       new Character({
         classID: character.classID,
         clothesDyeItemInstanceID,
+        direction: character.direction,
         figureID: character.figureID,
         hairDyeItemInstanceID,
         id: character.id,

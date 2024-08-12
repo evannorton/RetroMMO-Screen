@@ -1,7 +1,10 @@
-import { WorldExitToMainMenuRequest } from "retrommo-types";
+import { Character } from "../../../classes/Character";
+import { Direction, WorldExitToMainMenuRequest } from "retrommo-types";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createButton, createSprite, emitToSocketioServer } from "pixel-pigeon";
 import { createPanel } from "../components/createPanel";
+import { createPlayerSprite } from "../components/createPlayerSprite";
+import { getDefinable } from "../../../definables";
 import {
   inventoryInputCollectionID,
   spellbookInputCollectionID,
@@ -68,6 +71,51 @@ export const createWorldUI = (): void => {
     x: 0,
     y: 208,
   });
+  for (
+    let partyMemberIndex: number = 0;
+    partyMemberIndex < 3;
+    partyMemberIndex++
+  ) {
+    const getCharacter = (): Character => {
+      if (state.values.worldState === null) {
+        throw new Error("No world state.");
+      }
+      const character: Character = getDefinable(
+        Character,
+        state.values.worldState.values.characterID,
+      );
+      const partyMemberCharacter: Character | undefined =
+        character.party.characters[partyMemberIndex];
+      if (typeof partyMemberCharacter === "undefined") {
+        throw new Error("No party member character.");
+      }
+      return partyMemberCharacter;
+    };
+    createPlayerSprite({
+      clothesDyeID: (): string => getCharacter().getClothesDye().id,
+      condition: (): boolean => {
+        if (condition()) {
+          if (state.values.worldState === null) {
+            throw new Error("No world state.");
+          }
+          const character: Character = getDefinable(
+            Character,
+            state.values.worldState.values.characterID,
+          );
+          return partyMemberIndex < character.party.characters.length;
+        }
+        return false;
+      },
+      direction: Direction.Down,
+      figureID: (): string => getCharacter().figure.id,
+      hairDyeID: (): string => getCharacter().getHairDye().id,
+      maskID: (): string => getCharacter().getMask().id,
+      outfitID: (): string => getCharacter().getOutfit().id,
+      skinColorID: (): string => getCharacter().skinColor.id,
+      x: 6 + partyMemberIndex * 60,
+      y: 216,
+    });
+  }
   // Stats icon
   createBottomBarIcon({
     condition,

@@ -1,29 +1,22 @@
 import { Class } from "./Class";
 import { ClothesDye } from "./ClothesDye";
-import { Constants, Direction } from "retrommo-types";
 import { Definable, getDefinable } from "../definables";
-import {
-  EntityPosition,
-  createEntity,
-  createQuadrilateral,
-  getEntityPosition,
-  goToLevel,
-  lockCameraToEntity,
-  removeEntity,
-  setEntityPosition,
-} from "pixel-pigeon";
+import { Direction } from "retrommo-types";
 import { Figure } from "./Figure";
 import { HairDye } from "./HairDye";
 import { ItemInstance } from "./ItemInstance";
 import { Mask } from "./Mask";
 import { Outfit } from "./Outfit";
+import { Party } from "./Party";
 import { SkinColor } from "./SkinColor";
-import { getConstants } from "../functions/getConstants";
+import { removeEntity } from "pixel-pigeon";
 import { state } from "../state";
+import { updateCharacterParty } from "../functions/updateCharacterParty";
 
 export interface CharacterOptions {
   classID: string;
   clothesDyeItemInstanceID: string | null;
+  direction: Direction;
   figureID: string;
   hairDyeItemInstanceID: string | null;
   id: string;
@@ -40,12 +33,14 @@ export interface CharacterOptions {
 export class Character extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemInstanceID: string | null;
+  private _direction: Direction;
   private _entityID: string | null = null;
   private readonly _figureID: string;
   private readonly _hairDyeItemInstanceID: string | null;
   private readonly _level: number;
   private readonly _maskItemInstanceID: string | null;
   private readonly _outfitItemInstanceID: string | null;
+  private _partyID: string | null = null;
   private readonly _skinColorID: string;
   private _tilemapID: string;
   private readonly _userID: number;
@@ -57,6 +52,7 @@ export class Character extends Definable {
     super(options.id);
     this._classID = options.classID;
     this._clothesDyeItemInstanceID = options.clothesDyeItemInstanceID;
+    this._direction = options.direction;
     this._figureID = options.figureID;
     this._hairDyeItemInstanceID = options.hairDyeItemInstanceID;
     this._level = options.level;
@@ -74,6 +70,10 @@ export class Character extends Definable {
     return getDefinable(Class, this._classID);
   }
 
+  public get direction(): Direction {
+    return this._direction;
+  }
+
   public get entityID(): string {
     if (this._entityID !== null) {
       return this._entityID;
@@ -87,6 +87,13 @@ export class Character extends Definable {
 
   public get level(): number {
     return this._level;
+  }
+
+  public get party(): Party {
+    if (this._partyID !== null) {
+      return getDefinable(Party, this._partyID);
+    }
+    throw new Error(this.getAccessorErrorMessage("party"));
   }
 
   public get skinColor(): SkinColor {
@@ -137,6 +144,18 @@ export class Character extends Definable {
     throw new Error(this.getAccessorErrorMessage("outfitItemInstance"));
   }
 
+  public set direction(direction: Direction) {
+    this._direction = direction;
+  }
+
+  public set entityID(entityID: string) {
+    this._entityID = entityID;
+  }
+
+  public set party(party: Party | null) {
+    this._partyID = party !== null ? party.id : null;
+  }
+
   public set tilemapID(tilemapID: string) {
     this._tilemapID = tilemapID;
   }
@@ -147,29 +166,6 @@ export class Character extends Definable {
 
   public set y(y: number) {
     this._y = y;
-  }
-
-  public addToWorld(): void {
-    const tileSize: number = getConstants()["tile-size"];
-    this._entityID = createEntity({
-      height: tileSize,
-      layerID: "characters",
-      levelID: this._tilemapID,
-      position: {
-        x: this._x * tileSize,
-        y: this._y * tileSize,
-      },
-      quadrilaterals: [
-        {
-          quadrilateralID: createQuadrilateral({
-            color: "#ffffff",
-            height: tileSize,
-            width: tileSize,
-          }),
-        },
-      ],
-      width: tileSize,
-    });
   }
 
   public belongsToPlayer(): boolean {
@@ -216,46 +212,12 @@ export class Character extends Definable {
     return getDefinable(Outfit, state.values.defaultOutfitID);
   }
 
-  public move(direction: Direction): void {
-    if (this._entityID === null) {
-      throw new Error("Entity ID is null");
-    }
-    const constants: Constants = getConstants();
-    const entityPosition: EntityPosition = getEntityPosition(this._entityID);
-    switch (direction) {
-      case Direction.Down:
-        this._y++;
-        setEntityPosition(this._entityID, {
-          x: entityPosition.x,
-          y: entityPosition.y + constants["tile-size"],
-        });
-        break;
-      case Direction.Left:
-        this._x--;
-        setEntityPosition(this._entityID, {
-          x: entityPosition.x - constants["tile-size"],
-          y: entityPosition.y,
-        });
-        break;
-      case Direction.Right:
-        this._x++;
-        setEntityPosition(this._entityID, {
-          x: entityPosition.x + constants["tile-size"],
-          y: entityPosition.y,
-        });
-        break;
-      case Direction.Up:
-        this._y--;
-        setEntityPosition(this._entityID, {
-          x: entityPosition.x,
-          y: entityPosition.y - constants["tile-size"],
-        });
-        break;
-    }
+  public hasParty(): boolean {
+    return this._partyID !== null;
   }
 
   public remove(): void {
-    super.remove();
+    updateCharacterParty(this._id, null);
     if (this._clothesDyeItemInstanceID !== null) {
       this.clothesDyeItemInstance.remove();
     }
@@ -271,21 +233,13 @@ export class Character extends Definable {
     if (this._entityID !== null) {
       removeEntity(this._entityID);
     }
+    super.remove();
   }
 
   public removeFromWorld(): void {
     if (this._entityID !== null) {
       removeEntity(this._entityID);
     }
-  }
-
-  public selectCharacter(): void {
-    goToLevel(this._tilemapID);
-    this.addToWorld();
-    if (this._entityID === null) {
-      throw new Error("Entity ID is null");
-    }
-    lockCameraToEntity(this._entityID);
   }
 
   private hasClothesDyeItemInstance(): boolean {

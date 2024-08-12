@@ -120,6 +120,7 @@ export const createCharacterCreateUI = (): void => {
         direction: Direction.Down,
         figureID: sortedClass.defaultFigure.id,
         hairDyeID: sortedClass.defaultHairDyeItem.hairDye.id,
+        isAnimated: true,
         maskID: sortedClass.defaultMaskItem.mask.id,
         outfitID: sortedClass.defaultOutfitItem.outfit.id,
         skinColorID: sortedClass.defaultSkinColor.id,

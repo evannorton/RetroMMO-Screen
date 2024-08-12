@@ -19,6 +19,7 @@ export interface CreatePlayerSpriteOptions {
   direction: Scriptable<Direction>;
   figureID: Scriptable<string>;
   hairDyeID: Scriptable<string>;
+  isAnimated?: boolean;
   maskID: Scriptable<string>;
   outfitID: Scriptable<string>;
   skinColorID: Scriptable<string>;
@@ -31,6 +32,7 @@ export const createPlayerSprite = ({
   direction,
   figureID,
   hairDyeID,
+  isAnimated,
   maskID,
   outfitID,
   skinColorID,
@@ -110,7 +112,32 @@ export const createPlayerSprite = ({
       },
     ];
   };
-  const animationID: Scriptable<string> = direction;
+  const animationID: Scriptable<string> = (): string => {
+    const animationDirection: Direction =
+      typeof direction === "string" ? direction : direction();
+    if (isAnimated === true) {
+      switch (animationDirection) {
+        case Direction.Down:
+          return "WalkDown";
+        case Direction.Left:
+          return "WalkLeft";
+        case Direction.Right:
+          return "WalkRight";
+        case Direction.Up:
+          return "WalkUp";
+      }
+    }
+    switch (animationDirection) {
+      case Direction.Down:
+        return "IdleDown";
+      case Direction.Left:
+        return "IdleLeft";
+      case Direction.Right:
+        return "IdleRight";
+      case Direction.Up:
+        return "IdleUp";
+    }
+  };
   const animationStartedAt: number = 0;
   const duration: number = 250;
   const tileSize: number = getConstants()["tile-size"];
@@ -128,6 +155,62 @@ export const createPlayerSprite = ({
           sourceY: 0,
           width,
         },
+      ],
+      id: "IdleDown",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 0,
+          sourceY: 0,
+          width,
+        },
+      ],
+      id: "IdleLeft",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 0,
+          sourceY: 0,
+          width,
+        },
+      ],
+      id: "IdleRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 0,
+          sourceY: 0,
+          width,
+        },
+      ],
+      id: "IdleUp",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 0,
+          sourceY: 0,
+          width,
+        },
         {
           duration,
           height,
@@ -156,7 +239,7 @@ export const createPlayerSprite = ({
           width,
         },
       ],
-      id: Direction.Down,
+      id: "WalkDown",
     },
     {
       frames: [
@@ -197,7 +280,7 @@ export const createPlayerSprite = ({
           width,
         },
       ],
-      id: Direction.Left,
+      id: "WalkLeft",
     },
     {
       frames: [
@@ -238,7 +321,7 @@ export const createPlayerSprite = ({
           width,
         },
       ],
-      id: Direction.Right,
+      id: "WalkRight",
     },
     {
       frames: [
@@ -279,7 +362,7 @@ export const createPlayerSprite = ({
           width,
         },
       ],
-      id: Direction.Up,
+      id: "WalkUp",
     },
   ];
   createSprite({

@@ -39,6 +39,7 @@ export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
       const characterID: string = new Character({
         classID: update.classID,
         clothesDyeItemInstanceID: update.clothesDyeSavefileItemInstance.id,
+        direction: update.direction,
         figureID: update.figureID,
         hairDyeItemInstanceID: update.hairDyeSavefileItemInstance.id,
         id: update.id,

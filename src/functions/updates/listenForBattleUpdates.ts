@@ -4,7 +4,9 @@ import { createWorldState } from "../state/createWorldState";
 import { getDefinable } from "../../definables";
 import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
+import { selectCharacter } from "../selectCharacter";
 import { state } from "../../state";
+import { updateCharacterPosition } from "../updateCharacterPosition";
 
 export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleExitToWorldUpdate>({
@@ -16,9 +18,8 @@ export const listenForBattleUpdates = (): void => {
       });
       const character: Character = getDefinable(Character, update.characterID);
       character.tilemapID = update.tilemapID;
-      character.x = update.x;
-      character.y = update.y;
-      character.selectCharacter();
+      updateCharacterPosition(character.id, update.x, update.y);
+      selectCharacter(update.characterID);
       for (const characterUpdate of update.characters) {
         loadWorldCharacterUpdate(characterUpdate);
       }
