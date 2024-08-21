@@ -1,4 +1,5 @@
 import { Character } from "../classes/Character";
+import { Color } from "retrommo-types";
 import { createEntity, createQuadrilateral } from "pixel-pigeon";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "../definables";
@@ -17,7 +18,7 @@ export const addCharacterToWorld = (characterID: string): void => {
     quadrilaterals: [
       {
         quadrilateralID: createQuadrilateral({
-          color: "#ffffff",
+          color: Color.White,
           height: tileSize,
           width: tileSize,
         }),

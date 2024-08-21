@@ -1,3 +1,4 @@
+import { Color } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   Scriptable,
@@ -77,7 +78,7 @@ export const createPressableButton = ({
     imagePath,
   });
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: x + width / 2,

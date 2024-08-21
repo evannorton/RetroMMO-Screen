@@ -1,5 +1,5 @@
 import { CharacterCustomizeStateSchema } from "../state";
-import { ClassDefinition } from "retrommo-types";
+import { ClassDefinition, ResourcePool } from "retrommo-types";
 import { Definable, getDefinable, getDefinables } from "../definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
@@ -33,6 +33,7 @@ export class Class extends Definable {
   private readonly _name: string;
   private readonly _order: number;
   private _outfitItemOrderOffset: number | null = null;
+  private readonly _resourcePool: ResourcePool;
   private _skinColorOrderOffset: number | null = null;
   public constructor(options: ClassOptions) {
     super(options.id);
@@ -46,6 +47,7 @@ export class Class extends Definable {
     this._defaultSkinColorID = options.definition.defaultSkinColorID;
     this._name = options.definition.name;
     this._order = options.definition.order;
+    this._resourcePool = options.definition.resourcePool;
   }
 
   public get abbreviation(): string {
@@ -121,6 +123,10 @@ export class Class extends Definable {
       return this._outfitItemOrderOffset;
     }
     throw new Error(this.getAccessorErrorMessage("outfitItemOrderOffset"));
+  }
+
+  public get resourcePool(): ResourcePool {
+    return this._resourcePool;
   }
 
   public get skinColorOrderOffset(): number {

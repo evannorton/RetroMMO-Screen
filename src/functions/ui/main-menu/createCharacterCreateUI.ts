@@ -1,5 +1,5 @@
 import { Class } from "../../../classes/Class";
-import { Direction } from "retrommo-types";
+import { Color, Direction } from "retrommo-types";
 import {
   createButton,
   createLabel,
@@ -75,7 +75,7 @@ export const createCharacterCreateUI = (): void => {
   });
   // Title text
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: getGameWidth() / 2,
@@ -103,7 +103,7 @@ export const createCharacterCreateUI = (): void => {
       });
       // Class name text
       createLabel({
-        color: "#ffffff",
+        color: Color.White,
         coordinates: {
           condition,
           x: 56 + sortedClassIndex * 96,

@@ -2,6 +2,14 @@ import { Character } from "../../../classes/Character";
 import { CharacterSelectStateSchema, state } from "../../../state";
 import { Class } from "../../../classes/Class";
 import {
+  Color,
+  Direction,
+  MainMenuCharacterSelectDeleteCharacterRequest,
+  MainMenuCharacterSelectSelectCharacterRequest,
+  MainMenuCharacterSelectSortCharacterLeftRequest,
+  MainMenuCharacterSelectSortCharacterRightRequest,
+} from "retrommo-types";
+import {
   CreateLabelOptionsText,
   State,
   createButton,
@@ -11,13 +19,6 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import {
-  Direction,
-  MainMenuCharacterSelectDeleteCharacterRequest,
-  MainMenuCharacterSelectSelectCharacterRequest,
-  MainMenuCharacterSelectSortCharacterLeftRequest,
-  MainMenuCharacterSelectSortCharacterRightRequest,
-} from "retrommo-types";
 import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
@@ -67,7 +68,7 @@ export const createCharacterSelectUI = (): void => {
   });
   // Title
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: getGameWidth() / 2,
@@ -211,7 +212,7 @@ export const createCharacterSelectUI = (): void => {
     });
     // Character info
     createLabel({
-      color: "#ffffff",
+      color: Color.White,
       coordinates: {
         condition: characterCondition,
         x: i % 2 === 0 ? 84 : 220,
@@ -454,7 +455,7 @@ export const createCharacterSelectUI = (): void => {
   const paginationCondition = (): boolean =>
     condition() && state.values.characterIDs.length > charactersPerPage;
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition: paginationCondition,
       x: 220,

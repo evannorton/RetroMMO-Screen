@@ -1,9 +1,15 @@
 import { Character } from "../../../classes/Character";
-import { Direction, WorldExitToMainMenuRequest } from "retrommo-types";
+import {
+  Color,
+  Direction,
+  ResourcePool,
+  WorldExitToMainMenuRequest,
+} from "retrommo-types";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createButton, createSprite, emitToSocketioServer } from "pixel-pigeon";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
+import { createResourceBar } from "../components/createResourceBar";
 import { getDefinable } from "../../../definables";
 import {
   inventoryInputCollectionID,
@@ -71,11 +77,25 @@ export const createWorldUI = (): void => {
     x: 0,
     y: 208,
   });
+  // For each party member
   for (
     let partyMemberIndex: number = 0;
     partyMemberIndex < 3;
     partyMemberIndex++
   ) {
+    const partyMemberCondition = (): boolean => {
+      if (condition()) {
+        if (state.values.worldState === null) {
+          throw new Error("No world state.");
+        }
+        const character: Character = getDefinable(
+          Character,
+          state.values.worldState.values.characterID,
+        );
+        return partyMemberIndex < character.party.characters.length;
+      }
+      return false;
+    };
     const getCharacter = (): Character => {
       if (state.values.worldState === null) {
         throw new Error("No world state.");
@@ -91,21 +111,12 @@ export const createWorldUI = (): void => {
       }
       return partyMemberCharacter;
     };
+    const partyMemberMPCondition = (): boolean =>
+      getCharacter().class.resourcePool === ResourcePool.MP;
+    // Bottom bar player sprite
     createPlayerSprite({
       clothesDyeID: (): string => getCharacter().getClothesDye().id,
-      condition: (): boolean => {
-        if (condition()) {
-          if (state.values.worldState === null) {
-            throw new Error("No world state.");
-          }
-          const character: Character = getDefinable(
-            Character,
-            state.values.worldState.values.characterID,
-          );
-          return partyMemberIndex < character.party.characters.length;
-        }
-        return false;
-      },
+      condition: (): boolean => partyMemberCondition(),
       direction: Direction.Down,
       figureID: (): string => getCharacter().figure.id,
       hairDyeID: (): string => getCharacter().getHairDye().id,
@@ -114,6 +125,29 @@ export const createWorldUI = (): void => {
       skinColorID: (): string => getCharacter().skinColor.id,
       x: 6 + partyMemberIndex * 60,
       y: 216,
+    });
+    // Bottom bar player hp
+    createResourceBar({
+      condition: partyMemberCondition,
+      iconImagePath: "resource-bar-icons/hp",
+      maxValue: 1,
+      primaryColor: Color.BrightRed,
+      secondaryColor: Color.DarkPink,
+      value: 1,
+      x: 23 + partyMemberIndex * 60,
+      y: 215,
+    });
+    // Bottom bar player mp
+    createResourceBar({
+      condition: (): boolean =>
+        partyMemberCondition() && partyMemberMPCondition(),
+      iconImagePath: "resource-bar-icons/mp",
+      maxValue: 1,
+      primaryColor: Color.PureBlue,
+      secondaryColor: Color.StrongBlue,
+      value: 1,
+      x: 23 + partyMemberIndex * 60,
+      y: 225,
     });
   }
   // Stats icon

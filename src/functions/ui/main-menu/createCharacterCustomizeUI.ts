@@ -1,5 +1,10 @@
 import { Class } from "../../../classes/Class";
 import {
+  Color,
+  Direction,
+  MainMenuCharacterCustomizeCreateCharacterRequest,
+} from "retrommo-types";
+import {
   CreateLabelOptionsText,
   createButton,
   createLabel,
@@ -8,10 +13,6 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import {
-  Direction,
-  MainMenuCharacterCustomizeCreateCharacterRequest,
-} from "retrommo-types";
 import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
 import { SkinColor } from "../../../classes/SkinColor";
@@ -122,7 +123,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Class name
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: getGameWidth() / 2,
@@ -136,7 +137,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Class description
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: getGameWidth() / 2,
@@ -317,7 +318,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Figure label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: getGameWidth() / 2,
@@ -413,7 +414,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Head label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: 90,
@@ -509,7 +510,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Body label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: 214,
@@ -605,7 +606,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Hair dye label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: 90,
@@ -701,7 +702,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Clothes dye primary label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: 214,
@@ -797,7 +798,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Skin color label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: 90,
@@ -893,7 +894,7 @@ export const createCharacterCustomizeUI = (): void => {
   });
   // Clothes dye secondary label
   createLabel({
-    color: "#ffffff",
+    color: Color.White,
     coordinates: {
       condition,
       x: 214,
