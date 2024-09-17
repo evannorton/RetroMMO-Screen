@@ -27,11 +27,11 @@ import { ClothesDye } from "../classes/ClothesDye";
 import {
   CreateLevelOptionsLayer,
   CreateTilesetOptionsTile,
+  CreateTilesetOptionsTileAnimationFrame,
   createLevel,
   createTileset,
   makeHTTPRequest,
 } from "pixel-pigeon";
-import { CreateTilesetOptionsTileAnimationFrame } from "pixel-pigeon/api/functions/createTileset";
 import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
 import { HairDye } from "../classes/HairDye";

@@ -1,5 +1,8 @@
+import { getMainMenuState } from "./state/main-menu/getMainMenuState";
 import { getMaxCharacters } from "./getMaxCharacters";
-import { state } from "../state";
 
 export const getLastPlayableCharacterIndex = (): number =>
-  Math.min(state.values.characterIDs.length, getMaxCharacters()) - 1;
+  Math.min(
+    getMainMenuState().values.mainMenuCharacterIDs.length,
+    getMaxCharacters(),
+  ) - 1;

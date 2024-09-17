@@ -1,22 +1,32 @@
-import { Character } from "../../../classes/Character";
 import {
   Color,
   Direction,
   ResourcePool,
   WorldExitToMainMenuRequest,
 } from "retrommo-types";
+import {
+  State,
+  createButton,
+  createSprite,
+  emitToSocketioServer,
+} from "pixel-pigeon";
+import { WorldCharacter } from "../../../classes/WorldCharacter";
+import { WorldStateSchema, state } from "../../../state";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
-import { createButton, createSprite, emitToSocketioServer } from "pixel-pigeon";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createResourceBar } from "../components/createResourceBar";
+import { getDefaultedClothesDye } from "../../getDefaultedCosmetics/getDefaultedClothesDye";
+import { getDefaultedHairDye } from "../../getDefaultedCosmetics/getDefaultedHairDye";
+import { getDefaultedMask } from "../../getDefaultedCosmetics/getDefaultedMask";
+import { getDefaultedOutfit } from "../../getDefaultedCosmetics/getDefaultedOutfit";
 import { getDefinable } from "../../../definables";
+import { getWorldState } from "../../state/getWorldState";
 import {
   inventoryInputCollectionID,
   spellbookInputCollectionID,
   statsInputCollectionID,
 } from "../../../input";
-import { state } from "../../../state";
 
 export const createWorldUI = (): void => {
   const condition = (): boolean => state.values.worldState !== null;
@@ -85,44 +95,66 @@ export const createWorldUI = (): void => {
   ) {
     const partyMemberCondition = (): boolean => {
       if (condition()) {
-        if (state.values.worldState === null) {
-          throw new Error("No world state.");
-        }
-        const character: Character = getDefinable(
-          Character,
-          state.values.worldState.values.characterID,
+        const worldState: State<WorldStateSchema> = getWorldState();
+        const character: WorldCharacter = getDefinable(
+          WorldCharacter,
+          worldState.values.worldCharacterID,
         );
-        return partyMemberIndex < character.party.characters.length;
+        return partyMemberIndex < character.party.worldCharacters.length;
       }
       return false;
     };
-    const getCharacter = (): Character => {
-      if (state.values.worldState === null) {
-        throw new Error("No world state.");
-      }
-      const character: Character = getDefinable(
-        Character,
-        state.values.worldState.values.characterID,
+    const getWorldCharacter = (): WorldCharacter => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        worldState.values.worldCharacterID,
       );
-      const partyMemberCharacter: Character | undefined =
-        character.party.characters[partyMemberIndex];
+      const partyMemberCharacter: WorldCharacter | undefined =
+        worldCharacter.party.worldCharacters[partyMemberIndex];
       if (typeof partyMemberCharacter === "undefined") {
         throw new Error("No party member character.");
       }
       return partyMemberCharacter;
     };
     const partyMemberMPCondition = (): boolean =>
-      getCharacter().class.resourcePool === ResourcePool.MP;
+      getWorldCharacter().class.resourcePool === ResourcePool.MP;
     // Bottom bar player sprite
     createPlayerSprite({
-      clothesDyeID: (): string => getCharacter().getClothesDye().id,
-      condition: (): boolean => partyMemberCondition(),
+      clothesDyeID: (): string => {
+        const worldCharacter: WorldCharacter = getWorldCharacter();
+        return getDefaultedClothesDye(
+          worldCharacter.hasClothesDyeItem()
+            ? worldCharacter.clothesDyeItem.id
+            : undefined,
+        ).id;
+      },
+      condition: partyMemberCondition,
       direction: Direction.Down,
-      figureID: (): string => getCharacter().figure.id,
-      hairDyeID: (): string => getCharacter().getHairDye().id,
-      maskID: (): string => getCharacter().getMask().id,
-      outfitID: (): string => getCharacter().getOutfit().id,
-      skinColorID: (): string => getCharacter().skinColor.id,
+      figureID: (): string => getWorldCharacter().figure.id,
+      hairDyeID: (): string => {
+        const worldCharacter: WorldCharacter = getWorldCharacter();
+        return getDefaultedHairDye(
+          worldCharacter.hasHairDyeItem()
+            ? worldCharacter.hairDyeItem.id
+            : undefined,
+        ).id;
+      },
+      maskID: (): string => {
+        const worldCharacter: WorldCharacter = getWorldCharacter();
+        return getDefaultedMask(
+          worldCharacter.hasMaskItem() ? worldCharacter.maskItem.id : undefined,
+        ).id;
+      },
+      outfitID: (): string => {
+        const worldCharacter: WorldCharacter = getWorldCharacter();
+        return getDefaultedOutfit(
+          worldCharacter.hasOutfitItem()
+            ? worldCharacter.outfitItem.id
+            : undefined,
+        ).id;
+      },
+      skinColorID: (): string => getWorldCharacter().skinColor.id,
       x: 6 + partyMemberIndex * 60,
       y: 216,
     });
@@ -130,10 +162,10 @@ export const createWorldUI = (): void => {
     createResourceBar({
       condition: partyMemberCondition,
       iconImagePath: "resource-bar-icons/hp",
-      maxValue: 1,
+      maxValue: (): number => getWorldCharacter().resources.maxHP,
       primaryColor: Color.BrightRed,
       secondaryColor: Color.DarkPink,
-      value: 1,
+      value: (): number => getWorldCharacter().resources.hp,
       x: 23 + partyMemberIndex * 60,
       y: 215,
     });
@@ -142,10 +174,10 @@ export const createWorldUI = (): void => {
       condition: (): boolean =>
         partyMemberCondition() && partyMemberMPCondition(),
       iconImagePath: "resource-bar-icons/mp",
-      maxValue: 1,
+      maxValue: (): number => getWorldCharacter().resources.maxMP as number,
       primaryColor: Color.PureBlue,
       secondaryColor: Color.StrongBlue,
-      value: 1,
+      value: (): number => getWorldCharacter().resources.mp as number,
       x: 23 + partyMemberIndex * 60,
       y: 225,
     });

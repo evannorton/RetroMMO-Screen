@@ -1,7 +1,7 @@
-import { Character } from "../../classes/Character";
 import { InitialUpdate, MainState } from "retrommo-types";
-import { ItemInstance } from "../../classes/ItemInstance";
+import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { Party } from "../../classes/Party";
+import { WorldCharacter } from "../../classes/WorldCharacter";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
@@ -10,11 +10,10 @@ import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { listenToSocketioEvent } from "pixel-pigeon";
-import { loadSavefile } from "../loadSavefile";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
-import { selectCharacter } from "../selectCharacter";
+import { loadWorldPartyUpdate } from "../loadWorldPartyUpdate";
+import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
-import { updateCharacterParty } from "../updateCharacterParty";
 
 export const listenForUpdates = (): void => {
   listenForMainMenuUpdates();
@@ -23,10 +22,10 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<InitialUpdate>({
     event: "initial-update",
     onMessage: (update: InitialUpdate): void => {
-      for (const itemInstance of getDefinables(ItemInstance).values()) {
-        itemInstance.remove();
+      for (const character of getDefinables(MainMenuCharacter).values()) {
+        character.remove();
       }
-      for (const character of getDefinables(Character).values()) {
+      for (const character of getDefinables(WorldCharacter).values()) {
         character.remove();
       }
       for (const party of getDefinables(Party).values()) {
@@ -36,22 +35,42 @@ export const listenForUpdates = (): void => {
         battleState: null,
         isSubscribed: update.isSubscribed,
         mainMenuState: null,
-        userID: update.userID,
-        username: update.username,
         worldState: null,
       });
-      loadSavefile(update.savefile);
       switch (update.mainState) {
         case MainState.Battle:
           state.setValues({
             battleState: createBattleState(),
           });
           break;
-        case MainState.MainMenu:
+        case MainState.MainMenu: {
+          if (typeof update.mainMenu === "undefined") {
+            throw new Error(
+              "Initial update in MainMenu MainState is missing mainMenu.",
+            );
+          }
+          const mainMenuCharacterIDs: string[] = [];
+          for (const mainMenuCharacterUpdate of update.mainMenu
+            .mainMenuCharacters) {
+            mainMenuCharacterIDs.push(
+              new MainMenuCharacter({
+                classID: mainMenuCharacterUpdate.classID,
+                clothesDyeItemID: mainMenuCharacterUpdate.clothesDyeItemID,
+                figureID: mainMenuCharacterUpdate.figureID,
+                hairDyeItemID: mainMenuCharacterUpdate.hairDyeItemID,
+                id: mainMenuCharacterUpdate.id,
+                level: mainMenuCharacterUpdate.level,
+                maskItemID: mainMenuCharacterUpdate.maskItemID,
+                outfitItemID: mainMenuCharacterUpdate.outfitItemID,
+                skinColorID: mainMenuCharacterUpdate.skinColorID,
+              }).id,
+            );
+          }
           state.setValues({
-            mainMenuState: createMainMenuState(),
+            mainMenuState: createMainMenuState(mainMenuCharacterIDs),
           });
           break;
+        }
         case MainState.World: {
           if (typeof update.world === "undefined") {
             throw new Error(
@@ -59,13 +78,15 @@ export const listenForUpdates = (): void => {
             );
           }
           state.setValues({
-            worldState: createWorldState(update.world.characterID),
+            worldState: createWorldState(update.world.worldCharacterID),
           });
-          selectCharacter(update.world.characterID);
-          updateCharacterParty(update.world.characterID, update.world.partyID);
-          for (const characterUpdate of update.world.characters) {
-            loadWorldCharacterUpdate(characterUpdate);
+          for (const worldCharacterUpdate of update.world.worldCharacters) {
+            loadWorldCharacterUpdate(worldCharacterUpdate);
           }
+          for (const partyUpdate of update.world.parties) {
+            loadWorldPartyUpdate(partyUpdate);
+          }
+          selectWorldCharacter(update.world.worldCharacterID);
           break;
         }
       }

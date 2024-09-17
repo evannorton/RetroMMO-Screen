@@ -1,15 +1,15 @@
-import { CharacterCustomizeStateSchema } from "../../../state";
 import { Class } from "../../../classes/Class";
 import { Direction } from "retrommo-types";
+import { MainMenuCharacterCustomizeStateSchema } from "../../../state";
 import { State } from "pixel-pigeon";
 import { getDefinable } from "../../../definables";
 
-export interface CreateCharacterCustomizeStateOptions {
+export interface createMainMenuCharacterCustomizeStateOptions {
   classID: string;
 }
-export const createCharacterCustomizeState = (
-  options: CreateCharacterCustomizeStateOptions,
-): State<CharacterCustomizeStateSchema> => {
+export const createMainMenuCharacterCustomizeState = (
+  options: createMainMenuCharacterCustomizeStateOptions,
+): State<MainMenuCharacterCustomizeStateSchema> => {
   const characterClass: Class = getDefinable(Class, options.classID);
   const [clothesDyeItemPrimaryColorIndex, clothesDyeItemSecondaryColorIndex]: [
     number,
@@ -20,8 +20,8 @@ export const createCharacterCustomizeState = (
   const hairDyeItemIndex: number = characterClass.hairDyeItemOrderOffset;
   const maskItemIndex: number = characterClass.maskItemOrderOffset;
   const outfitItemIndex: number = characterClass.outfitItemOrderOffset;
-  const state: State<CharacterCustomizeStateSchema> =
-    new State<CharacterCustomizeStateSchema>({
+  const state: State<MainMenuCharacterCustomizeStateSchema> =
+    new State<MainMenuCharacterCustomizeStateSchema>({
       classID: options.classID,
       clothesDyeItemPrimaryColorIndex,
       clothesDyeItemSecondaryColorIndex,

@@ -1,11 +1,11 @@
-import { CharacterCustomizeStateSchema } from "../state";
+import { MainMenuCharacterCustomizeStateSchema } from "../state";
 import { ClassDefinition, ResourcePool } from "retrommo-types";
 import { Definable, getDefinable, getDefinables } from "../definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { SkinColor } from "./SkinColor";
 import { State } from "pixel-pigeon";
-import { getCharacterCustomizeState } from "../functions/state/main-menu/getCharacterCustomizeState";
+import { getMainMenuCharacterCustomizeState } from "../functions/state/main-menu/getMainMenuCharacterCustomizeState";
 
 export interface ClassOptions {
   definition: ClassDefinition;
@@ -202,8 +202,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeClothesDyeItemPrimaryColor(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastClothesDyeItemPrimaryColorIndex: number =
       characterCustomizeState.values.clothesDyeItemPrimaryColorIndex;
     const clothesDyeItemPrimaryColorIndex: number =
@@ -217,8 +217,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeClothesDyeItemSecondaryColor(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastClothesDyeItemSecondaryColorIndex: number =
       characterCustomizeState.values.clothesDyeItemSecondaryColorIndex;
     const clothesDyeItemSecondaryColorIndex: number =
@@ -232,8 +232,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeFigure(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastFigureIndex: number = characterCustomizeState.values.figureIndex;
     const figureIndex: number =
       lastFigureIndex === 0
@@ -245,8 +245,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeHairDyeItem(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastHairDyeItemIndex: number =
       characterCustomizeState.values.hairDyeItemIndex;
     const hairDyeItemIndex: number =
@@ -259,8 +259,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeMaskItem(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastMaskItemIndex: number =
       characterCustomizeState.values.maskItemIndex;
     const maskItemIndex: number =
@@ -273,8 +273,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeOutfitItem(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastOutfitItemIndex: number =
       characterCustomizeState.values.outfitItemIndex;
     const outfitItemIndex: number =
@@ -287,8 +287,8 @@ export class Class extends Definable {
   }
 
   public goToNextCharacterCustomizeSkinColor(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastSkinColorIndex: number =
       characterCustomizeState.values.skinColorIndex;
     const skinColorIndex: number =
@@ -301,8 +301,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeClothesDyeItemPrimaryColor(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastClothesDyeItemPrimaryColorIndex: number =
       characterCustomizeState.values.clothesDyeItemPrimaryColorIndex;
     const clothesDyeItemPrimaryColorIndex: number =
@@ -315,8 +315,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeClothesDyeItemSecondaryColor(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastClothesDyeItemSecondaryColorIndex: number =
       characterCustomizeState.values.clothesDyeItemSecondaryColorIndex;
     const clothesDyeItemSecondaryColorIndex: number =
@@ -329,8 +329,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeFigure(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastFigureIndex: number = characterCustomizeState.values.figureIndex;
     const figureIndex: number =
       lastFigureIndex === this._characterCustomizeFigureIDs.length - 1
@@ -342,8 +342,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeHairDyeItem(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastHairDyeItemIndex: number =
       characterCustomizeState.values.hairDyeItemIndex;
     const hairDyeItemIndex: number =
@@ -356,8 +356,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeMaskItem(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastMaskItemIndex: number =
       characterCustomizeState.values.maskItemIndex;
     const maskItemIndex: number =
@@ -370,8 +370,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeOutfitItem(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastOutfitItemIndex: number =
       characterCustomizeState.values.outfitItemIndex;
     const outfitItemIndex: number =
@@ -384,8 +384,8 @@ export class Class extends Definable {
   }
 
   public goToPreviousCharacterCustomizeSkinColor(): void {
-    const characterCustomizeState: State<CharacterCustomizeStateSchema> =
-      getCharacterCustomizeState();
+    const characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> =
+      getMainMenuCharacterCustomizeState();
     const lastSkinColorIndex: number =
       characterCustomizeState.values.skinColorIndex;
     const skinColorIndex: number =

@@ -1,12 +1,13 @@
 import { BattleExitToWorldUpdate } from "retrommo-types";
-import { Character } from "../../classes/Character";
+import { WorldCharacter } from "../../classes/WorldCharacter";
 import { createWorldState } from "../state/createWorldState";
 import { getDefinable } from "../../definables";
 import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
-import { selectCharacter } from "../selectCharacter";
+import { loadWorldPartyUpdate } from "../loadWorldPartyUpdate";
+import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
-import { updateCharacterPosition } from "../updateCharacterPosition";
+import { updateWorldCharacterPosition } from "../updateWorldCharacterPosition";
 
 export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleExitToWorldUpdate>({
@@ -14,15 +15,21 @@ export const listenForBattleUpdates = (): void => {
     onMessage: (update: BattleExitToWorldUpdate): void => {
       state.setValues({
         battleState: null,
-        worldState: createWorldState(update.characterID),
+        worldState: createWorldState(update.worldCharacterID),
       });
-      const character: Character = getDefinable(Character, update.characterID);
-      character.tilemapID = update.tilemapID;
-      updateCharacterPosition(character.id, update.x, update.y);
-      selectCharacter(update.characterID);
-      for (const characterUpdate of update.characters) {
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        update.worldCharacterID,
+      );
+      worldCharacter.tilemapID = update.tilemapID;
+      updateWorldCharacterPosition(worldCharacter.id, update.x, update.y);
+      for (const characterUpdate of update.worldCharacters) {
         loadWorldCharacterUpdate(characterUpdate);
       }
+      for (const partyUpdate of update.parties) {
+        loadWorldPartyUpdate(partyUpdate);
+      }
+      selectWorldCharacter(update.worldCharacterID);
     },
   });
 };

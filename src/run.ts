@@ -6,14 +6,14 @@ import { onWindowMessage } from "pixel-pigeon";
 import { postWindowMessage } from "./functions/postWindowMessage";
 
 export const run = (): void => {
-  postWindowMessage({ event: "run" });
   loadServerURL();
   loadGameData()
     .then((): void => {
       createUI();
+      postWindowMessage({ event: "run" });
+      onWindowMessage(handleWindowMessage);
     })
     .catch((error: unknown): void => {
       throw error;
     });
-  onWindowMessage(handleWindowMessage);
 };

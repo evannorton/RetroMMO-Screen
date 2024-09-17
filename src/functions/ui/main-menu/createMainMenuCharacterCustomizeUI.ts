@@ -16,56 +16,58 @@ import {
 import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
 import { SkinColor } from "../../../classes/SkinColor";
-import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
+import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
-import { getCharacterCustomizeState } from "../../state/main-menu/getCharacterCustomizeState";
 import { getDefinable } from "../../../definables";
+import { getMainMenuCharacterCustomizeState } from "../../state/main-menu/getMainMenuCharacterCustomizeState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { state } from "../../../state";
 
-export const createCharacterCustomizeUI = (): void => {
+export const createMainMenuCharacterCustomizeUI = (): void => {
   const condition = (): boolean =>
     state.values.mainMenuState !== null &&
     state.values.mainMenuState.values.characterCustomizeState !== null;
   const getClass = (): Class =>
-    getDefinable(Class, getCharacterCustomizeState().values.classID);
+    getDefinable(Class, getMainMenuCharacterCustomizeState().values.classID);
   const getFigure = (): Figure =>
     getClass().getCharacterCustomizeFigure(
-      getCharacterCustomizeState().values.figureIndex,
+      getMainMenuCharacterCustomizeState().values.figureIndex,
     );
   const getSkinColor = (): SkinColor =>
     getClass().getCharacterCustomizeSkinColor(
-      getCharacterCustomizeState().values.skinColorIndex,
+      getMainMenuCharacterCustomizeState().values.skinColorIndex,
     );
   const getClothesDyeItem = (): Item =>
     getDefinable(
       Item,
       getClass().getCharacterCustomizeClothesDyeItem(
-        getCharacterCustomizeState().values.clothesDyeItemPrimaryColorIndex,
-        getCharacterCustomizeState().values.clothesDyeItemSecondaryColorIndex,
+        getMainMenuCharacterCustomizeState().values
+          .clothesDyeItemPrimaryColorIndex,
+        getMainMenuCharacterCustomizeState().values
+          .clothesDyeItemSecondaryColorIndex,
       ).id,
     );
   const getHairDyeItem = (): Item =>
     getDefinable(
       Item,
       getClass().getCharacterCustomizeHairDyeItem(
-        getCharacterCustomizeState().values.hairDyeItemIndex,
+        getMainMenuCharacterCustomizeState().values.hairDyeItemIndex,
       ).id,
     );
   const getOutfitItem = (): Item =>
     getDefinable(
       Item,
       getClass().getCharacterCustomizeOutfitItem(
-        getCharacterCustomizeState().values.outfitItemIndex,
+        getMainMenuCharacterCustomizeState().values.outfitItemIndex,
       ).id,
     );
   const getMaskItem = (): Item =>
     getDefinable(
       Item,
       getClass().getCharacterCustomizeMaskItem(
-        getCharacterCustomizeState().values.maskItemIndex,
+        getMainMenuCharacterCustomizeState().values.maskItemIndex,
       ).id,
     );
   // Background panel
@@ -115,7 +117,7 @@ export const createCharacterCustomizeUI = (): void => {
     height: backHeight,
     onClick: (): void => {
       getMainMenuState().setValues({
-        characterCreateState: createCharacterCreateState(),
+        characterCreateState: createMainMenuCharacterCreateState(),
         characterCustomizeState: null,
       });
     },
@@ -153,7 +155,8 @@ export const createCharacterCustomizeUI = (): void => {
   createPlayerSprite({
     clothesDyeID: (): string => getClothesDyeItem().clothesDye.id,
     condition,
-    direction: (): Direction => getCharacterCustomizeState().values.direction,
+    direction: (): Direction =>
+      getMainMenuCharacterCustomizeState().values.direction,
     figureID: (): string => getFigure().id,
     hairDyeID: (): string => getHairDyeItem().hairDye.id,
     isAnimated: true,
@@ -200,20 +203,26 @@ export const createCharacterCustomizeUI = (): void => {
     },
     height: previewLeftHeight,
     onClick: (): void => {
-      switch (getCharacterCustomizeState().values.direction) {
+      switch (getMainMenuCharacterCustomizeState().values.direction) {
         case Direction.Down:
-          getCharacterCustomizeState().setValues({ direction: Direction.Left });
+          getMainMenuCharacterCustomizeState().setValues({
+            direction: Direction.Left,
+          });
           break;
         case Direction.Left:
-          getCharacterCustomizeState().setValues({ direction: Direction.Up });
+          getMainMenuCharacterCustomizeState().setValues({
+            direction: Direction.Up,
+          });
           break;
         case Direction.Up:
-          getCharacterCustomizeState().setValues({
+          getMainMenuCharacterCustomizeState().setValues({
             direction: Direction.Right,
           });
           break;
         case Direction.Right:
-          getCharacterCustomizeState().setValues({ direction: Direction.Down });
+          getMainMenuCharacterCustomizeState().setValues({
+            direction: Direction.Down,
+          });
           break;
       }
     },
@@ -256,20 +265,26 @@ export const createCharacterCustomizeUI = (): void => {
     },
     height: previewRightHeight,
     onClick: (): void => {
-      switch (getCharacterCustomizeState().values.direction) {
+      switch (getMainMenuCharacterCustomizeState().values.direction) {
         case Direction.Down:
-          getCharacterCustomizeState().setValues({
+          getMainMenuCharacterCustomizeState().setValues({
             direction: Direction.Right,
           });
           break;
         case Direction.Left:
-          getCharacterCustomizeState().setValues({ direction: Direction.Down });
+          getMainMenuCharacterCustomizeState().setValues({
+            direction: Direction.Down,
+          });
           break;
         case Direction.Up:
-          getCharacterCustomizeState().setValues({ direction: Direction.Left });
+          getMainMenuCharacterCustomizeState().setValues({
+            direction: Direction.Left,
+          });
           break;
         case Direction.Right:
-          getCharacterCustomizeState().setValues({ direction: Direction.Up });
+          getMainMenuCharacterCustomizeState().setValues({
+            direction: Direction.Up,
+          });
           break;
       }
     },

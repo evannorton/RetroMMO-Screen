@@ -1,7 +1,7 @@
 import { Constants, Direction } from "retrommo-types";
 import { State } from "pixel-pigeon";
 
-export interface CharacterCustomizeStateSchema {
+export interface MainMenuCharacterCustomizeStateSchema {
   classID: string;
   clothesDyeItemPrimaryColorIndex: number;
   clothesDyeItemSecondaryColorIndex: number;
@@ -12,25 +12,25 @@ export interface CharacterCustomizeStateSchema {
   outfitItemIndex: number;
   skinColorIndex: number;
 }
-export interface CharacterCreateStateSchema {}
-export interface CharacterSelectStateSchema {
-  characterIDToDelete: string | null;
+export interface MainMenuCharacterCreateStateSchema {}
+export interface MainMenuCharacterSelectStateSchema {
   isDeleting: boolean;
   isSorting: boolean;
+  mainMenuCharacterIDToDelete: string | null;
   page: number;
 }
 export interface MainMenuStateSchema {
-  characterCreateState: State<CharacterCreateStateSchema> | null;
-  characterCustomizeState: State<CharacterCustomizeStateSchema> | null;
-  characterSelectState: State<CharacterSelectStateSchema> | null;
+  characterCreateState: State<MainMenuCharacterCreateStateSchema> | null;
+  characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> | null;
+  characterSelectState: State<MainMenuCharacterSelectStateSchema> | null;
+  mainMenuCharacterIDs: string[];
 }
 export interface WorldStateSchema {
-  characterID: string;
+  worldCharacterID: string;
 }
 export interface BattleStateSchema {}
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
-  characterIDs: string[];
   constants: Constants | null;
   defaultClothesDyeID: string | null;
   defaultHairDyeID: string | null;
@@ -39,14 +39,11 @@ interface StateSchema {
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
   serverURL: string | null;
-  userID: number | null;
-  username: string | null;
   worldState: State<WorldStateSchema> | null;
 }
 
 export const state: State<StateSchema> = new State<StateSchema>({
   battleState: null,
-  characterIDs: [],
   constants: null,
   defaultClothesDyeID: null,
   defaultHairDyeID: null,
@@ -55,7 +52,5 @@ export const state: State<StateSchema> = new State<StateSchema>({
   isSubscribed: false,
   mainMenuState: null,
   serverURL: null,
-  userID: null,
-  username: null,
   worldState: null,
 });

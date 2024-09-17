@@ -1,9 +1,10 @@
-import { Character } from "../../../classes/Character";
-import { ItemInstance } from "../../../classes/ItemInstance";
+import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
 import { MainMenuCharacterCustomizeCreateCharacterUpdate } from "retrommo-types";
-import { createCharacterSelectState } from "../../state/main-menu/createCharacterSelectState";
-import { listenToSocketioEvent } from "pixel-pigeon";
-import { state } from "../../../state";
+import { MainMenuStateSchema } from "../../../state";
+import { State, listenToSocketioEvent } from "pixel-pigeon";
+import { createMainMenuCharacterSelectState } from "../../state/main-menu/createMainMenuCharacterSelectState";
+import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
+import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
 
 export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
   listenToSocketioEvent<MainMenuCharacterCustomizeCreateCharacterUpdate>({
@@ -11,54 +12,30 @@ export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
     onMessage: (
       update: MainMenuCharacterCustomizeCreateCharacterUpdate,
     ): void => {
-      if (state.values.mainMenuState === null) {
-        throw new Error("No main menu state.");
-      }
-      if (state.values.username === null) {
-        throw new Error("No username.");
-      }
-      if (state.values.userID === null) {
-        throw new Error("No userID.");
-      }
-      new ItemInstance({
-        id: update.clothesDyeSavefileItemInstance.id,
-        itemID: update.clothesDyeSavefileItemInstance.itemID,
-      });
-      new ItemInstance({
-        id: update.hairDyeSavefileItemInstance.id,
-        itemID: update.hairDyeSavefileItemInstance.itemID,
-      });
-      new ItemInstance({
-        id: update.maskSavefileItemInstance.id,
-        itemID: update.maskSavefileItemInstance.itemID,
-      });
-      new ItemInstance({
-        id: update.outfitSavefileItemInstance.id,
-        itemID: update.outfitSavefileItemInstance.itemID,
-      });
-      const characterID: string = new Character({
-        classID: update.classID,
-        clothesDyeItemInstanceID: update.clothesDyeSavefileItemInstance.id,
-        direction: update.direction,
-        figureID: update.figureID,
-        hairDyeItemInstanceID: update.hairDyeSavefileItemInstance.id,
-        id: update.id,
-        level: update.level,
-        maskItemInstanceID: update.maskSavefileItemInstance.id,
-        outfitItemInstanceID: update.outfitSavefileItemInstance.id,
-        skinColorID: update.skinColorID,
-        tilemapID: update.tilemapID,
-        userID: state.values.userID,
-        username: state.values.username,
-        x: update.x,
-        y: update.y,
+      const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+      const mainMenuCharacterID: string = new MainMenuCharacter({
+        classID: update.mainMenuCharacter.classID,
+        clothesDyeItemID: update.mainMenuCharacter.clothesDyeItemID,
+        figureID: update.mainMenuCharacter.figureID,
+        hairDyeItemID: update.mainMenuCharacter.hairDyeItemID,
+        id: update.mainMenuCharacter.id,
+        level: update.mainMenuCharacter.level,
+        maskItemID: update.mainMenuCharacter.maskItemID,
+        outfitItemID: update.mainMenuCharacter.outfitItemID,
+        skinColorID: update.mainMenuCharacter.skinColorID,
       }).id;
-      state.setValues({
-        characterIDs: [...state.values.characterIDs, characterID],
-      });
-      state.values.mainMenuState.setValues({
+      const mainMenuCharacterIDs: string[] = [
+        ...mainMenuState.values.mainMenuCharacterIDs,
+        mainMenuCharacterID,
+      ];
+      mainMenuState.setValues({
         characterCustomizeState: null,
-        characterSelectState: createCharacterSelectState(),
+        characterSelectState: createMainMenuCharacterSelectState(
+          Math.floor(
+            (mainMenuCharacterIDs.length - 1) / mainMenuCharactersPerPage,
+          ),
+        ),
+        mainMenuCharacterIDs,
       });
     },
   });

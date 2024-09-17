@@ -1,5 +1,3 @@
-import { Character } from "../../../classes/Character";
-import { CharacterSelectStateSchema, state } from "../../../state";
 import { Class } from "../../../classes/Class";
 import {
   Color,
@@ -19,40 +17,60 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import { createCharacterCreateState } from "../../state/main-menu/createCharacterCreateState";
+import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
+import {
+  MainMenuCharacterSelectStateSchema,
+  MainMenuStateSchema,
+  state,
+} from "../../../state";
+import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
-import { getCharacterSelectState } from "../../state/main-menu/getCharacterSelectState";
 import { getCyclicIndex } from "../../getCyclicIndex";
+import { getDefaultedClothesDye } from "../../getDefaultedCosmetics/getDefaultedClothesDye";
+import { getDefaultedHairDye } from "../../getDefaultedCosmetics/getDefaultedHairDye";
+import { getDefaultedMask } from "../../getDefaultedCosmetics/getDefaultedMask";
+import { getDefaultedOutfit } from "../../getDefaultedCosmetics/getDefaultedOutfit";
 import { getDefinable } from "../../../definables";
+import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { getMaxCharacters } from "../../getMaxCharacters";
+import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
 import { postWindowMessage } from "../../postWindowMessage";
 
-export const createCharacterSelectUI = (): void => {
+export const createMainMenuCharacterSelectUI = (): void => {
   const condition = (): boolean =>
     state.values.mainMenuState !== null &&
     state.values.mainMenuState.values.characterSelectState !== null;
-  const charactersPerPage: number = 7;
   const getIndexOffset = (): number =>
-    getCharacterSelectState().values.page * charactersPerPage;
+    getMainMenuCharacterSelectState().values.page * mainMenuCharactersPerPage;
   const getOffsetIndex = (index: number): number => index + getIndexOffset();
-  const hasCharacter = (index: number): boolean =>
-    state.values.characterIDs.length - getIndexOffset() > index;
-  const getLastPage = (): number =>
-    Math.max(
-      Math.floor((state.values.characterIDs.length - 1) / charactersPerPage),
+  const hasCharacter = (index: number): boolean => {
+    const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+    return (
+      mainMenuState.values.mainMenuCharacterIDs.length - getIndexOffset() >
+      index
+    );
+  };
+  const getLastPage = (): number => {
+    const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+    return Math.max(
+      Math.floor(
+        (mainMenuState.values.mainMenuCharacterIDs.length - 1) /
+          mainMenuCharactersPerPage,
+      ),
       0,
     );
+  };
   const page = (offset: number): void => {
     const pages: number[] = [];
     for (let i: number = 0; i < getLastPage() + 1; i++) {
       pages.push(i);
     }
-    getCharacterSelectState().setValues({
+    getMainMenuCharacterSelectState().setValues({
       page: getCyclicIndex(
-        pages.indexOf(getCharacterSelectState().values.page) + offset,
+        pages.indexOf(getMainMenuCharacterSelectState().values.page) + offset,
         pages,
       ),
     });
@@ -86,11 +104,14 @@ export const createCharacterSelectUI = (): void => {
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      if (state.values.characterIDs.length >= getMaxCharacters()) {
+      const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+      if (
+        mainMenuState.values.mainMenuCharacterIDs.length >= getMaxCharacters()
+      ) {
         postWindowMessage({ event: "subscribe/character-limit" });
       } else {
         getMainMenuState().setValues({
-          characterCreateState: createCharacterCreateState(),
+          characterCreateState: createMainMenuCharacterCreateState(),
           characterSelectState: null,
         });
       }
@@ -102,21 +123,28 @@ export const createCharacterSelectUI = (): void => {
   });
   // Sort characters button
   createPressableButton({
-    condition: (): boolean =>
-      condition() &&
-      state.values.characterIDs.length > 0 &&
-      getCharacterSelectState().values.characterIDToDelete === null,
+    condition: (): boolean => {
+      if (condition()) {
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+        return (
+          mainMenuState.values.mainMenuCharacterIDs.length > 0 &&
+          getMainMenuCharacterSelectState().values
+            .mainMenuCharacterIDToDelete === null
+        );
+      }
+      return false;
+    },
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      getCharacterSelectState().setValues({
-        characterIDToDelete: null,
+      getMainMenuCharacterSelectState().setValues({
         isDeleting: false,
-        isSorting: getCharacterSelectState().values.isSorting === false,
+        isSorting: getMainMenuCharacterSelectState().values.isSorting === false,
+        mainMenuCharacterIDToDelete: null,
       });
     },
     text: (): CreateLabelOptionsText =>
-      getCharacterSelectState().values.isSorting
+      getMainMenuCharacterSelectState().values.isSorting
         ? { value: "Done" }
         : { value: "Sort" },
     width: 48,
@@ -127,19 +155,20 @@ export const createCharacterSelectUI = (): void => {
   createPressableButton({
     condition: (): boolean =>
       condition() &&
-      getCharacterSelectState().values.isDeleting &&
-      getCharacterSelectState().values.characterIDToDelete !== null,
+      getMainMenuCharacterSelectState().values.isDeleting &&
+      getMainMenuCharacterSelectState().values.mainMenuCharacterIDToDelete !==
+        null,
     height: 16,
     imagePath: "pressable-buttons/red",
     onClick: (): void => {
-      const { characterIDToDelete: characterID } =
-        getCharacterSelectState().values;
-      if (characterID === null) {
+      const { mainMenuCharacterIDToDelete } =
+        getMainMenuCharacterSelectState().values;
+      if (mainMenuCharacterIDToDelete === null) {
         throw new Error("Character ID to delete is null");
       }
       emitToSocketioServer<MainMenuCharacterSelectDeleteCharacterRequest>({
         data: {
-          characterID,
+          mainMenuCharacterID: mainMenuCharacterIDToDelete,
         },
         event: "main-menu/character-select/delete-character",
       });
@@ -151,19 +180,25 @@ export const createCharacterSelectUI = (): void => {
   });
   // Delete character button
   createPressableButton({
-    condition: (): boolean =>
-      condition() && state.values.characterIDs.length > 0,
+    condition: (): boolean => {
+      if (condition()) {
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+        return mainMenuState.values.mainMenuCharacterIDs.length > 0;
+      }
+      return false;
+    },
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      getCharacterSelectState().setValues({
-        characterIDToDelete: null,
-        isDeleting: getCharacterSelectState().values.isDeleting === false,
+      getMainMenuCharacterSelectState().setValues({
+        isDeleting:
+          getMainMenuCharacterSelectState().values.isDeleting === false,
         isSorting: false,
+        mainMenuCharacterIDToDelete: null,
       });
     },
     text: (): CreateLabelOptionsText =>
-      getCharacterSelectState().values.isDeleting
+      getMainMenuCharacterSelectState().values.isDeleting
         ? { value: "Cancel" }
         : { value: "Delete" },
     width: 48,
@@ -171,7 +206,7 @@ export const createCharacterSelectUI = (): void => {
     y: 38,
   });
   // For each character slot
-  for (let i: number = 0; i < charactersPerPage; i++) {
+  for (let i: number = 0; i < mainMenuCharactersPerPage; i++) {
     const characterCondition = (): boolean => {
       if (condition()) {
         return hasCharacter(i);
@@ -182,11 +217,13 @@ export const createCharacterSelectUI = (): void => {
       const index: number = getOffsetIndex(i);
       return index < getMaxCharacters();
     };
-    const getCharacter = (): Character =>
-      getDefinable(
-        Character,
-        state.values.characterIDs[getOffsetIndex(i)] as string,
+    const getMainMenuCharacter = (): MainMenuCharacter => {
+      const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+      return getDefinable(
+        MainMenuCharacter,
+        mainMenuState.values.mainMenuCharacterIDs[getOffsetIndex(i)] as string,
       );
+    };
     // Character panel
     createPanel({
       condition: characterCondition,
@@ -198,15 +235,43 @@ export const createCharacterSelectUI = (): void => {
     });
     // Character sprite
     createPlayerSprite({
-      clothesDyeID: (): string => getCharacter().getClothesDye().id,
+      clothesDyeID: (): string => {
+        const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
+        return getDefaultedClothesDye(
+          mainMenuCharacter.hasClothesDyeItem()
+            ? mainMenuCharacter.clothesDyeItem.id
+            : undefined,
+        ).id;
+      },
       condition: characterCondition,
       direction: Direction.Down,
-      figureID: (): string => getCharacter().figure.id,
-      hairDyeID: (): string => getCharacter().getHairDye().id,
+      figureID: (): string => getMainMenuCharacter().figure.id,
+      hairDyeID: (): string => {
+        const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
+        return getDefaultedHairDye(
+          mainMenuCharacter.hasHairDyeItem()
+            ? mainMenuCharacter.hairDyeItem.id
+            : undefined,
+        ).id;
+      },
       isAnimated: true,
-      maskID: (): string => getCharacter().getMask().id,
-      outfitID: (): string => getCharacter().getOutfit().id,
-      skinColorID: (): string => getCharacter().skinColor.id,
+      maskID: (): string => {
+        const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
+        return getDefaultedMask(
+          mainMenuCharacter.hasMaskItem()
+            ? mainMenuCharacter.maskItem.id
+            : undefined,
+        ).id;
+      },
+      outfitID: (): string => {
+        const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
+        return getDefaultedOutfit(
+          mainMenuCharacter.hasOutfitItem()
+            ? mainMenuCharacter.outfitItem.id
+            : undefined,
+        ).id;
+      },
+      skinColorID: (): string => getMainMenuCharacter().skinColor.id,
       x: i % 2 === 0 ? 33 : 169,
       y: 69 + 42 * Math.floor(i / 2),
     });
@@ -223,10 +288,10 @@ export const createCharacterSelectUI = (): void => {
       maxWidth: getGameWidth(),
       size: 1,
       text: (): CreateLabelOptionsText => {
-        const character: Character = getCharacter();
+        const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
         return {
-          value: `Lv${character.level} ${
-            getDefinable(Class, character.class.id).abbreviation
+          value: `Lv${mainMenuCharacter.level} ${
+            getDefinable(Class, mainMenuCharacter.class.id).abbreviation
           }`,
         };
       },
@@ -234,8 +299,8 @@ export const createCharacterSelectUI = (): void => {
     // Play button
     const playCondition = (): boolean =>
       characterCondition() &&
-      getCharacterSelectState().values.isDeleting === false &&
-      getCharacterSelectState().values.isSorting === false;
+      getMainMenuCharacterSelectState().values.isDeleting === false &&
+      getMainMenuCharacterSelectState().values.isSorting === false;
     const playX: number = i % 2 === 0 ? 125 : 261;
     const playY: number = 71 + 42 * Math.floor(i / 2);
     const playWidth: number = 10;
@@ -273,16 +338,17 @@ export const createCharacterSelectUI = (): void => {
       },
       height: playHeight,
       onClick: (): void => {
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
         const index: number = getOffsetIndex(i);
-        const characterID: string | undefined =
-          state.values.characterIDs[index];
-        if (typeof characterID === "undefined") {
+        const mainMenuCharacterID: string | undefined =
+          mainMenuState.values.mainMenuCharacterIDs[index];
+        if (typeof mainMenuCharacterID === "undefined") {
           throw new Error("Out of bounds character IDs index");
         }
         if (canPlayCharacter()) {
           emitToSocketioServer<MainMenuCharacterSelectSelectCharacterRequest>({
             data: {
-              characterID,
+              mainMenuCharacterID,
             },
             event: "main-menu/character-select/select-character",
           });
@@ -295,7 +361,7 @@ export const createCharacterSelectUI = (): void => {
     // Sort left arrow
     const sortCondition = (): boolean =>
       characterCondition() &&
-      getCharacterSelectState().values.isSorting &&
+      getMainMenuCharacterSelectState().values.isSorting &&
       canPlayCharacter();
     const sortLeftX: number = i % 2 === 0 ? 114 : 250;
     const sortLeftY: number = 71 + 42 * Math.floor(i / 2);
@@ -333,13 +399,14 @@ export const createCharacterSelectUI = (): void => {
       },
       height: sortLeftHeight,
       onClick: (): void => {
-        const characterID: string | undefined =
-          state.values.characterIDs[getOffsetIndex(i)];
-        if (typeof characterID === "undefined") {
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+        const mainMenuCharacterID: string | undefined =
+          mainMenuState.values.mainMenuCharacterIDs[getOffsetIndex(i)];
+        if (typeof mainMenuCharacterID === "undefined") {
           throw new Error("Out of bounds character IDs index");
         }
         emitToSocketioServer<MainMenuCharacterSelectSortCharacterLeftRequest>({
-          data: { characterID },
+          data: { mainMenuCharacterID },
           event: "main-menu/character-select/sort-character-left",
         });
       },
@@ -382,25 +449,35 @@ export const createCharacterSelectUI = (): void => {
       },
       height: sortRightHeight,
       onClick: (): void => {
-        const characterID: string | undefined =
-          state.values.characterIDs[getOffsetIndex(i)];
-        if (typeof characterID === "undefined") {
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+        const mainMenuCharacterID: string | undefined =
+          mainMenuState.values.mainMenuCharacterIDs[getOffsetIndex(i)];
+        if (typeof mainMenuCharacterID === "undefined") {
           throw new Error("Out of bounds character IDs index");
         }
         emitToSocketioServer<MainMenuCharacterSelectSortCharacterRightRequest>({
-          data: { characterID },
+          data: { mainMenuCharacterID },
           event: "main-menu/character-select/sort-character-right",
         });
       },
       width: sortRightWidth,
     });
     // Delete X
-    const deleteButtonCondition = (): boolean =>
-      characterCondition() &&
-      getCharacterSelectState().values.isDeleting &&
-      (getCharacterSelectState().values.characterIDToDelete ===
-        state.values.characterIDs[getOffsetIndex(i)] ||
-        getCharacterSelectState().values.characterIDToDelete === null);
+    const deleteButtonCondition = (): boolean => {
+      if (characterCondition()) {
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+        return (
+          characterCondition() &&
+          getMainMenuCharacterSelectState().values.isDeleting &&
+          (getMainMenuCharacterSelectState().values
+            .mainMenuCharacterIDToDelete ===
+            mainMenuState.values.mainMenuCharacterIDs[getOffsetIndex(i)] ||
+            getMainMenuCharacterSelectState().values
+              .mainMenuCharacterIDToDelete === null)
+        );
+      }
+      return false;
+    };
     const deleteButtonX: number = i % 2 === 0 ? 125 : 261;
     const deleteButtonY: number = 72 + 42 * Math.floor(i / 2);
     const deleteButtonWidth: number = 10;
@@ -437,14 +514,15 @@ export const createCharacterSelectUI = (): void => {
       },
       height: deleteButtonHeight,
       onClick: (): void => {
-        const characterSelectState: State<CharacterSelectStateSchema> =
-          getCharacterSelectState();
+        const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+        const characterSelectState: State<MainMenuCharacterSelectStateSchema> =
+          getMainMenuCharacterSelectState();
         const index: number = getOffsetIndex(i);
         characterSelectState.setValues({
-          characterIDToDelete:
-            characterSelectState.values.characterIDToDelete !==
-            state.values.characterIDs[index]
-              ? state.values.characterIDs[index]
+          mainMenuCharacterIDToDelete:
+            characterSelectState.values.mainMenuCharacterIDToDelete !==
+            mainMenuState.values.mainMenuCharacterIDs[index]
+              ? mainMenuState.values.mainMenuCharacterIDs[index]
               : null,
         });
       },
@@ -452,8 +530,16 @@ export const createCharacterSelectUI = (): void => {
     });
   }
   // Page number
-  const paginationCondition = (): boolean =>
-    condition() && state.values.characterIDs.length > charactersPerPage;
+  const paginationCondition = (): boolean => {
+    if (condition()) {
+      const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
+      return (
+        mainMenuState.values.mainMenuCharacterIDs.length >
+        mainMenuCharactersPerPage
+      );
+    }
+    return false;
+  };
   createLabel({
     color: Color.White,
     coordinates: {
@@ -466,7 +552,7 @@ export const createCharacterSelectUI = (): void => {
     maxWidth: getGameWidth(),
     size: 1,
     text: (): CreateLabelOptionsText => ({
-      value: `Page ${getCharacterSelectState().values.page + 1}`,
+      value: `Page ${getMainMenuCharacterSelectState().values.page + 1}`,
     }),
   });
   // Page left arrow

@@ -2,8 +2,8 @@ import { State } from "pixel-pigeon";
 import { WorldStateSchema } from "../../state";
 
 export const createWorldState = (
-  characterID: string,
+  worldCharacterID: string,
 ): State<WorldStateSchema> =>
   new State<WorldStateSchema>({
-    characterID,
+    worldCharacterID,
   });

@@ -7,8 +7,8 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
-import { createCharacterCustomizeState } from "../../state/main-menu/createCharacterCustomizeState";
-import { createCharacterSelectState } from "../../state/main-menu/createCharacterSelectState";
+import { createMainMenuCharacterCustomizeState } from "../../state/main-menu/createMainMenuCharacterCustomizeState";
+import { createMainMenuCharacterSelectState } from "../../state/main-menu/createMainMenuCharacterSelectState";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
@@ -16,7 +16,7 @@ import { getDefinables } from "../../../definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { state } from "../../../state";
 
-export const createCharacterCreateUI = (): void => {
+export const createMainMenuCharacterCreateUI = (): void => {
   const condition = (): boolean =>
     state.values.mainMenuState !== null &&
     state.values.mainMenuState.values.characterCreateState !== null;
@@ -68,7 +68,7 @@ export const createCharacterCreateUI = (): void => {
     onClick: (): void => {
       getMainMenuState().setValues({
         characterCreateState: null,
-        characterSelectState: createCharacterSelectState(),
+        characterSelectState: createMainMenuCharacterSelectState(0),
       });
     },
     width: backWidth,
@@ -135,7 +135,7 @@ export const createCharacterCreateUI = (): void => {
         onClick: (): void => {
           getMainMenuState().setValues({
             characterCreateState: null,
-            characterCustomizeState: createCharacterCustomizeState({
+            characterCustomizeState: createMainMenuCharacterCustomizeState({
               classID: sortedClass.id,
             }),
           });
