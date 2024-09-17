@@ -12,7 +12,6 @@
     "powermode.combo.counterEnabled": "hide",
     "powermode.combo.timerEnabled": "hide",
     "editor.tabSize": 2,
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "eslint.format.enable": true,
     "files.eol": "\n",
     "[css]": {
@@ -21,14 +20,14 @@
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
-    "[typescript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-    },
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "typescript.tsdk": "node_modules\\typescript\\lib"
 }
