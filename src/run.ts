@@ -1,8 +1,8 @@
 import { createUI } from "./functions/ui/createUI";
+import { handleError, onWindowMessage } from "pixel-pigeon";
 import { handleWindowMessage } from "./functions/handleWindowMessage";
 import { loadGameData } from "./functions/loadGameData";
 import { loadServerURL } from "./functions/loadServerURL";
-import { onWindowMessage, handleError } from "pixel-pigeon";
 import { postWindowMessage } from "./functions/postWindowMessage";
 
 export const run = (): void => {

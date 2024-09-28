@@ -1,8 +1,10 @@
 import {
   connectToSocketioServer,
+  onError,
   setMainVolume,
   setVolumeChannelVolume,
 } from "pixel-pigeon";
+import { handleError } from "./handleError";
 import { listenForUpdates } from "./updates/listenForUpdates";
 import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
@@ -30,6 +32,7 @@ export const handleWindowMessage = (message: unknown): void => {
           auth: { token: message.value },
           url,
         });
+        onError(handleError);
         listenForUpdates();
         break;
       }

@@ -11,10 +11,10 @@ import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createResourceBar } from "../components/createResourceBar";
-import { getDefaultedClothesDye } from "../../getDefaultedCosmetics/getDefaultedClothesDye";
-import { getDefaultedHairDye } from "../../getDefaultedCosmetics/getDefaultedHairDye";
-import { getDefaultedMask } from "../../getDefaultedCosmetics/getDefaultedMask";
-import { getDefaultedOutfit } from "../../getDefaultedCosmetics/getDefaultedOutfit";
+import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
+import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
+import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
+import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "../../../definables";
 import { getWorldState } from "../../state/getWorldState";
 import {

@@ -2,6 +2,7 @@ import { ErrorUpdate } from "retrommo-types";
 import { emitToSocketioServer } from "pixel-pigeon";
 
 export const handleError = (error: Error): void => {
+  console.log("handle err");
   emitToSocketioServer<ErrorUpdate>({
     data: {
       message: error.message,
