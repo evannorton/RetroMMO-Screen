@@ -2,7 +2,7 @@ import { createUI } from "./functions/ui/createUI";
 import { handleWindowMessage } from "./functions/handleWindowMessage";
 import { loadGameData } from "./functions/loadGameData";
 import { loadServerURL } from "./functions/loadServerURL";
-import { onWindowMessage } from "pixel-pigeon";
+import { onWindowMessage, handleError } from "pixel-pigeon";
 import { postWindowMessage } from "./functions/postWindowMessage";
 
 export const run = (): void => {
@@ -14,6 +14,6 @@ export const run = (): void => {
       onWindowMessage(handleWindowMessage);
     })
     .catch((error: unknown): void => {
-      throw error;
+      handleError(error);
     });
 };
