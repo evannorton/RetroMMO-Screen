@@ -22,6 +22,7 @@ export interface WorldCharacterOptions {
   id: string;
   level: number;
   maskItemID?: string;
+  order: number;
   outfitItemID?: string;
   partyID: string;
   resources?: WorldCharacterOptionsResources;
@@ -47,6 +48,7 @@ export class WorldCharacter extends Definable {
   private readonly _hairDyeItemID: string | null;
   private readonly _level: number;
   private readonly _maskItemID: string | null;
+  private _order: number;
   private readonly _outfitItemID: string | null;
   private _partyID: string;
   private readonly _resources: WorldCharacterResources | null;
@@ -65,6 +67,7 @@ export class WorldCharacter extends Definable {
     this._hairDyeItemID = options.hairDyeItemID ?? null;
     this._level = options.level;
     this._maskItemID = options.maskItemID ?? null;
+    this._order = options.order;
     this._outfitItemID = options.outfitItemID ?? null;
     this._partyID = options.partyID;
     this._resources =
@@ -124,6 +127,10 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("maskItem"));
   }
 
+  public get order(): number {
+    return this._order;
+  }
+
   public get party(): Party {
     return getDefinable(Party, this._partyID);
   }
@@ -148,6 +155,10 @@ export class WorldCharacter extends Definable {
 
   public get tilemapID(): string {
     return this._tilemapID;
+  }
+
+  public get username(): string {
+    return this._username;
   }
 
   public get x(): number {
@@ -176,6 +187,10 @@ export class WorldCharacter extends Definable {
 
   public set entityID(entityID: string) {
     this._entityID = entityID;
+  }
+
+  public set order(order: number) {
+    this._order = order;
   }
 
   public set tilemapID(tilemapID: string) {

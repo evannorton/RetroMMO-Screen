@@ -14,6 +14,7 @@ export const loadWorldCharacterUpdate = (
     id: worldCharacterUpdate.id,
     level: worldCharacterUpdate.level,
     maskItemID: worldCharacterUpdate.maskItemID,
+    order: worldCharacterUpdate.order,
     outfitItemID: worldCharacterUpdate.outfitItemID,
     partyID: worldCharacterUpdate.partyID,
     resources:
