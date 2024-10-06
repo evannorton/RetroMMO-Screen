@@ -1,6 +1,6 @@
 import { Direction } from "retrommo-types";
 import { WorldCharacter } from "../classes/WorldCharacter";
-import { getDefinable } from "../definables";
+import { getDefinable } from "definables";
 import { updateWorldCharacterPosition } from "./updateWorldCharacterPosition";
 
 export const moveWorldCharacter = (worldCharacterID: string): void => {

@@ -1,5 +1,5 @@
 import { ClothesDye } from "./ClothesDye";
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 import { HairDye } from "./HairDye";
 import { ItemDefinition } from "retrommo-types";
 import { Mask } from "./Mask";

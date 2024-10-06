@@ -15,7 +15,7 @@ import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedCl
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
-import { getDefinable } from "../../../definables";
+import { getDefinable } from "definables";
 import { getWorldState } from "../../state/getWorldState";
 import {
   inventoryInputCollectionID,

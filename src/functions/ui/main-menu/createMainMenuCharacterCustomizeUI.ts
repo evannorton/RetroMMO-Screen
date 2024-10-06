@@ -20,7 +20,7 @@ import { createMainMenuCharacterCreateState } from "../../state/main-menu/create
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
-import { getDefinable } from "../../../definables";
+import { getDefinable } from "definables";
 import { getMainMenuCharacterCustomizeState } from "../../state/main-menu/getMainMenuCharacterCustomizeState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { state } from "../../../state";

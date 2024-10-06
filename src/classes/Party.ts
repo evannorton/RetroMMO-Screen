@@ -1,4 +1,4 @@
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 import { WorldCharacter } from "./WorldCharacter";
 
 export interface PartyOptions {

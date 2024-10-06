@@ -1,5 +1,5 @@
 import { Color, SkinColorDefinition } from "retrommo-types";
-import { Definable } from "../definables";
+import { Definable } from "definables";
 
 export interface SkinColorOptions {
   id: string;

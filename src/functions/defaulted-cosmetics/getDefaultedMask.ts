@@ -1,6 +1,6 @@
 import { Item } from "../../classes/Item";
 import { Mask } from "../../classes/Mask";
-import { getDefinable } from "../../definables";
+import { getDefinable } from "definables";
 import { state } from "../../state";
 
 export const getDefaultedMask = (maskItemID?: string): Mask => {

@@ -2,7 +2,7 @@ import { Class } from "../../../classes/Class";
 import { Direction } from "retrommo-types";
 import { MainMenuCharacterCustomizeStateSchema } from "../../../state";
 import { State } from "pixel-pigeon";
-import { getDefinable } from "../../../definables";
+import { getDefinable } from "definables";
 
 export interface createMainMenuCharacterCustomizeStateOptions {
   classID: string;

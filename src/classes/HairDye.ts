@@ -1,4 +1,4 @@
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 import { HairColor } from "./HairColor";
 import { HairDyeDefinition } from "retrommo-types";
 

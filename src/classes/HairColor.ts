@@ -1,5 +1,5 @@
 import { Color, HairColorDefinition } from "retrommo-types";
-import { Definable } from "../definables";
+import { Definable } from "definables";
 
 export interface HairColorOptions {
   id: string;

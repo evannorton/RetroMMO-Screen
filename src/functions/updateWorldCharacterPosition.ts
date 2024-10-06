@@ -1,7 +1,7 @@
 import { Constants } from "retrommo-types";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { getConstants } from "./getConstants";
-import { getDefinable } from "../definables";
+import { getDefinable } from "definables";
 import { setEntityPosition } from "pixel-pigeon";
 
 export const updateWorldCharacterPosition = (

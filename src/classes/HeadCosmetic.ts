@@ -1,4 +1,4 @@
-import { Definable } from "../definables";
+import { Definable } from "definables";
 import { HeadCosmeticDefinition } from "retrommo-types";
 
 export interface HeadCosmeticOptions {

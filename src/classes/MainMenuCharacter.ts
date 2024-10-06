@@ -1,5 +1,5 @@
 import { Class } from "./Class";
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { SkinColor } from "./SkinColor";

@@ -1,5 +1,5 @@
 import { ClothesColorDefinition, Color } from "retrommo-types";
-import { Definable } from "../definables";
+import { Definable } from "definables";
 
 export interface ClothesColorOptions {
   id: string;

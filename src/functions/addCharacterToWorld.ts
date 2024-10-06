@@ -2,7 +2,7 @@ import { Color } from "retrommo-types";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { createButton, createEntity, createQuadrilateral } from "pixel-pigeon";
 import { getConstants } from "./getConstants";
-import { getDefinable } from "../definables";
+import { getDefinable } from "definables";
 
 export const addCharacterToWorld = (characterID: string): void => {
   const worldCharacter: WorldCharacter = getDefinable(

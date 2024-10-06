@@ -1,6 +1,6 @@
 import { HairDye } from "../../classes/HairDye";
 import { Item } from "../../classes/Item";
-import { getDefinable } from "../../definables";
+import { getDefinable } from "definables";
 import { state } from "../../state";
 
 export const getDefaultedHairDye = (hairDyeItemID?: string): HairDye => {

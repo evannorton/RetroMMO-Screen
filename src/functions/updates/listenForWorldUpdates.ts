@@ -14,7 +14,7 @@ import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
-import { definableExists, getDefinable, getDefinables } from "../../definables";
+import { definableExists, getDefinable, getDefinables } from "definables";
 import {
   exitLevel,
   goToLevel,

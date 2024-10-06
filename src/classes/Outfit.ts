@@ -1,5 +1,5 @@
 import { BodyCosmetic } from "./BodyCosmetic";
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 import { OutfitDefinition } from "retrommo-types";
 
 export interface OutfitOptions {

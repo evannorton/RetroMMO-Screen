@@ -12,7 +12,7 @@ import { createMainMenuCharacterSelectState } from "../../state/main-menu/create
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
-import { getDefinables } from "../../../definables";
+import { getDefinables } from "definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { state } from "../../../state";
 

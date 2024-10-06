@@ -40,7 +40,7 @@ import { Item } from "../classes/Item";
 import { Mask } from "../classes/Mask";
 import { Outfit } from "../classes/Outfit";
 import { SkinColor } from "../classes/SkinColor";
-import { getDefinables } from "../definables";
+import { getDefinables } from "definables";
 import { state } from "../state";
 
 export const loadGameData = async (): Promise<void> => {

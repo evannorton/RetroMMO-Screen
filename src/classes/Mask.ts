@@ -1,4 +1,4 @@
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 import { HeadCosmetic } from "./HeadCosmetic";
 import { MaskDefinition } from "retrommo-types";
 

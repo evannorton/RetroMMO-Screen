@@ -11,7 +11,7 @@ import { Mask } from "../../../classes/Mask";
 import { Outfit } from "../../../classes/Outfit";
 import { SkinColor } from "../../../classes/SkinColor";
 import { getConstants } from "../../getConstants";
-import { getDefinable } from "../../../definables";
+import { getDefinable } from "definables";
 
 export interface CreatePlayerSpriteOptions {
   condition?: () => boolean;

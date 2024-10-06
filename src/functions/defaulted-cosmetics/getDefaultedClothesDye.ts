@@ -1,6 +1,6 @@
 import { ClothesDye } from "../../classes/ClothesDye";
 import { Item } from "../../classes/Item";
-import { getDefinable } from "../../definables";
+import { getDefinable } from "definables";
 import { state } from "../../state";
 
 export const getDefaultedClothesDye = (

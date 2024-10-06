@@ -12,7 +12,7 @@ import {
 } from "../../../state";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
 import { createWorldState } from "../../state/createWorldState";
-import { getDefinable, getDefinables } from "../../../definables";
+import { getDefinable, getDefinables } from "definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";

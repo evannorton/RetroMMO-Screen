@@ -1,5 +1,5 @@
 import { ClassDefinition, ResourcePool } from "retrommo-types";
-import { Definable, getDefinable, getDefinables } from "../definables";
+import { Definable, getDefinable, getDefinables } from "definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { MainMenuCharacterCustomizeStateSchema } from "../state";

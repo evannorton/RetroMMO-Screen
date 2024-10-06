@@ -1,5 +1,5 @@
 import { WorldCharacter } from "../classes/WorldCharacter";
-import { getDefinable } from "../definables";
+import { getDefinable } from "definables";
 import { goToLevel, lockCameraToEntity } from "pixel-pigeon";
 
 export const selectWorldCharacter = (worldCharacterID: string): void => {

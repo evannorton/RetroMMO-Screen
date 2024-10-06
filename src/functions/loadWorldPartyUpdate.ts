@@ -1,7 +1,7 @@
 import { Party } from "../classes/Party";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldPartyUpdate } from "retrommo-types";
-import { definableExists, getDefinable } from "../definables";
+import { definableExists, getDefinable } from "definables";
 
 export const loadWorldPartyUpdate = (
   worldPartyUpdate: WorldPartyUpdate,

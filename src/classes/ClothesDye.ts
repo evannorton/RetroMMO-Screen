@@ -1,6 +1,6 @@
 import { ClothesColor } from "./ClothesColor";
 import { ClothesDyeDefinition } from "retrommo-types";
-import { Definable, getDefinable } from "../definables";
+import { Definable, getDefinable } from "definables";
 
 export interface ClothesDyeOptions {
   id: string;

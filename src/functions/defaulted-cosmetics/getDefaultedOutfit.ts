@@ -1,6 +1,6 @@
 import { Item } from "../../classes/Item";
 import { Outfit } from "../../classes/Outfit";
-import { getDefinable } from "../../definables";
+import { getDefinable } from "definables";
 import { state } from "../../state";
 
 export const getDefaultedOutfit = (outfitItemID?: string): Outfit => {
