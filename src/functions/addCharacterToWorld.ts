@@ -18,9 +18,7 @@ export const addCharacterToWorld = (characterID: string): void => {
           width: tileSize,
         }),
         onClick: (): void => {
-          console.log(
-            `TODO: handle character click for ${worldCharacter.username}`,
-          );
+          worldCharacter.wasClicked = true;
         },
       },
     ],

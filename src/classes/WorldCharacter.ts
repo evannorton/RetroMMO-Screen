@@ -56,6 +56,7 @@ export class WorldCharacter extends Definable {
   private _tilemapID: string;
   private readonly _userID: number;
   private readonly _username: string;
+  private _wasClicked: boolean = false;
   private _x: number;
   private _y: number;
   public constructor(options: WorldCharacterOptions) {
@@ -161,6 +162,10 @@ export class WorldCharacter extends Definable {
     return this._username;
   }
 
+  public get wasClicked(): boolean {
+    return this._wasClicked;
+  }
+
   public get x(): number {
     return this._x;
   }
@@ -195,6 +200,10 @@ export class WorldCharacter extends Definable {
 
   public set tilemapID(tilemapID: string) {
     this._tilemapID = tilemapID;
+  }
+
+  public set wasClicked(wasClicked: boolean) {
+    this._wasClicked = wasClicked;
   }
 
   public hasClothesDyeItem(): boolean {

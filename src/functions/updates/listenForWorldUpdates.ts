@@ -21,6 +21,7 @@ import {
   listenToSocketioEvent,
   lockCameraToEntity,
   playAudioSource,
+  setEntityZIndex,
 } from "pixel-pigeon";
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
@@ -112,6 +113,8 @@ export const listenForWorldUpdates = (): void => {
         update.worldCharacterID,
       );
       worldCharacter.direction = update.direction;
+      worldCharacter.order = update.order;
+      setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
       moveWorldCharacter(update.worldCharacterID);
     },
   });
