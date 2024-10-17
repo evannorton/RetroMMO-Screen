@@ -11,12 +11,14 @@ import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createPanel } from "../components/createPanel";
 import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createResourceBar } from "../components/createResourceBar";
+import { getConstants } from "../../getConstants";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
 import { getWorldState } from "../../state/getWorldState";
+import { handleWorldCharacterClick } from "../../handleWorldCharacterClick";
 import {
   inventoryInputCollectionID,
   spellbookInputCollectionID,
@@ -24,6 +26,7 @@ import {
 } from "../../../input";
 
 export const createWorldBottomBarUI = (): void => {
+  const tileSize: number = getConstants()["tile-size"];
   const condition = (): boolean => state.values.worldState !== null;
   // Bottom bar background
   createPanel({
@@ -67,6 +70,8 @@ export const createWorldBottomBarUI = (): void => {
     const partyMemberMPCondition = (): boolean =>
       getWorldCharacter().class.resourcePool === ResourcePool.MP;
     // Bottom bar player sprite
+    const playerX: number = 6 + partyMemberIndex * 60;
+    const playerY: number = 216;
     createPlayerSprite({
       clothesDyeID: (): string => {
         const worldCharacter: WorldCharacter = getWorldCharacter();
@@ -102,8 +107,20 @@ export const createWorldBottomBarUI = (): void => {
         ).id;
       },
       skinColorID: (): string => getWorldCharacter().skinColor.id,
-      x: 6 + partyMemberIndex * 60,
-      y: 216,
+      x: playerX,
+      y: playerY,
+    });
+    createButton({
+      coordinates: {
+        condition: partyMemberCondition,
+        x: playerX,
+        y: playerY,
+      },
+      height: tileSize,
+      onClick: (): void => {
+        handleWorldCharacterClick(getWorldCharacter().id);
+      },
+      width: tileSize,
     });
     // Bottom bar player hp
     createResourceBar({

@@ -17,6 +17,7 @@ export const loadWorldCharacterUpdate = (
     order: worldCharacterUpdate.order,
     outfitItemID: worldCharacterUpdate.outfitItemID,
     partyID: worldCharacterUpdate.partyID,
+    playerID: worldCharacterUpdate.playerID,
     resources:
       typeof worldCharacterUpdate.resources !== "undefined"
         ? {

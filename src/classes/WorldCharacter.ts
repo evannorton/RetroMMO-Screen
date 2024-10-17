@@ -25,6 +25,7 @@ export interface WorldCharacterOptions {
   order: number;
   outfitItemID?: string;
   partyID: string;
+  playerID: string;
   resources?: WorldCharacterOptionsResources;
   skinColorID: string;
   tilemapID: string;
@@ -51,6 +52,7 @@ export class WorldCharacter extends Definable {
   private _order: number;
   private readonly _outfitItemID: string | null;
   private _partyID: string;
+  private readonly _playerID: string;
   private readonly _resources: WorldCharacterResources | null;
   private readonly _skinColorID: string;
   private _tilemapID: string;
@@ -71,6 +73,7 @@ export class WorldCharacter extends Definable {
     this._order = options.order;
     this._outfitItemID = options.outfitItemID ?? null;
     this._partyID = options.partyID;
+    this._playerID = options.playerID;
     this._resources =
       typeof options.resources !== "undefined"
         ? {
@@ -134,6 +137,10 @@ export class WorldCharacter extends Definable {
 
   public get party(): Party {
     return getDefinable(Party, this._partyID);
+  }
+
+  public get playerID(): string {
+    return this._playerID;
   }
 
   public get outfitItem(): Item {

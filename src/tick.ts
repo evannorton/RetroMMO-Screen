@@ -1,5 +1,6 @@
 import { WorldCharacter } from "./classes/WorldCharacter";
 import { getDefinables } from "definables";
+import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
 
 export const tick = (): void => {
   let clickedWorldCharacter: WorldCharacter | null = null;
@@ -7,13 +8,13 @@ export const tick = (): void => {
     if (
       worldCharacter.wasClicked &&
       (clickedWorldCharacter === null ||
-        worldCharacter.order < clickedWorldCharacter.order)
+        worldCharacter.order > clickedWorldCharacter.order)
     ) {
       clickedWorldCharacter = worldCharacter;
     }
     worldCharacter.wasClicked = false;
   }
   if (clickedWorldCharacter !== null) {
-    console.log(`handle click on character ${clickedWorldCharacter.username}`);
+    handleWorldCharacterClick(clickedWorldCharacter.id);
   }
 };
