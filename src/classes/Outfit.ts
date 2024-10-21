@@ -8,7 +8,7 @@ export interface OutfitOptions {
 }
 export class Outfit extends Definable {
   private readonly _bodyCosmeticID: string;
-  private readonly _classIDs: string[];
+  private readonly _classIDs: readonly string[];
   private readonly _isDefault?: boolean;
   public constructor(options: OutfitOptions) {
     super(options.id);

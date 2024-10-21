@@ -4,7 +4,7 @@ import {
   WorldEnterCharactersUpdate,
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
-  WorldMoveCharacterUpdate,
+  WorldMoveCharactersUpdate,
   WorldPartyChangesUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
@@ -105,17 +105,19 @@ export const listenForWorldUpdates = (): void => {
       exitLevel();
     },
   });
-  listenToSocketioEvent<WorldMoveCharacterUpdate>({
+  listenToSocketioEvent<WorldMoveCharactersUpdate>({
     event: "world/move-character",
-    onMessage: (update: WorldMoveCharacterUpdate): void => {
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
-        update.worldCharacterID,
-      );
-      worldCharacter.direction = update.direction;
-      worldCharacter.order = update.order;
-      setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
-      moveWorldCharacter(update.worldCharacterID);
+    onMessage: (update: WorldMoveCharactersUpdate): void => {
+      for (const move of update.moves) {
+        const worldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          move.worldCharacterID,
+        );
+        worldCharacter.direction = move.direction;
+        worldCharacter.order = move.order;
+        setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
+        moveWorldCharacter(move.worldCharacterID);
+      }
     },
   });
   listenToSocketioEvent<WorldPartyChangesUpdate>({

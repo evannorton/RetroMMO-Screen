@@ -7,7 +7,7 @@ export interface MaskOptions {
   id: string;
 }
 export class Mask extends Definable {
-  private readonly _classIDs: string[];
+  private readonly _classIDs: readonly string[];
   private readonly _headCosmeticID: string;
   private readonly _isDefault?: boolean;
   public constructor(options: MaskOptions) {

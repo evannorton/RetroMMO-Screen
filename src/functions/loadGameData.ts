@@ -252,7 +252,7 @@ export const loadGameData = async (): Promise<void> => {
           const layers: CreateLevelOptionsLayer[] = [];
           const addTiles = (zLayer: string): void => {
             definition.tiles.forEach(
-              (row: TilemapTileDefinition[], x: number): void => {
+              (row: readonly TilemapTileDefinition[], x: number): void => {
                 row.forEach((tile: TilemapTileDefinition, y: number): void => {
                   (zLayer === "below"
                     ? tile.belowIndices
@@ -317,7 +317,7 @@ export const loadGameData = async (): Promise<void> => {
           )[id] as TilesetDefinition;
           const tiles: CreateTilesetOptionsTile[] = [];
           definition.tiles.forEach(
-            (row: TilesetTileDefinition[], tilesetX: number): void => {
+            (row: readonly TilesetTileDefinition[], tilesetX: number): void => {
               row.forEach(
                 (tile: TilesetTileDefinition, tilesetY: number): void => {
                   const animationFrames: CreateTilesetOptionsTileAnimationFrame[] =
