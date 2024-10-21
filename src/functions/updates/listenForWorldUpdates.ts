@@ -148,8 +148,8 @@ export const listenForWorldUpdates = (): void => {
           }
         }
       }
-      for (const partyIDtoRemove of update.partyIDsToRemove) {
-        getDefinable(Party, partyIDtoRemove).remove();
+      for (const partyIDToRemove of update.partyIDsToRemove) {
+        getDefinable(Party, partyIDToRemove).remove();
       }
     },
   });
