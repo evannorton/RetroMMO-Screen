@@ -49,6 +49,7 @@ export class WorldCharacter extends Definable {
   private readonly _hairDyeItemID: string | null;
   private readonly _level: number;
   private readonly _maskItemID: string | null;
+  private _movedAt: number | null = null;
   private _order: number;
   private readonly _outfitItemID: string | null;
   private _partyID: string;
@@ -131,6 +132,13 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("maskItem"));
   }
 
+  public get movedAt(): number {
+    if (this._movedAt !== null) {
+      return this._movedAt;
+    }
+    throw new Error(this.getAccessorErrorMessage("movedAt"));
+  }
+
   public get order(): number {
     return this._order;
   }
@@ -181,6 +189,10 @@ export class WorldCharacter extends Definable {
     return this._y;
   }
 
+  public set movedAt(movedAt: number) {
+    this._movedAt = movedAt;
+  }
+
   public set party(party: Party) {
     this._partyID = party.id;
   }
@@ -223,6 +235,10 @@ export class WorldCharacter extends Definable {
 
   public hasMaskItem(): boolean {
     return this._maskItemID !== null;
+  }
+
+  public hasMovedAt(): boolean {
+    return this._movedAt !== null;
   }
 
   public hasOutfitItem(): boolean {

@@ -1,9 +1,10 @@
 import { createUI } from "./functions/ui/createUI";
-import { handleError, onWindowMessage } from "pixel-pigeon";
+import { handleError, onTick, onWindowMessage } from "pixel-pigeon";
 import { handleWindowMessage } from "./functions/handleWindowMessage";
 import { loadGameData } from "./functions/loadGameData";
 import { loadServerURL } from "./functions/loadServerURL";
 import { postWindowMessage } from "./functions/postWindowMessage";
+import { tick } from "./tick";
 
 export const run = (): void => {
   loadServerURL();
@@ -12,6 +13,7 @@ export const run = (): void => {
       createUI();
       postWindowMessage({ event: "run" });
       onWindowMessage(handleWindowMessage);
+      onTick(tick);
     })
     .catch((error: unknown): void => {
       handleError(error);

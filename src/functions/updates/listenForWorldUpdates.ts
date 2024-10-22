@@ -17,6 +17,7 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import {
   exitLevel,
+  getCurrentTime,
   goToLevel,
   listenToSocketioEvent,
   lockCameraToEntity,
@@ -26,7 +27,6 @@ import {
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
 import { loadWorldPartyUpdate } from "../loadWorldPartyUpdate";
-import { moveWorldCharacter } from "../moveWorldCharacter";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
 import { updateWorldCharacterPosition } from "../updateWorldCharacterPosition";
@@ -116,7 +116,21 @@ export const listenForWorldUpdates = (): void => {
         worldCharacter.direction = move.direction;
         worldCharacter.order = move.order;
         setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
-        moveWorldCharacter(move.worldCharacterID);
+        switch (worldCharacter.direction) {
+          case Direction.Down:
+            worldCharacter.y++;
+            break;
+          case Direction.Left:
+            worldCharacter.x--;
+            break;
+          case Direction.Right:
+            worldCharacter.x++;
+            break;
+          case Direction.Up:
+            worldCharacter.y--;
+            break;
+        }
+        worldCharacter.movedAt = getCurrentTime();
       }
     },
   });
