@@ -118,6 +118,10 @@ export class WorldCharacter extends Definable {
     return getDefinable(Figure, this._figureID);
   }
 
+  public get figureID(): string {
+    return this._figureID;
+  }
+
   public get hairDyeItem(): Item {
     if (this._hairDyeItemID !== null) {
       return getDefinable(Item, this._hairDyeItemID);
@@ -167,6 +171,10 @@ export class WorldCharacter extends Definable {
 
   public get skinColor(): SkinColor {
     return getDefinable(SkinColor, this._skinColorID);
+  }
+
+  public get skinColorID(): string {
+    return this._skinColorID;
   }
 
   public get tilemapID(): string {

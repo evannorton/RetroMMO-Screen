@@ -1,11 +1,13 @@
 import { ClothesDye } from "../../../classes/ClothesDye";
+import { Constants, Direction } from "retrommo-types";
 import {
   CreateSpriteOptionsAnimation,
+  CreateSpriteOptionsCoordinates,
   CreateSpriteOptionsRecolor,
   Scriptable,
+  addEntitySprite,
   createSprite,
 } from "pixel-pigeon";
-import { Direction } from "retrommo-types";
 import { HairDye } from "../../../classes/HairDye";
 import { Mask } from "../../../classes/Mask";
 import { Outfit } from "../../../classes/Outfit";
@@ -14,31 +16,38 @@ import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
 
 export interface CreatePlayerSpriteOptions {
-  condition?: () => boolean;
   clothesDyeID: Scriptable<string>;
+  coordinates?: CreateSpriteOptionsCoordinates;
   direction: Scriptable<Direction>;
+  entityID?: string;
   figureID: Scriptable<string>;
   hairDyeID: Scriptable<string>;
   isAnimated?: boolean;
   maskID: Scriptable<string>;
   outfitID: Scriptable<string>;
   skinColorID: Scriptable<string>;
-  x: Scriptable<number>;
-  y: Scriptable<number>;
 }
-export const createPlayerSprite = ({
-  condition,
+export const createCharacterSprite = ({
+  coordinates,
   clothesDyeID,
   direction,
+  entityID,
   figureID,
   hairDyeID,
   isAnimated,
   maskID,
   outfitID,
   skinColorID,
-  x,
-  y,
 }: CreatePlayerSpriteOptions): void => {
+  if (
+    (typeof entityID === "undefined") ===
+    (typeof coordinates === "undefined")
+  ) {
+    throw new Error(
+      "Either both entityID and coordinates must be defined or both must be undefined.",
+    );
+  }
+  const constants: Constants = getConstants();
   const getClothesDye = (): ClothesDye =>
     getDefinable(
       ClothesDye,
@@ -139,8 +148,8 @@ export const createPlayerSprite = ({
     }
   };
   const animationStartedAt: number = 0;
-  const duration: number = 250;
-  const tileSize: number = getConstants()["tile-size"];
+  const duration: number = constants["movement-duration"];
+  const tileSize: number = constants["tile-size"];
   const width: number = tileSize;
   const height: number = tileSize;
   const animations: CreateSpriteOptionsAnimation[] = [
@@ -365,77 +374,121 @@ export const createPlayerSprite = ({
       id: "WalkUp",
     },
   ];
-  createSprite({
+  // Head back sprite
+  const headBackSpriteCondition = (): boolean  => {
+    return (
+      typeof getMask().headCosmetic.backImagePaths[
+        typeof figureID === "function" ? figureID() : figureID
+      ] !== "undefined"
+    );
+  }
+  const headBackSpriteID: string = createSprite({
     animationID,
     animationStartedAt,
     animations,
-    coordinates: {
-      condition: (): boolean => {
-        if (typeof condition === "undefined" || condition()) {
-          return (
-            typeof getMask().headCosmetic.backImagePaths[
-              typeof figureID === "function" ? figureID() : figureID
-            ] !== "undefined"
-          );
-        }
-        return false;
-      },
-      x,
-      y,
-    },
+    coordinates:
+      typeof coordinates !== "undefined"
+        ? {
+            condition: (): boolean => {
+              if (
+                typeof coordinates.condition === "undefined" ||
+                coordinates.condition()
+              ) {
+                return headBackSpriteCondition();
+              }
+              return false;
+            },
+            x: coordinates.x,
+            y: coordinates.y,
+          }
+        : undefined,
     imagePath: (): string =>
       getMask().headCosmetic.backImagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
 
     recolors,
-  });
-  createSprite({
+  })
+  // Body sprite
+  const bodySpriteCondition = (): boolean => {
+    return (
+      typeof getOutfit().bodyCosmetic.imagePaths[
+        typeof figureID === "function" ? figureID() : figureID
+      ] !== "undefined"
+    );
+  };
+  const bodySpriteID: string = createSprite({
     animationID,
     animationStartedAt,
     animations,
-    coordinates: {
-      condition: (): boolean => {
-        if (typeof condition === "undefined" || condition()) {
-          return (
-            typeof getOutfit().bodyCosmetic.imagePaths[
-              typeof figureID === "function" ? figureID() : figureID
-            ] !== "undefined"
-          );
-        }
-        return false;
-      },
-      x,
-      y,
-    },
+    coordinates:
+      typeof coordinates !== "undefined"
+        ? {
+            condition: (): boolean => {
+              if (
+                typeof coordinates.condition === "undefined" ||
+                coordinates.condition()
+              ) {
+                return bodySpriteCondition();
+              }
+              return false;
+            },
+            x: coordinates.x,
+            y: coordinates.y,
+          }
+        : undefined,
     imagePath: (): string =>
       getOutfit().bodyCosmetic.imagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
     recolors,
-  });
-  createSprite({
+  })
+  // Head front sprite
+  const headFrontSpriteCondition = (): boolean => {
+    return (
+      typeof getMask().headCosmetic.frontImagePaths[
+        typeof figureID === "function" ? figureID() : figureID
+      ] !== "undefined"
+    );
+  }
+  const headFrontSpriteID: string  = createSprite({
     animationID,
     animationStartedAt,
     animations,
-    coordinates: {
-      condition: (): boolean => {
-        if (typeof condition === "undefined" || condition()) {
-          return (
-            typeof getMask().headCosmetic.frontImagePaths[
-              typeof figureID === "function" ? figureID() : figureID
-            ] !== "undefined"
-          );
-        }
-        return false;
-      },
-      x,
-      y,
-    },
+    coordinates:
+      typeof coordinates !== "undefined"
+        ? {
+            condition: (): boolean => {
+              if (
+                typeof coordinates.condition === "undefined" ||
+                coordinates.condition()
+              ) {
+                return headFrontSpriteCondition();
+              }
+              return false;
+            },
+            x: coordinates.x,
+            y: coordinates.y,
+          }
+        : undefined,
     imagePath: (): string =>
       getMask().headCosmetic.frontImagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
     recolors,
-  });
+  })
+  if (typeof entityID !== "undefined") {
+    addEntitySprite(entityID, {
+      condition: headBackSpriteCondition,
+      spriteID: headBackSpriteID,
+    });
+    addEntitySprite(entityID, {
+      condition: bodySpriteCondition,
+      spriteID: bodySpriteID,
+    });
+    addEntitySprite(entityID, {
+      condition: headFrontSpriteCondition,
+      spriteID: headFrontSpriteID,
+    })
+  }
 };

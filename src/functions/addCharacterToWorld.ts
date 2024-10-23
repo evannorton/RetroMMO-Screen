@@ -1,6 +1,7 @@
-import { Color } from "retrommo-types";
+import { Direction } from "retrommo-types";
 import { WorldCharacter } from "../classes/WorldCharacter";
-import { createButton, createEntity, createQuadrilateral } from "pixel-pigeon";
+import { createButton, createEntity } from "pixel-pigeon";
+import { createCharacterSprite } from "./ui/components/createCharacterSprite";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
 
@@ -10,6 +11,7 @@ export const addCharacterToWorld = (characterID: string): void => {
     characterID,
   );
   const tileSize: number = getConstants()["tile-size"];
+  console.log(worldCharacter);
   worldCharacter.entityID = createEntity({
     buttons: [
       {
@@ -29,18 +31,17 @@ export const addCharacterToWorld = (characterID: string): void => {
       x: worldCharacter.x * tileSize,
       y: worldCharacter.y * tileSize,
     },
-    quadrilaterals: [
-      {
-        quadrilateralID: createQuadrilateral({
-          color: Object.values(Color)[
-            Math.floor(Math.random() * Object.keys(Color).length)
-          ] as Color,
-          height: tileSize,
-          width: tileSize,
-        }),
-      },
-    ],
     width: tileSize,
     zIndex: worldCharacter.order,
+  });
+  createCharacterSprite({
+    clothesDyeID: (): string => worldCharacter.clothesDyeItem.clothesDyeID,
+    direction: (): Direction => worldCharacter.direction,
+    entityID: worldCharacter.entityID,
+    figureID: (): string => worldCharacter.figureID,
+    hairDyeID: (): string => worldCharacter.hairDyeItem.hairDyeID,
+    maskID: (): string => worldCharacter.maskItem.maskID,
+    outfitID: (): string => worldCharacter.outfitItem.outfitID,
+    skinColorID: (): string => worldCharacter.skinColorID,
   });
 };

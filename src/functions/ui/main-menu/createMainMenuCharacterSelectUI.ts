@@ -23,9 +23,9 @@ import {
   MainMenuStateSchema,
   state,
 } from "../../../state";
+import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
-import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
@@ -234,7 +234,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       y: 60 + 42 * Math.floor(i / 2),
     });
     // Character sprite
-    createPlayerSprite({
+    createCharacterSprite({
       clothesDyeID: (): string => {
         const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
         return getDefaultedClothesDye(
@@ -243,7 +243,11 @@ export const createMainMenuCharacterSelectUI = (): void => {
             : undefined,
         ).id;
       },
-      condition: characterCondition,
+      coordinates: {
+        condition: characterCondition,
+        x: i % 2 === 0 ? 33 : 169,
+        y: 69 + 42 * Math.floor(i / 2),
+      },
       direction: Direction.Down,
       figureID: (): string => getMainMenuCharacter().figure.id,
       hairDyeID: (): string => {
@@ -272,8 +276,6 @@ export const createMainMenuCharacterSelectUI = (): void => {
         ).id;
       },
       skinColorID: (): string => getMainMenuCharacter().skinColor.id,
-      x: i % 2 === 0 ? 33 : 169,
-      y: 69 + 42 * Math.floor(i / 2),
     });
     // Character info
     createLabel({

@@ -57,11 +57,25 @@ export class Item extends Definable {
     throw new Error(this.getAccessorErrorMessage("clothesDye"));
   }
 
+  public get clothesDyeID(): string {
+    if (typeof this._clothesDyeID !== "undefined") {
+      return this._clothesDyeID;
+    }
+    throw new Error(this.getAccessorErrorMessage("clothesDyeID"));
+  }
+
   public get hairDye(): HairDye {
     if (typeof this._hairDyeID !== "undefined") {
       return getDefinable(HairDye, this._hairDyeID);
     }
     throw new Error(this.getAccessorErrorMessage("hairDye"));
+  }
+
+  public get hairDyeID(): string {
+    if (typeof this._hairDyeID !== "undefined") {
+      return this._hairDyeID;
+    }
+    throw new Error(this.getAccessorErrorMessage("hairDyeID"));
   }
 
   public get mask(): Mask {
@@ -71,10 +85,24 @@ export class Item extends Definable {
     throw new Error(this.getAccessorErrorMessage("mask"));
   }
 
+  public get maskID(): string {
+    if (typeof this._maskID !== "undefined") {
+      return this._maskID;
+    }
+    throw new Error(this.getAccessorErrorMessage("maskID"));
+  }
+
   public get outfit(): Outfit {
     if (typeof this._outfitID !== "undefined") {
       return getDefinable(Outfit, this._outfitID);
     }
     throw new Error(this.getAccessorErrorMessage("outfit"));
+  }
+
+  public get outfitID(): string {
+    if (typeof this._outfitID !== "undefined") {
+      return this._outfitID;
+    }
+    throw new Error(this.getAccessorErrorMessage("outfitID"));
   }
 }

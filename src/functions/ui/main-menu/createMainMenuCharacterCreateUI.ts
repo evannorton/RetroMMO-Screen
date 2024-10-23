@@ -7,10 +7,10 @@ import {
   getGameHeight,
   getGameWidth,
 } from "pixel-pigeon";
+import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createMainMenuCharacterCustomizeState } from "../../state/main-menu/createMainMenuCharacterCustomizeState";
 import { createMainMenuCharacterSelectState } from "../../state/main-menu/createMainMenuCharacterSelectState";
 import { createPanel } from "../components/createPanel";
-import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
 import { getDefinables } from "definables";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
@@ -114,18 +114,20 @@ export const createMainMenuCharacterCreateUI = (): void => {
         text: { value: sortedClass.name },
       });
       // Class player sprite
-      createPlayerSprite({
-        clothesDyeID: sortedClass.defaultClothesDyeItem.clothesDye.id,
-        condition,
+      createCharacterSprite({
+        clothesDyeID: sortedClass.defaultClothesDyeItem.clothesDyeID,
+        coordinates: {
+          condition,
+          x: 48 + sortedClassIndex * 96,
+          y: 74,
+        },
         direction: Direction.Down,
-        figureID: sortedClass.defaultFigure.id,
-        hairDyeID: sortedClass.defaultHairDyeItem.hairDye.id,
+        figureID: sortedClass.defaultFigureID,
+        hairDyeID: sortedClass.defaultHairDyeItem.hairDyeID,
         isAnimated: true,
-        maskID: sortedClass.defaultMaskItem.mask.id,
-        outfitID: sortedClass.defaultOutfitItem.outfit.id,
-        skinColorID: sortedClass.defaultSkinColor.id,
-        x: 48 + sortedClassIndex * 96,
-        y: 74,
+        maskID: sortedClass.defaultMaskItem.maskID,
+        outfitID: sortedClass.defaultOutfitItem.outfitID,
+        skinColorID: sortedClass.defaultSkinColorID,
       });
       // Select button
       createPressableButton({

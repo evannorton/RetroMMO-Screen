@@ -73,6 +73,10 @@ export class Class extends Definable {
     return getDefinable(Figure, this._defaultFigureID);
   }
 
+  public get defaultFigureID(): string {
+    return this._defaultFigureID;
+  }
+
   public get defaultHairDyeItem(): Item {
     return getDefinable(Item, this._defaultHairDyeItemID);
   }
@@ -87,6 +91,10 @@ export class Class extends Definable {
 
   public get defaultSkinColor(): SkinColor {
     return getDefinable(SkinColor, this._defaultSkinColorID);
+  }
+
+  public get defaultSkinColorID(): string {
+    return this._defaultSkinColorID;
   }
 
   public get figureOrderOffset(): number {

@@ -8,8 +8,8 @@ import {
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../../state";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
+import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createPanel } from "../components/createPanel";
-import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createResourceBar } from "../components/createResourceBar";
 import { getConstants } from "../../getConstants";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
@@ -72,7 +72,7 @@ export const createWorldBottomBarUI = (): void => {
     // Bottom bar player sprite
     const playerX: number = 6 + partyMemberIndex * 60;
     const playerY: number = 216;
-    createPlayerSprite({
+    createCharacterSprite({
       clothesDyeID: (): string => {
         const worldCharacter: WorldCharacter = getWorldCharacter();
         return getDefaultedClothesDye(
@@ -81,7 +81,11 @@ export const createWorldBottomBarUI = (): void => {
             : undefined,
         ).id;
       },
-      condition: partyMemberCondition,
+      coordinates: {
+        condition: partyMemberCondition,
+        x: playerX,
+        y: playerY,
+      },
       direction: Direction.Down,
       figureID: (): string => getWorldCharacter().figure.id,
       hairDyeID: (): string => {
@@ -107,8 +111,6 @@ export const createWorldBottomBarUI = (): void => {
         ).id;
       },
       skinColorID: (): string => getWorldCharacter().skinColor.id,
-      x: playerX,
-      y: playerY,
     });
     createButton({
       coordinates: {

@@ -16,9 +16,9 @@ import {
 import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
 import { SkinColor } from "../../../classes/SkinColor";
+import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
-import { createPlayerSprite } from "../components/createPlayerSprite";
 import { createPressableButton } from "../components/createPressableButton";
 import { getDefinable } from "definables";
 import { getMainMenuCharacterCustomizeState } from "../../state/main-menu/getMainMenuCharacterCustomizeState";
@@ -152,19 +152,21 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: (): CreateLabelOptionsText => ({ value: getClass().description }),
   });
   // Preview sprite
-  createPlayerSprite({
-    clothesDyeID: (): string => getClothesDyeItem().clothesDye.id,
-    condition,
+  createCharacterSprite({
+    clothesDyeID: (): string => getClothesDyeItem().clothesDyeID,
+    coordinates: {
+      condition,
+      x: 144,
+      y: 74,
+    },
     direction: (): Direction =>
       getMainMenuCharacterCustomizeState().values.direction,
     figureID: (): string => getFigure().id,
-    hairDyeID: (): string => getHairDyeItem().hairDye.id,
+    hairDyeID: (): string => getHairDyeItem().hairDyeID,
     isAnimated: true,
-    maskID: (): string => getMaskItem().mask.id,
-    outfitID: (): string => getOutfitItem().outfit.id,
+    maskID: (): string => getMaskItem().maskID,
+    outfitID: (): string => getOutfitItem().outfitID,
     skinColorID: (): string => getSkinColor().id,
-    x: 144,
-    y: 74,
   });
   // Preview left arrow
   const previewLeftX: number = 98;
