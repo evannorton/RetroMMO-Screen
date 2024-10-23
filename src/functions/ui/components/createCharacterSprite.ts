@@ -175,7 +175,7 @@ export const createCharacterSprite = ({
           sourceHeight: height,
           sourceWidth: width,
           sourceX: 0,
-          sourceY: 0,
+          sourceY: 16,
           width,
         },
       ],
@@ -189,7 +189,7 @@ export const createCharacterSprite = ({
           sourceHeight: height,
           sourceWidth: width,
           sourceX: 0,
-          sourceY: 0,
+          sourceY: 32,
           width,
         },
       ],
@@ -203,7 +203,7 @@ export const createCharacterSprite = ({
           sourceHeight: height,
           sourceWidth: width,
           sourceX: 0,
-          sourceY: 0,
+          sourceY: 48,
           width,
         },
       ],
@@ -375,13 +375,10 @@ export const createCharacterSprite = ({
     },
   ];
   // Head back sprite
-  const headBackSpriteCondition = (): boolean  => {
-    return (
-      typeof getMask().headCosmetic.backImagePaths[
-        typeof figureID === "function" ? figureID() : figureID
-      ] !== "undefined"
-    );
-  }
+  const headBackSpriteCondition = (): boolean =>
+    typeof getMask().headCosmetic.backImagePaths[
+      typeof figureID === "function" ? figureID() : figureID
+    ] !== "undefined";
   const headBackSpriteID: string = createSprite({
     animationID,
     animationStartedAt,
@@ -408,15 +405,12 @@ export const createCharacterSprite = ({
       ] as string,
 
     recolors,
-  })
+  });
   // Body sprite
-  const bodySpriteCondition = (): boolean => {
-    return (
-      typeof getOutfit().bodyCosmetic.imagePaths[
-        typeof figureID === "function" ? figureID() : figureID
-      ] !== "undefined"
-    );
-  };
+  const bodySpriteCondition = (): boolean =>
+    typeof getOutfit().bodyCosmetic.imagePaths[
+      typeof figureID === "function" ? figureID() : figureID
+    ] !== "undefined";
   const bodySpriteID: string = createSprite({
     animationID,
     animationStartedAt,
@@ -442,16 +436,13 @@ export const createCharacterSprite = ({
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
     recolors,
-  })
+  });
   // Head front sprite
-  const headFrontSpriteCondition = (): boolean => {
-    return (
-      typeof getMask().headCosmetic.frontImagePaths[
-        typeof figureID === "function" ? figureID() : figureID
-      ] !== "undefined"
-    );
-  }
-  const headFrontSpriteID: string  = createSprite({
+  const headFrontSpriteCondition = (): boolean =>
+    typeof getMask().headCosmetic.frontImagePaths[
+      typeof figureID === "function" ? figureID() : figureID
+    ] !== "undefined";
+  const headFrontSpriteID: string = createSprite({
     animationID,
     animationStartedAt,
     animations,
@@ -476,7 +467,7 @@ export const createCharacterSprite = ({
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
     recolors,
-  })
+  });
   if (typeof entityID !== "undefined") {
     addEntitySprite(entityID, {
       condition: headBackSpriteCondition,
@@ -489,6 +480,6 @@ export const createCharacterSprite = ({
     addEntitySprite(entityID, {
       condition: headFrontSpriteCondition,
       spriteID: headFrontSpriteID,
-    })
+    });
   }
 };

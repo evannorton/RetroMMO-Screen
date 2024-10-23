@@ -11,7 +11,6 @@ export const addCharacterToWorld = (characterID: string): void => {
     characterID,
   );
   const tileSize: number = getConstants()["tile-size"];
-  console.log(worldCharacter);
   worldCharacter.entityID = createEntity({
     buttons: [
       {
