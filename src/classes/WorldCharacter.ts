@@ -1,6 +1,6 @@
 import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
-import { Direction } from "retrommo-types";
+import { Direction, Step } from "retrommo-types";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { Party } from "./Party";
@@ -28,6 +28,7 @@ export interface WorldCharacterOptions {
   playerID: string;
   resources?: WorldCharacterOptionsResources;
   skinColorID: string;
+  step: Step;
   tilemapID: string;
   userID: number;
   username: string;
@@ -56,6 +57,7 @@ export class WorldCharacter extends Definable {
   private readonly _playerID: string;
   private readonly _resources: WorldCharacterResources | null;
   private readonly _skinColorID: string;
+  private _step: Step = Step.Right;
   private _tilemapID: string;
   private readonly _userID: number;
   private readonly _username: string;
@@ -85,6 +87,7 @@ export class WorldCharacter extends Definable {
           }
         : null;
     this._skinColorID = options.skinColorID;
+    this._step = options.step;
     this._tilemapID = options.tilemapID;
     this._userID = options.userID;
     this._username = options.username;
@@ -177,6 +180,10 @@ export class WorldCharacter extends Definable {
     return this._skinColorID;
   }
 
+  public get step(): Step {
+    return this._step;
+  }
+
   public get tilemapID(): string {
     return this._tilemapID;
   }
@@ -203,6 +210,10 @@ export class WorldCharacter extends Definable {
 
   public set party(party: Party) {
     this._partyID = party.id;
+  }
+
+  public set step(step: Step) {
+    this._step = step;
   }
 
   public set x(x: number) {

@@ -1,5 +1,6 @@
 import {
   Direction,
+  Step,
   WorldBonkUpdate,
   WorldEnterCharactersUpdate,
   WorldExitCharactersUpdate,
@@ -106,7 +107,7 @@ export const listenForWorldUpdates = (): void => {
     },
   });
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
-    event: "world/move-character",
+    event: "world/move-characters",
     onMessage: (update: WorldMoveCharactersUpdate): void => {
       for (const move of update.moves) {
         const worldCharacter: WorldCharacter = getDefinable(
@@ -114,6 +115,7 @@ export const listenForWorldUpdates = (): void => {
           move.worldCharacterID,
         );
         worldCharacter.direction = move.direction;
+        worldCharacter.step = move.step;
         worldCharacter.order = move.order;
         setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
         switch (worldCharacter.direction) {
@@ -161,6 +163,7 @@ export const listenForWorldUpdates = (): void => {
               partyLeaderCharacter.y,
             );
             partyCharacter.direction = Direction.Down;
+            partyCharacter.step = Step.Right;
           }
         }
       }

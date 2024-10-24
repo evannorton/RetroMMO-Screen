@@ -28,6 +28,7 @@ export const loadWorldCharacterUpdate = (
           }
         : undefined,
     skinColorID: worldCharacterUpdate.skinColorID,
+    step: worldCharacterUpdate.step,
     tilemapID: worldCharacterUpdate.tilemapID,
     userID: worldCharacterUpdate.userID,
     username: worldCharacterUpdate.username,

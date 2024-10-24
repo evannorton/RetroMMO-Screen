@@ -156,6 +156,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     clothesDyeID: (): string => getClothesDyeItem().clothesDyeID,
     coordinates: {
       condition,
+      isAnimated: true,
       x: 144,
       y: 74,
     },
@@ -163,7 +164,6 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
       getMainMenuCharacterCustomizeState().values.direction,
     figureID: (): string => getFigure().id,
     hairDyeID: (): string => getHairDyeItem().hairDyeID,
-    isAnimated: true,
     maskID: (): string => getMaskItem().maskID,
     outfitID: (): string => getOutfitItem().outfitID,
     skinColorID: (): string => getSkinColor().id,

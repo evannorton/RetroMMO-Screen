@@ -1,4 +1,4 @@
-import { Direction } from "retrommo-types";
+import { Direction, Step } from "retrommo-types";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { createButton, createEntity } from "pixel-pigeon";
 import { createCharacterSprite } from "./ui/components/createCharacterSprite";
@@ -36,7 +36,11 @@ export const addCharacterToWorld = (characterID: string): void => {
   createCharacterSprite({
     clothesDyeID: (): string => worldCharacter.clothesDyeItem.clothesDyeID,
     direction: (): Direction => worldCharacter.direction,
-    entityID: worldCharacter.entityID,
+    entity: {
+      animationStartedAt: 0,
+      entityID: worldCharacter.entityID,
+      step: (): Step => worldCharacter.step,
+    },
     figureID: (): string => worldCharacter.figureID,
     hairDyeID: (): string => worldCharacter.hairDyeItem.hairDyeID,
     maskID: (): string => worldCharacter.maskItem.maskID,

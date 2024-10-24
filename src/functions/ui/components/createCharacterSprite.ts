@@ -1,8 +1,7 @@
 import { ClothesDye } from "../../../classes/ClothesDye";
-import { Constants, Direction } from "retrommo-types";
+import { Constants, Direction, Step } from "retrommo-types";
 import {
   CreateSpriteOptionsAnimation,
-  CreateSpriteOptionsCoordinates,
   CreateSpriteOptionsRecolor,
   Scriptable,
   addEntitySprite,
@@ -15,14 +14,24 @@ import { SkinColor } from "../../../classes/SkinColor";
 import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
 
+export interface CreatePlayerSpriteOptionsCoordinates {
+  condition?: () => boolean;
+  isAnimated?: boolean;
+  x: Scriptable<number>;
+  y: Scriptable<number>;
+}
+export interface CreatePlayerSpriteOptionsEntity {
+  animationStartedAt: number;
+  entityID: string;
+  step: Scriptable<Step>;
+}
 export interface CreatePlayerSpriteOptions {
   clothesDyeID: Scriptable<string>;
-  coordinates?: CreateSpriteOptionsCoordinates;
+  coordinates?: CreatePlayerSpriteOptionsCoordinates;
   direction: Scriptable<Direction>;
-  entityID?: string;
+  entity?: CreatePlayerSpriteOptionsEntity;
   figureID: Scriptable<string>;
   hairDyeID: Scriptable<string>;
-  isAnimated?: boolean;
   maskID: Scriptable<string>;
   outfitID: Scriptable<string>;
   skinColorID: Scriptable<string>;
@@ -31,20 +40,19 @@ export const createCharacterSprite = ({
   coordinates,
   clothesDyeID,
   direction,
-  entityID,
+  entity,
   figureID,
   hairDyeID,
-  isAnimated,
   maskID,
   outfitID,
   skinColorID,
 }: CreatePlayerSpriteOptions): void => {
   if (
-    (typeof entityID === "undefined") ===
+    (typeof entity === "undefined") ===
     (typeof coordinates === "undefined")
   ) {
     throw new Error(
-      "Either both entityID and coordinates must be defined or both must be undefined.",
+      "Either both entity and coordinates must be defined or both must be undefined.",
     );
   }
   const constants: Constants = getConstants();
@@ -124,27 +132,69 @@ export const createCharacterSprite = ({
   const animationID: Scriptable<string> = (): string => {
     const animationDirection: Direction =
       typeof direction === "string" ? direction : direction();
-    if (isAnimated === true) {
-      switch (animationDirection) {
-        case Direction.Down:
-          return "WalkDown";
-        case Direction.Left:
-          return "WalkLeft";
-        case Direction.Right:
-          return "WalkRight";
-        case Direction.Up:
-          return "WalkUp";
+    if (typeof coordinates !== "undefined") {
+      if (coordinates.isAnimated === true) {
+        switch (animationDirection) {
+          case Direction.Down:
+            return "WalkDown";
+          case Direction.Left:
+            return "WalkLeft";
+          case Direction.Right:
+            return "WalkRight";
+          case Direction.Up:
+            return "WalkUp";
+        }
+      } else {
+        switch (animationDirection) {
+          case Direction.Down:
+            return "IdleDownRight";
+          case Direction.Left:
+            return "IdleLeftRight";
+          case Direction.Right:
+            return "IdleRightRight";
+          case Direction.Up:
+            return "IdleUpRight";
+        }
       }
     }
+    if (typeof entity === "undefined") {
+      throw new Error("Entity is undefined.");
+    }
+    const step: Step =
+      typeof entity.step === "string" ? entity.step : entity.step();
     switch (animationDirection) {
       case Direction.Down:
-        return "IdleDown";
+        switch (step) {
+          case Step.Left:
+            return "IdleDownLeft";
+          case Step.Right:
+            return "IdleDownRight";
+        }
+        throw new Error("Invalid step.");
       case Direction.Left:
-        return "IdleLeft";
+        switch (step) {
+          case Step.Left:
+            return "IdleLeftLeft";
+          case Step.Right:
+            return "IdleLeftRight";
+        }
+        throw new Error("Invalid step.");
       case Direction.Right:
-        return "IdleRight";
+        switch (step) {
+          case Step.Left:
+            return "IdleRightLeft";
+          case Step.Right:
+            return "IdleRightRight";
+        }
+        throw new Error("Invalid step.");
       case Direction.Up:
-        return "IdleUp";
+        switch (step) {
+          case Step.Left:
+            return "IdleUpLeft";
+          case Step.Right:
+            return "IdleUpRight";
+        }
+        throw new Error("Invalid step.");
     }
   };
   const animationStartedAt: number = 0;
@@ -160,12 +210,40 @@ export const createCharacterSprite = ({
           height,
           sourceHeight: height,
           sourceWidth: width,
+          sourceX: 32,
+          sourceY: 0,
+          width,
+        },
+      ],
+      id: "IdleDownLeft",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
           sourceX: 0,
           sourceY: 0,
           width,
         },
       ],
-      id: "IdleDown",
+      id: "IdleDownRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 32,
+          sourceY: 16,
+          width,
+        },
+      ],
+      id: "IdleLeftLeft",
     },
     {
       frames: [
@@ -179,7 +257,21 @@ export const createCharacterSprite = ({
           width,
         },
       ],
-      id: "IdleLeft",
+      id: "IdleLeftRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 32,
+          sourceY: 32,
+          width,
+        },
+      ],
+      id: "IdleRightLeft",
     },
     {
       frames: [
@@ -193,7 +285,21 @@ export const createCharacterSprite = ({
           width,
         },
       ],
-      id: "IdleRight",
+      id: "IdleRightRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 32,
+          sourceY: 48,
+          width,
+        },
+      ],
+      id: "IdleUpLeft",
     },
     {
       frames: [
@@ -207,7 +313,7 @@ export const createCharacterSprite = ({
           width,
         },
       ],
-      id: "IdleUp",
+      id: "IdleUpRight",
     },
     {
       frames: [
@@ -403,7 +509,6 @@ export const createCharacterSprite = ({
       getMask().headCosmetic.backImagePaths[
         typeof figureID === "function" ? figureID() : figureID
       ] as string,
-
     recolors,
   });
   // Body sprite
@@ -468,16 +573,16 @@ export const createCharacterSprite = ({
       ] as string,
     recolors,
   });
-  if (typeof entityID !== "undefined") {
-    addEntitySprite(entityID, {
+  if (typeof entity !== "undefined") {
+    addEntitySprite(entity.entityID, {
       condition: headBackSpriteCondition,
       spriteID: headBackSpriteID,
     });
-    addEntitySprite(entityID, {
+    addEntitySprite(entity.entityID, {
       condition: bodySpriteCondition,
       spriteID: bodySpriteID,
     });
-    addEntitySprite(entityID, {
+    addEntitySprite(entity.entityID, {
       condition: headFrontSpriteCondition,
       spriteID: headFrontSpriteID,
     });

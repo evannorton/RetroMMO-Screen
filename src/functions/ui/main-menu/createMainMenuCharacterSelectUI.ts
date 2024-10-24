@@ -245,6 +245,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       },
       coordinates: {
         condition: characterCondition,
+        isAnimated: true,
         x: i % 2 === 0 ? 33 : 169,
         y: 69 + 42 * Math.floor(i / 2),
       },
@@ -258,7 +259,6 @@ export const createMainMenuCharacterSelectUI = (): void => {
             : undefined,
         ).id;
       },
-      isAnimated: true,
       maskID: (): string => {
         const mainMenuCharacter: MainMenuCharacter = getMainMenuCharacter();
         return getDefaultedMask(
