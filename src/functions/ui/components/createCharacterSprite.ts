@@ -6,6 +6,7 @@ import {
   Scriptable,
   addEntitySprite,
   createSprite,
+  getCurrentTime,
 } from "pixel-pigeon";
 import { HairDye } from "../../../classes/HairDye";
 import { Mask } from "../../../classes/Mask";
@@ -21,7 +22,7 @@ export interface CreatePlayerSpriteOptionsCoordinates {
   y: Scriptable<number>;
 }
 export interface CreatePlayerSpriteOptionsEntity {
-  animationStartedAt: number;
+  animationStartedAt: Scriptable<number | null>;
   entityID: string;
   step: Scriptable<Step>;
 }
@@ -162,6 +163,52 @@ export const createCharacterSprite = ({
     }
     const step: Step =
       typeof entity.step === "string" ? entity.step : entity.step();
+    if (entity.animationStartedAt !== null) {
+      const animationStartedAt: number | null =
+        typeof entity.animationStartedAt === "number"
+          ? entity.animationStartedAt
+          : entity.animationStartedAt();
+      if (animationStartedAt !== null) {
+        const sinceAnimationStarted: number =
+          getCurrentTime() - animationStartedAt;
+        if (sinceAnimationStarted < constants["movement-duration"] / 2) {
+          switch (animationDirection) {
+            case Direction.Down:
+              switch (step) {
+                case Step.Left:
+                  return "StepDownLeft";
+                case Step.Right:
+                  return "StepDownRight";
+              }
+              throw new Error("Invalid step.");
+            case Direction.Left:
+              switch (step) {
+                case Step.Left:
+                  return "StepLeftLeft";
+                case Step.Right:
+                  return "StepLeftRight";
+              }
+              throw new Error("Invalid step.");
+            case Direction.Right:
+              switch (step) {
+                case Step.Left:
+                  return "StepRightLeft";
+                case Step.Right:
+                  return "StepRightRight";
+              }
+              throw new Error("Invalid step.");
+            case Direction.Up:
+              switch (step) {
+                case Step.Left:
+                  return "StepUpLeft";
+                case Step.Right:
+                  return "StepUpRight";
+              }
+              throw new Error("Invalid step.");
+          }
+        }
+      }
+    }
     switch (animationDirection) {
       case Direction.Down:
         switch (step) {
@@ -314,6 +361,118 @@ export const createCharacterSprite = ({
         },
       ],
       id: "IdleUpRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 48,
+          sourceY: 0,
+          width,
+        },
+      ],
+      id: "StepDownLeft",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 16,
+          sourceY: 0,
+          width,
+        },
+      ],
+      id: "StepDownRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 48,
+          sourceY: 16,
+          width,
+        },
+      ],
+      id: "StepLeftLeft",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 16,
+          sourceY: 16,
+          width,
+        },
+      ],
+      id: "StepLeftRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 48,
+          sourceY: 32,
+          width,
+        },
+      ],
+      id: "StepRightLeft",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 16,
+          sourceY: 32,
+          width,
+        },
+      ],
+      id: "StepRightRight",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 48,
+          sourceY: 48,
+          width,
+        },
+      ],
+      id: "StepUpLeft",
+    },
+    {
+      frames: [
+        {
+          duration,
+          height,
+          sourceHeight: height,
+          sourceWidth: width,
+          sourceX: 16,
+          sourceY: 48,
+          width,
+        },
+      ],
+      id: "StepUpRight",
     },
     {
       frames: [

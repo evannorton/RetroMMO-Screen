@@ -37,7 +37,8 @@ export const addCharacterToWorld = (characterID: string): void => {
     clothesDyeID: (): string => worldCharacter.clothesDyeItem.clothesDyeID,
     direction: (): Direction => worldCharacter.direction,
     entity: {
-      animationStartedAt: 0,
+      animationStartedAt: (): number | null =>
+        worldCharacter.hasMovedAt() ? worldCharacter.movedAt : null,
       entityID: worldCharacter.entityID,
       step: (): Step => worldCharacter.step,
     },
