@@ -12,6 +12,7 @@ import {
   HeadCosmeticDefinition,
   ItemDefinition,
   MaskDefinition,
+  NPCDefinition,
   OutfitDefinition,
   SkinColorDefinition,
   TilemapDefinition,
@@ -38,6 +39,7 @@ import { HairDye } from "../classes/HairDye";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Item";
 import { Mask } from "../classes/Mask";
+import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "definables";
@@ -194,8 +196,16 @@ export const loadGameData = async (): Promise<void> => {
           break;
         case "MusicTrack":
           break;
-        case "NPC":
+        case "NPC": {
+          const definition: NPCDefinition = (
+            gameData[className] as Record<string, NPCDefinition>
+          )[id] as NPCDefinition;
+          new NPC({
+            definition,
+            id,
+          });
           break;
+        }
         case "Noise":
           break;
         case "Outfit": {
@@ -298,6 +308,10 @@ export const loadGameData = async (): Promise<void> => {
           };
           addTiles("below");
           layers.push({
+            id: "npcs",
+            tiles: [],
+          });
+          layers.push({
             id: "characters",
             tiles: [],
           });
@@ -309,6 +323,48 @@ export const loadGameData = async (): Promise<void> => {
             tileSize: constants["tile-size"],
             width: definition.width * constants["tile-size"],
           });
+          definition.tiles.forEach(
+            (row: readonly TilemapTileDefinition[], x: number): void => {
+              row.forEach((tile: TilemapTileDefinition, y: number): void => {
+                const index: number | undefined = tile.npcIndex;
+                if (typeof index === "undefined") {
+                  return;
+                }
+                const tilesetDefinition: TilemapTilesetDefinition =
+                  getTilemapTilesetDefinitionAtIndex(index);
+                const tileset: TilesetDefinition = (
+                  gameData.Tileset as Record<string, TilesetDefinition>
+                )[tilesetDefinition.tileset] as TilesetDefinition;
+                const tilesetX: number = getTileXAtIndex(
+                  index - tilesetDefinition.firstTileID,
+                  tileset.width,
+                );
+                const tilesetY: number = getTileYAtIndex(
+                  index - tilesetDefinition.firstTileID,
+                  tileset.width,
+                );
+                const tilesetTile: TilesetTileDefinition | undefined =
+                  tileset.tiles[tilesetX]?.[tilesetY];
+                if (typeof tilesetTile !== "undefined") {
+                  if (typeof tilesetTile.npcID !== "undefined") {
+                    state.setValues({
+                      initialNPCTilePositions: [
+                        ...state.values.initialNPCTilePositions,
+                        {
+                          levelID: id,
+                          npcID: tilesetTile.npcID,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                }
+              });
+            },
+          );
           break;
         }
         case "Tileset": {

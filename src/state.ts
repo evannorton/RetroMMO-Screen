@@ -1,4 +1,5 @@
 import { Constants, Direction } from "retrommo-types";
+import { InitialNPCTilePosition } from "./types/TilePosition";
 import { State } from "pixel-pigeon";
 
 export interface MainMenuCharacterCustomizeStateSchema {
@@ -38,6 +39,7 @@ interface StateSchema {
   defaultOutfitID: string | null;
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
+  initialNPCTilePositions: readonly InitialNPCTilePosition[];
   serverURL: string | null;
   worldState: State<WorldStateSchema> | null;
 }
@@ -49,6 +51,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultHairDyeID: null,
   defaultMaskID: null,
   defaultOutfitID: null,
+  initialNPCTilePositions: [],
   isSubscribed: false,
   mainMenuState: null,
   serverURL: null,

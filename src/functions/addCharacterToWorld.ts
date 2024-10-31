@@ -27,8 +27,8 @@ export const addCharacterToWorld = (characterID: string): void => {
     layerID: "characters",
     levelID: worldCharacter.tilemapID,
     position: {
-      x: worldCharacter.x * tileSize,
-      y: worldCharacter.y * tileSize,
+      x: worldCharacter.position.x * tileSize,
+      y: worldCharacter.position.y * tileSize,
     },
     width: tileSize,
     zIndex: worldCharacter.order,

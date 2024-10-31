@@ -33,33 +33,33 @@ export const tick = (): void => {
     switch (worldCharacter.direction) {
       case Direction.Down:
         setEntityPosition(worldCharacter.entityID, {
-          x: worldCharacter.x * constants["tile-size"],
+          x: worldCharacter.position.x * constants["tile-size"],
           y:
-            worldCharacter.y * constants["tile-size"] -
+            worldCharacter.position.y * constants["tile-size"] -
             (constants["tile-size"] - pixelsMoved),
         });
         break;
       case Direction.Left:
         setEntityPosition(worldCharacter.entityID, {
           x:
-            worldCharacter.x * constants["tile-size"] +
+            worldCharacter.position.x * constants["tile-size"] +
             (constants["tile-size"] - pixelsMoved),
-          y: worldCharacter.y * constants["tile-size"],
+          y: worldCharacter.position.y * constants["tile-size"],
         });
         break;
       case Direction.Right:
         setEntityPosition(worldCharacter.entityID, {
           x:
-            worldCharacter.x * constants["tile-size"] -
+            worldCharacter.position.x * constants["tile-size"] -
             (constants["tile-size"] - pixelsMoved),
-          y: worldCharacter.y * constants["tile-size"],
+          y: worldCharacter.position.y * constants["tile-size"],
         });
         break;
       case Direction.Up:
         setEntityPosition(worldCharacter.entityID, {
-          x: worldCharacter.x * constants["tile-size"],
+          x: worldCharacter.position.x * constants["tile-size"],
           y:
-            worldCharacter.y * constants["tile-size"] +
+            worldCharacter.position.y * constants["tile-size"] +
             (constants["tile-size"] - pixelsMoved),
         });
         break;

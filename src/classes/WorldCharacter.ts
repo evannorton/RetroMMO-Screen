@@ -5,6 +5,7 @@ import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { Party } from "./Party";
 import { SkinColor } from "./SkinColor";
+import { TilePosition } from "../types/TilePosition";
 import { removeEntity } from "pixel-pigeon";
 
 export interface WorldCharacterOptionsResources {
@@ -26,14 +27,13 @@ export interface WorldCharacterOptions {
   outfitItemID?: string;
   partyID: string;
   playerID: string;
+  position: TilePosition;
   resources?: WorldCharacterOptionsResources;
   skinColorID: string;
   step: Step;
   tilemapID: string;
   userID: number;
   username: string;
-  x: number;
-  y: number;
 }
 export interface WorldCharacterResources {
   hp: number;
@@ -45,8 +45,8 @@ export class WorldCharacter extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemID: string | null;
   private _direction: Direction;
-  private readonly _figureID: string;
   private _entityID: string | null = null;
+  private readonly _figureID: string;
   private readonly _hairDyeItemID: string | null;
   private readonly _level: number;
   private readonly _maskItemID: string | null;
@@ -55,6 +55,7 @@ export class WorldCharacter extends Definable {
   private readonly _outfitItemID: string | null;
   private _partyID: string;
   private readonly _playerID: string;
+  private _position: TilePosition;
   private readonly _resources: WorldCharacterResources | null;
   private readonly _skinColorID: string;
   private _step: Step = Step.Right;
@@ -62,8 +63,6 @@ export class WorldCharacter extends Definable {
   private readonly _userID: number;
   private readonly _username: string;
   private _wasClicked: boolean = false;
-  private _x: number;
-  private _y: number;
   public constructor(options: WorldCharacterOptions) {
     super(options.id);
     this._classID = options.classID;
@@ -77,6 +76,10 @@ export class WorldCharacter extends Definable {
     this._outfitItemID = options.outfitItemID ?? null;
     this._partyID = options.partyID;
     this._playerID = options.playerID;
+    this._position = {
+      x: options.position.x,
+      y: options.position.y,
+    };
     this._resources =
       typeof options.resources !== "undefined"
         ? {
@@ -91,8 +94,6 @@ export class WorldCharacter extends Definable {
     this._tilemapID = options.tilemapID;
     this._userID = options.userID;
     this._username = options.username;
-    this._x = options.x;
-    this._y = options.y;
   }
 
   public get class(): Class {
@@ -158,6 +159,10 @@ export class WorldCharacter extends Definable {
     return this._playerID;
   }
 
+  public get position(): TilePosition {
+    return this._position;
+  }
+
   public get outfitItem(): Item {
     if (this._outfitItemID !== null) {
       return getDefinable(Item, this._outfitItemID);
@@ -196,14 +201,6 @@ export class WorldCharacter extends Definable {
     return this._wasClicked;
   }
 
-  public get x(): number {
-    return this._x;
-  }
-
-  public get y(): number {
-    return this._y;
-  }
-
   public set movedAt(movedAt: number) {
     this._movedAt = movedAt;
   }
@@ -212,16 +209,12 @@ export class WorldCharacter extends Definable {
     this._partyID = party.id;
   }
 
+  public set position(position: TilePosition) {
+    this._position = position;
+  }
+
   public set step(step: Step) {
     this._step = step;
-  }
-
-  public set x(x: number) {
-    this._x = x;
-  }
-
-  public set y(y: number) {
-    this._y = y;
   }
 
   public set direction(direction: Direction) {

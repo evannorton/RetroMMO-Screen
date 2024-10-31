@@ -18,6 +18,10 @@ export const loadWorldCharacterUpdate = (
     outfitItemID: worldCharacterUpdate.outfitItemID,
     partyID: worldCharacterUpdate.partyID,
     playerID: worldCharacterUpdate.playerID,
+    position: {
+      x: worldCharacterUpdate.x,
+      y: worldCharacterUpdate.y,
+    },
     resources:
       typeof worldCharacterUpdate.resources !== "undefined"
         ? {
@@ -32,8 +36,6 @@ export const loadWorldCharacterUpdate = (
     tilemapID: worldCharacterUpdate.tilemapID,
     userID: worldCharacterUpdate.userID,
     username: worldCharacterUpdate.username,
-    x: worldCharacterUpdate.x,
-    y: worldCharacterUpdate.y,
   });
   addCharacterToWorld(worldCharacter.id);
 };

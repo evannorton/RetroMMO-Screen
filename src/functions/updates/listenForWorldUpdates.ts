@@ -9,8 +9,10 @@ import {
   WorldPartyChangesUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
+  WorldTurnNPCUpdate,
 } from "retrommo-types";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
+import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { createBattleState } from "../state/createBattleState";
@@ -120,16 +122,28 @@ export const listenForWorldUpdates = (): void => {
         setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
         switch (worldCharacter.direction) {
           case Direction.Down:
-            worldCharacter.y++;
+            worldCharacter.position = {
+              x: worldCharacter.position.x,
+              y: worldCharacter.position.y + 1,
+            };
             break;
           case Direction.Left:
-            worldCharacter.x--;
+            worldCharacter.position = {
+              x: worldCharacter.position.x - 1,
+              y: worldCharacter.position.y,
+            };
             break;
           case Direction.Right:
-            worldCharacter.x++;
+            worldCharacter.position = {
+              x: worldCharacter.position.x + 1,
+              y: worldCharacter.position.y,
+            };
             break;
           case Direction.Up:
-            worldCharacter.y--;
+            worldCharacter.position = {
+              x: worldCharacter.position.x,
+              y: worldCharacter.position.y - 1,
+            };
             break;
         }
         worldCharacter.movedAt = getCurrentTime();
@@ -159,8 +173,7 @@ export const listenForWorldUpdates = (): void => {
           if (partyCharacter !== partyLeaderCharacter) {
             updateWorldCharacterPosition(
               partyCharacter.id,
-              partyLeaderCharacter.x,
-              partyLeaderCharacter.y,
+              partyLeaderCharacter.position,
             );
             partyCharacter.direction = Direction.Down;
             partyCharacter.step = Step.Right;
@@ -220,6 +233,13 @@ export const listenForWorldUpdates = (): void => {
       playAudioSource("sfx/teleport", {
         volumeChannelID: sfxVolumeChannelID,
       });
+    },
+  });
+  listenToSocketioEvent<WorldTurnNPCUpdate>({
+    event: "world/turn-npc",
+    onMessage: (update: WorldTurnNPCUpdate): void => {
+      const npc: NPC = getDefinable(NPC, update.npcID);
+      npc.direction = update.direction;
     },
   });
 };
