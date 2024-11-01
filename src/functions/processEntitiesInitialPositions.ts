@@ -1,3 +1,4 @@
+import { CombinationLock } from "../classes/CombinationLock";
 import { Constants, Direction } from "retrommo-types";
 import { NPC } from "../classes/NPC";
 import { createEntity, createSprite } from "pixel-pigeon";
@@ -121,6 +122,45 @@ export const processEntitiesInitialPositions = (): void => {
               },
             ],
             imagePath: npc.indicatorImageSourceID,
+          }),
+        },
+      ],
+      width: constants["tile-size"],
+    });
+  }
+  for (const position of state.values.initialCombinationLockTilePositions) {
+    const combinationLock: CombinationLock = getDefinable(
+      CombinationLock,
+      position.combinationLockID,
+    );
+    createEntity({
+      height: constants["tile-size"],
+      layerID: "combination-locks",
+      levelID: position.levelID,
+      position: {
+        x: position.position.x * constants["tile-size"],
+        y: position.position.y * constants["tile-size"],
+      },
+      sprites: [
+        {
+          spriteID: createSprite({
+            animationID: "default",
+            animations: [
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: 0,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "default",
+              },
+            ],
+            imagePath: combinationLock.imageSourceID,
           }),
         },
       ],

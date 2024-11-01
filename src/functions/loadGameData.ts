@@ -4,6 +4,7 @@ import {
   ClassDefinition,
   ClothesColorDefinition,
   ClothesDyeDefinition,
+  CombinationLockDefinition,
   Constants,
   Definition,
   FigureDefinition,
@@ -25,6 +26,7 @@ import {
 import { Class } from "../classes/Class";
 import { ClothesColor } from "../classes/ClothesColor";
 import { ClothesDye } from "../classes/ClothesDye";
+import { CombinationLock } from "../classes/CombinationLock";
 import {
   CreateLevelOptionsLayer,
   CreateTilesetOptionsTile,
@@ -120,8 +122,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "CombinationLock":
+        case "CombinationLock": {
+          const definition: CombinationLockDefinition = (
+            gameData[className] as Record<string, CombinationLockDefinition>
+          )[id] as CombinationLockDefinition;
+          new CombinationLock({
+            definition,
+            id,
+          });
           break;
+        }
         case "Emote":
           break;
         case "Enterable":
@@ -308,6 +318,10 @@ export const loadGameData = async (): Promise<void> => {
           };
           addTiles("below");
           layers.push({
+            id: "combination-locks",
+            tiles: [],
+          });
+          layers.push({
             id: "npcs",
             tiles: [],
           });
@@ -330,7 +344,8 @@ export const loadGameData = async (): Promise<void> => {
           definition.tiles.forEach(
             (row: readonly TilemapTileDefinition[], x: number): void => {
               row.forEach((tile: TilemapTileDefinition, y: number): void => {
-                const index: number | undefined = tile.npcIndex;
+                const index: number | undefined =
+                  tile.npcIndex ?? tile.combinationLockIndex;
                 if (typeof index === "undefined") {
                   return;
                 }
@@ -357,6 +372,21 @@ export const loadGameData = async (): Promise<void> => {
                         {
                           levelID: id,
                           npcID: tilesetTile.npcID,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.combinationLockID !== "undefined") {
+                    state.setValues({
+                      initialCombinationLockTilePositions: [
+                        ...state.values.initialCombinationLockTilePositions,
+                        {
+                          combinationLockID: tilesetTile.combinationLockID,
+                          levelID: id,
                           position: {
                             x,
                             y,
