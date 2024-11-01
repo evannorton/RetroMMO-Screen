@@ -93,5 +93,38 @@ export const processEntitiesInitialPositions = (): void => {
       ],
       width: constants["tile-size"],
     });
+    npc.indicatorEntityID = createEntity({
+      height: constants["tile-size"],
+      layerID: "npc-indicators",
+      levelID: position.levelID,
+      position: {
+        x: npc.position.x * constants["tile-size"],
+        y: npc.position.y * constants["tile-size"] - constants["tile-size"],
+      },
+      sprites: [
+        {
+          spriteID: createSprite({
+            animationID: "default",
+            animations: [
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: 0,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "default",
+              },
+            ],
+            imagePath: npc.indicatorImageSourceID,
+          }),
+        },
+      ],
+      width: constants["tile-size"],
+    });
   }
 };

@@ -10,6 +10,7 @@ export class NPC extends Definable {
   private readonly _actorImageSourceID: string;
   private _direction: Direction;
   private _entityID: string | null = null;
+  private _indicatorEntityID: string | null = null;
   private readonly _indicatorImageSourceID: string;
   private readonly _name: string;
   private _position: TilePosition | null = null;
@@ -36,6 +37,13 @@ export class NPC extends Definable {
     throw new Error(this.getAccessorErrorMessage("entityID"));
   }
 
+  public get indicatorEntityID(): string {
+    if (this._indicatorEntityID !== null) {
+      return this._indicatorEntityID;
+    }
+    throw new Error(this.getAccessorErrorMessage("indicatorEntityID"));
+  }
+
   public get indicatorImageSourceID(): string {
     return this._indicatorImageSourceID;
   }
@@ -53,6 +61,10 @@ export class NPC extends Definable {
 
   public set entityID(entityID: string) {
     this._entityID = entityID;
+  }
+
+  public set indicatorEntityID(indicatorEntityID: string) {
+    this._indicatorEntityID = indicatorEntityID;
   }
 
   public set position(position: TilePosition) {

@@ -315,6 +315,10 @@ export const loadGameData = async (): Promise<void> => {
             id: "characters",
             tiles: [],
           });
+          layers.push({
+            id: "npc-indicators",
+            tiles: [],
+          });
           addTiles("above");
           createLevel({
             height: definition.height * constants["tile-size"],
