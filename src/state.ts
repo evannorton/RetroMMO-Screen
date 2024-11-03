@@ -1,6 +1,7 @@
 import { Constants, Direction } from "retrommo-types";
 import {
   InitialBankTilePosition,
+  InitialChestTilePosition,
   InitialCombinationLockTilePosition,
   InitialNPCTilePosition,
 } from "./types/TilePosition";
@@ -42,6 +43,7 @@ interface StateSchema {
   defaultMaskID: string | null;
   defaultOutfitID: string | null;
   initialBankTilePositions: readonly InitialBankTilePosition[];
+  initialChestTilePositions: readonly InitialChestTilePosition[];
   initialCombinationLockTilePositions: readonly InitialCombinationLockTilePosition[];
   initialNPCTilePositions: readonly InitialNPCTilePosition[];
   isSubscribed: boolean;
@@ -58,6 +60,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultMaskID: null,
   defaultOutfitID: null,
   initialBankTilePositions: [],
+  initialChestTilePositions: [],
   initialCombinationLockTilePositions: [],
   initialNPCTilePositions: [],
   isSubscribed: false,

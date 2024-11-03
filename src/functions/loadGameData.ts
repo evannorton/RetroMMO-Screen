@@ -2,6 +2,7 @@ import { Bank } from "../classes/Bank";
 import {
   BankDefinition,
   BodyCosmeticDefinition,
+  ChestDefinition,
   ClassDefinition,
   ClothesColorDefinition,
   ClothesDyeDefinition,
@@ -25,6 +26,7 @@ import {
   TilesetTileDefinition,
 } from "retrommo-types";
 import { BodyCosmetic } from "../classes/BodyCosmetic";
+import { Chest } from "../classes/Chest";
 import { Class } from "../classes/Class";
 import { ClothesColor } from "../classes/ClothesColor";
 import { ClothesDye } from "../classes/ClothesDye";
@@ -100,8 +102,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Chest":
+        case "Chest": {
+          const definition: ChestDefinition = (
+            gameData[className] as Record<string, ChestDefinition>
+          )[id] as ChestDefinition;
+          new Chest({
+            definition,
+            id,
+          });
           break;
+        }
         case "Class": {
           const definition: ClassDefinition = (
             gameData[className] as Record<string, ClassDefinition>
@@ -336,6 +346,10 @@ export const loadGameData = async (): Promise<void> => {
             tiles: [],
           });
           layers.push({
+            id: "chests",
+            tiles: [],
+          });
+          layers.push({
             id: "npcs",
             tiles: [],
           });
@@ -359,7 +373,10 @@ export const loadGameData = async (): Promise<void> => {
             (row: readonly TilemapTileDefinition[], x: number): void => {
               row.forEach((tile: TilemapTileDefinition, y: number): void => {
                 const index: number | undefined =
-                  tile.npcIndex ?? tile.bankIndex ?? tile.combinationLockIndex;
+                  tile.npcIndex ??
+                  tile.bankIndex ??
+                  tile.chestIndex ??
+                  tile.combinationLockIndex;
                 if (typeof index === "undefined") {
                   return;
                 }
@@ -400,6 +417,21 @@ export const loadGameData = async (): Promise<void> => {
                         ...state.values.initialBankTilePositions,
                         {
                           bankID: tilesetTile.bankID,
+                          levelID: id,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.chestID !== "undefined") {
+                    state.setValues({
+                      initialChestTilePositions: [
+                        ...state.values.initialChestTilePositions,
+                        {
+                          chestID: tilesetTile.chestID,
                           levelID: id,
                           position: {
                             x,

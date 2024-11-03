@@ -7,6 +7,11 @@ export interface InitialBankTilePosition {
   readonly levelID: string;
   readonly position: TilePosition;
 }
+export interface InitialChestTilePosition {
+  readonly chestID: string;
+  readonly levelID: string;
+  readonly position: TilePosition;
+}
 export interface InitialCombinationLockTilePosition {
   readonly combinationLockID: string;
   readonly levelID: string;

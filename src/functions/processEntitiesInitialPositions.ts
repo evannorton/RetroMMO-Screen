@@ -1,4 +1,5 @@
 import { Bank } from "../classes/Bank";
+import { Chest } from "../classes/Chest";
 import { CombinationLock } from "../classes/CombinationLock";
 import { Constants, Direction } from "retrommo-types";
 import { NPC } from "../classes/NPC";
@@ -159,6 +160,42 @@ export const processEntitiesInitialPositions = (): void => {
               },
             ],
             imagePath: bank.imageSourceID,
+          }),
+        },
+      ],
+      width: constants["tile-size"],
+    });
+  }
+  for (const position of state.values.initialChestTilePositions) {
+    const chest: Chest = getDefinable(Chest, position.chestID);
+    createEntity({
+      height: constants["tile-size"],
+      layerID: "chests",
+      levelID: position.levelID,
+      position: {
+        x: position.position.x * constants["tile-size"],
+        y: position.position.y * constants["tile-size"],
+      },
+      sprites: [
+        {
+          spriteID: createSprite({
+            animationID: "default",
+            animations: [
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: 0,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "default",
+              },
+            ],
+            imagePath: chest.imageSourceID,
           }),
         },
       ],
