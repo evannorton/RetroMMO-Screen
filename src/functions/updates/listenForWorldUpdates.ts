@@ -9,6 +9,7 @@ import {
   WorldPartyChangesUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
+  WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
 } from "retrommo-types";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
@@ -233,6 +234,18 @@ export const listenForWorldUpdates = (): void => {
       playAudioSource("sfx/teleport", {
         volumeChannelID: sfxVolumeChannelID,
       });
+    },
+  });
+  listenToSocketioEvent<WorldTurnCharactersUpdate>({
+    event: "world/turn-characters",
+    onMessage: (update: WorldTurnCharactersUpdate): void => {
+      for (const turn of update.turns) {
+        const worldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          turn.worldCharacterID,
+        );
+        worldCharacter.direction = turn.direction;
+      }
     },
   });
   listenToSocketioEvent<WorldTurnNPCUpdate>({
