@@ -1,5 +1,6 @@
-import { BodyCosmetic } from "../classes/BodyCosmetic";
+import { Bank } from "../classes/Bank";
 import {
+  BankDefinition,
   BodyCosmeticDefinition,
   ClassDefinition,
   ClothesColorDefinition,
@@ -23,6 +24,7 @@ import {
   TilesetTileAnimationFrameDefinition,
   TilesetTileDefinition,
 } from "retrommo-types";
+import { BodyCosmetic } from "../classes/BodyCosmetic";
 import { Class } from "../classes/Class";
 import { ClothesColor } from "../classes/ClothesColor";
 import { ClothesDye } from "../classes/ClothesDye";
@@ -76,8 +78,16 @@ export const loadGameData = async (): Promise<void> => {
           break;
         case "AudioSource":
           break;
-        case "Bank":
+        case "Bank": {
+          const definition: BankDefinition = (
+            gameData[className] as Record<string, BankDefinition>
+          )[id] as BankDefinition;
+          new Bank({
+            definition,
+            id,
+          });
           break;
+        }
         case "BattleImpactAnimation":
           break;
         case "BodyCosmetic": {
@@ -322,6 +332,10 @@ export const loadGameData = async (): Promise<void> => {
             tiles: [],
           });
           layers.push({
+            id: "banks",
+            tiles: [],
+          });
+          layers.push({
             id: "npcs",
             tiles: [],
           });
@@ -345,7 +359,7 @@ export const loadGameData = async (): Promise<void> => {
             (row: readonly TilemapTileDefinition[], x: number): void => {
               row.forEach((tile: TilemapTileDefinition, y: number): void => {
                 const index: number | undefined =
-                  tile.npcIndex ?? tile.combinationLockIndex;
+                  tile.npcIndex ?? tile.bankIndex ?? tile.combinationLockIndex;
                 if (typeof index === "undefined") {
                   return;
                 }
@@ -372,6 +386,21 @@ export const loadGameData = async (): Promise<void> => {
                         {
                           levelID: id,
                           npcID: tilesetTile.npcID,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.bankID !== "undefined") {
+                    state.setValues({
+                      initialBankTilePositions: [
+                        ...state.values.initialBankTilePositions,
+                        {
+                          bankID: tilesetTile.bankID,
+                          levelID: id,
                           position: {
                             x,
                             y,

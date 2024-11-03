@@ -1,5 +1,6 @@
 import { Constants, Direction } from "retrommo-types";
 import {
+  InitialBankTilePosition,
   InitialCombinationLockTilePosition,
   InitialNPCTilePosition,
 } from "./types/TilePosition";
@@ -40,6 +41,7 @@ interface StateSchema {
   defaultHairDyeID: string | null;
   defaultMaskID: string | null;
   defaultOutfitID: string | null;
+  initialBankTilePositions: readonly InitialBankTilePosition[];
   initialCombinationLockTilePositions: readonly InitialCombinationLockTilePosition[];
   initialNPCTilePositions: readonly InitialNPCTilePosition[];
   isSubscribed: boolean;
@@ -55,6 +57,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultHairDyeID: null,
   defaultMaskID: null,
   defaultOutfitID: null,
+  initialBankTilePositions: [],
   initialCombinationLockTilePositions: [],
   initialNPCTilePositions: [],
   isSubscribed: false,
