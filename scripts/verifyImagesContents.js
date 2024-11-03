@@ -175,6 +175,42 @@ const defaultDirectoryOptions = {
 const directoryOptions = [
   {
     colorCount: 8,
+    directoryPath: ["images", "abilities"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 12,
+    directoryPath: ["images", "actors"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 16,
+    spriteHeight: 16,
+    size: { width: 64, height: 64, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "banks"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 16,
+    spriteHeight: 16,
+    size: { width: 64, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "battle-impact-animations"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 24,
+    spriteHeight: 40,
+    size: { width: 192, height: 40, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
     directoryPath: ["images", "bodies"],
     isSpriteSheet: true,
     palette: colorPalette.replace,
@@ -192,6 +228,51 @@ const directoryOptions = [
     size: null
   },
   {
+    colorCount: 8,
+    directoryPath: ["images", "buttons"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 8, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "chests"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 16,
+    spriteHeight: 16,
+    size: { width: 64, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "combination-locks"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 16,
+    spriteHeight: 16,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "dials"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 15, height: 24, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "emotes"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
+  },
+  {
     colorCount: 12,
     directoryPath: ["images", "heads"],
     isSpriteSheet: true,
@@ -199,6 +280,42 @@ const directoryOptions = [
     spriteWidth: 16,
     spriteHeight: 16,
     size: { width: 64, height: 64, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "indicators"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "items"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 24,
+    directoryPath: ["images", "landscapes"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 304, height: 240, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "monsters"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: null
   },
   {
     colorCount: 8,
@@ -210,13 +327,22 @@ const directoryOptions = [
     size: null
   },
   {
-    colorCount: 8,
-    directoryPath: ["images", "pressable-buttons"],
+    colorCount: 4,
+    directoryPath: ["images", "resource-bar-icons"],
     isSpriteSheet: false,
     palette: colorPalette.famicube,
     spriteWidth: null,
     spriteHeight: null,
-    size: { width: 16, height: 8, tiledX: false, tiledY: false }
+    size: { width: 7, height: 7, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 16,
+    directoryPath: ["images", "tabs"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 124, height: 21, tiledX: false, tiledY: false }
   },
   {
     colorCount: 8,
