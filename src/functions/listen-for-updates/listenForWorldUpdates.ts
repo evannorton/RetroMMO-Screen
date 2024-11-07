@@ -29,8 +29,9 @@ import {
   setEntityZIndex,
 } from "pixel-pigeon";
 import { getWorldState } from "../state/getWorldState";
-import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
-import { loadWorldPartyUpdate } from "../loadWorldPartyUpdate";
+import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
+import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
+import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
 import { updateWorldCharacterPosition } from "../updateWorldCharacterPosition";
@@ -183,6 +184,9 @@ export const listenForWorldUpdates = (): void => {
       }
       for (const partyIDToRemove of update.partyIDsToRemove) {
         getDefinable(Party, partyIDToRemove).remove();
+      }
+      for (const worldPartyCharacterUpdate of update.characters) {
+        loadWorldPartyCharacterUpdate(worldPartyCharacterUpdate);
       }
     },
   });

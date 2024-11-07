@@ -5,7 +5,7 @@ import {
   setVolumeChannelVolume,
 } from "pixel-pigeon";
 import { handleError } from "./handleError";
-import { listenForUpdates } from "./updates/listenForUpdates";
+import { listenForUpdates } from "./listen-for-updates/listenForUpdates";
 import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
 

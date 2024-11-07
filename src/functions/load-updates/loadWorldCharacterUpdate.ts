@@ -1,6 +1,6 @@
-import { WorldCharacter } from "../classes/WorldCharacter";
+import { WorldCharacter } from "../../classes/WorldCharacter";
 import { WorldCharacterUpdate } from "retrommo-types";
-import { addCharacterToWorld } from "./addCharacterToWorld";
+import { addCharacterToWorld } from "../addCharacterToWorld";
 
 export const loadWorldCharacterUpdate = (
   worldCharacterUpdate: WorldCharacterUpdate,
@@ -14,6 +14,7 @@ export const loadWorldCharacterUpdate = (
     id: worldCharacterUpdate.id,
     level: worldCharacterUpdate.level,
     maskItemID: worldCharacterUpdate.maskItemID,
+    openedChestIDs: worldCharacterUpdate.openedChestIDs,
     order: worldCharacterUpdate.order,
     outfitItemID: worldCharacterUpdate.outfitItemID,
     partyID: worldCharacterUpdate.partyID,

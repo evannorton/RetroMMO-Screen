@@ -16,8 +16,8 @@ import { getDefinable, getDefinables } from "definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
-import { loadWorldCharacterUpdate } from "../../loadWorldCharacterUpdate";
-import { loadWorldPartyUpdate } from "../../loadWorldPartyUpdate";
+import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
+import { loadWorldPartyUpdate } from "../../load-updates/loadWorldPartyUpdate";
 import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
 import { selectWorldCharacter } from "../../selectWorldCharacter";
 

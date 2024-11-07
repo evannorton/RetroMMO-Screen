@@ -23,6 +23,7 @@ export interface WorldCharacterOptions {
   id: string;
   level: number;
   maskItemID?: string;
+  openedChestIDs?: readonly string[];
   order: number;
   outfitItemID?: string;
   partyID: string;
@@ -51,12 +52,13 @@ export class WorldCharacter extends Definable {
   private readonly _level: number;
   private readonly _maskItemID: string | null;
   private _movedAt: number | null = null;
+  private _openedChestIDs: readonly string[] | null;
   private _order: number;
   private readonly _outfitItemID: string | null;
   private _partyID: string;
   private readonly _playerID: string;
   private _position: TilePosition;
-  private readonly _resources: WorldCharacterResources | null;
+  private _resources: WorldCharacterResources | null;
   private readonly _skinColorID: string;
   private _step: Step = Step.Right;
   private _tilemapID: string;
@@ -72,6 +74,7 @@ export class WorldCharacter extends Definable {
     this._hairDyeItemID = options.hairDyeItemID ?? null;
     this._level = options.level;
     this._maskItemID = options.maskItemID ?? null;
+    this._openedChestIDs = options.openedChestIDs ?? null;
     this._order = options.order;
     this._outfitItemID = options.outfitItemID ?? null;
     this._partyID = options.partyID;
@@ -147,8 +150,22 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("movedAt"));
   }
 
+  public get openedChestIDs(): readonly string[] {
+    if (this._openedChestIDs !== null) {
+      return this._openedChestIDs;
+    }
+    throw new Error(this.getAccessorErrorMessage("openedChestIDs"));
+  }
+
   public get order(): number {
     return this._order;
+  }
+
+  public get outfitItem(): Item {
+    if (this._outfitItemID !== null) {
+      return getDefinable(Item, this._outfitItemID);
+    }
+    throw new Error(this.getAccessorErrorMessage("outfitItem"));
   }
 
   public get party(): Party {
@@ -161,13 +178,6 @@ export class WorldCharacter extends Definable {
 
   public get position(): TilePosition {
     return this._position;
-  }
-
-  public get outfitItem(): Item {
-    if (this._outfitItemID !== null) {
-      return getDefinable(Item, this._outfitItemID);
-    }
-    throw new Error(this.getAccessorErrorMessage("outfitItem"));
   }
 
   public get resources(): WorldCharacterResources {
@@ -201,8 +211,24 @@ export class WorldCharacter extends Definable {
     return this._wasClicked;
   }
 
+  public set direction(direction: Direction) {
+    this._direction = direction;
+  }
+
+  public set entityID(entityID: string) {
+    this._entityID = entityID;
+  }
+
   public set movedAt(movedAt: number) {
     this._movedAt = movedAt;
+  }
+
+  public set openedChestIDs(openedChestIDs: readonly string[]) {
+    this._openedChestIDs = openedChestIDs;
+  }
+
+  public set order(order: number) {
+    this._order = order;
   }
 
   public set party(party: Party) {
@@ -213,20 +239,12 @@ export class WorldCharacter extends Definable {
     this._position = position;
   }
 
+  public set resources(resources: WorldCharacterResources) {
+    this._resources = resources;
+  }
+
   public set step(step: Step) {
     this._step = step;
-  }
-
-  public set direction(direction: Direction) {
-    this._direction = direction;
-  }
-
-  public set entityID(entityID: string) {
-    this._entityID = entityID;
-  }
-
-  public set order(order: number) {
-    this._order = order;
   }
 
   public set tilemapID(tilemapID: string) {

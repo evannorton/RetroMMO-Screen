@@ -1,5 +1,5 @@
-import { Party } from "../classes/Party";
-import { WorldCharacter } from "../classes/WorldCharacter";
+import { Party } from "../../classes/Party";
+import { WorldCharacter } from "../../classes/WorldCharacter";
 import { WorldPartyUpdate } from "retrommo-types";
 import { definableExists, getDefinable } from "definables";
 

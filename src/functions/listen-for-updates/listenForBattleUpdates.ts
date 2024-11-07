@@ -1,8 +1,8 @@
 import { BattleExitToWorldUpdate } from "retrommo-types";
 import { createWorldState } from "../state/createWorldState";
 import { listenToSocketioEvent } from "pixel-pigeon";
-import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
-import { loadWorldPartyUpdate } from "../loadWorldPartyUpdate";
+import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
+import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
 

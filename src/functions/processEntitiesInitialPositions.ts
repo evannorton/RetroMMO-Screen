@@ -3,10 +3,12 @@ import { Chest } from "../classes/Chest";
 import { CombinationLock } from "../classes/CombinationLock";
 import { Constants, Direction } from "retrommo-types";
 import { NPC } from "../classes/NPC";
-import { createEntity, createSprite } from "pixel-pigeon";
+import { State, createEntity, createSprite } from "pixel-pigeon";
+import { WorldCharacter } from "../classes/WorldCharacter";
+import { WorldStateSchema, state } from "../state";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
-import { state } from "../state";
+import { getWorldState } from "./state/getWorldState";
 
 export const processEntitiesInitialPositions = (): void => {
   const constants: Constants = getConstants();
@@ -23,6 +25,7 @@ export const processEntitiesInitialPositions = (): void => {
       },
       sprites: [
         {
+          condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
             animationID: (): string => {
               switch (npc.direction) {
@@ -106,6 +109,7 @@ export const processEntitiesInitialPositions = (): void => {
       },
       sprites: [
         {
+          condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
             animationID: "default",
             animations: [
@@ -142,6 +146,7 @@ export const processEntitiesInitialPositions = (): void => {
       },
       sprites: [
         {
+          condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
             animationID: "default",
             animations: [
@@ -178,8 +183,24 @@ export const processEntitiesInitialPositions = (): void => {
       },
       sprites: [
         {
+          condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
-            animationID: "default",
+            animationID: (): string => {
+              const worldState: State<WorldStateSchema> = getWorldState();
+              const character: WorldCharacter = getDefinable(
+                WorldCharacter,
+                worldState.values.worldCharacterID,
+              );
+              if (
+                character.party.worldCharacters.every(
+                  (worldCharacter: WorldCharacter): boolean =>
+                    worldCharacter.openedChestIDs.includes(chest.id),
+                )
+              ) {
+                return "opened";
+              }
+              return "closed";
+            },
             animations: [
               {
                 frames: [
@@ -192,7 +213,20 @@ export const processEntitiesInitialPositions = (): void => {
                     width: constants["tile-size"],
                   },
                 ],
-                id: "default",
+                id: "closed",
+              },
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 3,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "opened",
               },
             ],
             imagePath: chest.imageSourceID,
@@ -217,6 +251,7 @@ export const processEntitiesInitialPositions = (): void => {
       },
       sprites: [
         {
+          condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
             animationID: "default",
             animations: [

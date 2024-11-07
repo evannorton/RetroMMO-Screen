@@ -10,8 +10,8 @@ import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { listenToSocketioEvent } from "pixel-pigeon";
-import { loadWorldCharacterUpdate } from "../loadWorldCharacterUpdate";
-import { loadWorldPartyUpdate } from "../loadWorldPartyUpdate";
+import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
+import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
 
