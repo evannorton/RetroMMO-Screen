@@ -112,6 +112,16 @@ export const listenForWorldUpdates = (): void => {
     },
   });
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
+    event: "world/inn",
+    onMessage: (): void => {
+      const worldCharacter: WorldCharacter = getDefinable(WorldCharacter, getWorldState().values.worldCharacterID);
+      worldCharacter.party.worldCharacters.forEach((partyWorldCharacter: WorldCharacter): void => {
+        partyWorldCharacter.resources.hp = partyWorldCharacter.resources.maxHP;
+        partyWorldCharacter.resources.mp = partyWorldCharacter.resources.maxMP;
+      });
+    },
+  });
+  listenToSocketioEvent<WorldMoveCharactersUpdate>({
     event: "world/move-characters",
     onMessage: (update: WorldMoveCharactersUpdate): void => {
       for (const move of update.moves) {
