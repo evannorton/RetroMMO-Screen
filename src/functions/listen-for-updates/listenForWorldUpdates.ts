@@ -6,6 +6,7 @@ import {
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
   WorldMoveCharactersUpdate,
+  WorldOpenChestUpdate,
   WorldPartyChangesUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
@@ -150,6 +151,26 @@ export const listenForWorldUpdates = (): void => {
         }
         worldCharacter.movedAt = getCurrentTime();
       }
+    },
+  });
+  listenToSocketioEvent<WorldOpenChestUpdate>({
+    event: "world/open-chest",
+    onMessage: (update: WorldOpenChestUpdate): void => {
+      getDefinable(
+        WorldCharacter,
+        getWorldState().values.worldCharacterID,
+      ).party.worldCharacters.forEach(
+        (worldCharacter: WorldCharacter): void => {
+          if (
+            worldCharacter.openedChestIDs.includes(update.chestID) === false
+          ) {
+            worldCharacter.openedChestIDs = [
+              ...worldCharacter.openedChestIDs,
+              update.chestID,
+            ];
+          }
+        },
+      );
     },
   });
   listenToSocketioEvent<WorldPartyChangesUpdate>({
