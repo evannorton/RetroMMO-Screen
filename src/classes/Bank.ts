@@ -6,13 +6,13 @@ export interface BankOptions {
   id: string;
 }
 export class Bank extends Definable {
-  private readonly _imageSourceID: string;
+  private readonly _imagePath: string;
   public constructor(options: BankOptions) {
     super(options.id);
-    this._imageSourceID = options.definition.imageSourceID;
+    this._imagePath = options.definition.imageSourceID;
   }
 
-  public get imageSourceID(): string {
-    return this._imageSourceID;
+  public get imagePath(): string {
+    return this._imagePath;
   }
 }

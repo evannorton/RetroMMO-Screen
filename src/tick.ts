@@ -31,38 +31,74 @@ export const tick = (): void => {
       percentMoved * constants["tile-size"],
     );
     switch (worldCharacter.direction) {
-      case Direction.Down:
+      case Direction.Down: {
+        const x: number = worldCharacter.position.x * constants["tile-size"];
+        const y: number =
+          worldCharacter.position.y * constants["tile-size"] -
+          (constants["tile-size"] - pixelsMoved);
         setEntityPosition(worldCharacter.entityID, {
-          x: worldCharacter.position.x * constants["tile-size"],
-          y:
-            worldCharacter.position.y * constants["tile-size"] -
-            (constants["tile-size"] - pixelsMoved),
+          x,
+          y,
         });
+        if (worldCharacter.hasEmoteEntityID()) {
+          setEntityPosition(worldCharacter.emoteEntityID, {
+            x,
+            y: y - constants["tile-size"],
+          });
+        }
         break;
-      case Direction.Left:
+      }
+      case Direction.Left: {
+        const x: number =
+          worldCharacter.position.x * constants["tile-size"] +
+          (constants["tile-size"] - pixelsMoved);
+        const y: number = worldCharacter.position.y * constants["tile-size"];
         setEntityPosition(worldCharacter.entityID, {
-          x:
-            worldCharacter.position.x * constants["tile-size"] +
-            (constants["tile-size"] - pixelsMoved),
-          y: worldCharacter.position.y * constants["tile-size"],
+          x,
+          y,
         });
+        if (worldCharacter.hasEmoteEntityID()) {
+          setEntityPosition(worldCharacter.emoteEntityID, {
+            x,
+            y: y - constants["tile-size"],
+          });
+        }
         break;
-      case Direction.Right:
+      }
+      case Direction.Right: {
+        const x: number =
+          worldCharacter.position.x * constants["tile-size"] -
+          (constants["tile-size"] - pixelsMoved);
+        const y: number = worldCharacter.position.y * constants["tile-size"];
         setEntityPosition(worldCharacter.entityID, {
-          x:
-            worldCharacter.position.x * constants["tile-size"] -
-            (constants["tile-size"] - pixelsMoved),
-          y: worldCharacter.position.y * constants["tile-size"],
+          x,
+          y,
         });
+        if (worldCharacter.hasEmoteEntityID()) {
+          setEntityPosition(worldCharacter.emoteEntityID, {
+            x,
+            y: y - constants["tile-size"],
+          });
+        }
         break;
-      case Direction.Up:
+      }
+      case Direction.Up: {
+        const x: number = worldCharacter.position.x * constants["tile-size"];
+        const y: number =
+          worldCharacter.position.y * constants["tile-size"] +
+          (constants["tile-size"] - pixelsMoved);
         setEntityPosition(worldCharacter.entityID, {
-          x: worldCharacter.position.x * constants["tile-size"],
-          y:
-            worldCharacter.position.y * constants["tile-size"] +
-            (constants["tile-size"] - pixelsMoved),
+          x,
+          y,
         });
+        if (worldCharacter.hasEmoteEntityID()) {
+          setEntityPosition(worldCharacter.emoteEntityID, {
+            x,
+            y: y - constants["tile-size"],
+          });
+        }
         break;
+      }
     }
   }
   if (clickedWorldCharacter !== null) {

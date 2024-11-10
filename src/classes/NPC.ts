@@ -7,23 +7,23 @@ export interface NPCOptions {
   id: string;
 }
 export class NPC extends Definable {
-  private readonly _actorImageSourceID: string;
+  private readonly _actorImagePath: string;
   private _direction: Direction;
   private _entityID: string | null = null;
   private _indicatorEntityID: string | null = null;
-  private readonly _indicatorImageSourceID: string;
+  private readonly _indicatorImagePath: string;
   private readonly _name: string;
   private _position: TilePosition | null = null;
   public constructor(options: NPCOptions) {
     super(options.id);
-    this._actorImageSourceID = options.definition.actorImageSourceID;
+    this._actorImagePath = options.definition.actorImageSourceID;
     this._direction = options.definition.startDirection;
-    this._indicatorImageSourceID = options.definition.indicatorImageSourceID;
+    this._indicatorImagePath = options.definition.indicatorImageSourceID;
     this._name = options.definition.name;
   }
 
-  public get actorImageSourceID(): string {
-    return this._actorImageSourceID;
+  public get actorImagePath(): string {
+    return this._actorImagePath;
   }
 
   public get direction(): Direction {
@@ -44,8 +44,8 @@ export class NPC extends Definable {
     throw new Error(this.getAccessorErrorMessage("indicatorEntityID"));
   }
 
-  public get indicatorImageSourceID(): string {
-    return this._indicatorImageSourceID;
+  public get indicatorImagePath(): string {
+    return this._indicatorImagePath;
   }
 
   public get position(): TilePosition {

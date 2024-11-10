@@ -46,6 +46,7 @@ export class WorldCharacter extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemID: string | null;
   private _direction: Direction;
+  private _emoteEntityID: string | null = null;
   private _entityID: string | null = null;
   private readonly _figureID: string;
   private readonly _hairDyeItemID: string | null;
@@ -112,6 +113,13 @@ export class WorldCharacter extends Definable {
 
   public get direction(): Direction {
     return this._direction;
+  }
+
+  public get emoteEntityID(): string {
+    if (this._emoteEntityID !== null) {
+      return this._emoteEntityID;
+    }
+    throw new Error(this.getAccessorErrorMessage("emoteEntityID"));
   }
 
   public get entityID(): string {
@@ -215,6 +223,10 @@ export class WorldCharacter extends Definable {
     this._direction = direction;
   }
 
+  public set emoteEntityID(emoteEntityID: string) {
+    this._emoteEntityID = emoteEntityID;
+  }
+
   public set entityID(entityID: string) {
     this._entityID = entityID;
   }
@@ -257,6 +269,10 @@ export class WorldCharacter extends Definable {
 
   public hasClothesDyeItem(): boolean {
     return this._clothesDyeItemID !== null;
+  }
+
+  public hasEmoteEntityID(): boolean {
+    return this._emoteEntityID !== null;
   }
 
   public hasHairDyeItem(): boolean {

@@ -9,6 +9,7 @@ import {
   CombinationLockDefinition,
   Constants,
   Definition,
+  EmoteDefinition,
   FigureDefinition,
   HairColorDefinition,
   HairDyeDefinition,
@@ -39,6 +40,7 @@ import {
   createTileset,
   makeHTTPRequest,
 } from "pixel-pigeon";
+import { Emote } from "../classes/Emote";
 import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
 import { HairDye } from "../classes/HairDye";
@@ -152,8 +154,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Emote":
+        case "Emote": {
+          const definition: EmoteDefinition = (
+            gameData[className] as Record<string, EmoteDefinition>
+          )[id] as EmoteDefinition;
+          new Emote({
+            definition,
+            id,
+          });
           break;
+        }
         case "Enterable":
           break;
         case "Figure": {
@@ -359,6 +369,10 @@ export const loadGameData = async (): Promise<void> => {
           });
           layers.push({
             id: "npc-indicators",
+            tiles: [],
+          });
+          layers.push({
+            id: "emotes",
             tiles: [],
           });
           addTiles("above");

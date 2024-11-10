@@ -1,7 +1,9 @@
 import {
+  Constants,
   Direction,
   Step,
   WorldBonkUpdate,
+  WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
@@ -14,6 +16,20 @@ import {
   WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
 } from "retrommo-types";
+import { Emote } from "../../classes/Emote";
+import {
+  EntitySprite,
+  createEntity,
+  createSprite,
+  exitLevel,
+  getCurrentTime,
+  goToLevel,
+  listenToSocketioEvent,
+  lockCameraToEntity,
+  playAudioSource,
+  removeEntity,
+  setEntityZIndex,
+} from "pixel-pigeon";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
@@ -21,15 +37,7 @@ import { WorldCharacter } from "../../classes/WorldCharacter";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
-import {
-  exitLevel,
-  getCurrentTime,
-  goToLevel,
-  listenToSocketioEvent,
-  lockCameraToEntity,
-  playAudioSource,
-  setEntityZIndex,
-} from "pixel-pigeon";
+import { getConstants } from "../getConstants";
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
@@ -44,6 +52,79 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (): void => {
       playAudioSource("sfx/bonk", {
         volumeChannelID: sfxVolumeChannelID,
+      });
+    },
+  });
+  listenToSocketioEvent<WorldEmoteUpdate>({
+    event: "world/emote",
+    onMessage: (update: WorldEmoteUpdate): void => {
+      const constants: Constants = getConstants();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        update.worldCharacterID,
+      );
+      if (worldCharacter.hasEmoteEntityID()) {
+        removeEntity(worldCharacter.emoteEntityID);
+      }
+      const emote: Emote = getDefinable(Emote, update.emoteID);
+      const sprites: EntitySprite[] = [
+        {
+          spriteID: createSprite({
+            animationID: "default",
+            animations: [
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: 0,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "default",
+              },
+            ],
+            imagePath: emote.backgroundImagePath,
+          }),
+        },
+      ];
+      if (emote.hasForegroundImagePath()) {
+        sprites.push({
+          spriteID: createSprite({
+            animationID: "default",
+            animations: [
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: 0,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "default",
+              },
+            ],
+            imagePath: emote.foregroundImagePath,
+          }),
+        });
+      }
+      worldCharacter.emoteEntityID = createEntity({
+        height: constants["tile-size"],
+        layerID: "emotes",
+        levelID: worldCharacter.tilemapID,
+        position: {
+          x: worldCharacter.position.x * constants["tile-size"],
+          y:
+            worldCharacter.position.y * constants["tile-size"] -
+            constants["tile-size"],
+        },
+        sprites,
+        width: constants["tile-size"],
       });
     },
   });
@@ -141,6 +222,9 @@ export const listenForWorldUpdates = (): void => {
         worldCharacter.step = move.step;
         worldCharacter.order = move.order;
         setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
+        if (worldCharacter.hasEmoteEntityID()) {
+          setEntityZIndex(worldCharacter.emoteEntityID, worldCharacter.order);
+        }
         switch (worldCharacter.direction) {
           case Direction.Down:
             worldCharacter.position = {

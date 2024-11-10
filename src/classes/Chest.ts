@@ -6,13 +6,13 @@ export interface ChestOptions {
   id: string;
 }
 export class Chest extends Definable {
-  private readonly _imageSourceID: string;
+  private readonly _imagePath: string;
   public constructor(options: ChestOptions) {
     super(options.id);
-    this._imageSourceID = options.definition.imageSourceID;
+    this._imagePath = options.definition.imageSourceID;
   }
 
-  public get imageSourceID(): string {
-    return this._imageSourceID;
+  public get imagePath(): string {
+    return this._imagePath;
   }
 }
