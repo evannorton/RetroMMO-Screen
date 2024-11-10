@@ -9,6 +9,7 @@ import {
   WorldOpenChestUpdate,
   WorldPartyChangesUpdate,
   WorldPositionUpdate,
+  WorldPreparationUpdate,
   WorldStartBattleUpdate,
   WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
@@ -250,6 +251,24 @@ export const listenForWorldUpdates = (): void => {
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
           .entityID,
       );
+    },
+  });
+  listenToSocketioEvent<WorldPreparationUpdate>({
+    event: "world/preparation",
+    onMessage: (update: WorldPreparationUpdate): void => {
+      for (const worldPreparationCharacter of update.worldPreparationCharacters) {
+        const worldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          worldPreparationCharacter.worldCharacterID,
+        );
+        worldCharacter.resources.hp = worldPreparationCharacter.resources.hp;
+        worldCharacter.resources.mp =
+          worldPreparationCharacter.resources.mp ?? null;
+        worldCharacter.resources.maxHP =
+          worldPreparationCharacter.resources.maxHP;
+        worldCharacter.resources.maxMP =
+          worldPreparationCharacter.resources.maxMP ?? null;
+      }
     },
   });
   listenToSocketioEvent<WorldStartBattleUpdate>({
