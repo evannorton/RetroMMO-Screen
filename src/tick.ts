@@ -1,7 +1,8 @@
 import { Constants, Direction } from "retrommo-types";
 import { WorldCharacter } from "./classes/WorldCharacter";
+import { emoteDuration } from "./constants/emoteDuration";
 import { getConstants } from "./functions/getConstants";
-import { getCurrentTime, setEntityPosition } from "pixel-pigeon";
+import { getCurrentTime, removeEntity, setEntityPosition } from "pixel-pigeon";
 import { getDefinables } from "definables";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
 
@@ -17,6 +18,13 @@ export const tick = (): void => {
       clickedWorldCharacter = worldCharacter;
     }
     worldCharacter.wasClicked = false;
+    if (
+      worldCharacter.hasEmote() &&
+      worldCharacter.emote.usedAt < getCurrentTime() - emoteDuration
+    ) {
+      removeEntity(worldCharacter.emote.entityID);
+      worldCharacter.emote = null;
+    }
     let percentMoved: number | undefined;
     if (worldCharacter.hasMovedAt()) {
       percentMoved = Math.min(
@@ -40,8 +48,8 @@ export const tick = (): void => {
           x,
           y,
         });
-        if (worldCharacter.hasEmoteEntityID()) {
-          setEntityPosition(worldCharacter.emoteEntityID, {
+        if (worldCharacter.hasEmote()) {
+          setEntityPosition(worldCharacter.emote.entityID, {
             x,
             y: y - constants["tile-size"],
           });
@@ -57,8 +65,8 @@ export const tick = (): void => {
           x,
           y,
         });
-        if (worldCharacter.hasEmoteEntityID()) {
-          setEntityPosition(worldCharacter.emoteEntityID, {
+        if (worldCharacter.hasEmote()) {
+          setEntityPosition(worldCharacter.emote.entityID, {
             x,
             y: y - constants["tile-size"],
           });
@@ -74,8 +82,8 @@ export const tick = (): void => {
           x,
           y,
         });
-        if (worldCharacter.hasEmoteEntityID()) {
-          setEntityPosition(worldCharacter.emoteEntityID, {
+        if (worldCharacter.hasEmote()) {
+          setEntityPosition(worldCharacter.emote.entityID, {
             x,
             y: y - constants["tile-size"],
           });
@@ -91,8 +99,8 @@ export const tick = (): void => {
           x,
           y,
         });
-        if (worldCharacter.hasEmoteEntityID()) {
-          setEntityPosition(worldCharacter.emoteEntityID, {
+        if (worldCharacter.hasEmote()) {
+          setEntityPosition(worldCharacter.emote.entityID, {
             x,
             y: y - constants["tile-size"],
           });

@@ -63,8 +63,8 @@ export const listenForWorldUpdates = (): void => {
         WorldCharacter,
         update.worldCharacterID,
       );
-      if (worldCharacter.hasEmoteEntityID()) {
-        removeEntity(worldCharacter.emoteEntityID);
+      if (worldCharacter.hasEmote()) {
+        removeEntity(worldCharacter.emote.entityID);
       }
       const emote: Emote = getDefinable(Emote, update.emoteID);
       const sprites: EntitySprite[] = [
@@ -113,7 +113,7 @@ export const listenForWorldUpdates = (): void => {
           }),
         });
       }
-      worldCharacter.emoteEntityID = createEntity({
+      const entityID: string = createEntity({
         height: constants["tile-size"],
         layerID: "emotes",
         levelID: worldCharacter.tilemapID,
@@ -126,6 +126,10 @@ export const listenForWorldUpdates = (): void => {
         sprites,
         width: constants["tile-size"],
       });
+      worldCharacter.emote = {
+        entityID,
+        usedAt: getCurrentTime(),
+      };
     },
   });
   listenToSocketioEvent<WorldEnterCharactersUpdate>({
@@ -222,8 +226,8 @@ export const listenForWorldUpdates = (): void => {
         worldCharacter.step = move.step;
         worldCharacter.order = move.order;
         setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
-        if (worldCharacter.hasEmoteEntityID()) {
-          setEntityZIndex(worldCharacter.emoteEntityID, worldCharacter.order);
+        if (worldCharacter.hasEmote()) {
+          setEntityZIndex(worldCharacter.emote.entityID, worldCharacter.order);
         }
         switch (worldCharacter.direction) {
           case Direction.Down:

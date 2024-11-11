@@ -42,11 +42,15 @@ export interface WorldCharacterResources {
   maxMP: number | null;
   mp: number | null;
 }
+export interface WorldCharacterEmote {
+  entityID: string;
+  usedAt: number;
+}
 export class WorldCharacter extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemID: string | null;
   private _direction: Direction;
-  private _emoteEntityID: string | null = null;
+  private _emote: WorldCharacterEmote | null = null;
   private _entityID: string | null = null;
   private readonly _figureID: string;
   private readonly _hairDyeItemID: string | null;
@@ -115,11 +119,11 @@ export class WorldCharacter extends Definable {
     return this._direction;
   }
 
-  public get emoteEntityID(): string {
-    if (this._emoteEntityID !== null) {
-      return this._emoteEntityID;
+  public get emote(): WorldCharacterEmote {
+    if (this._emote !== null) {
+      return this._emote;
     }
-    throw new Error(this.getAccessorErrorMessage("emoteEntityID"));
+    throw new Error(this.getAccessorErrorMessage("emote"));
   }
 
   public get entityID(): string {
@@ -223,8 +227,8 @@ export class WorldCharacter extends Definable {
     this._direction = direction;
   }
 
-  public set emoteEntityID(emoteEntityID: string) {
-    this._emoteEntityID = emoteEntityID;
+  public set emote(emote: WorldCharacterEmote | null) {
+    this._emote = emote;
   }
 
   public set entityID(entityID: string) {
@@ -271,8 +275,8 @@ export class WorldCharacter extends Definable {
     return this._clothesDyeItemID !== null;
   }
 
-  public hasEmoteEntityID(): boolean {
-    return this._emoteEntityID !== null;
+  public hasEmote(): boolean {
+    return this._emote !== null;
   }
 
   public hasHairDyeItem(): boolean {
