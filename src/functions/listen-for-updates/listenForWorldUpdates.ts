@@ -1,3 +1,4 @@
+import { Chest } from "../../classes/Chest";
 import {
   Constants,
   Direction,
@@ -277,6 +278,7 @@ export const listenForWorldUpdates = (): void => {
           }
         },
       );
+      getDefinable(Chest, update.chestID).openedAt = getCurrentTime();
     },
   });
   listenToSocketioEvent<WorldPartyChangesUpdate>({

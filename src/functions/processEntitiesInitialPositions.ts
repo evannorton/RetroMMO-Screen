@@ -6,6 +6,7 @@ import { NPC } from "../classes/NPC";
 import { State, createEntity, createSprite } from "pixel-pigeon";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../state";
+import { chestOpenDuration } from "../constants/chestOpenDuration";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
 import { getWorldState } from "./state/getWorldState";
@@ -197,6 +198,9 @@ export const processEntitiesInitialPositions = (): void => {
                     worldCharacter.openedChestIDs.includes(chest.id),
                 )
               ) {
+                if (chest.hasOpenedAt()) {
+                  return "opening";
+                }
                 return "opened";
               }
               return "closed";
@@ -227,6 +231,37 @@ export const processEntitiesInitialPositions = (): void => {
                   },
                 ],
                 id: "opened",
+              },
+              {
+                frames: [
+                  {
+                    duration: chestOpenDuration,
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"],
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                  {
+                    duration: chestOpenDuration,
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 2,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 3,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "opening",
               },
             ],
             imagePath: chest.imagePath,
