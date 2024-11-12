@@ -6,6 +6,7 @@ import { NPC } from "../classes/NPC";
 import { State, createEntity, createSprite } from "pixel-pigeon";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../state";
+import { bankToggleDuration } from "../constants/bankToggleDuration";
 import { chestOpenDuration } from "../constants/chestOpenDuration";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
@@ -149,7 +150,18 @@ export const processEntitiesInitialPositions = (): void => {
         {
           condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
-            animationID: "default",
+            animationID: (): string => {
+              if (bank.isOpen) {
+                if (bank.hasToggledAt()) {
+                  return "opening";
+                }
+                return "opened";
+              }
+              if (bank.hasToggledAt()) {
+                return "closing";
+              }
+              return "closed";
+            },
             animations: [
               {
                 frames: [
@@ -162,7 +174,82 @@ export const processEntitiesInitialPositions = (): void => {
                     width: constants["tile-size"],
                   },
                 ],
-                id: "default",
+                id: "closed",
+              },
+              {
+                frames: [
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 3,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "opened",
+              },
+              {
+                frames: [
+                  {
+                    duration: bankToggleDuration,
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 2,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                  {
+                    duration: bankToggleDuration,
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"],
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: 0,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "closing",
+              },
+              {
+                frames: [
+                  {
+                    duration: bankToggleDuration,
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"],
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                  {
+                    duration: bankToggleDuration,
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 2,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                  {
+                    height: constants["tile-size"],
+                    sourceHeight: constants["tile-size"],
+                    sourceWidth: constants["tile-size"],
+                    sourceX: constants["tile-size"] * 3,
+                    sourceY: 0,
+                    width: constants["tile-size"],
+                  },
+                ],
+                id: "opening",
               },
             ],
             imagePath: bank.imagePath,

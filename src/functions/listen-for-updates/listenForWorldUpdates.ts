@@ -1,14 +1,17 @@
+import { Bank } from "../../classes/Bank";
 import { Chest } from "../../classes/Chest";
 import {
   Constants,
   Direction,
   Step,
   WorldBonkUpdate,
+  WorldCloseBankUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
   WorldMoveCharactersUpdate,
+  WorldOpenBankUpdate,
   WorldOpenChestUpdate,
   WorldPartyChangesUpdate,
   WorldPositionUpdate,
@@ -54,6 +57,14 @@ export const listenForWorldUpdates = (): void => {
       playAudioSource("sfx/bonk", {
         volumeChannelID: sfxVolumeChannelID,
       });
+    },
+  });
+  listenToSocketioEvent<WorldCloseBankUpdate>({
+    event: "world/close-bank",
+    onMessage: (update: WorldCloseBankUpdate): void => {
+      const bank: Bank = getDefinable(Bank, update.bankID);
+      bank.isOpen = false;
+      bank.toggledAt = getCurrentTime();
     },
   });
   listenToSocketioEvent<WorldEmoteUpdate>({
@@ -254,6 +265,14 @@ export const listenForWorldUpdates = (): void => {
         }
         worldCharacter.movedAt = getCurrentTime();
       }
+    },
+  });
+  listenToSocketioEvent<WorldOpenBankUpdate>({
+    event: "world/open-bank",
+    onMessage: (update: WorldOpenBankUpdate): void => {
+      const bank: Bank = getDefinable(Bank, update.bankID);
+      bank.isOpen = true;
+      bank.toggledAt = getCurrentTime();
     },
   });
   listenToSocketioEvent<WorldOpenChestUpdate>({
