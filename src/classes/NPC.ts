@@ -8,18 +8,26 @@ export interface NPCOptions {
 }
 export class NPC extends Definable {
   private readonly _actorImagePath: string;
+  private readonly _dialogue?: string;
   private _direction: Direction;
+  private readonly _encounterID?: string;
   private _entityID: string | null = null;
   private _indicatorEntityID: string | null = null;
   private readonly _indicatorImagePath: string;
+  private readonly _innCost?: number;
   private readonly _name: string;
   private _position: TilePosition | null = null;
+  private readonly _shopID?: string;
   public constructor(options: NPCOptions) {
     super(options.id);
     this._actorImagePath = options.definition.actorImageSourceID;
+    this._dialogue = options.definition.dialogue;
     this._direction = options.definition.startDirection;
+    this._encounterID = options.definition.encounterID;
     this._indicatorImagePath = options.definition.indicatorImageSourceID;
+    this._innCost = options.definition.innCost;
     this._name = options.definition.name;
+    this._shopID = options.definition.shopID;
   }
 
   public get actorImagePath(): string {
@@ -48,6 +56,10 @@ export class NPC extends Definable {
     return this._indicatorImagePath;
   }
 
+  public get name(): string {
+    return this._name;
+  }
+
   public get position(): TilePosition {
     if (this._position !== null) {
       return this._position;
@@ -69,5 +81,21 @@ export class NPC extends Definable {
 
   public set position(position: TilePosition) {
     this._position = position;
+  }
+
+  public hasDialogue(): boolean {
+    return typeof this._dialogue !== "undefined";
+  }
+
+  public hasInnCost(): boolean {
+    return typeof this._innCost !== "undefined";
+  }
+
+  public hasShopID(): boolean {
+    return typeof this._shopID !== "undefined";
+  }
+
+  public hasEncounterID(): boolean {
+    return typeof this._encounterID !== "undefined";
   }
 }

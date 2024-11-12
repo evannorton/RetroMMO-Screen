@@ -17,6 +17,10 @@ export interface InitialCombinationLockTilePosition {
   readonly levelID: string;
   readonly position: TilePosition;
 }
+export interface InitialNPCExtenderPosition {
+  readonly levelID: string;
+  readonly position: TilePosition;
+}
 export interface InitialNPCTilePosition {
   readonly levelID: string;
   readonly npcID: string;

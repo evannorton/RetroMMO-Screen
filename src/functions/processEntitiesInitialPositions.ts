@@ -17,7 +17,10 @@ export const processEntitiesInitialPositions = (): void => {
   for (const position of state.values.initialNPCTilePositions) {
     const npc: NPC = getDefinable(NPC, position.npcID);
     npc.position = position.position;
+    const fieldValues: Map<string, unknown> = new Map();
+    fieldValues.set("npcID", npc.id);
     npc.entityID = createEntity({
+      fieldValues,
       height: constants["tile-size"],
       layerID: "npcs",
       levelID: position.levelID,
@@ -99,6 +102,7 @@ export const processEntitiesInitialPositions = (): void => {
           }),
         },
       ],
+      type: "npc",
       width: constants["tile-size"],
     });
     npc.indicatorEntityID = createEntity({
@@ -138,7 +142,10 @@ export const processEntitiesInitialPositions = (): void => {
   }
   for (const position of state.values.initialBankTilePositions) {
     const bank: Bank = getDefinable(Bank, position.bankID);
+    const fieldValues: Map<string, unknown> = new Map();
+    fieldValues.set("bankID", bank.id);
     createEntity({
+      fieldValues,
       height: constants["tile-size"],
       layerID: "banks",
       levelID: position.levelID,
@@ -256,12 +263,16 @@ export const processEntitiesInitialPositions = (): void => {
           }),
         },
       ],
+      type: "bank",
       width: constants["tile-size"],
     });
   }
   for (const position of state.values.initialChestTilePositions) {
     const chest: Chest = getDefinable(Chest, position.chestID);
+    const fieldValues: Map<string, unknown> = new Map();
+    fieldValues.set("chestID", chest.id);
     createEntity({
+      fieldValues,
       height: constants["tile-size"],
       layerID: "chests",
       levelID: position.levelID,
@@ -355,6 +366,7 @@ export const processEntitiesInitialPositions = (): void => {
           }),
         },
       ],
+      type: "chest",
       width: constants["tile-size"],
     });
   }
@@ -363,7 +375,10 @@ export const processEntitiesInitialPositions = (): void => {
       CombinationLock,
       position.combinationLockID,
     );
+    const fieldValues: Map<string, unknown> = new Map();
+    fieldValues.set("combinationLockID", combinationLock.id);
     createEntity({
+      fieldValues,
       height: constants["tile-size"],
       layerID: "combination-locks",
       levelID: position.levelID,
@@ -395,6 +410,21 @@ export const processEntitiesInitialPositions = (): void => {
           }),
         },
       ],
+      type: "combination-lock",
+      width: constants["tile-size"],
+    });
+  }
+  for (const position of state.values.initialNPCExtenderPositions) {
+    createEntity({
+      height: constants["tile-size"],
+      layerID: "npc-extenders",
+      levelID: position.levelID,
+      position: {
+        x: position.position.x * constants["tile-size"],
+        y: position.position.y * constants["tile-size"],
+      },
+      sprites: [],
+      type: "npc-extender",
       width: constants["tile-size"],
     });
   }

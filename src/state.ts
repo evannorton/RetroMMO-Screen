@@ -3,6 +3,7 @@ import {
   InitialBankTilePosition,
   InitialChestTilePosition,
   InitialCombinationLockTilePosition,
+  InitialNPCExtenderPosition,
   InitialNPCTilePosition,
 } from "./types/TilePosition";
 import { State } from "pixel-pigeon";
@@ -45,6 +46,7 @@ interface StateSchema {
   initialBankTilePositions: readonly InitialBankTilePosition[];
   initialChestTilePositions: readonly InitialChestTilePosition[];
   initialCombinationLockTilePositions: readonly InitialCombinationLockTilePosition[];
+  initialNPCExtenderPositions: readonly InitialNPCExtenderPosition[];
   initialNPCTilePositions: readonly InitialNPCTilePosition[];
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
@@ -62,6 +64,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialBankTilePositions: [],
   initialChestTilePositions: [],
   initialCombinationLockTilePositions: [],
+  initialNPCExtenderPositions: [],
   initialNPCTilePositions: [],
   isSubscribed: false,
   mainMenuState: null,

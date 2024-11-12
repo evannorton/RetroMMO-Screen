@@ -300,6 +300,10 @@ export const loadGameData = async (): Promise<void> => {
             );
           };
           const layers: CreateLevelOptionsLayer[] = [];
+          layers.push({
+            id: "npc-extenders",
+            tiles: [],
+          });
           const addTiles = (zLayer: string): void => {
             definition.tiles.forEach(
               (row: readonly TilemapTileDefinition[], x: number): void => {
@@ -341,6 +345,24 @@ export const loadGameData = async (): Promise<void> => {
                       x: x * constants["tile-size"],
                       y: y * constants["tile-size"],
                     });
+                    const tilesetTile: TilesetTileDefinition | undefined =
+                      tileset.tiles[tilesetX]?.[tilesetY];
+                    if (typeof tilesetTile !== "undefined") {
+                      if (tilesetTile.extendsNPC) {
+                        state.setValues({
+                          initialNPCExtenderPositions: [
+                            ...state.values.initialNPCExtenderPositions,
+                            {
+                              levelID: id,
+                              position: {
+                                x,
+                                y,
+                              },
+                            },
+                          ],
+                        });
+                      }
+                    }
                   });
                 });
               },
