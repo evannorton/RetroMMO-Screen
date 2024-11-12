@@ -29,7 +29,6 @@ import {
   lockCameraToEntity,
   playAudioSource,
   removeEntity,
-  setEntityZIndex,
 } from "pixel-pigeon";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -45,6 +44,7 @@ import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCha
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
+import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
 import { updateWorldCharacterPosition } from "../updateWorldCharacterPosition";
 
 export const listenForWorldUpdates = (): void => {
@@ -225,11 +225,7 @@ export const listenForWorldUpdates = (): void => {
         );
         worldCharacter.direction = move.direction;
         worldCharacter.step = move.step;
-        worldCharacter.order = move.order;
-        setEntityZIndex(worldCharacter.entityID, worldCharacter.order);
-        if (worldCharacter.hasEmote()) {
-          setEntityZIndex(worldCharacter.emote.entityID, worldCharacter.order);
-        }
+        updateWorldCharacterOrder(worldCharacter.id, move.order);
         switch (worldCharacter.direction) {
           case Direction.Down:
             worldCharacter.position = {

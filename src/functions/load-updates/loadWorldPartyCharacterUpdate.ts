@@ -1,6 +1,7 @@
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { WorldPartyCharacterUpdate } from "retrommo-types";
 import { getDefinable } from "definables";
+import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
 
 export const loadWorldPartyCharacterUpdate = (
   worldPartyCharacterUpdate: WorldPartyCharacterUpdate,
@@ -16,4 +17,5 @@ export const loadWorldPartyCharacterUpdate = (
     mp: worldPartyCharacterUpdate.resources.mp ?? null,
   };
   worldCharacter.openedChestIDs = worldPartyCharacterUpdate.openedChestIDs;
+  updateWorldCharacterOrder(worldCharacter.id, worldPartyCharacterUpdate.order);
 };
