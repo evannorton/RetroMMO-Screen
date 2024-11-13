@@ -1,21 +1,37 @@
+import { Constants } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   EntityCollidable,
   emitToSocketioServer,
+  getCurrentTime,
   getEntityFieldValue,
 } from "pixel-pigeon";
 import { NPC } from "../../../classes/NPC";
+import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
+import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
 import { getInteractableEntityCollidable } from "../../getInteractableEntityCollidable";
+import { getWorldState } from "../../state/getWorldState";
 import { state } from "../../../state";
 
 export const createWorldInteractUI = (): void => {
   // Background panel
   const condition = (): boolean => {
+    const constants: Constants = getConstants();
     if (state.values.worldState !== null) {
-      return getInteractableEntityCollidable() !== null;
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        getWorldState().values.worldCharacterID,
+      );
+      if (
+        worldCharacter.hasMovedAt() === false ||
+        getCurrentTime() - worldCharacter.movedAt >=
+          constants["movement-duration"]
+      ) {
+        return getInteractableEntityCollidable() !== null;
+      }
     }
     return false;
   };
