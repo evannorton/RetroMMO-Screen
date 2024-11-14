@@ -62,6 +62,12 @@ export const listenForWorldUpdates = (): void => {
       });
     },
   });
+  listenToSocketioEvent<WorldMarkerUpdate>({
+    event: "world/clear-marker",
+    onMessage: (update: WorldMarkerUpdate): void => {
+      clearWorldCharacterMarker(update.worldCharacterID);
+    },
+  });
   listenToSocketioEvent<WorldCloseBankUpdate>({
     event: "world/close-bank",
     onMessage: (update: WorldCloseBankUpdate): void => {
