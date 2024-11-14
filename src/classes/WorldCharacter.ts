@@ -46,10 +46,6 @@ export interface WorldCharacterEmote {
   entityID: string;
   usedAt: number;
 }
-export interface WorldCharacterMarker {
-  createdAt: number;
-  entityID: string;
-}
 export class WorldCharacter extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemID: string | null;
@@ -59,7 +55,7 @@ export class WorldCharacter extends Definable {
   private readonly _figureID: string;
   private readonly _hairDyeItemID: string | null;
   private readonly _level: number;
-  private _marker: WorldCharacterMarker | null = null;
+  private _markerEntityID: string | null = null;
   private readonly _maskItemID: string | null;
   private _movedAt: number | null = null;
   private _openedChestIDs: readonly string[] | null;
@@ -153,11 +149,11 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("hairDyeItem"));
   }
 
-  public get marker(): WorldCharacterMarker {
-    if (this._marker !== null) {
-      return this._marker;
+  public get markerEntityID(): string {
+    if (this._markerEntityID !== null) {
+      return this._markerEntityID;
     }
-    throw new Error(this.getAccessorErrorMessage("marker"));
+    throw new Error(this.getAccessorErrorMessage("markerEntityID"));
   }
 
   public get maskItem(): Item {
@@ -247,8 +243,8 @@ export class WorldCharacter extends Definable {
     this._entityID = entityID;
   }
 
-  public set marker(marker: WorldCharacterMarker | null) {
-    this._marker = marker;
+  public set markerEntityID(markerEntityID: string | null) {
+    this._markerEntityID = markerEntityID;
   }
 
   public set movedAt(movedAt: number) {
@@ -300,7 +296,7 @@ export class WorldCharacter extends Definable {
   }
 
   public hasMarker(): boolean {
-    return this._marker !== null;
+    return this._markerEntityID !== null;
   }
 
   public hasMaskItem(): boolean {
@@ -322,8 +318,8 @@ export class WorldCharacter extends Definable {
     if (this._emote !== null) {
       removeEntity(this._emote.entityID);
     }
-    if (this._marker !== null) {
-      removeEntity(this._marker.entityID);
+    if (this._markerEntityID !== null) {
+      removeEntity(this._markerEntityID);
     }
     super.remove();
   }

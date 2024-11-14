@@ -7,6 +7,6 @@ export const clearWorldCharacterMarker = (worldCharacterID: string): void => {
     WorldCharacter,
     worldCharacterID,
   );
-  removeEntity(worldCharacter.marker.entityID);
-  worldCharacter.marker = null;
+  removeEntity(worldCharacter.markerEntityID);
+  worldCharacter.markerEntityID = null;
 };

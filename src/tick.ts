@@ -55,7 +55,7 @@ export const tick = (): void => {
           });
         }
         if (worldCharacter.hasMarker()) {
-          setEntityPosition(worldCharacter.marker.entityID, {
+          setEntityPosition(worldCharacter.markerEntityID, {
             x,
             y,
           });
@@ -78,7 +78,7 @@ export const tick = (): void => {
           });
         }
         if (worldCharacter.hasMarker()) {
-          setEntityPosition(worldCharacter.marker.entityID, {
+          setEntityPosition(worldCharacter.markerEntityID, {
             x,
             y,
           });
@@ -101,7 +101,7 @@ export const tick = (): void => {
           });
         }
         if (worldCharacter.hasMarker()) {
-          setEntityPosition(worldCharacter.marker.entityID, {
+          setEntityPosition(worldCharacter.markerEntityID, {
             x,
             y,
           });
@@ -124,7 +124,7 @@ export const tick = (): void => {
           });
         }
         if (worldCharacter.hasMarker()) {
-          setEntityPosition(worldCharacter.marker.entityID, {
+          setEntityPosition(worldCharacter.markerEntityID, {
             x,
             y,
           });
