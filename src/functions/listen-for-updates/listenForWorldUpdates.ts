@@ -1,15 +1,17 @@
 import { Bank } from "../../classes/Bank";
 import { Chest } from "../../classes/Chest";
 import {
+  Color,
   Constants,
   Direction,
-  Step,
+  MarkerType,
   WorldBonkUpdate,
   WorldCloseBankUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
+  WorldMarkerUpdate,
   WorldMoveCharactersUpdate,
   WorldOpenBankUpdate,
   WorldOpenChestUpdate,
@@ -17,6 +19,7 @@ import {
   WorldPositionUpdate,
   WorldPreparationUpdate,
   WorldStartBattleUpdate,
+  WorldTradeUpdate,
   WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
 } from "retrommo-types";
@@ -37,18 +40,20 @@ import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { getConstants } from "../getConstants";
+import { getMarkerQuadrilaterals } from "../getMarkerQuadrilaterals";
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
+import { resetParty } from "../resetParty";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
 import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
-import { updateWorldCharacterPosition } from "../updateWorldCharacterPosition";
 
 export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldBonkUpdate>({
@@ -158,6 +163,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitCharactersUpdate>({
     event: "world/exit-characters",
     onMessage: (update: WorldExitCharactersUpdate): void => {
+      const affectedPartyIDs: string[] = [];
       for (const worldCharacterID of update.worldCharacterIDs) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
@@ -168,10 +174,18 @@ export const listenForWorldUpdates = (): void => {
           (partyWorldCharacter: WorldCharacter): boolean =>
             partyWorldCharacter.id !== worldCharacter.id,
         );
-        if (party.worldCharacters.length === 0) {
-          party.remove();
+        if (affectedPartyIDs.includes(party.id) === false) {
+          affectedPartyIDs.push(party.id);
         }
         worldCharacter.remove();
+      }
+      for (const affectedPartyID of affectedPartyIDs) {
+        const affectedParty: Party = getDefinable(Party, affectedPartyID);
+        if (affectedParty.worldCharacters.length === 0) {
+          affectedParty.remove();
+        } else {
+          resetParty(affectedPartyID);
+        }
       }
     },
   });
@@ -303,28 +317,46 @@ export const listenForWorldUpdates = (): void => {
         const party: Party = definableExists(Party, worldPartyUpdate.partyID)
           ? getDefinable(Party, worldPartyUpdate.partyID)
           : new Party({ id: worldPartyUpdate.partyID });
+        const oldPartyWorldCharacterIDs: readonly string[] =
+          party.worldCharacterIDs;
         party.worldCharacters = worldPartyUpdate.worldCharacterIDs.map(
           (worldCharacterID: string): WorldCharacter =>
             getDefinable(WorldCharacter, worldCharacterID),
         );
-        for (const worldCharacter of party.worldCharacters) {
-          worldCharacter.party = party;
-        }
-        const partyLeaderCharacter: WorldCharacter | undefined =
-          party.worldCharacters[0];
-        if (!partyLeaderCharacter) {
-          throw new Error("No party leader character.");
-        }
-        for (const partyCharacter of party.worldCharacters) {
-          if (partyCharacter !== partyLeaderCharacter) {
-            updateWorldCharacterPosition(
-              partyCharacter.id,
-              partyLeaderCharacter.position,
-            );
-            partyCharacter.direction = Direction.Down;
-            partyCharacter.step = Step.Right;
-          }
-        }
+        party.worldCharacters.forEach(
+          (
+            partyWorldCharacter: WorldCharacter,
+            partyWorldCharacterIndex: number,
+          ): void => {
+            partyWorldCharacter.party = party;
+            const partyWorldCharacterJoined: boolean =
+              oldPartyWorldCharacterIDs.includes(partyWorldCharacter.id) ===
+              false;
+            const partyWorldCharacterIsSelf: boolean =
+              partyWorldCharacter.id ===
+              getWorldState().values.worldCharacterID;
+            if (
+              partyWorldCharacterIndex > 0 &&
+              partyWorldCharacterJoined &&
+              partyWorldCharacterIsSelf
+            ) {
+              getDefinables(WorldCharacter).forEach(
+                (worldCharacter: WorldCharacter): void => {
+                  if (worldCharacter.hasMarker()) {
+                    clearWorldCharacterMarker(worldCharacter.id);
+                  }
+                },
+              );
+            } else if (
+              party.worldCharacterIDs.length > oldPartyWorldCharacterIDs.length
+            ) {
+              if (partyWorldCharacter.hasMarker()) {
+                clearWorldCharacterMarker(partyWorldCharacter.id);
+              }
+            }
+          },
+        );
+        resetParty(party.id);
       }
       for (const partyIDToRemove of update.partyIDsToRemove) {
         getDefinable(Party, partyIDToRemove).remove();
@@ -332,6 +364,43 @@ export const listenForWorldUpdates = (): void => {
       for (const worldPartyCharacterUpdate of update.characters) {
         loadWorldPartyCharacterUpdate(worldPartyCharacterUpdate);
       }
+    },
+  });
+  listenToSocketioEvent<WorldMarkerUpdate>({
+    event: "world/marker",
+    onMessage: (update: WorldMarkerUpdate): void => {
+      const constants: Constants = getConstants();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        update.worldCharacterID,
+      );
+      let markerColor: Color | undefined;
+      switch (update.type) {
+        case MarkerType.Duel:
+          markerColor = Color.BrightRed;
+          break;
+        case MarkerType.Party:
+          markerColor = Color.StrongCyan;
+          break;
+        case MarkerType.Trade:
+          markerColor = Color.LightYellow;
+          break;
+      }
+      worldCharacter.marker = {
+        createdAt: getCurrentTime(),
+        entityID: createEntity({
+          height: constants["tile-size"],
+          layerID: "markers",
+          levelID: worldCharacter.tilemapID,
+          position: {
+            x: worldCharacter.position.x * constants["tile-size"],
+            y: worldCharacter.position.y * constants["tile-size"],
+          },
+          quadrilaterals: getMarkerQuadrilaterals(markerColor),
+          width: constants["tile-size"],
+          zIndex: worldCharacter.order,
+        }),
+      };
     },
   });
   listenToSocketioEvent<WorldPositionUpdate>({
@@ -400,6 +469,16 @@ export const listenForWorldUpdates = (): void => {
       playAudioSource("sfx/teleport", {
         volumeChannelID: sfxVolumeChannelID,
       });
+    },
+  });
+  listenToSocketioEvent<WorldTradeUpdate>({
+    event: "world/trade",
+    onMessage: (): void => {
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        if (worldCharacter.hasMarker()) {
+          clearWorldCharacterMarker(worldCharacter.id);
+        }
+      }
     },
   });
   listenToSocketioEvent<WorldTurnCharactersUpdate>({

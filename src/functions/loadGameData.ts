@@ -398,6 +398,10 @@ export const loadGameData = async (): Promise<void> => {
             tiles: [],
           });
           addTiles("above");
+          layers.push({
+            id: "markers",
+            tiles: [],
+          });
           createLevel({
             height: definition.height * constants["tile-size"],
             id,

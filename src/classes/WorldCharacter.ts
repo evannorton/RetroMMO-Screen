@@ -46,6 +46,10 @@ export interface WorldCharacterEmote {
   entityID: string;
   usedAt: number;
 }
+export interface WorldCharacterMarker {
+  createdAt: number;
+  entityID: string;
+}
 export class WorldCharacter extends Definable {
   private readonly _classID: string;
   private readonly _clothesDyeItemID: string | null;
@@ -55,6 +59,7 @@ export class WorldCharacter extends Definable {
   private readonly _figureID: string;
   private readonly _hairDyeItemID: string | null;
   private readonly _level: number;
+  private _marker: WorldCharacterMarker | null = null;
   private readonly _maskItemID: string | null;
   private _movedAt: number | null = null;
   private _openedChestIDs: readonly string[] | null;
@@ -148,6 +153,13 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("hairDyeItem"));
   }
 
+  public get marker(): WorldCharacterMarker {
+    if (this._marker !== null) {
+      return this._marker;
+    }
+    throw new Error(this.getAccessorErrorMessage("marker"));
+  }
+
   public get maskItem(): Item {
     if (this._maskItemID !== null) {
       return getDefinable(Item, this._maskItemID);
@@ -235,6 +247,10 @@ export class WorldCharacter extends Definable {
     this._entityID = entityID;
   }
 
+  public set marker(marker: WorldCharacterMarker | null) {
+    this._marker = marker;
+  }
+
   public set movedAt(movedAt: number) {
     this._movedAt = movedAt;
   }
@@ -283,6 +299,10 @@ export class WorldCharacter extends Definable {
     return this._hairDyeItemID !== null;
   }
 
+  public hasMarker(): boolean {
+    return this._marker !== null;
+  }
+
   public hasMaskItem(): boolean {
     return this._maskItemID !== null;
   }
@@ -298,6 +318,12 @@ export class WorldCharacter extends Definable {
   public remove(): void {
     if (this._entityID !== null) {
       removeEntity(this._entityID);
+    }
+    if (this._emote !== null) {
+      removeEntity(this._emote.entityID);
+    }
+    if (this._marker !== null) {
+      removeEntity(this._marker.entityID);
     }
     super.remove();
   }

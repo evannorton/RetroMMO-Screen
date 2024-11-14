@@ -54,6 +54,12 @@ export const tick = (): void => {
             y: y - constants["tile-size"],
           });
         }
+        if (worldCharacter.hasMarker()) {
+          setEntityPosition(worldCharacter.marker.entityID, {
+            x,
+            y,
+          });
+        }
         break;
       }
       case Direction.Left: {
@@ -69,6 +75,12 @@ export const tick = (): void => {
           setEntityPosition(worldCharacter.emote.entityID, {
             x,
             y: y - constants["tile-size"],
+          });
+        }
+        if (worldCharacter.hasMarker()) {
+          setEntityPosition(worldCharacter.marker.entityID, {
+            x,
+            y,
           });
         }
         break;
@@ -88,6 +100,12 @@ export const tick = (): void => {
             y: y - constants["tile-size"],
           });
         }
+        if (worldCharacter.hasMarker()) {
+          setEntityPosition(worldCharacter.marker.entityID, {
+            x,
+            y,
+          });
+        }
         break;
       }
       case Direction.Up: {
@@ -103,6 +121,12 @@ export const tick = (): void => {
           setEntityPosition(worldCharacter.emote.entityID, {
             x,
             y: y - constants["tile-size"],
+          });
+        }
+        if (worldCharacter.hasMarker()) {
+          setEntityPosition(worldCharacter.marker.entityID, {
+            x,
+            y,
           });
         }
         break;
