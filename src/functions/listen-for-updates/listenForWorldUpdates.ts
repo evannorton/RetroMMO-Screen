@@ -1,10 +1,8 @@
 import { Bank } from "../../classes/Bank";
 import { Chest } from "../../classes/Chest";
 import {
-  Color,
   Constants,
   Direction,
-  MarkerType,
   WorldBonkUpdate,
   WorldCloseBankUpdate,
   WorldEmoteUpdate,
@@ -40,12 +38,12 @@ import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { getConstants } from "../getConstants";
-import { getMarkerQuadrilaterals } from "../getMarkerQuadrilaterals";
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
@@ -369,38 +367,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMarkerUpdate>({
     event: "world/marker",
     onMessage: (update: WorldMarkerUpdate): void => {
-      const constants: Constants = getConstants();
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
-        update.worldCharacterID,
-      );
-      let markerColor: Color | undefined;
-      switch (update.type) {
-        case MarkerType.Duel:
-          markerColor = Color.BrightRed;
-          break;
-        case MarkerType.Party:
-          markerColor = Color.StrongCyan;
-          break;
-        case MarkerType.Trade:
-          markerColor = Color.LightYellow;
-          break;
-      }
-      worldCharacter.marker = {
-        createdAt: getCurrentTime(),
-        entityID: createEntity({
-          height: constants["tile-size"],
-          layerID: "markers",
-          levelID: worldCharacter.tilemapID,
-          position: {
-            x: worldCharacter.position.x * constants["tile-size"],
-            y: worldCharacter.position.y * constants["tile-size"],
-          },
-          quadrilaterals: getMarkerQuadrilaterals(markerColor),
-          width: constants["tile-size"],
-          zIndex: worldCharacter.order,
-        }),
-      };
+      addWorldCharacterMarker(update.worldCharacterID, update.type);
     },
   });
   listenToSocketioEvent<WorldPositionUpdate>({
