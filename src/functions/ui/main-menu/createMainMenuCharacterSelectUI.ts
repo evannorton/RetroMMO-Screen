@@ -127,7 +127,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       if (condition()) {
         const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
         return (
-          mainMenuState.values.mainMenuCharacterIDs.length > 0 &&
+          mainMenuState.values.mainMenuCharacterIDs.length > 1 &&
           getMainMenuCharacterSelectState().values
             .mainMenuCharacterIDToDelete === null
         );
