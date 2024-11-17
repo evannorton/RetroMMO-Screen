@@ -6,9 +6,7 @@ import {
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
-  createButton,
   createLabel,
-  createSprite,
   emitToSocketioServer,
   getGameHeight,
   getGameWidth,
@@ -17,6 +15,7 @@ import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
 import { SkinColor } from "../../../classes/SkinColor";
 import { createCharacterSprite } from "../components/createCharacterSprite";
+import { createClickableImage } from "../components/createClickableImage";
 import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
@@ -80,48 +79,19 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 0,
   });
   // Back arrow
-  const backX: number = 16;
-  const backY: number = 16;
-  const backWidth: number = 14;
-  const backHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: backHeight,
-            sourceHeight: backHeight,
-            sourceWidth: backWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: backWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: backX,
-      y: backY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: backX,
-      y: backY,
-    },
-    height: backHeight,
     onClick: (): void => {
       getMainMenuState().setValues({
         characterCreateState: createMainMenuCharacterCreateState(),
         characterCustomizeState: null,
       });
     },
-    width: backWidth,
+    width: 14,
+    x: 16,
+    y: 16,
   });
   // Class name
   createLabel({
@@ -169,41 +139,10 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     skinColorID: (): string => getSkinColor().id,
   });
   // Preview left arrow
-  const previewLeftX: number = 98;
-  const previewLeftY: number = 75;
-  const previewLeftWidth: number = 14;
-  const previewLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: previewLeftHeight,
-            sourceHeight: previewLeftHeight,
-            sourceWidth: previewLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: previewLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: previewLeftX,
-      y: previewLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: previewLeftX,
-      y: previewLeftY,
-    },
-    height: previewLeftHeight,
     onClick: (): void => {
       switch (getMainMenuCharacterCustomizeState().values.direction) {
         case Direction.Down:
@@ -228,44 +167,15 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
           break;
       }
     },
-    width: previewLeftWidth,
+    width: 14,
+    x: 98,
+    y: 75,
   });
   // Preview right arrow
-  const previewRightX: number = 192;
-  const previewRightY: number = 75;
-  const previewRightWidth: number = 14;
-  const previewRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: previewRightHeight,
-            sourceHeight: previewRightHeight,
-            sourceWidth: previewRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: previewRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: previewRightX,
-      y: previewRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: previewRightX,
-      y: previewRightY,
-    },
-    height: previewRightHeight,
     onClick: (): void => {
       switch (getMainMenuCharacterCustomizeState().values.direction) {
         case Direction.Down:
@@ -290,48 +200,21 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
           break;
       }
     },
-    width: previewRightWidth,
+    width: 14,
+    x: 192,
+    y: 75,
   });
   // Figure left arrow
-  const figureLeftX: number = 98;
-  const figureLeftY: number = 101;
-  const figureLeftWidth: number = 14;
-  const figureLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: figureLeftHeight,
-            sourceHeight: figureLeftHeight,
-            sourceWidth: figureLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: figureLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: figureLeftX,
-      y: figureLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: figureLeftX,
-      y: figureLeftY,
-    },
-    height: figureLeftHeight,
     onClick: (): void => {
-      getClass().goToNextCharacterCustomizeFigure();
+      getClass().goToPreviousCharacterCustomizeFigure();
     },
-    width: figureLeftWidth,
+    width: 14,
+    x: 98,
+    y: 101,
   });
   // Figure label
   createLabel({
@@ -348,86 +231,28 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Figure" },
   });
   // Figure right arrow
-  const figureRightX: number = 192;
-  const figureRightY: number = 101;
-  const figureRightWidth: number = 14;
-  const figureRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: figureRightHeight,
-            sourceHeight: figureRightHeight,
-            sourceWidth: figureRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: figureRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: figureRightX,
-      y: figureRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: figureRightX,
-      y: figureRightY,
-    },
-    height: figureRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeFigure();
     },
-    width: figureRightWidth,
+    width: 14,
+    x: 192,
+    y: 101,
   });
   // Head left arrow
-  const maskLeftX: number = 36;
-  const maskLeftY: number = 127;
-  const maskLeftWidth: number = 14;
-  const maskLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: maskLeftHeight,
-            sourceHeight: maskLeftHeight,
-            sourceWidth: maskLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: maskLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: maskLeftX,
-      y: maskLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: maskLeftX,
-      y: maskLeftY,
-    },
-    height: maskLeftHeight,
     onClick: (): void => {
       getClass().goToPreviousCharacterCustomizeMaskItem();
     },
-    width: maskLeftWidth,
+    width: 14,
+    x: 36,
+    y: 127,
   });
   // Head label
   createLabel({
@@ -444,86 +269,28 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Head" },
   });
   // Head right arrow
-  const maskRightX: number = 130;
-  const maskRightY: number = 127;
-  const maskRightWidth: number = 14;
-  const maskRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: maskRightHeight,
-            sourceHeight: maskRightHeight,
-            sourceWidth: maskRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: maskRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: maskRightX,
-      y: maskRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: maskRightX,
-      y: maskRightY,
-    },
-    height: maskRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeMaskItem();
     },
-    width: maskRightWidth,
+    width: 14,
+    x: 130,
+    y: 127,
   });
   // Body left arrow
-  const outfitLeftX: number = 160;
-  const outfitLeftY: number = 127;
-  const outfitLeftWidth: number = 14;
-  const outfitLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: outfitLeftHeight,
-            sourceHeight: outfitLeftHeight,
-            sourceWidth: outfitLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: outfitLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: outfitLeftX,
-      y: outfitLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: outfitLeftX,
-      y: outfitLeftY,
-    },
-    height: outfitLeftHeight,
     onClick: (): void => {
       getClass().goToPreviousCharacterCustomizeOutfitItem();
     },
-    width: outfitLeftWidth,
+    width: 14,
+    x: 160,
+    y: 127,
   });
   // Body label
   createLabel({
@@ -540,86 +307,28 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Body" },
   });
   // Body right arrow
-  const outfitRightX: number = 254;
-  const outfitRightY: number = 127;
-  const outfitRightWidth: number = 14;
-  const outfitRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: outfitRightHeight,
-            sourceHeight: outfitRightHeight,
-            sourceWidth: outfitRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: outfitRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: outfitRightX,
-      y: outfitRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: outfitRightX,
-      y: outfitRightY,
-    },
-    height: outfitRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeOutfitItem();
     },
-    width: outfitRightWidth,
+    width: 14,
+    x: 254,
+    y: 127,
   });
   // Hair dye left arrow
-  const hairLeftX: number = 36;
-  const hairLeftY: number = 153;
-  const hairLeftWidth: number = 14;
-  const hairLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: hairLeftHeight,
-            sourceHeight: hairLeftHeight,
-            sourceWidth: hairLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: hairLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: hairLeftX,
-      y: hairLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: hairLeftX,
-      y: hairLeftY,
-    },
-    height: hairLeftHeight,
     onClick: (): void => {
       getClass().goToPreviousCharacterCustomizeHairDyeItem();
     },
-    width: hairLeftWidth,
+    width: 14,
+    x: 36,
+    y: 153,
   });
   // Hair dye label
   createLabel({
@@ -636,86 +345,28 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Hair" },
   });
   // Hair dye right arrow
-  const hairRightX: number = 130;
-  const hairRightY: number = 153;
-  const hairRightWidth: number = 14;
-  const hairRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: hairRightHeight,
-            sourceHeight: hairRightHeight,
-            sourceWidth: hairRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: hairRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: hairRightX,
-      y: hairRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: hairRightX,
-      y: hairRightY,
-    },
-    height: hairRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeHairDyeItem();
     },
-    width: hairRightWidth,
+    width: 14,
+    x: 130,
+    y: 153,
   });
   // Clothes dye primary left arrow
-  const clothesDyePrimaryLeftX: number = 160;
-  const clothesDyePrimaryLeftY: number = 153;
-  const clothesDyePrimaryLeftWidth: number = 14;
-  const clothesDyePrimaryLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: clothesDyePrimaryLeftHeight,
-            sourceHeight: clothesDyePrimaryLeftHeight,
-            sourceWidth: clothesDyePrimaryLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: clothesDyePrimaryLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: clothesDyePrimaryLeftX,
-      y: clothesDyePrimaryLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: clothesDyePrimaryLeftX,
-      y: clothesDyePrimaryLeftY,
-    },
-    height: clothesDyePrimaryLeftHeight,
     onClick: (): void => {
       getClass().goToPreviousCharacterCustomizeClothesDyeItemPrimaryColor();
     },
-    width: clothesDyePrimaryLeftWidth,
+    width: 14,
+    x: 160,
+    y: 153,
   });
   // Clothes dye primary label
   createLabel({
@@ -732,86 +383,28 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Primary" },
   });
   // Clothes dye primary right arrow
-  const clothesDyePrimaryRightX: number = 254;
-  const clothesDyePrimaryRightY: number = 153;
-  const clothesDyePrimaryRightWidth: number = 14;
-  const clothesDyePrimaryRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: clothesDyePrimaryRightHeight,
-            sourceHeight: clothesDyePrimaryRightHeight,
-            sourceWidth: clothesDyePrimaryRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: clothesDyePrimaryRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: clothesDyePrimaryRightX,
-      y: clothesDyePrimaryRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: clothesDyePrimaryRightX,
-      y: clothesDyePrimaryRightY,
-    },
-    height: clothesDyePrimaryRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeClothesDyeItemPrimaryColor();
     },
-    width: clothesDyePrimaryRightWidth,
+    width: 14,
+    x: 254,
+    y: 153,
   });
   // Skin color left arrow
-  const skinLeftX: number = 36;
-  const skinLeftY: number = 179;
-  const skinLeftWidth: number = 14;
-  const skinLeftHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: skinLeftHeight,
-            sourceHeight: skinLeftHeight,
-            sourceWidth: skinLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: skinLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: skinLeftX,
-      y: skinLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: skinLeftX,
-      y: skinLeftY,
-    },
-    height: skinLeftHeight,
     onClick: (): void => {
       getClass().goToPreviousCharacterCustomizeSkinColor();
     },
-    width: skinLeftWidth,
+    width: 14,
+    x: 36,
+    y: 179,
   });
   // Skin color label
   createLabel({
@@ -828,86 +421,28 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Skin" },
   });
   // Skin color right arrow
-  const skinRightX: number = 130;
-  const skinRightY: number = 179;
-  const skinRightWidth: number = 14;
-  const skinRightHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: skinRightHeight,
-            sourceHeight: skinRightHeight,
-            sourceWidth: skinRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: skinRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: skinRightX,
-      y: skinRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: skinRightX,
-      y: skinRightY,
-    },
-    height: skinRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeSkinColor();
     },
-    width: skinRightWidth,
+    width: 14,
+    x: 130,
+    y: 179,
   });
-  const clothesDyeSecondaryLeftX: number = 160;
-  const clothesDyeSecondaryLeftY: number = 179;
-  const clothesDyeSecondaryLeftWidth: number = 14;
-  const clothesDyeSecondaryLeftHeight: number = 14;
   // Clothes dye secondary left arrow
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: clothesDyeSecondaryLeftHeight,
-            sourceHeight: clothesDyeSecondaryLeftHeight,
-            sourceWidth: clothesDyeSecondaryLeftWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: clothesDyeSecondaryLeftWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: clothesDyeSecondaryLeftX,
-      y: clothesDyeSecondaryLeftY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: clothesDyeSecondaryLeftX,
-      y: clothesDyeSecondaryLeftY,
-    },
-    height: clothesDyeSecondaryLeftHeight,
     onClick: (): void => {
       getClass().goToPreviousCharacterCustomizeClothesDyeItemSecondaryColor();
     },
-    width: clothesDyeSecondaryLeftWidth,
+    width: 14,
+    x: 160,
+    y: 179,
   });
   // Clothes dye secondary label
   createLabel({
@@ -923,46 +458,17 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     size: 1,
     text: { value: "Secondary" },
   });
-  const clothesDyeSecondaryRightX: number = 254;
-  const clothesDyeSecondaryRightY: number = 179;
-  const clothesDyeSecondaryRightWidth: number = 14;
-  const clothesDyeSecondaryRightHeight: number = 14;
   // Clothes dye secondary right arrow
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: clothesDyeSecondaryRightHeight,
-            sourceHeight: clothesDyeSecondaryRightHeight,
-            sourceWidth: clothesDyeSecondaryRightWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: clothesDyeSecondaryRightWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: clothesDyeSecondaryRightX,
-      y: clothesDyeSecondaryRightY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: clothesDyeSecondaryRightX,
-      y: clothesDyeSecondaryRightY,
-    },
-    height: clothesDyeSecondaryRightHeight,
     onClick: (): void => {
       getClass().goToNextCharacterCustomizeClothesDyeItemSecondaryColor();
     },
-    width: clothesDyeSecondaryRightWidth,
+    width: 14,
+    x: 254,
+    y: 179,
   });
   // Finish button
   createPressableButton({

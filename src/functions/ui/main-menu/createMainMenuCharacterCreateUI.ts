@@ -1,13 +1,8 @@
 import { Class } from "../../../classes/Class";
 import { Color, Direction } from "retrommo-types";
-import {
-  createButton,
-  createLabel,
-  createSprite,
-  getGameHeight,
-  getGameWidth,
-} from "pixel-pigeon";
 import { createCharacterSprite } from "../components/createCharacterSprite";
+import { createClickableImage } from "../components/createClickableImage";
+import { createLabel, getGameHeight, getGameWidth } from "pixel-pigeon";
 import { createMainMenuCharacterCustomizeState } from "../../state/main-menu/createMainMenuCharacterCustomizeState";
 import { createMainMenuCharacterSelectState } from "../../state/main-menu/createMainMenuCharacterSelectState";
 import { createPanel } from "../components/createPanel";
@@ -30,48 +25,19 @@ export const createMainMenuCharacterCreateUI = (): void => {
     y: 0,
   });
   // Back arrow
-  const backX: number = 16;
-  const backY: number = 16;
-  const backWidth: number = 14;
-  const backHeight: number = 14;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: backHeight,
-            sourceHeight: backHeight,
-            sourceWidth: backWidth,
-            sourceX: 0,
-            sourceY: 0,
-            width: backWidth,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: backX,
-      y: backY,
-    },
+  createClickableImage({
+    condition,
+    height: 14,
     imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: backX,
-      y: backY,
-    },
-    height: backHeight,
     onClick: (): void => {
       getMainMenuState().setValues({
         characterCreateState: null,
         characterSelectState: createMainMenuCharacterSelectState(0),
       });
     },
-    width: backWidth,
+    width: 14,
+    x: 16,
+    y: 16,
   });
   // Title text
   createLabel({

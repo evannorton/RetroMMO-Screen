@@ -5,8 +5,12 @@ import {
   emitToSocketioServer,
   takeScreenshot,
 } from "pixel-pigeon";
+import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
+import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
+import { npcDialogueWorldMenu } from "./world-menus/npcDialogueWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
 
+const canWalk = (): boolean => npcDialogueWorldMenu.isOpen() === false;
 const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
   name: "Screenshot",
@@ -182,13 +186,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveLeftWASDInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "KeyA",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "KeyA",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -200,13 +206,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveLeftArrowInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "ArrowLeft",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "ArrowLeft",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -218,13 +226,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveLeftNumpadInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "Numpad4",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "Numpad4",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -236,13 +246,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveRightWASDInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "KeyD",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "KeyD",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -254,13 +266,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveRightArrowInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "ArrowRight",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "ArrowRight",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -272,13 +286,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveRightNumpadInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "Numpad6",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "Numpad6",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -290,13 +306,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveUpWASDInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "KeyW",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "KeyW",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -308,13 +326,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveUpArrowInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "ArrowUp",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "ArrowUp",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -326,13 +346,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveUpNumpadInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "Numpad8",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "Numpad8",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -344,13 +366,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveDownWASDInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "KeyS",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "KeyS",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -362,13 +386,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveDownArrowInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "ArrowDown",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "ArrowDown",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -380,13 +406,15 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: moveDownNumpadInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "Numpad2",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "Numpad2",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -398,10 +426,14 @@ createInputPressHandler({
 createInputPressHandler({
   inputCollectionID: actionInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {},
-      event: "legacy/action",
-    });
+    if (isAWorldMenuOpen()) {
+      closeWorldMenus();
+    } else {
+      emitToSocketioServer({
+        data: {},
+        event: "legacy/action",
+      });
+    }
   },
 });
 createInputPressHandler({

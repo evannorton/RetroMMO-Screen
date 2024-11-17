@@ -1,14 +1,10 @@
 import { Color, Direction, ResourcePool } from "retrommo-types";
-import {
-  State,
-  createButton,
-  createSprite,
-  emitToSocketioServer,
-} from "pixel-pigeon";
+import { State, createButton, emitToSocketioServer } from "pixel-pigeon";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../../state";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createCharacterSprite } from "../components/createCharacterSprite";
+import { createClickableImage } from "../components/createClickableImage";
 import { createPanel } from "../components/createPanel";
 import { createResourceBar } from "../components/createResourceBar";
 import { getConstants } from "../../getConstants";
@@ -153,37 +149,10 @@ export const createWorldBottomBarUI = (): void => {
     condition() &&
     getDefinable(WorldCharacter, getWorldState().values.worldCharacterID).party
       .worldCharacters.length > 1;
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 11,
-            sourceHeight: 11,
-            sourceWidth: 10,
-            sourceX: 0,
-            sourceY: 0,
-            width: 10,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition: leavePartyCondition,
-      x: 192,
-      y: 219,
-    },
-    imagePath: "x",
-  });
-  createButton({
-    coordinates: {
-      condition: leavePartyCondition,
-      x: 192,
-      y: 219,
-    },
+  createClickableImage({
+    condition: leavePartyCondition,
     height: 11,
+    imagePath: "x",
     onClick: (): void => {
       emitToSocketioServer({
         data: {},
@@ -191,6 +160,8 @@ export const createWorldBottomBarUI = (): void => {
       });
     },
     width: 10,
+    x: 192,
+    y: 219,
   });
   // Stats icon
   createBottomBarIcon({

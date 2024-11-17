@@ -1,6 +1,7 @@
 import { WorldExitToMainMenuRequest } from "retrommo-types";
-import { createButton, createSprite, emitToSocketioServer } from "pixel-pigeon";
+import { createClickableImage } from "../components/createClickableImage";
 import { createPanel } from "../components/createPanel";
+import { emitToSocketioServer } from "pixel-pigeon";
 import { state } from "../../../state";
 
 export const createWorldLogoutUI = (): void => {
@@ -13,37 +14,10 @@ export const createWorldLogoutUI = (): void => {
     x: 256,
     y: 0,
   });
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 14,
-            sourceHeight: 14,
-            sourceWidth: 28,
-            sourceX: 0,
-            sourceY: 0,
-            width: 28,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: 266,
-      y: 5,
-    },
-    imagePath: "arrows/logout",
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x: 266,
-      y: 5,
-    },
+  createClickableImage({
+    condition,
     height: 14,
+    imagePath: "arrows/logout",
     onClick: (): void => {
       emitToSocketioServer<WorldExitToMainMenuRequest>({
         data: {},
@@ -51,5 +25,7 @@ export const createWorldLogoutUI = (): void => {
       });
     },
     width: 28,
+    x: 266,
+    y: 5,
   });
 };

@@ -14,6 +14,7 @@ import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
 import { getInteractableEntityCollidable } from "../../getInteractableEntityCollidable";
 import { getWorldState } from "../../state/getWorldState";
+import { isAWorldMenuOpen } from "../../world-menus/isAWorldMenuOpen";
 import { state } from "../../../state";
 
 export const createWorldInteractUI = (): void => {
@@ -25,12 +26,14 @@ export const createWorldInteractUI = (): void => {
         WorldCharacter,
         getWorldState().values.worldCharacterID,
       );
-      if (
-        worldCharacter.hasMovedAt() === false ||
-        getCurrentTime() - worldCharacter.movedAt >=
-          constants["movement-duration"]
-      ) {
-        return getInteractableEntityCollidable() !== null;
+      if (isAWorldMenuOpen() === false) {
+        if (
+          worldCharacter.hasMovedAt() === false ||
+          getCurrentTime() - worldCharacter.movedAt >=
+            constants["movement-duration"]
+        ) {
+          return getInteractableEntityCollidable() !== null;
+        }
       }
     }
     return false;

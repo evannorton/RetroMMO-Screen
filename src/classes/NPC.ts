@@ -34,6 +34,13 @@ export class NPC extends Definable {
     return this._actorImagePath;
   }
 
+  public get dialogue(): string {
+    if (this._dialogue !== undefined) {
+      return this._dialogue;
+    }
+    throw new Error(this.getAccessorErrorMessage("dialogue"));
+  }
+
   public get direction(): Direction {
     return this._direction;
   }

@@ -10,9 +10,7 @@ import {
 import {
   CreateLabelOptionsText,
   State,
-  createButton,
   createLabel,
-  createSprite,
   emitToSocketioServer,
   getGameHeight,
   getGameWidth,
@@ -24,6 +22,7 @@ import {
   state,
 } from "../../../state";
 import { createCharacterSprite } from "../components/createCharacterSprite";
+import { createClickableImage } from "../components/createClickableImage";
 import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
@@ -307,38 +306,11 @@ export const createMainMenuCharacterSelectUI = (): void => {
     const playY: number = 71 + 42 * Math.floor(i / 2);
     const playWidth: number = 10;
     const playHeight: number = 12;
-    createSprite({
-      animationID: "default",
-      animations: [
-        {
-          frames: [
-            {
-              height: playHeight,
-              sourceHeight: playHeight,
-              sourceWidth: playWidth,
-              sourceX: 0,
-              sourceY: 0,
-              width: playWidth,
-            },
-          ],
-          id: "default",
-        },
-      ],
-      coordinates: {
-        condition: playCondition,
-        x: playX,
-        y: playY,
-      },
+    createClickableImage({
+      condition: playCondition,
+      height: playHeight,
       imagePath: (): string =>
         canPlayCharacter() ? "arrows/green" : "arrows/right-small",
-    });
-    createButton({
-      coordinates: {
-        condition: playCondition,
-        x: playX,
-        y: playY,
-      },
-      height: playHeight,
       onClick: (): void => {
         const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
         const index: number = getOffsetIndex(i);
@@ -359,47 +331,18 @@ export const createMainMenuCharacterSelectUI = (): void => {
         }
       },
       width: playWidth,
+      x: playX,
+      y: playY,
     });
     // Sort left arrow
     const sortCondition = (): boolean =>
       characterCondition() &&
       getMainMenuCharacterSelectState().values.isSorting &&
       canPlayCharacter();
-    const sortLeftX: number = i % 2 === 0 ? 114 : 250;
-    const sortLeftY: number = 71 + 42 * Math.floor(i / 2);
-    const sortLeftWidth: number = 10;
-    const sortLeftHeight: number = 12;
-    createSprite({
-      animationID: "default",
-      animations: [
-        {
-          frames: [
-            {
-              height: sortLeftHeight,
-              sourceHeight: sortLeftHeight,
-              sourceWidth: sortLeftWidth,
-              sourceX: 0,
-              sourceY: 0,
-              width: sortLeftWidth,
-            },
-          ],
-          id: "default",
-        },
-      ],
-      coordinates: {
-        condition: sortCondition,
-        x: sortLeftX,
-        y: sortLeftY,
-      },
+    createClickableImage({
+      condition: sortCondition,
+      height: 12,
       imagePath: "arrows/left-small",
-    });
-    createButton({
-      coordinates: {
-        condition: sortCondition,
-        x: sortLeftX,
-        y: sortLeftY,
-      },
-      height: sortLeftHeight,
       onClick: (): void => {
         const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
         const mainMenuCharacterID: string | undefined =
@@ -412,44 +355,15 @@ export const createMainMenuCharacterSelectUI = (): void => {
           event: "main-menu/character-select/sort-character-left",
         });
       },
-      width: sortLeftWidth,
+      width: 10,
+      x: i % 2 === 0 ? 114 : 250,
+      y: 71 + 42 * Math.floor(i / 2),
     });
     // Sort right arrow
-    const sortRightX: number = i % 2 === 0 ? 129 : 265;
-    const sortRightY: number = 71 + 42 * Math.floor(i / 2);
-    const sortRightWidth: number = 10;
-    const sortRightHeight: number = 12;
-    createSprite({
-      animationID: "default",
-      animations: [
-        {
-          frames: [
-            {
-              height: sortRightHeight,
-              sourceHeight: sortRightHeight,
-              sourceWidth: sortRightWidth,
-              sourceX: 0,
-              sourceY: 0,
-              width: sortRightWidth,
-            },
-          ],
-          id: "default",
-        },
-      ],
-      coordinates: {
-        condition: sortCondition,
-        x: sortRightX,
-        y: sortRightY,
-      },
+    createClickableImage({
+      condition: sortCondition,
+      height: 12,
       imagePath: "arrows/right-small",
-    });
-    createButton({
-      coordinates: {
-        condition: sortCondition,
-        x: sortRightX,
-        y: sortRightY,
-      },
-      height: sortRightHeight,
       onClick: (): void => {
         const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
         const mainMenuCharacterID: string | undefined =
@@ -462,7 +376,9 @@ export const createMainMenuCharacterSelectUI = (): void => {
           event: "main-menu/character-select/sort-character-right",
         });
       },
-      width: sortRightWidth,
+      width: 10,
+      x: i % 2 === 0 ? 129 : 265,
+      y: 71 + 42 * Math.floor(i / 2),
     });
     // Delete X
     const deleteButtonCondition = (): boolean => {
@@ -480,41 +396,10 @@ export const createMainMenuCharacterSelectUI = (): void => {
       }
       return false;
     };
-    const deleteButtonX: number = i % 2 === 0 ? 125 : 261;
-    const deleteButtonY: number = 72 + 42 * Math.floor(i / 2);
-    const deleteButtonWidth: number = 10;
-    const deleteButtonHeight: number = 11;
-    createSprite({
-      animationID: "default",
-      animations: [
-        {
-          frames: [
-            {
-              height: deleteButtonHeight,
-              sourceHeight: deleteButtonHeight,
-              sourceWidth: deleteButtonWidth,
-              sourceX: 0,
-              sourceY: 0,
-              width: deleteButtonWidth,
-            },
-          ],
-          id: "default",
-        },
-      ],
-      coordinates: {
-        condition: deleteButtonCondition,
-        x: deleteButtonX,
-        y: deleteButtonY,
-      },
+    createClickableImage({
+      condition: deleteButtonCondition,
+      height: 11,
       imagePath: "x",
-    });
-    createButton({
-      coordinates: {
-        condition: deleteButtonCondition,
-        x: deleteButtonX,
-        y: deleteButtonY,
-      },
-      height: deleteButtonHeight,
       onClick: (): void => {
         const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
         const characterSelectState: State<MainMenuCharacterSelectStateSchema> =
@@ -528,7 +413,9 @@ export const createMainMenuCharacterSelectUI = (): void => {
               : null,
         });
       },
-      width: deleteButtonWidth,
+      width: 10,
+      x: i % 2 === 0 ? 125 : 261,
+      y: 72 + 42 * Math.floor(i / 2),
     });
   }
   // Page number
@@ -558,77 +445,27 @@ export const createMainMenuCharacterSelectUI = (): void => {
     }),
   });
   // Page left arrow
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 14,
-            sourceHeight: 14,
-            sourceWidth: 14,
-            sourceX: 0,
-            sourceY: 0,
-            width: 14,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition: paginationCondition,
-      x: 204,
-      y: 202,
-    },
-    imagePath: "arrows/left",
-  });
-  createButton({
-    coordinates: {
-      condition: paginationCondition,
-      x: 204,
-      y: 202,
-    },
+  createClickableImage({
+    condition: paginationCondition,
     height: 14,
+    imagePath: "arrows/left",
     onClick: (): void => {
       page(-1);
     },
     width: 14,
+    x: 204,
+    y: 202,
   });
   // Page right arrow
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 14,
-            sourceHeight: 14,
-            sourceWidth: 14,
-            sourceX: 0,
-            sourceY: 0,
-            width: 14,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition: paginationCondition,
-      x: 222,
-      y: 202,
-    },
-    imagePath: "arrows/right",
-  });
-  createButton({
-    coordinates: {
-      condition: paginationCondition,
-      x: 222,
-      y: 202,
-    },
+  createClickableImage({
+    condition: paginationCondition,
     height: 14,
+    imagePath: "arrows/right",
     onClick: (): void => {
       page(1);
     },
     width: 14,
+    x: 222,
+    y: 202,
   });
 };

@@ -11,6 +11,7 @@ import {
   WorldExitToMainMenuUpdate,
   WorldMarkerUpdate,
   WorldMoveCharactersUpdate,
+  WorldNPCDialogueUpdate,
   WorldOpenBankUpdate,
   WorldOpenChestUpdate,
   WorldPartyChangesUpdate,
@@ -40,6 +41,7 @@ import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
+import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
@@ -48,6 +50,7 @@ import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
+import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { resetParty } from "../resetParty";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { state } from "../../state";
@@ -283,6 +286,13 @@ export const listenForWorldUpdates = (): void => {
         }
         worldCharacter.movedAt = getCurrentTime();
       }
+    },
+  });
+  listenToSocketioEvent<WorldNPCDialogueUpdate>({
+    event: "world/npc-dialogue",
+    onMessage: (update: WorldNPCDialogueUpdate): void => {
+      closeWorldMenus();
+      npcDialogueWorldMenu.open({ npcID: update.npcID });
     },
   });
   listenToSocketioEvent<WorldOpenBankUpdate>({
