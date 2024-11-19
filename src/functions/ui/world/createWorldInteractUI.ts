@@ -2,7 +2,6 @@ import { Constants } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   EntityCollidable,
-  emitToSocketioServer,
   getCurrentTime,
   getEntityFieldValue,
 } from "pixel-pigeon";
@@ -14,6 +13,7 @@ import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
 import { getInteractableEntityCollidable } from "../../getInteractableEntityCollidable";
 import { getWorldState } from "../../state/getWorldState";
+import { interact } from "../../interact";
 import { isAWorldMenuOpen } from "../../world-menus/isAWorldMenuOpen";
 import { state } from "../../../state";
 
@@ -52,10 +52,7 @@ export const createWorldInteractUI = (): void => {
     height: 16,
     imagePath: "pressable-buttons/gray",
     onClick: (): void => {
-      emitToSocketioServer({
-        data: {},
-        event: "legacy/action",
-      });
+      interact();
     },
     text: (): CreateLabelOptionsText => {
       const entityCollidable: EntityCollidable | null =

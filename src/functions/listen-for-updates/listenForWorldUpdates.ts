@@ -11,7 +11,6 @@ import {
   WorldExitToMainMenuUpdate,
   WorldMarkerUpdate,
   WorldMoveCharactersUpdate,
-  WorldNPCDialogueUpdate,
   WorldOpenBankUpdate,
   WorldOpenChestUpdate,
   WorldPartyChangesUpdate,
@@ -41,13 +40,13 @@ import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
-import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { getConstants } from "../getConstants";
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
+import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
@@ -288,13 +287,6 @@ export const listenForWorldUpdates = (): void => {
       }
     },
   });
-  listenToSocketioEvent<WorldNPCDialogueUpdate>({
-    event: "world/npc-dialogue",
-    onMessage: (update: WorldNPCDialogueUpdate): void => {
-      closeWorldMenus();
-      npcDialogueWorldMenu.open({ npcID: update.npcID });
-    },
-  });
   listenToSocketioEvent<WorldOpenBankUpdate>({
     event: "world/open-bank",
     onMessage: (update: WorldOpenBankUpdate): void => {
@@ -404,6 +396,9 @@ export const listenForWorldUpdates = (): void => {
       for (const worldPartyUpdate of update.parties) {
         loadWorldPartyUpdate(worldPartyUpdate);
       }
+      for (const worldNPCUpdate of update.npcs) {
+        loadWorldNPCUpdate(worldNPCUpdate);
+      }
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
           .entityID,
@@ -481,6 +476,13 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (update: WorldTurnNPCUpdate): void => {
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
+      if (update.wasInteracted === true) {
+        if (npc.hasDialogue()) {
+          npcDialogueWorldMenu.open({
+            npcID: npc.id,
+          });
+        }
+      }
     },
   });
 };

@@ -11,6 +11,7 @@ import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
+import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
@@ -85,6 +86,9 @@ export const listenForUpdates = (): void => {
           }
           for (const partyUpdate of update.world.parties) {
             loadWorldPartyUpdate(partyUpdate);
+          }
+          for (const npcUpdate of update.world.npcs) {
+            loadWorldNPCUpdate(npcUpdate);
           }
           selectWorldCharacter(update.world.worldCharacterID);
           break;

@@ -6,6 +6,7 @@ import {
   takeScreenshot,
 } from "pixel-pigeon";
 import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
+import { interact } from "./functions/interact";
 import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
 import { npcDialogueWorldMenu } from "./world-menus/npcDialogueWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
@@ -429,10 +430,7 @@ createInputPressHandler({
     if (isAWorldMenuOpen()) {
       closeWorldMenus();
     } else {
-      emitToSocketioServer({
-        data: {},
-        event: "legacy/action",
-      });
+      interact();
     }
   },
 });

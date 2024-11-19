@@ -17,6 +17,7 @@ import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterInd
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
+import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../../load-updates/loadWorldPartyUpdate";
 import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
 import { selectWorldCharacter } from "../../selectWorldCharacter";
@@ -73,6 +74,9 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       }
       for (const worldPartyUpdate of update.parties) {
         loadWorldPartyUpdate(worldPartyUpdate);
+      }
+      for (const worldNPCUpdate of update.npcs) {
+        loadWorldNPCUpdate(worldNPCUpdate);
       }
       selectWorldCharacter(update.worldCharacterID);
     },
