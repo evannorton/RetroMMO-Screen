@@ -18,6 +18,7 @@ import {
   MaskDefinition,
   NPCDefinition,
   OutfitDefinition,
+  PianoDefinition,
   SkinColorDefinition,
   TilemapDefinition,
   TilemapTileDefinition,
@@ -49,6 +50,7 @@ import { Item } from "../classes/Item";
 import { Mask } from "../classes/Mask";
 import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
+import { Piano } from "../classes/Piano";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "definables";
 import { state } from "../state";
@@ -260,6 +262,17 @@ export const loadGameData = async (): Promise<void> => {
         }
         case "Panel":
           break;
+        case "Piano":
+          {
+            const definition: PianoDefinition = (
+              gameData[className] as Record<string, PianoDefinition>
+            )[id] as PianoDefinition;
+            new Piano({
+              definition,
+              id,
+            });
+          }
+          break;
         case "Picture":
           break;
         case "Reachable":
@@ -370,10 +383,6 @@ export const loadGameData = async (): Promise<void> => {
           };
           addTiles("below");
           layers.push({
-            id: "combination-locks",
-            tiles: [],
-          });
-          layers.push({
             id: "banks",
             tiles: [],
           });
@@ -382,7 +391,15 @@ export const loadGameData = async (): Promise<void> => {
             tiles: [],
           });
           layers.push({
+            id: "combination-locks",
+            tiles: [],
+          });
+          layers.push({
             id: "npcs",
+            tiles: [],
+          });
+          layers.push({
+            id: "pianos",
             tiles: [],
           });
           layers.push({
@@ -413,10 +430,11 @@ export const loadGameData = async (): Promise<void> => {
             (row: readonly TilemapTileDefinition[], x: number): void => {
               row.forEach((tile: TilemapTileDefinition, y: number): void => {
                 const index: number | undefined =
-                  tile.npcIndex ??
                   tile.bankIndex ??
                   tile.chestIndex ??
-                  tile.combinationLockIndex;
+                  tile.combinationLockIndex ??
+                  tile.npcIndex ??
+                  tile.pianoIndex;
                 if (typeof index === "undefined") {
                   return;
                 }
@@ -436,21 +454,6 @@ export const loadGameData = async (): Promise<void> => {
                 const tilesetTile: TilesetTileDefinition | undefined =
                   tileset.tiles[tilesetX]?.[tilesetY];
                 if (typeof tilesetTile !== "undefined") {
-                  if (typeof tilesetTile.npcID !== "undefined") {
-                    state.setValues({
-                      initialNPCTilePositions: [
-                        ...state.values.initialNPCTilePositions,
-                        {
-                          levelID: id,
-                          npcID: tilesetTile.npcID,
-                          position: {
-                            x,
-                            y,
-                          },
-                        },
-                      ],
-                    });
-                  }
                   if (typeof tilesetTile.bankID !== "undefined") {
                     state.setValues({
                       initialBankTilePositions: [
@@ -488,6 +491,36 @@ export const loadGameData = async (): Promise<void> => {
                         {
                           combinationLockID: tilesetTile.combinationLockID,
                           levelID: id,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.npcID !== "undefined") {
+                    state.setValues({
+                      initialNPCTilePositions: [
+                        ...state.values.initialNPCTilePositions,
+                        {
+                          levelID: id,
+                          npcID: tilesetTile.npcID,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.pianoID !== "undefined") {
+                    state.setValues({
+                      initialPianoTilePositions: [
+                        ...state.values.initialPianoTilePositions,
+                        {
+                          levelID: id,
+                          pianoID: tilesetTile.pianoID,
                           position: {
                             x,
                             y,
@@ -534,7 +567,7 @@ export const loadGameData = async (): Promise<void> => {
                   );
                   tiles.push({
                     animationFrames,
-                    isCollidable: tile.collision,
+                    isCollidable: false,
                     tilesetX,
                     tilesetY,
                   });

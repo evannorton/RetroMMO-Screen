@@ -94,6 +94,9 @@ export const createWorldInteractUI = (): void => {
           }
           break;
         }
+        case "piano":
+          value = "Play";
+          break;
       }
       if (typeof value === "undefined") {
         throw new Error("No value.");

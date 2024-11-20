@@ -30,30 +30,6 @@ export const npcDialogueWorldMenu: WorldMenu<NPCDialogueWorldMenuOpenOptions> =
           y: 136,
         });
       // Close button
-      // new Picture(
-      //   "world/talked-npc/dialogue/close",
-      //   (): PictureOptions => ({
-      //     grayscale: false,
-      //     height: 11,
-      //     imageSourceID: "x",
-      //     recolors: [],
-      //     sourceHeight: 11,
-      //     sourceWidth: 10,
-      //     sourceX: 0,
-      //     sourceY: 0,
-      //     width: 10,
-      //     x: 263,
-      //     y: 143,
-      //   }),
-      //   (player: Player): boolean =>
-      //     player.hasTalkedNPC() &&
-      //     player.talkedNPCHasDialogue() &&
-      //     (player.party.hasPreparationStartedAt() === false ||
-      //       player.party.preparationIsOngoing() === false),
-      //   (player: Player): void => {
-      //     player.closeTalkedNPC();
-      //   },
-      // );
       const closeButtonHUDElementReferences: HUDElementReferences =
         createClickableImage({
           height: 11,

@@ -9,9 +9,11 @@ import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
 import { interact } from "./functions/interact";
 import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
 import { npcDialogueWorldMenu } from "./world-menus/npcDialogueWorldMenu";
+import { pianoWorldMenu } from "./world-menus/pianoWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
 
-const canWalk = (): boolean => npcDialogueWorldMenu.isOpen() === false;
+const canWalk = (): boolean =>
+  npcDialogueWorldMenu.isOpen() === false && pianoWorldMenu.isOpen() === false;
 const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
   name: "Screenshot",

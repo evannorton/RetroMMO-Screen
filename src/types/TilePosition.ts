@@ -26,3 +26,8 @@ export interface InitialNPCTilePosition {
   readonly npcID: string;
   readonly position: TilePosition;
 }
+export interface InitialPianoTilePosition {
+  readonly levelID: string;
+  readonly pianoID: string;
+  readonly position: TilePosition;
+}

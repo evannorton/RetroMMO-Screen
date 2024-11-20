@@ -5,6 +5,7 @@ import {
   InitialCombinationLockTilePosition,
   InitialNPCExtenderPosition,
   InitialNPCTilePosition,
+  InitialPianoTilePosition,
 } from "./types/TilePosition";
 import { State } from "pixel-pigeon";
 
@@ -48,6 +49,7 @@ interface StateSchema {
   initialCombinationLockTilePositions: readonly InitialCombinationLockTilePosition[];
   initialNPCExtenderPositions: readonly InitialNPCExtenderPosition[];
   initialNPCTilePositions: readonly InitialNPCTilePosition[];
+  initialPianoTilePositions: readonly InitialPianoTilePosition[];
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
   serverURL: string | null;
@@ -66,6 +68,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialCombinationLockTilePositions: [],
   initialNPCExtenderPositions: [],
   initialNPCTilePositions: [],
+  initialPianoTilePositions: [],
   isSubscribed: false,
   mainMenuState: null,
   serverURL: null,
