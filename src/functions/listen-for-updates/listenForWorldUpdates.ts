@@ -3,6 +3,7 @@ import { Chest } from "../../classes/Chest";
 import {
   Constants,
   Direction,
+  VanitySlot,
   WorldBonkUpdate,
   WorldCloseBankUpdate,
   WorldEmoteUpdate,
@@ -20,6 +21,7 @@ import {
   WorldTradeUpdate,
   WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
+  WorldVanityUpdate,
 } from "retrommo-types";
 import { Emote } from "../../classes/Emote";
 import {
@@ -334,7 +336,7 @@ export const listenForWorldUpdates = (): void => {
             partyWorldCharacter: WorldCharacter,
             partyWorldCharacterIndex: number,
           ): void => {
-            partyWorldCharacter.party = party;
+            partyWorldCharacter.partyID = party.id;
             const partyWorldCharacterJoined: boolean =
               oldPartyWorldCharacterIDs.includes(partyWorldCharacter.id) ===
               false;
@@ -482,6 +484,29 @@ export const listenForWorldUpdates = (): void => {
             npcID: npc.id,
           });
         }
+      }
+    },
+  });
+  listenToSocketioEvent<WorldVanityUpdate>({
+    event: "world/vanity",
+    onMessage: (update: WorldVanityUpdate): void => {
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        update.worldCharacterID,
+      );
+      switch (update.slot) {
+        case VanitySlot.ClothesDye:
+          worldCharacter.clothesDyeItemID = update.vanityItemID ?? null;
+          break;
+        case VanitySlot.HairDye:
+          worldCharacter.hairDyeItemID = update.vanityItemID ?? null;
+          break;
+        case VanitySlot.Mask:
+          worldCharacter.maskItemID = update.vanityItemID ?? null;
+          break;
+        case VanitySlot.Outfit:
+          worldCharacter.outfitItemID = update.vanityItemID ?? null;
+          break;
       }
     },
   });

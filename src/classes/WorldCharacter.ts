@@ -48,19 +48,19 @@ export interface WorldCharacterEmote {
 }
 export class WorldCharacter extends Definable {
   private readonly _classID: string;
-  private readonly _clothesDyeItemID: string | null;
+  private _clothesDyeItemID: string | null;
   private _direction: Direction;
   private _emote: WorldCharacterEmote | null = null;
   private _entityID: string | null = null;
   private readonly _figureID: string;
-  private readonly _hairDyeItemID: string | null;
+  private _hairDyeItemID: string | null;
   private readonly _level: number;
   private _markerEntityID: string | null = null;
-  private readonly _maskItemID: string | null;
+  private _maskItemID: string | null;
   private _movedAt: number | null = null;
   private _openedChestIDs: readonly string[] | null;
   private _order: number;
-  private readonly _outfitItemID: string | null;
+  private _outfitItemID: string | null;
   private _partyID: string;
   private readonly _playerID: string;
   private _position: TilePosition;
@@ -116,6 +116,13 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("clothesDyeItem"));
   }
 
+  public get clothesDyeItemID(): string {
+    if (this._clothesDyeItemID !== null) {
+      return this._clothesDyeItemID;
+    }
+    throw new Error(this.getAccessorErrorMessage("clothesDyeItemID"));
+  }
+
   public get direction(): Direction {
     return this._direction;
   }
@@ -149,6 +156,13 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("hairDyeItem"));
   }
 
+  public get hairDyeItemID(): string {
+    if (this._hairDyeItemID !== null) {
+      return this._hairDyeItemID;
+    }
+    throw new Error(this.getAccessorErrorMessage("hairDyeItemID"));
+  }
+
   public get markerEntityID(): string {
     if (this._markerEntityID !== null) {
       return this._markerEntityID;
@@ -161,6 +175,13 @@ export class WorldCharacter extends Definable {
       return getDefinable(Item, this._maskItemID);
     }
     throw new Error(this.getAccessorErrorMessage("maskItem"));
+  }
+
+  public get maskItemID(): string {
+    if (this._maskItemID !== null) {
+      return this._maskItemID;
+    }
+    throw new Error(this.getAccessorErrorMessage("maskItemID"));
   }
 
   public get movedAt(): number {
@@ -188,8 +209,19 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("outfitItem"));
   }
 
+  public get outfitItemID(): string {
+    if (this._outfitItemID !== null) {
+      return this._outfitItemID;
+    }
+    throw new Error(this.getAccessorErrorMessage("outfitItemID"));
+  }
+
   public get party(): Party {
     return getDefinable(Party, this._partyID);
+  }
+
+  public get partyID(): string {
+    return this._partyID;
   }
 
   public get playerID(): string {
@@ -231,6 +263,10 @@ export class WorldCharacter extends Definable {
     return this._wasClicked;
   }
 
+  public set clothesDyeItemID(clothesDyeItemID: string | null) {
+    this._clothesDyeItemID = clothesDyeItemID;
+  }
+
   public set direction(direction: Direction) {
     this._direction = direction;
   }
@@ -243,8 +279,16 @@ export class WorldCharacter extends Definable {
     this._entityID = entityID;
   }
 
+  public set hairDyeItemID(hairDyeItemID: string | null) {
+    this._hairDyeItemID = hairDyeItemID;
+  }
+
   public set markerEntityID(markerEntityID: string | null) {
     this._markerEntityID = markerEntityID;
+  }
+
+  public set maskItemID(maskItemID: string | null) {
+    this._maskItemID = maskItemID;
   }
 
   public set movedAt(movedAt: number) {
@@ -259,8 +303,12 @@ export class WorldCharacter extends Definable {
     this._order = order;
   }
 
-  public set party(party: Party) {
-    this._partyID = party.id;
+  public set outfitItemID(outfitItemID: string | null) {
+    this._outfitItemID = outfitItemID;
+  }
+
+  public set partyID(partyID: string) {
+    this._partyID = partyID;
   }
 
   public set position(position: TilePosition) {

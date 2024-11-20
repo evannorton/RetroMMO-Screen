@@ -9,6 +9,10 @@ import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { createButton, createEntity } from "pixel-pigeon";
 import { createCharacterSprite } from "../ui/components/createCharacterSprite";
 import { getConstants } from "../getConstants";
+import { getDefaultedClothesDye } from "../defaulted-cosmetics/getDefaultedClothesDye";
+import { getDefaultedHairDye } from "../defaulted-cosmetics/getDefaultedHairDye";
+import { getDefaultedMask } from "../defaulted-cosmetics/getDefaultedMask";
+import { getDefaultedOutfit } from "../defaulted-cosmetics/getDefaultedOutfit";
 
 export const loadWorldCharacterUpdate = (
   worldCharacterUpdate: WorldCharacterUpdate,
@@ -71,7 +75,12 @@ export const loadWorldCharacterUpdate = (
     zIndex: worldCharacter.order,
   });
   createCharacterSprite({
-    clothesDyeID: (): string => worldCharacter.clothesDyeItem.clothesDyeID,
+    clothesDyeID: (): string =>
+      getDefaultedClothesDye(
+        worldCharacter.hasClothesDyeItem()
+          ? worldCharacter.clothesDyeItemID
+          : undefined,
+      ).id,
     direction: (): Direction => worldCharacter.direction,
     entity: {
       animationStartedAt: (): number | null =>
@@ -80,9 +89,22 @@ export const loadWorldCharacterUpdate = (
       step: (): Step => worldCharacter.step,
     },
     figureID: (): string => worldCharacter.figureID,
-    hairDyeID: (): string => worldCharacter.hairDyeItem.hairDyeID,
-    maskID: (): string => worldCharacter.maskItem.maskID,
-    outfitID: (): string => worldCharacter.outfitItem.outfitID,
+    hairDyeID: (): string =>
+      getDefaultedHairDye(
+        worldCharacter.hasHairDyeItem()
+          ? worldCharacter.hairDyeItemID
+          : undefined,
+      ).id,
+    maskID: (): string =>
+      getDefaultedMask(
+        worldCharacter.hasMaskItem() ? worldCharacter.maskItemID : undefined,
+      ).id,
+    outfitID: (): string =>
+      getDefaultedOutfit(
+        worldCharacter.hasOutfitItem()
+          ? worldCharacter.outfitItemID
+          : undefined,
+      ).id,
     skinColorID: (): string => worldCharacter.skinColorID,
   });
   if (typeof worldCharacterUpdate.marker !== "undefined") {
