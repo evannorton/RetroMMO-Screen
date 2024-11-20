@@ -15,4 +15,5 @@ export const pianoWorldMenu: WorldMenu<PianoWorldMenuOpenOptions> =
       });
       return mergeHUDElementReferences([panelHUDElementReferences]);
     },
+    preventsWalking: true,
   });

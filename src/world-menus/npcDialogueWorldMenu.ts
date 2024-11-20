@@ -81,4 +81,5 @@ export const npcDialogueWorldMenu: WorldMenu<NPCDialogueWorldMenuOpenOptions> =
         closeButtonHUDElementReferences,
       ]);
     },
+    preventsWalking: true,
   });
