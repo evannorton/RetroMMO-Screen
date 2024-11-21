@@ -2,6 +2,7 @@ import { Color, Direction, ResourcePool } from "retrommo-types";
 import { State, createButton, emitToSocketioServer } from "pixel-pigeon";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../../state";
+import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createClickableImage } from "../components/createClickableImage";
@@ -168,6 +169,7 @@ export const createWorldBottomBarUI = (): void => {
     condition,
     inputCollectionID: statsInputCollectionID,
     legacyOpen: (): void => {
+      closeWorldMenus();
       emitToSocketioServer({
         data: {},
         event: "legacy/open-stats",
@@ -183,6 +185,7 @@ export const createWorldBottomBarUI = (): void => {
     condition,
     inputCollectionID: spellbookInputCollectionID,
     legacyOpen: (): void => {
+      closeWorldMenus();
       emitToSocketioServer({
         data: {},
         event: "legacy/open-spellbook",
@@ -198,6 +201,7 @@ export const createWorldBottomBarUI = (): void => {
     condition,
     inputCollectionID: inventoryInputCollectionID,
     legacyOpen: (): void => {
+      closeWorldMenus();
       emitToSocketioServer({
         data: {},
         event: "legacy/open-inventory",

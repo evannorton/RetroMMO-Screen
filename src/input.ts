@@ -89,7 +89,6 @@ const moveDownNumpadInputCollectionID: string = createInputCollection({
 });
 const actionInputCollectionID: string = createInputCollection({
   keyboardButtons: [
-    { value: "KeyZ" },
     {
       value: "Space",
     },

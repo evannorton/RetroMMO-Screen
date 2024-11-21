@@ -19,18 +19,20 @@ export const npcDialogueWorldMenu: WorldMenu<NPCDialogueWorldMenuOpenOptions> =
       options: NPCDialogueWorldMenuOpenOptions,
     ): HUDElementReferences => {
       const labelIDs: string[] = [];
+      const hudElementReferences: HUDElementReferences[] = [];
       const npc: NPC = getDefinable(NPC, options.npcID);
       // Background panel
-      const backgroundPanelHUDElementReferences: HUDElementReferences =
+      hudElementReferences.push(
         createPanel({
           height: 62,
           imagePath: "panels/basic",
           width: 256,
           x: 24,
           y: 136,
-        });
+        }),
+      );
       // Close button
-      const closeButtonHUDElementReferences: HUDElementReferences =
+      hudElementReferences.push(
         createClickableImage({
           height: 11,
           imagePath: "x",
@@ -40,7 +42,8 @@ export const npcDialogueWorldMenu: WorldMenu<NPCDialogueWorldMenuOpenOptions> =
           width: 10,
           x: 263,
           y: 143,
-        });
+        }),
+      );
       // Name
       labelIDs.push(
         createLabel({
@@ -75,11 +78,7 @@ export const npcDialogueWorldMenu: WorldMenu<NPCDialogueWorldMenuOpenOptions> =
           },
         }),
       );
-      return mergeHUDElementReferences([
-        { labelIDs },
-        backgroundPanelHUDElementReferences,
-        closeButtonHUDElementReferences,
-      ]);
+      return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
     },
     preventsWalking: true,
   });
