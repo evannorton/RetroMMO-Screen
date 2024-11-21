@@ -4,14 +4,13 @@ import { CombinationLock } from "../classes/CombinationLock";
 import { Constants, Direction } from "retrommo-types";
 import { NPC } from "../classes/NPC";
 import { Piano } from "../classes/Piano";
-import { State, createEntity, createSprite } from "pixel-pigeon";
-import { WorldCharacter } from "../classes/WorldCharacter";
-import { WorldStateSchema, state } from "../state";
 import { bankToggleDuration } from "../constants/bankToggleDuration";
 import { chestOpenDuration } from "../constants/chestOpenDuration";
+import { createEntity, createSprite } from "pixel-pigeon";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
-import { getWorldState } from "./state/getWorldState";
+import { hasOpenedChest } from "./hasOpenedChest";
+import { state } from "../state";
 
 export const processEntitiesInitialPositions = (): void => {
   const constants: Constants = getConstants();
@@ -160,17 +159,7 @@ export const processEntitiesInitialPositions = (): void => {
           condition: (): boolean => state.values.worldState !== null,
           spriteID: createSprite({
             animationID: (): string => {
-              const worldState: State<WorldStateSchema> = getWorldState();
-              const character: WorldCharacter = getDefinable(
-                WorldCharacter,
-                worldState.values.worldCharacterID,
-              );
-              if (
-                character.party.worldCharacters.every(
-                  (worldCharacter: WorldCharacter): boolean =>
-                    worldCharacter.openedChestIDs.includes(chest.id),
-                )
-              ) {
+              if (hasOpenedChest(chest.id)) {
                 if (chest.hasOpenedAt()) {
                   return "opening";
                 }

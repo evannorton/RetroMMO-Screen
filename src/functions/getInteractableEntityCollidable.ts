@@ -1,6 +1,7 @@
 import {
   CollisionData,
   EntityCollidable,
+  getEntityFieldValue,
   getRectangleCollisionData,
 } from "pixel-pigeon";
 import { Constants, Direction } from "retrommo-types";
@@ -8,6 +9,7 @@ import { WorldCharacter } from "../classes/WorldCharacter";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
 import { getWorldState } from "./state/getWorldState";
+import { hasOpenedChest } from "./hasOpenedChest";
 
 const getNPCEntityCollidable = (
   direction: Direction,
@@ -86,7 +88,24 @@ export const getInteractableEntityCollidable = (): EntityCollidable | null => {
     },
   });
   if (collisionData.entityCollidables.length > 0) {
-    return collisionData.entityCollidables[0] as EntityCollidable;
+    const entityCollidable: EntityCollidable | undefined =
+      collisionData.entityCollidables[0];
+    if (typeof entityCollidable === "undefined") {
+      throw new Error("Entity collidable is undefined");
+    }
+    if (entityCollidable.type === "chest") {
+      const chestID: unknown = getEntityFieldValue(
+        entityCollidable.entityID,
+        "chestID",
+      );
+      if (typeof chestID !== "string") {
+        throw new Error("No chest ID.");
+      }
+      if (hasOpenedChest(chestID)) {
+        return null;
+      }
+    }
+    return entityCollidable;
   }
   return getNPCEntityCollidable(worldCharacter.direction, x, y);
 };
