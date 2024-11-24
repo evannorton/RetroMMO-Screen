@@ -7,6 +7,7 @@ import {
   InitialNPCTilePosition,
   InitialPianoTilePosition,
 } from "./types/TilePosition";
+import { PianoNote } from "./types/PianoNote";
 import { State } from "pixel-pigeon";
 
 export interface MainMenuCharacterCustomizeStateSchema {
@@ -34,6 +35,9 @@ export interface MainMenuStateSchema {
   mainMenuCharacterIDs: string[];
 }
 export interface WorldStateSchema {
+  lastPianoNoteAt: number | null;
+  pianoNotes: readonly PianoNote[];
+  pianoSessionID: string | null;
   worldCharacterID: string;
 }
 export interface BattleStateSchema {}
@@ -52,6 +56,7 @@ interface StateSchema {
   initialPianoTilePositions: readonly InitialPianoTilePosition[];
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
+  pianoStartedAt: number | null;
   serverURL: string | null;
   worldState: State<WorldStateSchema> | null;
 }
@@ -71,6 +76,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialPianoTilePositions: [],
   isSubscribed: false,
   mainMenuState: null,
+  pianoStartedAt: null,
   serverURL: null,
   worldState: null,
 });

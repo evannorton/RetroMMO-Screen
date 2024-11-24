@@ -13,11 +13,13 @@ interface BlackPianoKeyStateSchema {
 
 export interface CreateBlackPianoKeyOptions {
   audioPath: string;
+  onPlay: () => void;
   x: number;
   y: number;
 }
 export const createBlackPianoKey = ({
   audioPath,
+  onPlay,
   x,
   y,
 }: CreateBlackPianoKeyOptions): HUDElementReferences => {
@@ -81,6 +83,7 @@ export const createBlackPianoKey = ({
           volumeChannelID: sfxVolumeChannelID,
         });
         blackPianoKeyState.setValues({ isPressed: true });
+        onPlay();
       },
       onRelease: (): void => {
         blackPianoKeyState.setValues({ isPressed: false });

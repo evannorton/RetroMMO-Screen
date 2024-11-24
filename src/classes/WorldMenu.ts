@@ -1,22 +1,33 @@
 import { Definable } from "definables";
-import { HUDElementReferences, removeHUDElements } from "pixel-pigeon";
+import { HUDElementReferences, State, removeHUDElements } from "pixel-pigeon";
 
-export interface WorldMenuOptions<OpenOptions> {
+export interface WorldMenuOptions<OpenOptions, StateSchema> {
   create: (options: OpenOptions) => HUDElementReferences;
+  initialStateValues: StateSchema;
   preventsWalking?: boolean;
 }
-export class WorldMenu<OpenOptions> extends Definable {
+export class WorldMenu<OpenOptions, StateSchema> extends Definable {
   private readonly _create: (options: OpenOptions) => HUDElementReferences;
   private _hudElementReferences: HUDElementReferences | null = null;
+  private readonly _initialStateValues: StateSchema;
   private readonly _preventsWalking: boolean;
-  public constructor(options: WorldMenuOptions<OpenOptions>) {
+  private _state: State<StateSchema> | null = null;
+  public constructor(options: WorldMenuOptions<OpenOptions, StateSchema>) {
     super();
     this._create = options.create;
+    this._initialStateValues = options.initialStateValues;
     this._preventsWalking = options.preventsWalking ?? false;
   }
 
   public get preventsWalking(): boolean {
     return this._preventsWalking;
+  }
+
+  public get state(): State<StateSchema> {
+    if (this._state !== null) {
+      return this._state;
+    }
+    throw new Error(this.getAccessorErrorMessage("state"));
   }
 
   public close(): void {
@@ -41,5 +52,6 @@ export class WorldMenu<OpenOptions> extends Definable {
       throw new Error("Attempted to open a world menu that is already open.");
     }
     this._hudElementReferences = this._create(options);
+    this._state = new State<StateSchema>(this._initialStateValues);
   }
 }

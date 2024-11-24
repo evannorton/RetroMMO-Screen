@@ -15,6 +15,7 @@ import {
   WorldOpenBankUpdate,
   WorldOpenChestUpdate,
   WorldPartyChangesUpdate,
+  WorldPianoKeyUpdate,
   WorldPositionUpdate,
   WorldPreparationUpdate,
   WorldStartBattleUpdate,
@@ -26,6 +27,7 @@ import {
 import { Emote } from "../../classes/Emote";
 import {
   EntitySprite,
+  State,
   createEntity,
   createSprite,
   exitLevel,
@@ -40,6 +42,7 @@ import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { createBattleState } from "../state/createBattleState";
@@ -54,7 +57,6 @@ import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { resetParty } from "../resetParty";
 import { sfxVolumeChannelID } from "../../volumeChannels";
-import { state } from "../../state";
 import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
@@ -321,6 +323,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldPartyChangesUpdate>({
     event: "world/party-change",
     onMessage: (update: WorldPartyChangesUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldPartyUpdate of update.parties) {
         const party: Party = definableExists(Party, worldPartyUpdate.partyID)
           ? getDefinable(Party, worldPartyUpdate.partyID)
@@ -341,13 +344,16 @@ export const listenForWorldUpdates = (): void => {
               oldPartyWorldCharacterIDs.includes(partyWorldCharacter.id) ===
               false;
             const partyWorldCharacterIsSelf: boolean =
-              partyWorldCharacter.id ===
-              getWorldState().values.worldCharacterID;
+              partyWorldCharacter.id === worldState.values.worldCharacterID;
+            // If self is joining a party
             if (
               partyWorldCharacterIndex > 0 &&
               partyWorldCharacterJoined &&
               partyWorldCharacterIsSelf
             ) {
+              worldState.setValues({
+                pianoSessionID: null,
+              });
               getDefinables(WorldCharacter).forEach(
                 (worldCharacter: WorldCharacter): void => {
                   if (worldCharacter.hasMarker()) {
@@ -378,6 +384,34 @@ export const listenForWorldUpdates = (): void => {
     event: "world/marker",
     onMessage: (update: WorldMarkerUpdate): void => {
       addWorldCharacterMarker(update.worldCharacterID, update.type);
+    },
+  });
+  listenToSocketioEvent<WorldPianoKeyUpdate>({
+    event: "world/piano-key",
+    onMessage: (update: WorldPianoKeyUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const offset: number = update.sinceLastKey ?? 0;
+      let noteTime: number | undefined;
+      if (update.pianoSessionID !== worldState.values.pianoSessionID) {
+        noteTime = getCurrentTime() + 1000;
+      } else {
+        if (worldState.values.lastPianoNoteAt === null) {
+          throw new Error("lastPianoNoteAt is null");
+        }
+        noteTime = worldState.values.lastPianoNoteAt + offset;
+      }
+      worldState.setValues({
+        lastPianoNoteAt: noteTime,
+        pianoNotes: [
+          ...worldState.values.pianoNotes,
+          {
+            index: update.index,
+            playAt: noteTime,
+            type: update.type,
+          },
+        ],
+        pianoSessionID: update.pianoSessionID,
+      });
     },
   });
   listenToSocketioEvent<WorldPositionUpdate>({

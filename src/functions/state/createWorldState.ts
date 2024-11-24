@@ -5,5 +5,8 @@ export const createWorldState = (
   worldCharacterID: string,
 ): State<WorldStateSchema> =>
   new State<WorldStateSchema>({
+    lastPianoNoteAt: null,
+    pianoNotes: [],
+    pianoSessionID: null,
     worldCharacterID,
   });

@@ -1,5 +1,5 @@
 import { WorldCharacter } from "../classes/WorldCharacter";
-import { WorldClickCharacterUpdate } from "retrommo-types";
+import { WorldClickCharacterRequest } from "retrommo-types";
 import { closeWorldMenus } from "./world-menus/closeWorldMenus";
 import { emitToSocketioServer } from "pixel-pigeon";
 import { getDefinable } from "definables/lib/getDefinable";
@@ -10,7 +10,7 @@ export const handleWorldCharacterClick = (worldCharacterID: string): void => {
     WorldCharacter,
     worldCharacterID,
   );
-  emitToSocketioServer<WorldClickCharacterUpdate>({
+  emitToSocketioServer<WorldClickCharacterRequest>({
     data: {
       playerID: worldCharacter.playerID,
     },

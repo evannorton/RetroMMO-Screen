@@ -13,11 +13,13 @@ interface WhitePianoKeyStateSchema {
 
 export interface CreateWhitePianoKeyOptions {
   audioPath: string;
+  onPlay: () => void;
   x: number;
   y: number;
 }
 export const createWhitePianoKey = ({
   audioPath,
+  onPlay,
   x,
   y,
 }: CreateWhitePianoKeyOptions): HUDElementReferences => {
@@ -80,6 +82,7 @@ export const createWhitePianoKey = ({
           volumeChannelID: sfxVolumeChannelID,
         });
         whitePianoKeyState.setValues({ isPressed: true });
+        onPlay();
       },
       onRelease: (): void => {
         whitePianoKeyState.setValues({ isPressed: false });
