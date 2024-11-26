@@ -1,8 +1,10 @@
+import { Color } from "retrommo-types";
 import {
   HUDElementReferences,
   State,
   createButton,
   createInputPressHandler,
+  createLabel,
   createSprite,
   playAudioSource,
 } from "pixel-pigeon";
@@ -16,6 +18,7 @@ export interface CreateWhitePianoKeyOptions {
   audioPath: string;
   inputCollectionID: string;
   onPlay: () => void;
+  text: string;
   x: number;
   y: number;
 }
@@ -23,6 +26,7 @@ export const createWhitePianoKey = ({
   audioPath,
   inputCollectionID,
   onPlay,
+  text,
   x,
   y,
 }: CreateWhitePianoKeyOptions): HUDElementReferences => {
@@ -32,6 +36,7 @@ export const createWhitePianoKey = ({
   });
   const spriteIDs: string[] = [];
   const buttonIDs: string[] = [];
+  const labelIDs: string[] = [];
   const width: number = 10;
   const height: number = 48;
   spriteIDs.push(
@@ -109,8 +114,22 @@ export const createWhitePianoKey = ({
       },
     }),
   );
+  labelIDs.push(
+    createLabel({
+      color: Color.Black,
+      coordinates: {
+        x: x + 3,
+        y: (): number => y + 28 + (whitePianoKeyState.values.isPressed ? 1 : 0),
+      },
+      horizontalAlignment: "left",
+      text: {
+        value: text,
+      },
+    }),
+  );
   return {
     buttonIDs,
+    labelIDs,
     spriteIDs,
   };
 };

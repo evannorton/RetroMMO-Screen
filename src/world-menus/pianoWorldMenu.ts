@@ -35,6 +35,34 @@ export const pianoWorldMenu: WorldMenu<
     const whiteKeyWidth: number = 10;
     const totalKeysWidth: number = whiteKeys * octaves * whiteKeyWidth;
     const whiteKeyIndicesWithBlackKeys: number[] = [0, 1, 3, 4, 5];
+    const whiteKeyTexts: string[] = [
+      "z",
+      "x",
+      "c",
+      "v",
+      "b",
+      "n",
+      "m",
+      "q",
+      "w",
+      "e",
+      "r",
+      "t",
+      "y",
+      "u",
+    ];
+    const blackKeyTexts: string[] = [
+      "s",
+      "d",
+      "g",
+      "h",
+      "j",
+      "2",
+      "3",
+      "5",
+      "6",
+      "7",
+    ];
     const panelWidth: number = 154;
     const panelHeight: number = 76;
     const panelX: number = Math.floor(gameWidth / 2 - panelWidth / 2);
@@ -80,6 +108,10 @@ export const pianoWorldMenu: WorldMenu<
           `No input collection ID found for white key index ${whiteKeyIndex}.`,
         );
       }
+      const text: string | undefined = whiteKeyTexts[whiteKeyIndex];
+      if (typeof text === "undefined") {
+        throw new Error(`No text found for black key index ${whiteKeyIndex}.`);
+      }
       hudElementReferences.push(
         createWhitePianoKey({
           audioPath,
@@ -87,6 +119,7 @@ export const pianoWorldMenu: WorldMenu<
           onPlay: (): void => {
             onPlay(playIndex, PianoKeyType.White);
           },
+          text,
           x: keysX + i * whiteKeyWidth,
           y: keysY,
         }),
@@ -108,6 +141,12 @@ export const pianoWorldMenu: WorldMenu<
             `No input collection ID found for black key index ${blackKeyIndex}.`,
           );
         }
+        const text: string | undefined = blackKeyTexts[blackKeyIndex];
+        if (typeof text === "undefined") {
+          throw new Error(
+            `No text found for black key index ${blackKeyIndex}.`,
+          );
+        }
         hudElementReferences.push(
           createBlackPianoKey({
             audioPath,
@@ -115,6 +154,7 @@ export const pianoWorldMenu: WorldMenu<
             onPlay: (): void => {
               onPlay(playIndex, PianoKeyType.Black);
             },
+            text,
             x: keysX + (i + 1) * whiteKeyWidth - 3,
             y: keysY,
           }),
