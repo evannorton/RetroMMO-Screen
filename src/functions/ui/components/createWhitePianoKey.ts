@@ -129,6 +129,7 @@ export const createWhitePianoKey = ({
   );
   return {
     buttonIDs,
+    inputPressHandlerIDs,
     labelIDs,
     spriteIDs,
   };
