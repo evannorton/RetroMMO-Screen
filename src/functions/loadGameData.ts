@@ -19,6 +19,8 @@ import {
   NPCDefinition,
   OutfitDefinition,
   PianoDefinition,
+  QuestDefinition,
+  QuestGiverDefinition,
   ShopDefinition,
   SkinColorDefinition,
   TilemapDefinition,
@@ -52,6 +54,8 @@ import { Mask } from "../classes/Mask";
 import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
+import { Quest } from "../classes/Quest";
+import { QuestGiver } from "../classes/QuestGiver";
 import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "definables";
@@ -264,19 +268,38 @@ export const loadGameData = async (): Promise<void> => {
         }
         case "Panel":
           break;
-        case "Piano":
-          {
-            const definition: PianoDefinition = (
-              gameData[className] as Record<string, PianoDefinition>
-            )[id] as PianoDefinition;
-            new Piano({
-              definition,
-              id,
-            });
-          }
+        case "Piano": {
+          const definition: PianoDefinition = (
+            gameData[className] as Record<string, PianoDefinition>
+          )[id] as PianoDefinition;
+          new Piano({
+            definition,
+            id,
+          });
           break;
+        }
         case "Picture":
           break;
+        case "Quest": {
+          const definition: QuestDefinition = (
+            gameData[className] as Record<string, QuestDefinition>
+          )[id] as QuestDefinition;
+          new Quest({
+            definition,
+            id,
+          });
+          break;
+        }
+        case "QuestGiver": {
+          const definition: QuestGiverDefinition = (
+            gameData[className] as Record<string, QuestGiverDefinition>
+          )[id] as QuestGiverDefinition;
+          new QuestGiver({
+            definition,
+            id,
+          });
+          break;
+        }
         case "Reachable":
           break;
         case "Rectangle":
