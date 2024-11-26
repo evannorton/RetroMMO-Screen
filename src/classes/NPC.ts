@@ -1,5 +1,6 @@
-import { Definable } from "definables";
+import { Definable, getDefinable } from "definables";
 import { Direction, NPCDefinition } from "retrommo-types";
+import { Shop } from "./Shop";
 import { TilePosition } from "../types/TilePosition";
 
 export interface NPCOptions {
@@ -13,7 +14,6 @@ export class NPC extends Definable {
   private readonly _encounterID?: string;
   private _entityID: string | null = null;
   private _indicatorEntityID: string | null = null;
-  private readonly _indicatorImagePath: string;
   private readonly _innCost?: number;
   private readonly _name: string;
   private _position: TilePosition | null = null;
@@ -24,7 +24,6 @@ export class NPC extends Definable {
     this._dialogue = options.definition.dialogue;
     this._direction = options.definition.startDirection;
     this._encounterID = options.definition.encounterID;
-    this._indicatorImagePath = options.definition.indicatorImageSourceID;
     this._innCost = options.definition.innCost;
     this._name = options.definition.name;
     this._shopID = options.definition.shopID;
@@ -59,10 +58,6 @@ export class NPC extends Definable {
     throw new Error(this.getAccessorErrorMessage("indicatorEntityID"));
   }
 
-  public get indicatorImagePath(): string {
-    return this._indicatorImagePath;
-  }
-
   public get name(): string {
     return this._name;
   }
@@ -72,6 +67,13 @@ export class NPC extends Definable {
       return this._position;
     }
     throw new Error(this.getAccessorErrorMessage("position"));
+  }
+
+  public get shop(): Shop {
+    if (typeof this._shopID !== "undefined") {
+      return getDefinable(Shop, this._shopID);
+    }
+    throw new Error(this.getAccessorErrorMessage("shop"));
   }
 
   public set direction(direction: Direction) {

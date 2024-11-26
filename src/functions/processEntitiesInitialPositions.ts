@@ -9,6 +9,7 @@ import { chestOpenDuration } from "../constants/chestOpenDuration";
 import { createEntity, createSprite } from "pixel-pigeon";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
+import { getNPCIndicatorImagePath } from "./getNPCIndicatorImagePath";
 import { hasOpenedChest } from "./hasOpenedChest";
 import { state } from "../state";
 
@@ -411,7 +412,7 @@ export const processEntitiesInitialPositions = (): void => {
                 id: "default",
               },
             ],
-            imagePath: npc.indicatorImagePath,
+            imagePath: (): string => getNPCIndicatorImagePath(npc.id),
           }),
         },
       ],

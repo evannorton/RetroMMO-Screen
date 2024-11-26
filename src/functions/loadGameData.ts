@@ -19,6 +19,7 @@ import {
   NPCDefinition,
   OutfitDefinition,
   PianoDefinition,
+  ShopDefinition,
   SkinColorDefinition,
   TilemapDefinition,
   TilemapTileDefinition,
@@ -51,6 +52,7 @@ import { Mask } from "../classes/Mask";
 import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
+import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "definables";
 import { state } from "../state";
@@ -281,6 +283,16 @@ export const loadGameData = async (): Promise<void> => {
           break;
         case "ResourceBar":
           break;
+        case "Shop": {
+          const definition: ShopDefinition = (
+            gameData[className] as Record<string, ShopDefinition>
+          )[id] as ShopDefinition;
+          new Shop({
+            definition,
+            id,
+          });
+          break;
+        }
         case "SkinColor": {
           const definition: SkinColorDefinition = (
             gameData[className] as Record<string, SkinColorDefinition>
