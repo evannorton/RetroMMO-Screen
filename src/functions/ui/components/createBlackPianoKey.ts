@@ -2,6 +2,7 @@ import {
   HUDElementReferences,
   State,
   createButton,
+  createInputPressHandler,
   createSprite,
   playAudioSource,
 } from "pixel-pigeon";
@@ -13,12 +14,14 @@ interface BlackPianoKeyStateSchema {
 
 export interface CreateBlackPianoKeyOptions {
   audioPath: string;
+  inputCollectionID: string;
   onPlay: () => void;
   x: number;
   y: number;
 }
 export const createBlackPianoKey = ({
   audioPath,
+  inputCollectionID,
   onPlay,
   x,
   y,
@@ -26,6 +29,7 @@ export const createBlackPianoKey = ({
   const blackPianoKeyState: State<BlackPianoKeyStateSchema> = new State({
     isPressed: false,
   });
+  const inputPressHandlerIDs: string[] = [];
   const spriteIDs: string[] = [];
   const buttonIDs: string[] = [];
   const width: number = 7;
@@ -91,8 +95,24 @@ export const createBlackPianoKey = ({
       width,
     }),
   );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      inputCollectionID,
+      onInput: (): void => {
+        playAudioSource(audioPath, {
+          volumeChannelID: sfxVolumeChannelID,
+        });
+        blackPianoKeyState.setValues({ isPressed: true });
+        onPlay();
+      },
+      onRelease: (): void => {
+        blackPianoKeyState.setValues({ isPressed: false });
+      },
+    }),
+  );
   return {
     buttonIDs,
+    inputPressHandlerIDs,
     spriteIDs,
   };
 };

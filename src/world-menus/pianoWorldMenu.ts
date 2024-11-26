@@ -8,6 +8,10 @@ import {
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { WorldMenu } from "../classes/WorldMenu";
+import {
+  blackPianoKeyInputCollectionIDs,
+  whitePianoKeyInputCollectionIDs,
+} from "../input";
 import { createBlackPianoKey } from "../functions/ui/components/createBlackPianoKey";
 import { createClickableImage } from "../functions/ui/components/createClickableImage";
 import { createPanel } from "../functions/ui/components/createPanel";
@@ -69,9 +73,17 @@ export const pianoWorldMenu: WorldMenu<
         PianoKeyType.White,
       );
       const playIndex: number = whiteKeyIndex;
+      const inputCollectionID: string | undefined =
+        whitePianoKeyInputCollectionIDs[whiteKeyIndex];
+      if (typeof inputCollectionID === "undefined") {
+        throw new Error(
+          `No input collection ID found for white key index ${whiteKeyIndex}.`,
+        );
+      }
       hudElementReferences.push(
         createWhitePianoKey({
           audioPath,
+          inputCollectionID,
           onPlay: (): void => {
             onPlay(playIndex, PianoKeyType.White);
           },
@@ -89,9 +101,17 @@ export const pianoWorldMenu: WorldMenu<
           PianoKeyType.Black,
         );
         const playIndex: number = blackKeyIndex;
+        const inputCollectionID: string | undefined =
+          blackPianoKeyInputCollectionIDs[blackKeyIndex];
+        if (typeof inputCollectionID === "undefined") {
+          throw new Error(
+            `No input collection ID found for black key index ${blackKeyIndex}.`,
+          );
+        }
         hudElementReferences.push(
           createBlackPianoKey({
             audioPath,
+            inputCollectionID,
             onPlay: (): void => {
               onPlay(playIndex, PianoKeyType.Black);
             },

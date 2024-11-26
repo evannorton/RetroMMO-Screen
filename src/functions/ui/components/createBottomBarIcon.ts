@@ -3,6 +3,7 @@ import {
   createInputPressHandler,
   createSprite,
 } from "pixel-pigeon";
+import { pianoWorldMenu } from "../../../world-menus/pianoWorldMenu";
 
 export interface CreateBottomBarIconOptions {
   condition?: () => boolean;
@@ -56,7 +57,12 @@ export const createBottomBarIcon = ({
     width: 20,
   });
   createInputPressHandler({
-    condition,
+    condition: (): boolean => {
+      if (typeof condition === "undefined" || condition()) {
+        return pianoWorldMenu.isOpen() === false;
+      }
+      return false;
+    },
     inputCollectionID,
     onInput: legacyOpen,
   });

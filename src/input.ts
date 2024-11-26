@@ -9,8 +9,109 @@ import { canWalk } from "./functions/canWalk";
 import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
 import { interact } from "./functions/interact";
 import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
+import { pianoWorldMenu } from "./world-menus/pianoWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
 
+export const whitePianoKeyInputCollectionIDs: readonly string[] = [
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyZ" }],
+    name: "White Piano Key 1",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyX" }],
+    name: "White Piano Key 2",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyC" }],
+    name: "White Piano Key 3",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyV" }],
+    name: "White Piano Key 4",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyB" }],
+    name: "White Piano Key 5",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyN" }],
+    name: "White Piano Key 6",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyM" }],
+    name: "White Piano Key 7",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyQ" }],
+    name: "White Piano Key 8",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyW" }],
+    name: "White Piano Key 9",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyE" }],
+    name: "White Piano Key 10",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyR" }],
+    name: "White Piano Key 11",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyT" }],
+    name: "White Piano Key 12",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyY" }],
+    name: "White Piano Key 13",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyU" }],
+    name: "White Piano Key 14",
+  }),
+];
+export const blackPianoKeyInputCollectionIDs: readonly string[] = [
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyS" }],
+    name: "Black Piano Key 1",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyD" }],
+    name: "Black Piano Key 2",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyG" }],
+    name: "Black Piano Key 3",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyH" }],
+    name: "Black Piano Key 4",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "KeyJ" }],
+    name: "Black Piano Key 5",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "Digit2" }],
+    name: "Black Piano Key 6",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "Digit3" }],
+    name: "Black Piano Key 7",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "Digit5" }],
+    name: "Black Piano Key 8",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "Digit6" }],
+    name: "Black Piano Key 9",
+  }),
+  createInputCollection({
+    keyboardButtons: [{ value: "Digit7" }],
+    name: "Black Piano Key 10",
+  }),
+];
 const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
   name: "Screenshot",
@@ -141,12 +242,14 @@ const modChatInputCollectionID: string = createInputCollection({
   name: "Mod chat",
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: screenshotInputCollectionID,
   onInput: (): void => {
     takeScreenshot();
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: emotesInputCollectionID,
   onInput: (): void => {
     emitToSocketioServer({
@@ -156,6 +259,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: lastEmoteInputCollectionID,
   onInput: (): void => {
     emitToSocketioServer({
@@ -165,6 +269,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: spinInputCollectionID,
   onInput: (): void => {
     emitToSocketioServer({
@@ -183,6 +288,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -203,6 +309,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -223,6 +330,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -243,6 +351,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -263,6 +372,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -283,6 +393,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -303,6 +414,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -323,6 +435,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -343,6 +456,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -363,6 +477,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -383,6 +498,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -403,6 +519,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -433,6 +550,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: globalChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
@@ -442,6 +560,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: localChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
@@ -451,6 +570,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: partyChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
@@ -460,6 +580,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: tradeChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
@@ -469,6 +590,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: modChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
