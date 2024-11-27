@@ -12,7 +12,7 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
   if (npc.hasShopID()) {
     return npc.shop.indicatorImagePath;
   }
-  if (npc.hasDialogue()) {
+  if (npc.hasDialogue() || npc.hasQuestGiver()) {
     return "indicators/dialogue";
   }
   throw new Error("No indicator image path found for NPC.");

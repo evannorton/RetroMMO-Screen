@@ -17,6 +17,7 @@ export class NPC extends Definable {
   private readonly _innCost?: number;
   private readonly _name: string;
   private _position: TilePosition | null = null;
+  private readonly _questGiverID?: string;
   private readonly _shopID?: string;
   public constructor(options: NPCOptions) {
     super(options.id);
@@ -26,6 +27,7 @@ export class NPC extends Definable {
     this._encounterID = options.definition.encounterID;
     this._innCost = options.definition.innCost;
     this._name = options.definition.name;
+    this._questGiverID = options.definition.questGiverID;
     this._shopID = options.definition.shopID;
   }
 
@@ -98,6 +100,10 @@ export class NPC extends Definable {
 
   public hasInnCost(): boolean {
     return typeof this._innCost !== "undefined";
+  }
+
+  public hasQuestGiver(): boolean {
+    return typeof this._questGiverID !== "undefined";
   }
 
   public hasShopID(): boolean {

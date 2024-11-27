@@ -1,7 +1,9 @@
 import { Color } from "retrommo-types";
 import {
+  CreateLabelOptionsText,
   HUDElementReferences,
   createLabel,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { NPC } from "../classes/NPC";
@@ -25,14 +27,18 @@ export const npcDialogueWorldMenu: WorldMenu<
     const labelIDs: string[] = [];
     const hudElementReferences: HUDElementReferences[] = [];
     const npc: NPC = getDefinable(NPC, options.npcID);
+    const width: number = getGameWidth();
+    const x: number = 0;
+    const y: number = 136;
+    const xOffset: number = 10;
     // Background panel
     hudElementReferences.push(
       createPanel({
-        height: 62,
+        height: 72,
         imagePath: "panels/basic",
-        width: 256,
-        x: 24,
-        y: 136,
+        width,
+        x,
+        y,
       }),
     );
     // Close button
@@ -44,8 +50,8 @@ export const npcDialogueWorldMenu: WorldMenu<
           npcDialogueWorldMenu.close();
         },
         width: 10,
-        x: 263,
-        y: 143,
+        x: x + width - 17,
+        y: y + 7,
       }),
     );
     // Name
@@ -53,12 +59,12 @@ export const npcDialogueWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          x: 34,
-          y: 146,
+          x: x + xOffset,
+          y: y + 10,
         },
         horizontalAlignment: "left",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: width - xOffset * 2,
         size: 1,
         text: {
           value: npc.name,
@@ -70,16 +76,17 @@ export const npcDialogueWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          x: 34,
-          y: 159,
+          condition: (): boolean => npc.hasDialogue(),
+          x: x + xOffset,
+          y: y + 23,
         },
         horizontalAlignment: "left",
         maxLines: 3,
-        maxWidth: 236,
+        maxWidth: width - xOffset * 2,
         size: 1,
-        text: {
+        text: (): CreateLabelOptionsText => ({
           value: npc.dialogue,
-        },
+        }),
       }),
     );
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);

@@ -23,7 +23,7 @@ export const interact = (): void => {
           throw new Error("No NPC ID.");
         }
         const npc: NPC = getDefinable(NPC, npcID);
-        if (npc.hasDialogue()) {
+        if (npc.hasDialogue() || npc.hasQuestGiver()) {
           emitToSocketioServer<WorldNPCInteractRequest>({
             data: {
               npcID,

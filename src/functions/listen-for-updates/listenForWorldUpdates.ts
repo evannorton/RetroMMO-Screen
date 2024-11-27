@@ -45,6 +45,7 @@ import { WorldCharacter } from "../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
+import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
@@ -231,6 +232,7 @@ export const listenForWorldUpdates = (): void => {
         worldState: null,
       });
       exitLevel();
+      closeWorldMenus();
     },
   });
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
@@ -475,6 +477,7 @@ export const listenForWorldUpdates = (): void => {
         worldState: null,
       });
       exitLevel();
+      closeWorldMenus();
     },
   });
   listenToSocketioEvent<WorldBonkUpdate>({
@@ -513,7 +516,7 @@ export const listenForWorldUpdates = (): void => {
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
       if (update.wasInteracted === true) {
-        if (npc.hasDialogue()) {
+        if (npc.hasDialogue() || npc.hasQuestGiver()) {
           npcDialogueWorldMenu.open({
             npcID: npc.id,
           });

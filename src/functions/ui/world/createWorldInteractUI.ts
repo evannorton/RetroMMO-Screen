@@ -80,7 +80,7 @@ export const createWorldInteractUI = (): void => {
             throw new Error("No NPC ID.");
           }
           const npc: NPC = getDefinable(NPC, npcID);
-          if (npc.hasDialogue()) {
+          if (npc.hasDialogue() || npc.hasQuestGiver()) {
             value = "Talk";
           }
           if (npc.hasInnCost()) {
