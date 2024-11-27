@@ -353,6 +353,15 @@ const directoryOptions = [
     spriteHeight: 16,
     size: { width: 16, height: 16, tiledX: true, tiledY: true }
   },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "slots"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 18,
+    spriteHeight: 18,
+    size: { width: 18, height: 18, tiledX: true, tiledY: true }
+  },
 ];
 
 // Classes

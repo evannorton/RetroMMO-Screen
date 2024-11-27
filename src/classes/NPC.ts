@@ -1,5 +1,6 @@
 import { Definable, getDefinable } from "definables";
 import { Direction, NPCDefinition } from "retrommo-types";
+import { QuestGiver } from "./QuestGiver";
 import { Shop } from "./Shop";
 import { TilePosition } from "../types/TilePosition";
 
@@ -69,6 +70,13 @@ export class NPC extends Definable {
       return this._position;
     }
     throw new Error(this.getAccessorErrorMessage("position"));
+  }
+
+  public get questGiver(): QuestGiver {
+    if (typeof this._questGiverID !== "undefined") {
+      return getDefinable(QuestGiver, this._questGiverID);
+    }
+    throw new Error(this.getAccessorErrorMessage("questGiver"));
   }
 
   public get shop(): Shop {
