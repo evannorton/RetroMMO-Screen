@@ -1,24 +1,32 @@
-import { Color } from "retrommo-types";
+import { Color, WorldAcceptQuestRequest } from "retrommo-types";
 import {
   CreateLabelOptionsText,
+  CreateSpriteOptionsRecolor,
   HUDElementReferences,
   createButton,
   createLabel,
+  createSprite,
+  emitToSocketioServer,
   getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
 import { QuestGiverQuest } from "../classes/QuestGiver";
+import { QuestState } from "../types/QuestState";
 import { WorldMenu } from "../classes/WorldMenu";
 import { createClickableImage } from "../functions/ui/components/createClickableImage";
 import { createPanel } from "../functions/ui/components/createPanel";
+import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createSlot } from "../functions/ui/components/createSlot";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
+import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
+import { getQuestState } from "../functions/getQuestState";
 import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
 
 export interface NPCDialogueWorldMenuOpenOptions {
+  readonly isLeader: boolean;
   readonly npcID: string;
 }
 export interface NPCDialogueWorldMenuStateSchema {
@@ -32,11 +40,13 @@ export const npcDialogueWorldMenu: WorldMenu<
   NPCDialogueWorldMenuStateSchema
 >({
   create: (options: NPCDialogueWorldMenuOpenOptions): HUDElementReferences => {
-    const labelIDs: string[] = [];
     const buttonIDs: string[] = [];
+    const labelIDs: string[] = [];
+    const spriteIDs: string[] = [];
     const hudElementReferences: HUDElementReferences[] = [];
     const npc: NPC = getDefinable(NPC, options.npcID);
     const width: number = getGameWidth();
+    const height: number = 72;
     const x: number = 0;
     const y: number = 136;
     const xOffset: number = 10;
@@ -56,7 +66,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     // Background panel
     hudElementReferences.push(
       createPanel({
-        height: 72,
+        height,
         imagePath: "panels/basic",
         width,
         x,
@@ -130,7 +140,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     const questsY: number = 49;
     const questsWidth: number = x + width - questsX;
     const questsHeight: number = y - questsY;
-    if (npc.hasQuestGiver()) {
+    if (npc.hasQuestGiver() && options.isLeader) {
       // Quest panel
       hudElementReferences.push(
         createPanel({
@@ -197,6 +207,83 @@ export const npcDialogueWorldMenu: WorldMenu<
               y: questsY + 25 + i * 18,
             }),
           );
+          spriteIDs.push(
+            createSprite({
+              animationID: "default",
+              animations: [
+                {
+                  frames: [
+                    {
+                      height: 16,
+                      sourceHeight: 16,
+                      sourceWidth: 16,
+                      sourceX: 0,
+                      sourceY: 0,
+                      width: 16,
+                    },
+                  ],
+                  id: "default",
+                },
+              ],
+              coordinates: {
+                x: questsX + 6,
+                y: questsY + 26 + i * 18,
+              },
+              imagePath: getQuestIconImagePath(quest.id),
+            }),
+          );
+          spriteIDs.push(
+            createSprite({
+              animationID: "default",
+              animations: [
+                {
+                  frames: [
+                    {
+                      height: 16,
+                      sourceHeight: 16,
+                      sourceWidth: 16,
+                      sourceX: 0,
+                      sourceY: 0,
+                      width: 16,
+                    },
+                  ],
+                  id: "default",
+                },
+              ],
+              coordinates: {
+                condition: (): boolean => {
+                  const questState: QuestState | null = getQuestState(quest.id);
+                  return (
+                    questState === QuestState.InProgress ||
+                    questState === QuestState.TurnIn
+                  );
+                },
+                x: questsX + 6,
+                y: questsY + 26 + i * 18,
+              },
+              imagePath: "quest-banners/default",
+              recolors: (): CreateSpriteOptionsRecolor[] => {
+                let toColor: Color | undefined;
+                switch (getQuestState(quest.id)) {
+                  case QuestState.InProgress:
+                    toColor = Color.DarkGray;
+                    break;
+                  case QuestState.TurnIn:
+                    toColor = Color.StrongLimeGreen;
+                    break;
+                }
+                if (typeof toColor === "undefined") {
+                  throw new Error("No recolor found for quest state.");
+                }
+                return [
+                  {
+                    fromColor: Color.White,
+                    toColor,
+                  },
+                ];
+              },
+            }),
+          );
           labelIDs.push(
             createLabel({
               color: Color.White,
@@ -238,11 +325,45 @@ export const npcDialogueWorldMenu: WorldMenu<
           );
         }
       }
+      // Quest accept button
+      const acceptButtonWidth: number = 48;
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean => {
+            const quest: Quest | null = getSelectedQuest();
+            if (quest !== null) {
+              return getQuestState(quest.id) === QuestState.Accept;
+            }
+            return false;
+          },
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            const quest: Quest | null = getSelectedQuest();
+            if (quest === null) {
+              throw new Error("No selected quest.");
+            }
+            emitToSocketioServer<WorldAcceptQuestRequest>({
+              data: {
+                questID: quest.id,
+              },
+              event: "world/accept-quest",
+            });
+          },
+          text: {
+            value: "Accept",
+          },
+          width: acceptButtonWidth,
+          x: x + width - acceptButtonWidth - 7,
+          y: y + height - 23,
+        }),
+      );
     }
     return mergeHUDElementReferences([
       {
         buttonIDs,
         labelIDs,
+        spriteIDs,
       },
       ...hudElementReferences,
     ]);

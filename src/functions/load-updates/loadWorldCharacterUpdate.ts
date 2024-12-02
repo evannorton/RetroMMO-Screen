@@ -3,8 +3,12 @@ import {
   Direction,
   Step,
   WorldCharacterUpdate,
+  WorldQuestInstanceUpdate,
 } from "retrommo-types";
-import { WorldCharacter } from "../../classes/WorldCharacter";
+import {
+  WorldCharacter,
+  WorldCharacterOptionsQuestInstance,
+} from "../../classes/WorldCharacter";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { createButton, createEntity } from "pixel-pigeon";
 import { createCharacterSprite } from "../ui/components/createCharacterSprite";
@@ -18,6 +22,21 @@ export const loadWorldCharacterUpdate = (
   worldCharacterUpdate: WorldCharacterUpdate,
 ): void => {
   const constants: Constants = getConstants();
+  const questInstances: Record<string, WorldCharacterOptionsQuestInstance> = {};
+  if (typeof worldCharacterUpdate.questInstances !== "undefined") {
+    for (const questID in worldCharacterUpdate.questInstances) {
+      const questInstance: WorldQuestInstanceUpdate | undefined =
+        worldCharacterUpdate.questInstances[questID];
+      if (typeof questInstance === "undefined") {
+        throw new Error("No quest instance.");
+      }
+      questInstances[questID] = {
+        isCompleted: questInstance.isCompleted ?? false,
+        isStarted: questInstance.isStarted ?? false,
+        monsterKills: questInstance.monsterKills,
+      };
+    }
+  }
   const worldCharacter: WorldCharacter = new WorldCharacter({
     classID: worldCharacterUpdate.classID,
     clothesDyeItemID: worldCharacterUpdate.clothesDyeItemID,
@@ -36,6 +55,7 @@ export const loadWorldCharacterUpdate = (
       x: worldCharacterUpdate.x,
       y: worldCharacterUpdate.y,
     },
+    questInstances,
     resources:
       typeof worldCharacterUpdate.resources !== "undefined"
         ? {

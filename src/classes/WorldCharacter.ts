@@ -8,6 +8,11 @@ import { SkinColor } from "./SkinColor";
 import { TilePosition } from "../types/TilePosition";
 import { removeEntity } from "pixel-pigeon";
 
+export interface WorldCharacterOptionsQuestInstance {
+  readonly isCompleted: boolean;
+  readonly monsterKills?: number;
+  readonly isStarted: boolean;
+}
 export interface WorldCharacterOptionsResources {
   hp: number;
   maxHP: number;
@@ -29,12 +34,18 @@ export interface WorldCharacterOptions {
   partyID: string;
   playerID: string;
   position: TilePosition;
+  questInstances?: Record<string, WorldCharacterOptionsQuestInstance>;
   resources?: WorldCharacterOptionsResources;
   skinColorID: string;
   step: Step;
   tilemapID: string;
   userID: number;
   username: string;
+}
+export interface WorldCharacterQuestInstance {
+  readonly isCompleted: boolean;
+  readonly isStarted: boolean;
+  readonly monsterKills?: number;
 }
 export interface WorldCharacterResources {
   hp: number;
@@ -64,6 +75,8 @@ export class WorldCharacter extends Definable {
   private _partyID: string;
   private readonly _playerID: string;
   private _position: TilePosition;
+  private _questInstances: Record<string, WorldCharacterQuestInstance> = {};
+
   private _resources: WorldCharacterResources | null;
   private readonly _skinColorID: string;
   private _step: Step = Step.Right;
@@ -89,6 +102,18 @@ export class WorldCharacter extends Definable {
       x: options.position.x,
       y: options.position.y,
     };
+    for (const questID in options.questInstances) {
+      const questInstance: WorldCharacterOptionsQuestInstance | undefined =
+        options.questInstances[questID];
+      if (typeof questInstance === "undefined") {
+        throw new Error("No quest instance.");
+      }
+      this._questInstances[questID] = {
+        isCompleted: questInstance.isCompleted,
+        isStarted: questInstance.isStarted,
+        monsterKills: questInstance.monsterKills,
+      };
+    }
     this._resources =
       typeof options.resources !== "undefined"
         ? {
@@ -232,6 +257,10 @@ export class WorldCharacter extends Definable {
     return this._position;
   }
 
+  public get questInstances(): Record<string, WorldCharacterQuestInstance> {
+    return this._questInstances;
+  }
+
   public get resources(): WorldCharacterResources {
     if (this._resources !== null) {
       return this._resources;
@@ -313,6 +342,12 @@ export class WorldCharacter extends Definable {
 
   public set position(position: TilePosition) {
     this._position = position;
+  }
+
+  public set questInstances(
+    questInstances: Record<string, WorldCharacterQuestInstance>,
+  ) {
+    this._questInstances = questInstances;
   }
 
   public set resources(resources: WorldCharacterResources) {

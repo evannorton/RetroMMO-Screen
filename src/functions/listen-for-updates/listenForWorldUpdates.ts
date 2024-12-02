@@ -4,6 +4,7 @@ import {
   Constants,
   Direction,
   VanitySlot,
+  WorldAcceptQuestUpdate,
   WorldBonkUpdate,
   WorldCloseBankUpdate,
   WorldEmoteUpdate,
@@ -41,7 +42,11 @@ import {
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
-import { WorldCharacter } from "../../classes/WorldCharacter";
+import { Quest } from "../../classes/Quest";
+import {
+  WorldCharacter,
+  WorldCharacterQuestInstance,
+} from "../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
@@ -61,6 +66,29 @@ import { sfxVolumeChannelID } from "../../volumeChannels";
 import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
+  listenToSocketioEvent<WorldAcceptQuestUpdate>({
+    event: "world/accept-quest",
+    onMessage: (update: WorldAcceptQuestUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        worldState.values.worldCharacterID,
+      );
+      const quest: Quest = getDefinable(Quest, update.questID);
+      for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+        const questInstance: WorldCharacterQuestInstance | undefined =
+          partyWorldCharacter.questInstances[update.questID];
+        if (typeof questInstance === "undefined") {
+          partyWorldCharacter.questInstances[update.questID] = {
+            isCompleted: false,
+            isStarted: true,
+            monsterKills: quest.hasMonster() ? 0 : undefined,
+          };
+        }
+      }
+      console.log(JSON.stringify(worldCharacter.questInstances));
+    },
+  });
   listenToSocketioEvent<WorldBonkUpdate>({
     event: "world/bonk",
     onMessage: (): void => {
@@ -513,11 +541,19 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldTurnNPCUpdate>({
     event: "world/turn-npc",
     onMessage: (update: WorldTurnNPCUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        worldState.values.worldCharacterID,
+      );
+      const isLeader: boolean =
+        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
       if (update.wasInteracted === true) {
         if (npc.hasDialogue() || npc.hasQuestGiver()) {
           npcDialogueWorldMenu.open({
+            isLeader,
             npcID: npc.id,
           });
         }

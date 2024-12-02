@@ -1,6 +1,7 @@
 import { Color } from "retrommo-types";
 import {
   CreateLabelOptionsText,
+  HUDElementReferences,
   Scriptable,
   State,
   createButton,
@@ -31,81 +32,95 @@ export const createPressableButton = ({
   width,
   x,
   y,
-}: CreatePressableButtonOptions): void => {
+}: CreatePressableButtonOptions): HUDElementReferences => {
+  const buttonIDs: string[] = [];
+  const labelIDs: string[] = [];
+  const spriteIDs: string[] = [];
   const pressableButtonState: State<PressableButtonStateSchema> = new State({
     isPressed: false,
   });
-  createSprite({
-    animationID: (): string => {
-      if (pressableButtonState.values.isPressed) {
-        return "pressed";
-      }
-      return "default";
-    },
-    animations: [
-      {
-        frames: [
-          {
-            height,
-            sourceHeight: 8,
-            sourceWidth: 8,
-            sourceX: 0,
-            sourceY: 0,
-            width,
-          },
-        ],
-        id: "default",
-      },
-      {
-        frames: [
-          {
-            height,
-            sourceHeight: 8,
-            sourceWidth: 8,
-            sourceX: 8,
-            sourceY: 0,
-            width,
-          },
-        ],
-        id: "pressed",
-      },
-    ],
-    coordinates: {
-      condition,
-      x,
-      y,
-    },
-    imagePath,
-  });
-  createLabel({
-    color: Color.White,
-    coordinates: {
-      condition,
-      x: x + width / 2,
-      y: (): number => {
+  spriteIDs.push(
+    createSprite({
+      animationID: (): string => {
         if (pressableButtonState.values.isPressed) {
-          return y + 3;
+          return "pressed";
         }
-        return y + 1;
+        return "default";
       },
-    },
-    horizontalAlignment: "center",
-    text,
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x,
-      y,
-    },
-    height,
-    onClick,
-    onMouseDown: (): void => {
-      pressableButtonState.setValues({ isPressed: true });
-    },
-    onRelease: (): void => {
-      pressableButtonState.setValues({ isPressed: false });
-    },
-    width,
-  });
+      animations: [
+        {
+          frames: [
+            {
+              height,
+              sourceHeight: 8,
+              sourceWidth: 8,
+              sourceX: 0,
+              sourceY: 0,
+              width,
+            },
+          ],
+          id: "default",
+        },
+        {
+          frames: [
+            {
+              height,
+              sourceHeight: 8,
+              sourceWidth: 8,
+              sourceX: 8,
+              sourceY: 0,
+              width,
+            },
+          ],
+          id: "pressed",
+        },
+      ],
+      coordinates: {
+        condition,
+        x,
+        y,
+      },
+      imagePath,
+    }),
+  );
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition,
+        x: x + width / 2,
+        y: (): number => {
+          if (pressableButtonState.values.isPressed) {
+            return y + 3;
+          }
+          return y + 1;
+        },
+      },
+      horizontalAlignment: "center",
+      text,
+    }),
+  );
+  buttonIDs.push(
+    createButton({
+      coordinates: {
+        condition,
+        x,
+        y,
+      },
+      height,
+      onClick,
+      onMouseDown: (): void => {
+        pressableButtonState.setValues({ isPressed: true });
+      },
+      onRelease: (): void => {
+        pressableButtonState.setValues({ isPressed: false });
+      },
+      width,
+    }),
+  );
+  return {
+    buttonIDs,
+    labelIDs,
+    spriteIDs,
+  };
 };

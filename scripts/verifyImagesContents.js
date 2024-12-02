@@ -160,6 +160,11 @@ const colorPalette = {
     0xffdddddd,
     0xfff7f7f7,
   ],
+  questBanners: [
+    0x00000000, // Transparent
+    0xff000000,
+    0xff151515,
+  ]
 };
 
 const defaultDirectoryOptions = {
@@ -316,6 +321,24 @@ const directoryOptions = [
     spriteWidth: null,
     spriteHeight: null,
     size: null
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "quest-banners"],
+    isSpriteSheet: false,
+    palette: colorPalette.questBanners,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "quest-icons"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: null,
+    spriteHeight: null,
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
   },
   {
     colorCount: 8,
