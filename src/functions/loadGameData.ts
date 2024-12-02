@@ -442,6 +442,10 @@ export const loadGameData = async (): Promise<void> => {
             tiles: [],
           });
           layers.push({
+            id: "enterables",
+            tiles: [],
+          });
+          layers.push({
             id: "npc-indicators",
             tiles: [],
           });
@@ -468,6 +472,7 @@ export const loadGameData = async (): Promise<void> => {
                   tile.bankIndex ??
                   tile.chestIndex ??
                   tile.combinationLockIndex ??
+                  tile.enterableIndex ??
                   tile.npcIndex ??
                   tile.pianoIndex;
                 if (typeof index === "undefined") {
@@ -525,6 +530,21 @@ export const loadGameData = async (): Promise<void> => {
                         ...state.values.initialCombinationLockTilePositions,
                         {
                           combinationLockID: tilesetTile.combinationLockID,
+                          levelID: id,
+                          position: {
+                            x,
+                            y,
+                          },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.enterableID !== "undefined") {
+                    state.setValues({
+                      initialEnterableTilePositions: [
+                        ...state.values.initialEnterableTilePositions,
+                        {
+                          enterableID: tilesetTile.enterableID,
                           levelID: id,
                           position: {
                             x,

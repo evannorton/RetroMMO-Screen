@@ -3,6 +3,7 @@ import {
   InitialBankTilePosition,
   InitialChestTilePosition,
   InitialCombinationLockTilePosition,
+  InitialEnterableTilePosition,
   InitialNPCExtenderPosition,
   InitialNPCTilePosition,
   InitialPianoTilePosition,
@@ -51,6 +52,7 @@ interface StateSchema {
   initialBankTilePositions: readonly InitialBankTilePosition[];
   initialChestTilePositions: readonly InitialChestTilePosition[];
   initialCombinationLockTilePositions: readonly InitialCombinationLockTilePosition[];
+  initialEnterableTilePositions: readonly InitialEnterableTilePosition[];
   initialNPCExtenderPositions: readonly InitialNPCExtenderPosition[];
   initialNPCTilePositions: readonly InitialNPCTilePosition[];
   initialPianoTilePositions: readonly InitialPianoTilePosition[];
@@ -71,6 +73,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialBankTilePositions: [],
   initialChestTilePositions: [],
   initialCombinationLockTilePositions: [],
+  initialEnterableTilePositions: [],
   initialNPCExtenderPositions: [],
   initialNPCTilePositions: [],
   initialPianoTilePositions: [],

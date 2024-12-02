@@ -279,6 +279,20 @@ export const processEntitiesInitialPositions = (): void => {
       width: constants["tile-size"],
     });
   }
+  for (const position of state.values.initialEnterableTilePositions) {
+    createEntity({
+      height: constants["tile-size"],
+      layerID: "enterables",
+      levelID: position.levelID,
+      position: {
+        x: position.position.x * constants["tile-size"],
+        y: position.position.y * constants["tile-size"],
+      },
+      sprites: [],
+      type: "enterable",
+      width: constants["tile-size"],
+    });
+  }
   for (const position of state.values.initialNPCExtenderPositions) {
     createEntity({
       height: constants["tile-size"],

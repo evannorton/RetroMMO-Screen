@@ -71,6 +71,9 @@ export const createWorldInteractUI = (): void => {
         case "combination-lock":
           value = "Unlock";
           break;
+        case "enterable":
+          value = "Enter";
+          break;
         case "npc": {
           const npcID: unknown = getEntityFieldValue(
             entityCollidable.entityID,
