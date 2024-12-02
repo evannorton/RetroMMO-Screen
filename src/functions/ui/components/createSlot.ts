@@ -1,9 +1,9 @@
-import { HUDElementReferences, createSprite } from "pixel-pigeon";
+import { HUDElementReferences, Scriptable, createSprite } from "pixel-pigeon";
 
 interface CreateSlotOptions {
   condition?: () => boolean;
   imagePath: string;
-  isSelected?: boolean;
+  isSelected?: Scriptable<boolean>;
   x: number;
   y: number;
 }
@@ -18,7 +18,11 @@ export const createSlot = ({
   const spriteIDs: string[] = [];
   spriteIDs.push(
     createSprite({
-      animationID: (): string => (isSelected === true ? "selected" : "default"),
+      animationID: (): string => {
+        const isSelectedResult: boolean | undefined =
+          typeof isSelected === "function" ? isSelected() : isSelected;
+        return isSelectedResult === true ? "selected" : "default";
+      },
       animations: [
         {
           frames: [

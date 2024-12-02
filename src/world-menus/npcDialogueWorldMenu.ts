@@ -2,11 +2,14 @@ import { Color } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
+  createButton,
   createLabel,
   getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { NPC } from "../classes/NPC";
+import { Quest } from "../classes/Quest";
+import { QuestGiverQuest } from "../classes/QuestGiver";
 import { WorldMenu } from "../classes/WorldMenu";
 import { createClickableImage } from "../functions/ui/components/createClickableImage";
 import { createPanel } from "../functions/ui/components/createPanel";
@@ -18,7 +21,9 @@ import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
 export interface NPCDialogueWorldMenuOpenOptions {
   readonly npcID: string;
 }
-export interface NPCDialogueWorldMenuStateSchema {}
+export interface NPCDialogueWorldMenuStateSchema {
+  selectedQuestIndex: number | null;
+}
 export const npcDialogueWorldMenu: WorldMenu<
   NPCDialogueWorldMenuOpenOptions,
   NPCDialogueWorldMenuStateSchema
@@ -28,12 +33,26 @@ export const npcDialogueWorldMenu: WorldMenu<
 >({
   create: (options: NPCDialogueWorldMenuOpenOptions): HUDElementReferences => {
     const labelIDs: string[] = [];
+    const buttonIDs: string[] = [];
     const hudElementReferences: HUDElementReferences[] = [];
     const npc: NPC = getDefinable(NPC, options.npcID);
     const width: number = getGameWidth();
     const x: number = 0;
     const y: number = 136;
     const xOffset: number = 10;
+    const getSelectedQuest = (): Quest | null => {
+      if (npcDialogueWorldMenu.state.values.selectedQuestIndex === null) {
+        return null;
+      }
+      const questGiverQuest: QuestGiverQuest | undefined =
+        npc.questGiver.quests[
+          npcDialogueWorldMenu.state.values.selectedQuestIndex
+        ];
+      if (typeof questGiverQuest === "undefined") {
+        throw new Error("No quest giver quest.");
+      }
+      return getDefinable(Quest, questGiverQuest.questID);
+    };
     // Background panel
     hudElementReferences.push(
       createPanel({
@@ -69,8 +88,15 @@ export const npcDialogueWorldMenu: WorldMenu<
         maxLines: 1,
         maxWidth: width - xOffset * 2,
         size: 1,
-        text: {
-          value: npc.name,
+        text: (): CreateLabelOptionsText => {
+          const pieces: string[] = [npc.name];
+          const quest: Quest | null = getSelectedQuest();
+          if (quest !== null) {
+            pieces.push(quest.name);
+          }
+          return {
+            value: pieces.join(" - "),
+          };
         },
       }),
     );
@@ -87,9 +113,17 @@ export const npcDialogueWorldMenu: WorldMenu<
         maxLines: 3,
         maxWidth: width - xOffset * 2,
         size: 1,
-        text: (): CreateLabelOptionsText => ({
-          value: npc.dialogue,
-        }),
+        text: (): CreateLabelOptionsText => {
+          const quest: Quest | null = getSelectedQuest();
+          if (quest !== null) {
+            return {
+              value: quest.description,
+            };
+          }
+          return {
+            value: npc.dialogue,
+          };
+        },
       }),
     );
     const questsX: number = 176;
@@ -147,19 +181,74 @@ export const npcDialogueWorldMenu: WorldMenu<
       );
       for (let i: number = 0; i < npcQuestsPerPage; i++) {
         if (npc.questGiver.quests.length > i) {
+          const index: number = i;
+          const questGiverQuest: QuestGiverQuest | undefined =
+            npc.questGiver.quests[i];
+          if (typeof questGiverQuest === "undefined") {
+            throw new Error("No quest giver quest.");
+          }
+          const quest: Quest = getDefinable(Quest, questGiverQuest.questID);
           hudElementReferences.push(
             createSlot({
               imagePath: "slots/basic",
-              isSelected: false,
-              x: questsX + 8,
+              isSelected: (): boolean =>
+                npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
+              x: questsX + 5,
               y: questsY + 25 + i * 18,
+            }),
+          );
+          labelIDs.push(
+            createLabel({
+              color: Color.White,
+              coordinates: {
+                x: questsX + 25,
+                y: questsY + 31 + i * 18,
+              },
+              horizontalAlignment: "left",
+              maxLines: 1,
+              maxWidth: 96,
+              size: 1,
+              text: {
+                value: quest.name,
+              },
+            }),
+          );
+          buttonIDs.push(
+            createButton({
+              coordinates: {
+                x: questsX + 6,
+                y: questsY + 26 + i * 18,
+              },
+              height: 16,
+              onClick: (): void => {
+                if (
+                  npcDialogueWorldMenu.state.values.selectedQuestIndex === i
+                ) {
+                  npcDialogueWorldMenu.state.setValues({
+                    selectedQuestIndex: null,
+                  });
+                } else {
+                  npcDialogueWorldMenu.state.setValues({
+                    selectedQuestIndex: index,
+                  });
+                }
+              },
+              width: 116,
             }),
           );
         }
       }
     }
-    return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
+    return mergeHUDElementReferences([
+      {
+        buttonIDs,
+        labelIDs,
+      },
+      ...hudElementReferences,
+    ]);
   },
-  initialStateValues: {},
+  initialStateValues: {
+    selectedQuestIndex: null,
+  },
   preventsWalking: true,
 });
