@@ -162,7 +162,7 @@ const colorPalette = {
   ],
   questBanners: [
     0x00000000, // Transparent
-    0xff000000,
+    0xffffffff,
     0xff151515,
   ]
 };
