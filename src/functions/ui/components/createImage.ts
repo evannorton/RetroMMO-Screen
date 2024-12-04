@@ -1,29 +1,32 @@
 import {
+  CreateSpriteOptionsRecolor,
   HUDElementReferences,
   Scriptable,
   createButton,
   createSprite,
 } from "pixel-pigeon";
 
-interface CreateClickableImageOptions {
+interface CreateImageOptions {
   condition?: () => boolean;
   height: number;
   imagePath: Scriptable<string>;
-  onClick: () => void;
+  onClick?: () => void;
+  recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
   width: number;
-  x: number;
-  y: number;
+  x: Scriptable<number>;
+  y: Scriptable<number>;
 }
 
-export const createClickableImage = ({
+export const createImage = ({
   condition,
   height,
   imagePath,
   onClick,
+  recolors,
   x,
   y,
   width,
-}: CreateClickableImageOptions): HUDElementReferences => {
+}: CreateImageOptions): HUDElementReferences => {
   const buttonIDs: string[] = [];
   const spriteIDs: string[] = [];
   spriteIDs.push(
@@ -50,20 +53,23 @@ export const createClickableImage = ({
         y,
       },
       imagePath,
+      recolors,
     }),
   );
-  buttonIDs.push(
-    createButton({
-      coordinates: {
-        condition,
-        x,
-        y,
-      },
-      height,
-      onClick,
-      width,
-    }),
-  );
+  if (typeof onClick !== "undefined") {
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition,
+          x,
+          y,
+        },
+        height,
+        onClick,
+        width,
+      }),
+    );
+  }
   return {
     buttonIDs,
     spriteIDs,

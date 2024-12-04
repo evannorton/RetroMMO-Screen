@@ -1,8 +1,5 @@
-import {
-  createButton,
-  createInputPressHandler,
-  createSprite,
-} from "pixel-pigeon";
+import { createImage } from "./createImage";
+import { createInputPressHandler } from "pixel-pigeon";
 import { pianoWorldMenu } from "../../../world-menus/pianoWorldMenu";
 
 export interface CreateBottomBarIconOptions {
@@ -22,39 +19,14 @@ export const createBottomBarIcon = ({
   x,
   y,
 }: CreateBottomBarIconOptions): void => {
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 20,
-            sourceHeight: 20,
-            sourceWidth: 20,
-            sourceX: 0,
-            sourceY: 0,
-            width: 20,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x,
-      y,
-    },
-    imagePath: unselectedImagePath,
-  });
-  createButton({
-    coordinates: {
-      condition,
-      x,
-      y,
-    },
+  createImage({
+    condition,
     height: 20,
+    imagePath: unselectedImagePath,
     onClick: legacyOpen,
     width: 20,
+    x,
+    y,
   });
   createInputPressHandler({
     condition: (): boolean => {

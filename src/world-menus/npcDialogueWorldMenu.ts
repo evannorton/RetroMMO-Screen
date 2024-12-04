@@ -5,7 +5,6 @@ import {
   HUDElementReferences,
   createButton,
   createLabel,
-  createSprite,
   emitToSocketioServer,
   getGameWidth,
   mergeHUDElementReferences,
@@ -15,7 +14,7 @@ import { Quest } from "../classes/Quest";
 import { QuestGiverQuest } from "../classes/QuestGiver";
 import { QuestState } from "../types/QuestState";
 import { WorldMenu } from "../classes/WorldMenu";
-import { createClickableImage } from "../functions/ui/components/createClickableImage";
+import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createSlot } from "../functions/ui/components/createSlot";
@@ -42,7 +41,6 @@ export const npcDialogueWorldMenu: WorldMenu<
   create: (options: NPCDialogueWorldMenuOpenOptions): HUDElementReferences => {
     const buttonIDs: string[] = [];
     const labelIDs: string[] = [];
-    const spriteIDs: string[] = [];
     const hudElementReferences: HUDElementReferences[] = [];
     const npc: NPC = getDefinable(NPC, options.npcID);
     const width: number = getGameWidth();
@@ -75,7 +73,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     );
     // Close button
     hudElementReferences.push(
-      createClickableImage({
+      createImage({
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -153,7 +151,7 @@ export const npcDialogueWorldMenu: WorldMenu<
       );
       // Close quests button
       hudElementReferences.push(
-        createClickableImage({
+        createImage({
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -203,64 +201,29 @@ export const npcDialogueWorldMenu: WorldMenu<
               imagePath: "slots/basic",
               isSelected: (): boolean =>
                 npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
-              x: questsX + 5,
-              y: questsY + 25 + i * 18,
+              x: questsX + 6,
+              y: questsY + 26 + i * 18,
             }),
           );
-          spriteIDs.push(
-            createSprite({
-              animationID: "default",
-              animations: [
-                {
-                  frames: [
-                    {
-                      height: 16,
-                      sourceHeight: 16,
-                      sourceWidth: 16,
-                      sourceX: 0,
-                      sourceY: 0,
-                      width: 16,
-                    },
-                  ],
-                  id: "default",
-                },
-              ],
-              coordinates: {
-                x: questsX + 6,
-                y: questsY + 26 + i * 18,
-              },
+          hudElementReferences.push(
+            createImage({
+              height: 16,
               imagePath: getQuestIconImagePath(quest.id),
+              width: 16,
+              x: questsX + 6,
+              y: questsY + 26 + i * 18,
             }),
           );
-          spriteIDs.push(
-            createSprite({
-              animationID: "default",
-              animations: [
-                {
-                  frames: [
-                    {
-                      height: 16,
-                      sourceHeight: 16,
-                      sourceWidth: 16,
-                      sourceX: 0,
-                      sourceY: 0,
-                      width: 16,
-                    },
-                  ],
-                  id: "default",
-                },
-              ],
-              coordinates: {
-                condition: (): boolean => {
-                  const questState: QuestState | null = getQuestState(quest.id);
-                  return (
-                    questState === QuestState.InProgress ||
-                    questState === QuestState.TurnIn
-                  );
-                },
-                x: questsX + 6,
-                y: questsY + 26 + i * 18,
+          hudElementReferences.push(
+            createImage({
+              condition: (): boolean => {
+                const questState: QuestState | null = getQuestState(quest.id);
+                return (
+                  questState === QuestState.InProgress ||
+                  questState === QuestState.TurnIn
+                );
               },
+              height: 16,
               imagePath: "quest-banners/default",
               recolors: (): CreateSpriteOptionsRecolor[] => {
                 let toColor: Color | undefined;
@@ -282,6 +245,9 @@ export const npcDialogueWorldMenu: WorldMenu<
                   },
                 ];
               },
+              width: 16,
+              x: questsX + 6,
+              y: questsY + 26 + i * 18,
             }),
           );
           labelIDs.push(
@@ -363,7 +329,6 @@ export const npcDialogueWorldMenu: WorldMenu<
       {
         buttonIDs,
         labelIDs,
-        spriteIDs,
       },
       ...hudElementReferences,
     ]);

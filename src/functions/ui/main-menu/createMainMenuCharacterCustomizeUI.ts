@@ -15,7 +15,7 @@ import { Figure } from "../../../classes/Figure";
 import { Item } from "../../../classes/Item";
 import { SkinColor } from "../../../classes/SkinColor";
 import { createCharacterSprite } from "../components/createCharacterSprite";
-import { createClickableImage } from "../components/createClickableImage";
+import { createImage } from "../components/createImage";
 import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
@@ -79,7 +79,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 0,
   });
   // Back arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -139,7 +139,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     skinColorID: (): string => getSkinColor().id,
   });
   // Preview left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -172,7 +172,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 75,
   });
   // Preview right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -205,7 +205,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 75,
   });
   // Figure left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -231,7 +231,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Figure" },
   });
   // Figure right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -243,7 +243,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 101,
   });
   // Head left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -269,7 +269,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Head" },
   });
   // Head right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -281,7 +281,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 127,
   });
   // Body left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -307,7 +307,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Body" },
   });
   // Body right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -319,7 +319,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 127,
   });
   // Hair dye left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -345,7 +345,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Hair" },
   });
   // Hair dye right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -357,7 +357,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 153,
   });
   // Clothes dye primary left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -383,7 +383,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Primary" },
   });
   // Clothes dye primary right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -395,7 +395,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 153,
   });
   // Skin color left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -421,7 +421,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Skin" },
   });
   // Skin color right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",
@@ -433,7 +433,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     y: 179,
   });
   // Clothes dye secondary left arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",
@@ -459,7 +459,7 @@ export const createMainMenuCharacterCustomizeUI = (): void => {
     text: { value: "Secondary" },
   });
   // Clothes dye secondary right arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/right",

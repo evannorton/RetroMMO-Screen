@@ -1,6 +1,7 @@
 import { Color } from "retrommo-types";
 import {
   HUDElementReferences,
+  Scriptable,
   State,
   createButton,
   createInputPressHandler,
@@ -17,6 +18,7 @@ interface WhitePianoKeyStateSchema {
 export interface CreateWhitePianoKeyOptions {
   audioPath: string;
   inputCollectionID: string;
+  isLabelVisible: Scriptable<boolean>;
   onPlay: () => void;
   text: string;
   x: number;
@@ -25,6 +27,7 @@ export interface CreateWhitePianoKeyOptions {
 export const createWhitePianoKey = ({
   audioPath,
   inputCollectionID,
+  isLabelVisible,
   onPlay,
   text,
   x,
@@ -118,6 +121,10 @@ export const createWhitePianoKey = ({
     createLabel({
       color: Color.Black,
       coordinates: {
+        condition: (): boolean =>
+          typeof isLabelVisible === "function"
+            ? isLabelVisible()
+            : isLabelVisible,
         x: x + 3,
         y: (): number => y + 28 + (whitePianoKeyState.values.isPressed ? 1 : 0),
       },

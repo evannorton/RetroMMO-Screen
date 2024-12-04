@@ -1,7 +1,7 @@
 import { Class } from "../../../classes/Class";
 import { Color, Direction } from "retrommo-types";
 import { createCharacterSprite } from "../components/createCharacterSprite";
-import { createClickableImage } from "../components/createClickableImage";
+import { createImage } from "../components/createImage";
 import { createLabel, getGameHeight, getGameWidth } from "pixel-pigeon";
 import { createMainMenuCharacterCustomizeState } from "../../state/main-menu/createMainMenuCharacterCustomizeState";
 import { createMainMenuCharacterSelectState } from "../../state/main-menu/createMainMenuCharacterSelectState";
@@ -25,7 +25,7 @@ export const createMainMenuCharacterCreateUI = (): void => {
     y: 0,
   });
   // Back arrow
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/left",

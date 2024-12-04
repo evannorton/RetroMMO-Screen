@@ -5,7 +5,7 @@ import { WorldStateSchema, state } from "../../../state";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { createBottomBarIcon } from "../components/createBottomBarIcon";
 import { createCharacterSprite } from "../components/createCharacterSprite";
-import { createClickableImage } from "../components/createClickableImage";
+import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { createResourceBar } from "../components/createResourceBar";
 import { getConstants } from "../../getConstants";
@@ -150,7 +150,7 @@ export const createWorldBottomBarUI = (): void => {
     condition() &&
     getDefinable(WorldCharacter, getWorldState().values.worldCharacterID).party
       .worldCharacters.length > 1;
-  createClickableImage({
+  createImage({
     condition: leavePartyCondition,
     height: 11,
     imagePath: "x",

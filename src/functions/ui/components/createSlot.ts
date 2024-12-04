@@ -53,8 +53,8 @@ export const createSlot = ({
       ],
       coordinates: {
         condition,
-        x,
-        y,
+        x: x - 1,
+        y: y - 1,
       },
       imagePath,
     }),

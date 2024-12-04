@@ -13,13 +13,15 @@ import {
   whitePianoKeyInputCollectionIDs,
 } from "../input";
 import { createBlackPianoKey } from "../functions/ui/components/createBlackPianoKey";
-import { createClickableImage } from "../functions/ui/components/createClickableImage";
+import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
+import { createVisibilityToggle } from "../functions/ui/components/createVisibilityToggle";
 import { createWhitePianoKey } from "../functions/ui/components/createWhitePianoKey";
 import { getPianoKeyAudioPath } from "../functions/getPianoKeyAudioPath";
 
 export interface PianoWorldMenuOpenOptions {}
 export interface PianoWorldMenuStateSchema {
+  areLabelsVisible: boolean;
   lastKeyAt: number | null;
 }
 export const pianoWorldMenu: WorldMenu<
@@ -116,6 +118,8 @@ export const pianoWorldMenu: WorldMenu<
         createWhitePianoKey({
           audioPath,
           inputCollectionID,
+          isLabelVisible: (): boolean =>
+            pianoWorldMenu.state.values.areLabelsVisible,
           onPlay: (): void => {
             onPlay(playIndex, PianoKeyType.White);
           },
@@ -151,6 +155,8 @@ export const pianoWorldMenu: WorldMenu<
           createBlackPianoKey({
             audioPath,
             inputCollectionID,
+            isLabelVisible: (): boolean =>
+              pianoWorldMenu.state.values.areLabelsVisible,
             onPlay: (): void => {
               onPlay(playIndex, PianoKeyType.Black);
             },
@@ -164,7 +170,7 @@ export const pianoWorldMenu: WorldMenu<
     }
     const xWidth: number = 10;
     hudElementReferences.push(
-      createClickableImage({
+      createImage({
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -188,9 +194,23 @@ export const pianoWorldMenu: WorldMenu<
         },
       }),
     );
+    hudElementReferences.push(
+      createVisibilityToggle({
+        isVisible: (): boolean => pianoWorldMenu.state.values.areLabelsVisible,
+        onClick: (): void => {
+          pianoWorldMenu.state.setValues({
+            areLabelsVisible:
+              pianoWorldMenu.state.values.areLabelsVisible === false,
+          });
+        },
+        x: panelX + 7,
+        y: panelY + 6,
+      }),
+    );
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
   initialStateValues: {
+    areLabelsVisible: true,
     lastKeyAt: null,
   },
   preventsWalking: true,

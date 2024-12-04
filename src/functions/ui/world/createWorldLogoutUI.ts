@@ -1,5 +1,5 @@
 import { WorldExitToMainMenuRequest } from "retrommo-types";
-import { createClickableImage } from "../components/createClickableImage";
+import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { emitToSocketioServer } from "pixel-pigeon";
 import { state } from "../../../state";
@@ -14,7 +14,7 @@ export const createWorldLogoutUI = (): void => {
     x: 256,
     y: 0,
   });
-  createClickableImage({
+  createImage({
     condition,
     height: 14,
     imagePath: "arrows/logout",

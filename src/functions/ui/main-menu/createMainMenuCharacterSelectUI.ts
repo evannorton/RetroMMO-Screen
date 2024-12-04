@@ -22,7 +22,7 @@ import {
   state,
 } from "../../../state";
 import { createCharacterSprite } from "../components/createCharacterSprite";
-import { createClickableImage } from "../components/createClickableImage";
+import { createImage } from "../components/createImage";
 import { createMainMenuCharacterCreateState } from "../../state/main-menu/createMainMenuCharacterCreateState";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
@@ -306,7 +306,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
     const playY: number = 71 + 42 * Math.floor(i / 2);
     const playWidth: number = 10;
     const playHeight: number = 12;
-    createClickableImage({
+    createImage({
       condition: playCondition,
       height: playHeight,
       imagePath: (): string =>
@@ -339,7 +339,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       characterCondition() &&
       getMainMenuCharacterSelectState().values.isSorting &&
       canPlayCharacter();
-    createClickableImage({
+    createImage({
       condition: sortCondition,
       height: 12,
       imagePath: "arrows/left-small",
@@ -360,7 +360,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       y: 71 + 42 * Math.floor(i / 2),
     });
     // Sort right arrow
-    createClickableImage({
+    createImage({
       condition: sortCondition,
       height: 12,
       imagePath: "arrows/right-small",
@@ -396,7 +396,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       }
       return false;
     };
-    createClickableImage({
+    createImage({
       condition: deleteButtonCondition,
       height: 11,
       imagePath: "x",
@@ -445,7 +445,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
     }),
   });
   // Page left arrow
-  createClickableImage({
+  createImage({
     condition: paginationCondition,
     height: 14,
     imagePath: "arrows/left",
@@ -457,7 +457,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
     y: 202,
   });
   // Page right arrow
-  createClickableImage({
+  createImage({
     condition: paginationCondition,
     height: 14,
     imagePath: "arrows/right",

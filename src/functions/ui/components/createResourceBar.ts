@@ -4,8 +4,8 @@ import {
   Scriptable,
   createLabel,
   createQuadrilateral,
-  createSprite,
 } from "pixel-pigeon";
+import { createImage } from "./createImage";
 
 export interface CreateResourceBarOptions {
   condition?: () => boolean;
@@ -27,29 +27,13 @@ export const createResourceBar = ({
   x,
   y,
 }: CreateResourceBarOptions): void => {
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 8,
-            sourceHeight: 8,
-            sourceWidth: 41,
-            sourceX: 0,
-            sourceY: 0,
-            width: 41,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x,
-      y,
-    },
+  createImage({
+    condition,
+    height: 8,
     imagePath: "calipers",
+    width: 41,
+    x,
+    y,
   });
   const maxFillingWidth: number = 38;
   const fillingWidth = (): number => {
@@ -87,29 +71,13 @@ export const createResourceBar = ({
     height: 1,
     width: fillingWidth,
   });
-  createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 7,
-            sourceHeight: 7,
-            sourceWidth: 7,
-            sourceX: 0,
-            sourceY: 0,
-            width: 7,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates: {
-      condition,
-      x: (typeof x === "number" ? x : x()) + 4,
-      y,
-    },
+  createImage({
+    condition,
+    height: 7,
     imagePath: iconImagePath,
+    width: 7,
+    x: (typeof x === "number" ? x : x()) + 4,
+    y,
   });
   createLabel({
     color: Color.White,
