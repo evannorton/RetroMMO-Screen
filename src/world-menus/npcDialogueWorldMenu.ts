@@ -124,9 +124,21 @@ export const npcDialogueWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const quest: Quest | null = getSelectedQuest();
           if (quest !== null) {
-            return {
-              value: quest.description,
-            };
+            switch (getQuestState(quest.id)) {
+              case QuestState.Accept:
+                return {
+                  value: quest.availableText,
+                };
+              case QuestState.Complete:
+                return {
+                  value: quest.completedText,
+                };
+              case QuestState.InProgress:
+              case QuestState.TurnIn:
+                return {
+                  value: quest.inProgressText,
+                };
+            }
           }
           return {
             value: npc.dialogue,

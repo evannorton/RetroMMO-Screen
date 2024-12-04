@@ -41,6 +41,7 @@ export class WorldMenu<OpenOptions, StateSchema> extends Definable {
     }
     removeHUDElements(this._hudElementReferences);
     this._hudElementReferences = null;
+    this._state = null;
   }
 
   public isOpen(): boolean {

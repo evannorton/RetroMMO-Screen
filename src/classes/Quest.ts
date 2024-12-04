@@ -10,12 +10,16 @@ export interface QuestOptions {
   id: string;
 }
 export class Quest extends Definable {
-  private readonly _description: string;
+  private readonly _availableText: string;
+  private readonly _completedText: string;
+  private readonly _inProgressText: string;
   private readonly _monster?: QuestMonster;
   private readonly _name: string;
   public constructor(options: QuestOptions) {
     super(options.id);
-    this._description = options.definition.description;
+    this._availableText = options.definition.availableText;
+    this._completedText = options.definition.completedText;
+    this._inProgressText = options.definition.inProgressText;
     this._monster =
       typeof options.definition.monster !== "undefined"
         ? {
@@ -26,8 +30,16 @@ export class Quest extends Definable {
     this._name = options.definition.name;
   }
 
-  public get description(): string {
-    return this._description;
+  public get availableText(): string {
+    return this._availableText;
+  }
+
+  public get completedText(): string {
+    return this._completedText;
+  }
+
+  public get inProgressText(): string {
+    return this._inProgressText;
   }
 
   public get monster(): QuestMonster {
