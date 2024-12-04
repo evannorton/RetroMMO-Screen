@@ -86,7 +86,6 @@ export const listenForWorldUpdates = (): void => {
           };
         }
       }
-      console.log(JSON.stringify(worldCharacter.questInstances));
     },
   });
   listenToSocketioEvent<WorldBonkUpdate>({
