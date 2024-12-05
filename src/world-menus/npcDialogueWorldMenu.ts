@@ -1,4 +1,8 @@
-import { Color, WorldAcceptQuestRequest } from "retrommo-types";
+import {
+  Color,
+  WorldAcceptQuestRequest,
+  WorldSelectQuestRequest,
+} from "retrommo-types";
 import {
   CreateLabelOptionsText,
   CreateSpriteOptionsRecolor,
@@ -292,9 +296,19 @@ export const npcDialogueWorldMenu: WorldMenu<
                   npcDialogueWorldMenu.state.setValues({
                     selectedQuestIndex: null,
                   });
+                  emitToSocketioServer<WorldSelectQuestRequest>({
+                    data: {},
+                    event: "world/select-quest",
+                  });
                 } else {
                   npcDialogueWorldMenu.state.setValues({
                     selectedQuestIndex: index,
+                  });
+                  emitToSocketioServer<WorldSelectQuestRequest>({
+                    data: {
+                      questID: quest.id,
+                    },
+                    event: "world/select-quest",
                   });
                 }
               },

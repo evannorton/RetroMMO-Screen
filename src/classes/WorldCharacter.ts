@@ -43,8 +43,8 @@ export interface WorldCharacterOptions {
   username: string;
 }
 export interface WorldCharacterQuestInstance {
-  readonly isCompleted: boolean;
-  readonly isStarted: boolean;
+  isCompleted: boolean;
+  isStarted: boolean;
   readonly monsterKills?: number;
 }
 export interface WorldCharacterResources {

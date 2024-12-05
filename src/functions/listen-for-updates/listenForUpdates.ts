@@ -17,9 +17,6 @@ import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
 
 export const listenForUpdates = (): void => {
-  listenForMainMenuUpdates();
-  listenForWorldUpdates();
-  listenForBattleUpdates();
   listenToSocketioEvent<InitialUpdate>({
     event: "initial-update",
     onMessage: (update: InitialUpdate): void => {
@@ -94,6 +91,9 @@ export const listenForUpdates = (): void => {
           break;
         }
       }
+      listenForMainMenuUpdates();
+      listenForWorldUpdates();
+      listenForBattleUpdates();
     },
   });
 };

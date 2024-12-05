@@ -11,6 +11,7 @@ import { interact } from "./functions/interact";
 import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
 import { pianoWorldMenu } from "./world-menus/pianoWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
+import { state } from "./state";
 
 export const whitePianoKeyInputCollectionIDs: readonly string[] = [
   createInputCollection({
@@ -249,7 +250,8 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
+  condition: (): boolean =>
+    state.values.worldState !== null && pianoWorldMenu.isOpen() === false,
   inputCollectionID: emotesInputCollectionID,
   onInput: (): void => {
     emitToSocketioServer({
@@ -259,7 +261,8 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
+  condition: (): boolean =>
+    state.values.worldState !== null && pianoWorldMenu.isOpen() === false,
   inputCollectionID: lastEmoteInputCollectionID,
   onInput: (): void => {
     emitToSocketioServer({
@@ -540,6 +543,7 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  condition: (): boolean => state.values.worldState !== null,
   inputCollectionID: actionInputCollectionID,
   onInput: (): void => {
     if (isAWorldMenuOpen()) {

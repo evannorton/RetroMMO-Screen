@@ -1,4 +1,5 @@
 import { NPC } from "../classes/NPC";
+import { QuestGiverQuest } from "../classes/QuestGiver";
 import { QuestState } from "../types/QuestState";
 import { getDefinable } from "definables";
 import { getQuestState } from "./getQuestState";
@@ -15,15 +16,19 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
     return npc.shop.indicatorImagePath;
   }
   if (npc.hasQuestGiver()) {
-    for (const questGiverQuest of npc.questGiver.quests) {
-      switch (getQuestState(questGiverQuest.questID)) {
-        case QuestState.Accept:
-          return "indicators/quest/accept";
-        case QuestState.InProgress:
-          return "indicators/quest/in-progress";
-        case QuestState.TurnIn:
-          return "indicators/quest/turn-in";
-      }
+    const questStates: readonly (QuestState | null)[] =
+      npc.questGiver.quests.map(
+        (questGiverQuest: QuestGiverQuest): QuestState | null =>
+          getQuestState(questGiverQuest.questID),
+      );
+    if (questStates.includes(QuestState.Complete)) {
+      return "indicators/quest/turn-in";
+    }
+    if (questStates.includes(QuestState.Accept)) {
+      return "indicators/quest/accept";
+    }
+    if (questStates.includes(QuestState.InProgress)) {
+      return "indicators/quest/in-progress";
     }
   }
   if (npc.hasDialogue() || npc.hasQuestGiver()) {

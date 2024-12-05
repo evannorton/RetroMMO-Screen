@@ -19,6 +19,7 @@ import {
   WorldPianoKeyUpdate,
   WorldPositionUpdate,
   WorldPreparationUpdate,
+  WorldSelectQuestUpdate,
   WorldStartBattleUpdate,
   WorldTradeUpdate,
   WorldTurnCharactersUpdate,
@@ -43,6 +44,7 @@ import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { Quest } from "../../classes/Quest";
+import { QuestGiverQuest } from "../../classes/QuestGiver";
 import {
   WorldCharacter,
   WorldCharacterQuestInstance,
@@ -81,10 +83,16 @@ export const listenForWorldUpdates = (): void => {
         if (typeof questInstance === "undefined") {
           partyWorldCharacter.questInstances[update.questID] = {
             isCompleted: false,
-            isStarted: true,
+            isStarted: false,
             monsterKills: quest.hasMonster() ? 0 : undefined,
           };
         }
+        const updatedQuestInstance: WorldCharacterQuestInstance | undefined =
+          partyWorldCharacter.questInstances[update.questID];
+        if (typeof updatedQuestInstance === "undefined") {
+          throw new Error("No updated quest instance.");
+        }
+        updatedQuestInstance.isStarted = true;
       }
     },
   });
@@ -488,6 +496,29 @@ export const listenForWorldUpdates = (): void => {
       }
     },
   });
+  listenToSocketioEvent<WorldSelectQuestUpdate>({
+    event: "world/select-quest",
+    onMessage: (update: WorldSelectQuestUpdate): void => {
+      console.log("yo");
+      if (npcDialogueWorldMenu.isOpen() === false) {
+        closeWorldMenus();
+        npcDialogueWorldMenu.open({
+          isLeader: false,
+          npcID: update.npcID,
+        });
+      }
+      const npc: NPC = getDefinable(NPC, update.npcID);
+      npcDialogueWorldMenu.state.setValues({
+        selectedQuestIndex:
+          typeof update.questID !== "undefined"
+            ? npc.questGiver.quests.findIndex(
+                (questGiverQuest: QuestGiverQuest): boolean =>
+                  questGiverQuest.questID === update.questID,
+              )
+            : null,
+      });
+    },
+  });
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
     onMessage: (): void => {
@@ -551,6 +582,7 @@ export const listenForWorldUpdates = (): void => {
       npc.direction = update.direction;
       if (update.wasInteracted === true) {
         if (npc.hasDialogue() || npc.hasQuestGiver()) {
+          closeWorldMenus();
           npcDialogueWorldMenu.open({
             isLeader,
             npcID: npc.id,
