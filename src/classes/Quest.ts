@@ -31,7 +31,6 @@ export class Quest extends Definable {
         : undefined;
     this._name = options.definition.name;
     this._npcID = options.definition.npcID;
-    console.log(this);
   }
 
   public get availableText(): string {
