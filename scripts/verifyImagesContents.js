@@ -359,13 +359,13 @@ const directoryOptions = [
     size: { width: 7, height: 7, tiledX: false, tiledY: false }
   },
   {
-    colorCount: 16,
-    directoryPath: ["images", "tabs"],
+    colorCount: 8,
+    directoryPath: ["images", "tab-icons"],
     isSpriteSheet: false,
     palette: colorPalette.famicube,
     spriteWidth: null,
     spriteHeight: null,
-    size: { width: 124, height: 21, tiledX: false, tiledY: false }
+    size: { width: 16, height: 16, tiledX: false, tiledY: false }
   },
   {
     colorCount: 8,
