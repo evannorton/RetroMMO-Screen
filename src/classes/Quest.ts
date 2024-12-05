@@ -1,4 +1,5 @@
-import { Definable } from "definables";
+import { Definable, getDefinable } from "definables";
+import { NPC } from "./NPC";
 import { QuestDefinition } from "retrommo-types";
 
 export interface QuestMonster {
@@ -15,6 +16,7 @@ export class Quest extends Definable {
   private readonly _inProgressText: string;
   private readonly _monster?: QuestMonster;
   private readonly _name: string;
+  private readonly _npcID: string;
   public constructor(options: QuestOptions) {
     super(options.id);
     this._availableText = options.definition.availableText;
@@ -28,6 +30,8 @@ export class Quest extends Definable {
           }
         : undefined;
     this._name = options.definition.name;
+    this._npcID = options.definition.npcID;
+    console.log(this);
   }
 
   public get availableText(): string {
@@ -51,6 +55,14 @@ export class Quest extends Definable {
 
   public get name(): string {
     return this._name;
+  }
+
+  public get npcID(): string {
+    return this._npcID;
+  }
+
+  public get npc(): NPC {
+    return getDefinable(NPC, this._npcID);
   }
 
   public hasMonster(): boolean {
