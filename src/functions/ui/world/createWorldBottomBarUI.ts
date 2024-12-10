@@ -18,9 +18,11 @@ import { getWorldState } from "../../state/getWorldState";
 import { handleWorldCharacterClick } from "../../handleWorldCharacterClick";
 import {
   inventoryInputCollectionID,
+  questLogInputCollectionID,
   spellbookInputCollectionID,
   statsInputCollectionID,
 } from "../../../input";
+import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 
 export const createWorldBottomBarUI = (): void => {
   const tileSize: number = getConstants()["tile-size"];
@@ -167,48 +169,65 @@ export const createWorldBottomBarUI = (): void => {
   // Stats icon
   createBottomBarIcon({
     condition,
+    imagePath: "bottom-bar-icons/stats",
     inputCollectionID: statsInputCollectionID,
-    legacyOpen: (): void => {
+    isSelected: false,
+    onClick: (): void => {
       closeWorldMenus();
       emitToSocketioServer({
         data: {},
         event: "legacy/open-stats",
       });
     },
-    selectedImagePath: "bottom-bar-icons/stats/selected",
-    unselectedImagePath: "bottom-bar-icons/stats/unselected",
+    x: 209,
+    y: 214,
+  });
+  // Quest log icon
+  createBottomBarIcon({
+    condition,
+    imagePath: "bottom-bar-icons/quest-log",
+    inputCollectionID: questLogInputCollectionID,
+    isSelected: (): boolean => questLogWorldMenu.isOpen(),
+    onClick: (): void => {
+      if (questLogWorldMenu.isOpen()) {
+        questLogWorldMenu.close();
+      } else {
+        closeWorldMenus();
+        questLogWorldMenu.open({});
+      }
+    },
     x: 232,
     y: 214,
   });
   // Spellbook icon
   createBottomBarIcon({
     condition,
+    imagePath: "bottom-bar-icons/spellbook",
     inputCollectionID: spellbookInputCollectionID,
-    legacyOpen: (): void => {
+    isSelected: false,
+    onClick: (): void => {
       closeWorldMenus();
       emitToSocketioServer({
         data: {},
         event: "legacy/open-spellbook",
       });
     },
-    selectedImagePath: "bottom-bar-icons/spellbook/selected",
-    unselectedImagePath: "bottom-bar-icons/spellbook/unselected",
     x: 255,
     y: 214,
   });
   // Inventory icon
   createBottomBarIcon({
     condition,
+    imagePath: "bottom-bar-icons/inventory",
     inputCollectionID: inventoryInputCollectionID,
-    legacyOpen: (): void => {
+    isSelected: false,
+    onClick: (): void => {
       closeWorldMenus();
       emitToSocketioServer({
         data: {},
         event: "legacy/open-inventory",
       });
     },
-    selectedImagePath: "bottom-bar-icons/inventory/selected",
-    unselectedImagePath: "bottom-bar-icons/inventory/unselected",
     x: 278,
     y: 214,
   });

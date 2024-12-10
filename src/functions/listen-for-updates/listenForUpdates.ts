@@ -2,6 +2,7 @@ import { InitialUpdate, MainState } from "retrommo-types";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
@@ -13,6 +14,7 @@ import { listenToSocketioEvent } from "pixel-pigeon";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
+import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { state } from "../../state";
 
@@ -94,6 +96,15 @@ export const listenForUpdates = (): void => {
       listenForMainMenuUpdates();
       listenForWorldUpdates();
       listenForBattleUpdates();
+      listenToSocketioEvent({
+        event: "legacy/open-quest-log",
+        onMessage: (): void => {
+          if (questLogWorldMenu.isOpen() === false) {
+            closeWorldMenus();
+            questLogWorldMenu.open({});
+          }
+        },
+      });
     },
   });
 };

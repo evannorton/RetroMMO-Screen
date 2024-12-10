@@ -206,12 +206,16 @@ export const statsInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyZ" }],
   name: "Toggle stats menu",
 });
-export const spellbookInputCollectionID: string = createInputCollection({
+export const questLogInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyX" }],
+  name: "Toggle quest log menu",
+});
+export const spellbookInputCollectionID: string = createInputCollection({
+  keyboardButtons: [{ value: "KeyC" }],
   name: "Toggle spellbook menu",
 });
 export const inventoryInputCollectionID: string = createInputCollection({
-  keyboardButtons: [{ value: "KeyC" }],
+  keyboardButtons: [{ value: "KeyV" }],
   name: "Toggle inventory menu",
 });
 const emotesInputCollectionID: string = createInputCollection({
