@@ -1,20 +1,32 @@
-import { HUDElementReferences, Scriptable, createSprite } from "pixel-pigeon";
+import {
+  CreateSpriteOptionsRecolor,
+  HUDElementReferences,
+  Scriptable,
+  createSprite,
+  mergeHUDElementReferences,
+} from "pixel-pigeon";
+import { createImage } from "./createImage";
 
-interface CreateSlotOptions {
+export interface CreateSlotOptionsIcon {
   condition?: () => boolean;
+  imagePath: string;
+  recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
+}
+export interface CreateSlotOptions {
+  icons?: CreateSlotOptionsIcon[];
   imagePath: string;
   isSelected?: Scriptable<boolean>;
   x: number;
   y: number;
 }
-
 export const createSlot = ({
-  condition,
+  icons,
   imagePath,
   isSelected,
   x,
   y,
 }: CreateSlotOptions): HUDElementReferences => {
+  const hudElementReferences: HUDElementReferences[] = [];
   const spriteIDs: string[] = [];
   spriteIDs.push(
     createSprite({
@@ -52,14 +64,31 @@ export const createSlot = ({
         },
       ],
       coordinates: {
-        condition,
         x: x - 1,
         y: y - 1,
       },
       imagePath,
     }),
   );
-  return {
-    spriteIDs,
-  };
+  if (typeof icons !== "undefined") {
+    for (const icon of icons) {
+      hudElementReferences.push(
+        createImage({
+          condition: icon.condition,
+          height: 16,
+          imagePath: icon.imagePath,
+          recolors: icon.recolors,
+          width: 16,
+          x,
+          y,
+        }),
+      );
+    }
+  }
+  return mergeHUDElementReferences([
+    {
+      spriteIDs,
+    },
+    ...hudElementReferences,
+  ]);
 };

@@ -6,7 +6,7 @@ import {
   createSprite,
 } from "pixel-pigeon";
 
-interface CreateImageOptions {
+export interface CreateImageOptions {
   condition?: () => boolean;
   height: number;
   imagePath: Scriptable<string>;
@@ -16,7 +16,6 @@ interface CreateImageOptions {
   x: Scriptable<number>;
   y: Scriptable<number>;
 }
-
 export const createImage = ({
   condition,
   height,

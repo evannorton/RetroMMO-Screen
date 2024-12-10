@@ -7,9 +7,10 @@ import {
 import { WorldMenu } from "../classes/WorldMenu";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
+import { questLogQuestsPerPage } from "../constants/questLogQuestsPerPage";
 
 enum QuestLogTab {
-  Complete = "complete",
+  Completed = "completed",
   InProgress = "in-progress",
 }
 
@@ -25,6 +26,10 @@ export const questLogWorldMenu: WorldMenu<
     const hudElementReferences: HUDElementReferences[] = [];
     const buttonIDs: string[] = [];
     const spriteIDs: string[] = [];
+    const inProgressTabCondition = (): boolean =>
+      questLogWorldMenu.state.values.tab === QuestLogTab.InProgress;
+    const completedTabCondition = (): boolean =>
+      questLogWorldMenu.state.values.tab === QuestLogTab.Completed;
     // Background panel
     hudElementReferences.push(
       createPanel({
@@ -42,7 +47,7 @@ export const questLogWorldMenu: WorldMenu<
           switch (questLogWorldMenu.state.values.tab) {
             case QuestLogTab.InProgress:
               return "1";
-            case QuestLogTab.Complete:
+            case QuestLogTab.Completed:
               return "2";
           }
         },
@@ -102,8 +107,7 @@ export const questLogWorldMenu: WorldMenu<
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: (): boolean =>
-            questLogWorldMenu.state.values.tab === QuestLogTab.Complete,
+          condition: completedTabCondition,
           x: 179,
           y: 27,
         },
@@ -119,15 +123,14 @@ export const questLogWorldMenu: WorldMenu<
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: (): boolean =>
-            questLogWorldMenu.state.values.tab === QuestLogTab.InProgress,
+          condition: inProgressTabCondition,
           x: 232,
           y: 27,
         },
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
-            tab: QuestLogTab.Complete,
+            tab: QuestLogTab.Completed,
           });
         },
         width: 51,
@@ -146,6 +149,10 @@ export const questLogWorldMenu: WorldMenu<
         y: 31,
       }),
     );
+    for (let i: number = 0; i < questLogQuestsPerPage; i++) {
+      const y: number = 56 + i * 20;
+      console.log(y);
+    }
     return mergeHUDElementReferences([
       {
         buttonIDs,

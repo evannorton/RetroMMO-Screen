@@ -6,14 +6,13 @@ import {
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 
-interface CreateVisibilityToggleOptions {
+export interface CreateVisibilityToggleOptions {
   condition?: () => boolean;
   isVisible: Scriptable<boolean>;
   onClick?: () => void;
   x: number;
   y: number;
 }
-
 export const createVisibilityToggle = ({
   condition,
   isVisible,

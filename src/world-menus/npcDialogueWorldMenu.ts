@@ -7,7 +7,6 @@ import {
   CreateLabelOptionsText,
   CreateSpriteOptionsRecolor,
   HUDElementReferences,
-  createButton,
   createLabel,
   emitToSocketioServer,
   getGameWidth,
@@ -18,10 +17,10 @@ import { Quest } from "../classes/Quest";
 import { QuestGiverQuest } from "../classes/QuestGiver";
 import { QuestState } from "../types/QuestState";
 import { WorldMenu } from "../classes/WorldMenu";
+import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
-import { createSlot } from "../functions/ui/components/createSlot";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
@@ -43,7 +42,6 @@ export const npcDialogueWorldMenu: WorldMenu<
   NPCDialogueWorldMenuStateSchema
 >({
   create: (options: NPCDialogueWorldMenuOpenOptions): HUDElementReferences => {
-    const buttonIDs: string[] = [];
     const labelIDs: string[] = [];
     const hudElementReferences: HUDElementReferences[] = [];
     const npc: NPC = getDefinable(NPC, options.npcID);
@@ -213,82 +211,44 @@ export const npcDialogueWorldMenu: WorldMenu<
           }
           const quest: Quest = getDefinable(Quest, questGiverQuest.questID);
           hudElementReferences.push(
-            createSlot({
-              imagePath: "slots/basic",
+            createIconListItem({
+              icons: [
+                { imagePath: getQuestIconImagePath(quest.id) },
+                {
+                  condition: (): boolean => {
+                    const questState: QuestState | null = getQuestState(
+                      quest.id,
+                    );
+                    return (
+                      questState === QuestState.InProgress ||
+                      questState === QuestState.TurnIn
+                    );
+                  },
+                  imagePath: "quest-banners/default",
+                  recolors: (): CreateSpriteOptionsRecolor[] => {
+                    let toColor: Color | undefined;
+                    switch (getQuestState(quest.id)) {
+                      case QuestState.InProgress:
+                        toColor = Color.DarkGray;
+                        break;
+                      case QuestState.TurnIn:
+                        toColor = Color.StrongLimeGreen;
+                        break;
+                    }
+                    if (typeof toColor === "undefined") {
+                      throw new Error("No recolor found for quest state.");
+                    }
+                    return [
+                      {
+                        fromColor: Color.White,
+                        toColor,
+                      },
+                    ];
+                  },
+                },
+              ],
               isSelected: (): boolean =>
                 npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
-              x: questsX + 6,
-              y: questsY + 26 + i * 18,
-            }),
-          );
-          hudElementReferences.push(
-            createImage({
-              height: 16,
-              imagePath: getQuestIconImagePath(quest.id),
-              width: 16,
-              x: questsX + 6,
-              y: questsY + 26 + i * 18,
-            }),
-          );
-          hudElementReferences.push(
-            createImage({
-              condition: (): boolean => {
-                const questState: QuestState | null = getQuestState(quest.id);
-                return (
-                  questState === QuestState.InProgress ||
-                  questState === QuestState.TurnIn
-                );
-              },
-              height: 16,
-              imagePath: "quest-banners/default",
-              recolors: (): CreateSpriteOptionsRecolor[] => {
-                let toColor: Color | undefined;
-                switch (getQuestState(quest.id)) {
-                  case QuestState.InProgress:
-                    toColor = Color.DarkGray;
-                    break;
-                  case QuestState.TurnIn:
-                    toColor = Color.StrongLimeGreen;
-                    break;
-                }
-                if (typeof toColor === "undefined") {
-                  throw new Error("No recolor found for quest state.");
-                }
-                return [
-                  {
-                    fromColor: Color.White,
-                    toColor,
-                  },
-                ];
-              },
-              width: 16,
-              x: questsX + 6,
-              y: questsY + 26 + i * 18,
-            }),
-          );
-          labelIDs.push(
-            createLabel({
-              color: Color.White,
-              coordinates: {
-                x: questsX + 25,
-                y: questsY + 31 + i * 18,
-              },
-              horizontalAlignment: "left",
-              maxLines: 1,
-              maxWidth: 96,
-              size: 1,
-              text: {
-                value: quest.name,
-              },
-            }),
-          );
-          buttonIDs.push(
-            createButton({
-              coordinates: {
-                x: questsX + 6,
-                y: questsY + 26 + i * 18,
-              },
-              height: 16,
               onClick: (): void => {
                 if (
                   npcDialogueWorldMenu.state.values.selectedQuestIndex === i
@@ -312,7 +272,11 @@ export const npcDialogueWorldMenu: WorldMenu<
                   });
                 }
               },
+              slotImagePath: "slots/basic",
+              text: quest.name,
               width: 116,
+              x: questsX + 6,
+              y: questsY + 26 + i * 18,
             }),
           );
         }
@@ -353,7 +317,6 @@ export const npcDialogueWorldMenu: WorldMenu<
     }
     return mergeHUDElementReferences([
       {
-        buttonIDs,
         labelIDs,
       },
       ...hudElementReferences,

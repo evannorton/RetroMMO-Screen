@@ -1,6 +1,6 @@
 import { HUDElementReferences, createNineSlice } from "pixel-pigeon";
 
-interface CreatePanelOptions {
+export interface CreatePanelOptions {
   condition?: () => boolean;
   height: number;
   imagePath: string;
@@ -8,7 +8,6 @@ interface CreatePanelOptions {
   x: number;
   y: number;
 }
-
 export const createPanel = ({
   condition,
   height,
