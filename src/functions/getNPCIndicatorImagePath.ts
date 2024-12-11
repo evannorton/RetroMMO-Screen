@@ -2,7 +2,7 @@ import { NPC } from "../classes/NPC";
 import { QuestGiverQuest } from "../classes/QuestGiver";
 import { QuestState } from "../types/QuestState";
 import { getDefinable } from "definables";
-import { getQuestState } from "./getQuestState";
+import { getQuestPartyState } from "./getQuestPartyState";
 
 export const getNPCIndicatorImagePath = (npcID: string): string => {
   const npc: NPC = getDefinable(NPC, npcID);
@@ -19,7 +19,7 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
     const questStates: readonly (QuestState | null)[] =
       npc.questGiver.quests.map(
         (questGiverQuest: QuestGiverQuest): QuestState | null =>
-          getQuestState(questGiverQuest.questID),
+          getQuestPartyState(questGiverQuest.questID),
       );
     if (questStates.includes(QuestState.Complete)) {
       return "indicators/quest/turn-in";

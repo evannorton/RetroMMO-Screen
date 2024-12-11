@@ -15,49 +15,29 @@ export const getQuestState = (questID: string): QuestState | null => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
-    const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
-    const questInstance: WorldCharacterQuestInstance | undefined =
-      questInstances[questID];
-    if (typeof questInstance !== "undefined" && questInstance.isCompleted) {
-      return QuestState.Complete;
-    }
+  const questInstances: Record<string, WorldCharacterQuestInstance> =
+    worldCharacter.questInstances;
+  const questInstance: WorldCharacterQuestInstance | undefined =
+    questInstances[questID];
+  if (typeof questInstance !== "undefined" && questInstance.isCompleted) {
+    return QuestState.Complete;
   }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
-    const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
-    const questInstance: WorldCharacterQuestInstance | undefined =
-      questInstances[questID];
-    if (
-      typeof questInstance !== "undefined" &&
-      questInstance.isCompleted === false &&
-      canWorldCharacterTurnInQuest(partyWorldCharacter.id, questID)
-    ) {
-      return QuestState.TurnIn;
-    }
+  if (
+    typeof questInstance !== "undefined" &&
+    questInstance.isCompleted === false &&
+    canWorldCharacterTurnInQuest(worldCharacter.id, questID)
+  ) {
+    return QuestState.TurnIn;
   }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
-    const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
-    const questInstance: WorldCharacterQuestInstance | undefined =
-      questInstances[questID];
-    if (typeof questInstance === "undefined") {
-      return QuestState.Accept;
-    }
+  if (typeof questInstance === "undefined") {
+    return QuestState.Accept;
   }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
-    const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
-    const questInstance: WorldCharacterQuestInstance | undefined =
-      questInstances[questID];
-    if (
-      typeof questInstance !== "undefined" &&
-      questInstance.isStarted &&
-      questInstance.isCompleted === false
-    ) {
-      return QuestState.InProgress;
-    }
+  if (
+    typeof questInstance !== "undefined" &&
+    questInstance.isStarted &&
+    questInstance.isCompleted === false
+  ) {
+    return QuestState.InProgress;
   }
   return null;
 };

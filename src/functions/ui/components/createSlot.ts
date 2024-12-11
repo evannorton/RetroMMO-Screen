@@ -9,10 +9,11 @@ import { createImage } from "./createImage";
 
 export interface CreateSlotOptionsIcon {
   condition?: () => boolean;
-  imagePath: string;
+  imagePath: Scriptable<string>;
   recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
 }
 export interface CreateSlotOptions {
+  condition?: () => boolean;
   icons?: CreateSlotOptionsIcon[];
   imagePath: string;
   isSelected?: Scriptable<boolean>;
@@ -20,6 +21,7 @@ export interface CreateSlotOptions {
   y: number;
 }
 export const createSlot = ({
+  condition,
   icons,
   imagePath,
   isSelected,
@@ -64,6 +66,7 @@ export const createSlot = ({
         },
       ],
       coordinates: {
+        condition,
         x: x - 1,
         y: y - 1,
       },
@@ -74,7 +77,9 @@ export const createSlot = ({
     for (const icon of icons) {
       hudElementReferences.push(
         createImage({
-          condition: icon.condition,
+          condition: (): boolean =>
+            (typeof condition === "undefined" || condition()) &&
+            (typeof icon.condition === "undefined" || icon.condition()),
           height: 16,
           imagePath: icon.imagePath,
           recolors: icon.recolors,

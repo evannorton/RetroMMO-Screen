@@ -24,6 +24,7 @@ import { createPressableButton } from "../functions/ui/components/createPressabl
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
+import { getQuestPartyState } from "../functions/getQuestPartyState";
 import { getQuestState } from "../functions/getQuestState";
 import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
 
@@ -227,7 +228,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                   imagePath: "quest-banners/default",
                   recolors: (): CreateSpriteOptionsRecolor[] => {
                     let toColor: Color | undefined;
-                    switch (getQuestState(quest.id)) {
+                    switch (getQuestPartyState(quest.id)) {
                       case QuestState.InProgress:
                         toColor = Color.DarkGray;
                         break;
@@ -273,7 +274,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                 }
               },
               slotImagePath: "slots/basic",
-              text: quest.name,
+              text: { value: quest.name },
               width: 116,
               x: questsX + 6,
               y: questsY + 26 + i * 18,
@@ -288,7 +289,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           condition: (): boolean => {
             const quest: Quest | null = getSelectedQuest();
             if (quest !== null) {
-              return getQuestState(quest.id) === QuestState.Accept;
+              return getQuestPartyState(quest.id) === QuestState.Accept;
             }
             return false;
           },

@@ -1,25 +1,28 @@
 import { Color } from "retrommo-types";
-import { CreateSlotOptionsIcon, createSlot } from "./createSlot";
 import {
+  CreateLabelOptionsText,
   HUDElementReferences,
   Scriptable,
   createButton,
   createLabel,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
+import { CreateSlotOptionsIcon, createSlot } from "./createSlot";
 
 interface CreateIconListItemOptions {
+  condition?: () => boolean;
   icons: CreateSlotOptionsIcon[];
   isSelected: Scriptable<boolean>;
   onClick: () => void;
   slotImagePath: string;
-  text: string;
+  text: Scriptable<CreateLabelOptionsText>;
   width: number;
   x: number;
   y: number;
 }
 
 export const createIconListItem = ({
+  condition,
   icons,
   isSelected,
   onClick,
@@ -34,6 +37,7 @@ export const createIconListItem = ({
   const labelIDs: string[] = [];
   hudElementReferences.push(
     createSlot({
+      condition,
       icons,
       imagePath: slotImagePath,
       isSelected,
@@ -45,6 +49,7 @@ export const createIconListItem = ({
     createLabel({
       color: Color.White,
       coordinates: {
+        condition,
         x: x + 19,
         y: y + 5,
       },
@@ -52,14 +57,13 @@ export const createIconListItem = ({
       maxLines: 1,
       maxWidth: width - 19,
       size: 1,
-      text: {
-        value: text,
-      },
+      text,
     }),
   );
   buttonIDs.push(
     createButton({
       coordinates: {
+        condition,
         x,
         y,
       },
