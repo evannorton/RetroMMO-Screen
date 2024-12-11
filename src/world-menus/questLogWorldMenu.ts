@@ -5,6 +5,7 @@ import {
   HUDElementReferences,
   State,
   createButton,
+  createLabel,
   createSprite,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
@@ -19,11 +20,15 @@ import { WorldStateSchema } from "../state";
 import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
+import { createSlot } from "../functions/ui/components/createSlot";
 import { getDefinable } from "definables";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
+import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestState } from "../functions/getQuestState";
 import { getWorldState } from "../functions/state/getWorldState";
-import { questLogQuestsPerPage } from "../constants/questLogQuestsPerPage";
+import { questLogCompletedQuestsPerPage } from "../constants/questLogCompletedQuestsPerPage";
+import { questLogInProgressQuestsPerPage } from "../constants/questLogInProgressQuestsPerPage";
+import { Monster } from "../classes/Monster";
 
 enum QuestLogTab {
   Completed = "completed",
@@ -35,6 +40,7 @@ export interface QuestLogWorldMenuStateSchema {
   tab: QuestLogTab;
   selectedCompletedQuestIndex: number | null;
   selectedInProgressQuestIndex: number | null;
+  selectedQuestDialoguePage: number | null;
 }
 export const questLogWorldMenu: WorldMenu<
   QuestLogWorldMenuOpenOptions,
@@ -43,7 +49,13 @@ export const questLogWorldMenu: WorldMenu<
   create: (): HUDElementReferences => {
     const hudElementReferences: HUDElementReferences[] = [];
     const buttonIDs: string[] = [];
+    const labelIDs: string[] = [];
     const spriteIDs: string[] = [];
+    const worldState: State<WorldStateSchema> = getWorldState();
+    const worldCharacter: WorldCharacter = getDefinable(
+      WorldCharacter,
+      worldState.values.worldCharacterID,
+    );
     const inProgressTabCondition = (): boolean =>
       questLogWorldMenu.state.values.tab === QuestLogTab.InProgress;
     const completedTabCondition = (): boolean =>
@@ -132,6 +144,8 @@ export const questLogWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
+            selectedCompletedQuestIndex: null,
+            selectedQuestDialoguePage: null,
             tab: QuestLogTab.InProgress,
           });
         },
@@ -148,6 +162,8 @@ export const questLogWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
+            selectedInProgressQuestIndex: null,
+            selectedQuestDialoguePage: null,
             tab: QuestLogTab.Completed,
           });
         },
@@ -167,38 +183,53 @@ export const questLogWorldMenu: WorldMenu<
         y: 31,
       }),
     );
-    for (let i: number = 0; i < questLogQuestsPerPage; i++) {
-      const getInProgressQuestIDs = (): string[] => {
-        const worldState: State<WorldStateSchema> = getWorldState();
-        const worldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldState.values.worldCharacterID,
-        );
-        return Object.keys(worldCharacter.questInstances)
-          .filter((questInstanceID: string): boolean => {
-            const questInstance: WorldCharacterQuestInstance | undefined =
-              worldCharacter.questInstances[questInstanceID];
-            if (typeof questInstance === "undefined") {
-              throw new Error("Quest instance not found");
-            }
-            return (
-              questInstance.isStarted && questInstance.isCompleted === false
-            );
-          })
-          .sort((a: string, b: string): number => {
-            const questA: Quest = getDefinable(Quest, a);
-            const questB: Quest = getDefinable(Quest, b);
-            return questA.name.localeCompare(questB.name);
-          });
-      };
-      const getInProgressQuest = (): Quest => {
-        const inProgressQuestIDs: string[] = getInProgressQuestIDs();
-        const inProgressQuestID: string | undefined = inProgressQuestIDs[i];
-        if (typeof inProgressQuestID === "undefined") {
-          throw new Error("Quest ID not found");
-        }
-        return getDefinable(Quest, inProgressQuestID);
-      };
+    const getInProgressQuestIDs = (): string[] =>
+      Object.keys(worldCharacter.questInstances)
+        .filter((questInstanceID: string): boolean => {
+          const questInstance: WorldCharacterQuestInstance | undefined =
+            worldCharacter.questInstances[questInstanceID];
+          if (typeof questInstance === "undefined") {
+            throw new Error("Quest instance not found");
+          }
+          return questInstance.isStarted && questInstance.isCompleted === false;
+        })
+        .sort((a: string, b: string): number => {
+          const questA: Quest = getDefinable(Quest, a);
+          const questB: Quest = getDefinable(Quest, b);
+          return questA.name.localeCompare(questB.name);
+        });
+    const getInProgressQuest = (i: number): Quest => {
+      const inProgressQuestIDs: string[] = getInProgressQuestIDs();
+      const inProgressQuestID: string | undefined = inProgressQuestIDs[i];
+      if (typeof inProgressQuestID === "undefined") {
+        throw new Error("Quest ID not found");
+      }
+      return getDefinable(Quest, inProgressQuestID);
+    };
+    const getCompletedQuestIDs = (): string[] =>
+      Object.keys(worldCharacter.questInstances)
+        .filter((questInstanceID: string): boolean => {
+          const questInstance: WorldCharacterQuestInstance | undefined =
+            worldCharacter.questInstances[questInstanceID];
+          if (typeof questInstance === "undefined") {
+            throw new Error("Quest instance not found");
+          }
+          return questInstance.isCompleted;
+        })
+        .sort((a: string, b: string): number => {
+          const questA: Quest = getDefinable(Quest, a);
+          const questB: Quest = getDefinable(Quest, b);
+          return questA.name.localeCompare(questB.name);
+        });
+    const getCompletedQuest = (i: number): Quest => {
+      const completedQuestIDs: string[] = getCompletedQuestIDs();
+      const completedQuestID: string | undefined = completedQuestIDs[i];
+      if (typeof completedQuestID === "undefined") {
+        throw new Error("Quest ID not found");
+      }
+      return getDefinable(Quest, completedQuestID);
+    };
+    for (let i: number = 0; i < questLogInProgressQuestsPerPage; i++) {
       const y: number = 49 + i * 18;
       hudElementReferences.push(
         createIconListItem({
@@ -207,12 +238,12 @@ export const questLogWorldMenu: WorldMenu<
           icons: [
             {
               imagePath: (): string =>
-                getQuestIconImagePath(getInProgressQuest().id),
+                getQuestIconImagePath(getInProgressQuest(i).id),
             },
             {
               condition: (): boolean => {
                 const questState: QuestState | null = getQuestState(
-                  getInProgressQuest().id,
+                  getInProgressQuest(i).id,
                 );
                 return (
                   questState === QuestState.InProgress ||
@@ -220,26 +251,8 @@ export const questLogWorldMenu: WorldMenu<
                 );
               },
               imagePath: "quest-banners/default",
-              recolors: (): CreateSpriteOptionsRecolor[] => {
-                let toColor: Color | undefined;
-                switch (getQuestState(getInProgressQuest().id)) {
-                  case QuestState.InProgress:
-                    toColor = Color.DarkGray;
-                    break;
-                  case QuestState.TurnIn:
-                    toColor = Color.StrongLimeGreen;
-                    break;
-                }
-                if (typeof toColor === "undefined") {
-                  throw new Error("No recolor found for quest state.");
-                }
-                return [
-                  {
-                    fromColor: Color.White,
-                    toColor,
-                  },
-                ];
-              },
+              recolors: (): CreateSpriteOptionsRecolor[] =>
+                getQuestIconRecolors(getInProgressQuest(i).id, false),
             },
           ],
           isSelected: (): boolean =>
@@ -250,6 +263,7 @@ export const questLogWorldMenu: WorldMenu<
             ) {
               questLogWorldMenu.state.setValues({
                 selectedInProgressQuestIndex: null,
+                selectedQuestDialoguePage: null,
               });
             } else {
               questLogWorldMenu.state.setValues({
@@ -259,7 +273,7 @@ export const questLogWorldMenu: WorldMenu<
           },
           slotImagePath: "slots/basic",
           text: (): CreateLabelOptionsText => ({
-            value: getInProgressQuest().name,
+            value: getInProgressQuest(i).name,
           }),
           width: 116,
           x: 182,
@@ -267,36 +281,7 @@ export const questLogWorldMenu: WorldMenu<
         }),
       );
     }
-    for (let i: number = 0; i < questLogQuestsPerPage; i++) {
-      const getCompletedQuestIDs = (): string[] => {
-        const worldState: State<WorldStateSchema> = getWorldState();
-        const worldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldState.values.worldCharacterID,
-        );
-        return Object.keys(worldCharacter.questInstances)
-          .filter((questInstanceID: string): boolean => {
-            const questInstance: WorldCharacterQuestInstance | undefined =
-              worldCharacter.questInstances[questInstanceID];
-            if (typeof questInstance === "undefined") {
-              throw new Error("Quest instance not found");
-            }
-            return questInstance.isCompleted;
-          })
-          .sort((a: string, b: string): number => {
-            const questA: Quest = getDefinable(Quest, a);
-            const questB: Quest = getDefinable(Quest, b);
-            return questA.name.localeCompare(questB.name);
-          });
-      };
-      const getCompletedQuest = (): Quest => {
-        const completedQuestIDs: string[] = getCompletedQuestIDs();
-        const completedQuestID: string | undefined = completedQuestIDs[i];
-        if (typeof completedQuestID === "undefined") {
-          throw new Error("Quest ID not found");
-        }
-        return getDefinable(Quest, completedQuestID);
-      };
+    for (let i: number = 0; i < questLogCompletedQuestsPerPage; i++) {
       const y: number = 49 + i * 18;
       hudElementReferences.push(
         createIconListItem({
@@ -305,12 +290,12 @@ export const questLogWorldMenu: WorldMenu<
           icons: [
             {
               imagePath: (): string =>
-                getQuestIconImagePath(getCompletedQuest().id),
+                getQuestIconImagePath(getCompletedQuest(i).id),
             },
             {
               condition: (): boolean => {
                 const questState: QuestState | null = getQuestState(
-                  getCompletedQuest().id,
+                  getCompletedQuest(i).id,
                 );
                 return (
                   questState === QuestState.InProgress ||
@@ -318,26 +303,8 @@ export const questLogWorldMenu: WorldMenu<
                 );
               },
               imagePath: "quest-banners/default",
-              recolors: (): CreateSpriteOptionsRecolor[] => {
-                let toColor: Color | undefined;
-                switch (getQuestState(getCompletedQuest().id)) {
-                  case QuestState.InProgress:
-                    toColor = Color.DarkGray;
-                    break;
-                  case QuestState.TurnIn:
-                    toColor = Color.StrongLimeGreen;
-                    break;
-                }
-                if (typeof toColor === "undefined") {
-                  throw new Error("No recolor found for quest state.");
-                }
-                return [
-                  {
-                    fromColor: Color.White,
-                    toColor,
-                  },
-                ];
-              },
+              recolors: (): CreateSpriteOptionsRecolor[] =>
+                getQuestIconRecolors(getCompletedQuest(i).id, false),
             },
           ],
           isSelected: (): boolean =>
@@ -348,6 +315,7 @@ export const questLogWorldMenu: WorldMenu<
             ) {
               questLogWorldMenu.state.setValues({
                 selectedCompletedQuestIndex: null,
+                selectedQuestDialoguePage: null,
               });
             } else {
               questLogWorldMenu.state.setValues({
@@ -357,7 +325,7 @@ export const questLogWorldMenu: WorldMenu<
           },
           slotImagePath: "slots/basic",
           text: (): CreateLabelOptionsText => ({
-            value: getCompletedQuest().name,
+            value: getCompletedQuest(i).name,
           }),
           width: 116,
           x: 182,
@@ -365,9 +333,245 @@ export const questLogWorldMenu: WorldMenu<
         }),
       );
     }
+    const getSelectedQuest = (): Quest => {
+      switch (questLogWorldMenu.state.values.tab) {
+        case QuestLogTab.InProgress:
+          if (
+            questLogWorldMenu.state.values.selectedInProgressQuestIndex === null
+          ) {
+            throw new Error("No selected quest index");
+          }
+          return getInProgressQuest(
+            questLogWorldMenu.state.values.selectedInProgressQuestIndex,
+          );
+        case QuestLogTab.Completed:
+          if (
+            questLogWorldMenu.state.values.selectedCompletedQuestIndex === null
+          ) {
+            throw new Error("No selected quest index");
+          }
+          return getCompletedQuest(
+            questLogWorldMenu.state.values.selectedCompletedQuestIndex,
+          );
+      }
+    };
+    const getSelectedQuestInstance = (): WorldCharacterQuestInstance => {
+      const questInstance: WorldCharacterQuestInstance | undefined =
+        worldCharacter.questInstances[getSelectedQuest().id];
+      if (typeof questInstance === "undefined") {
+        throw new Error("Quest instance not found");
+      }
+      return questInstance;
+    };
+    const isQuestSelected = (): boolean =>
+      questLogWorldMenu.state.values.selectedInProgressQuestIndex !== null ||
+      questLogWorldMenu.state.values.selectedCompletedQuestIndex !== null;
+    const getSelectedQuestDialoguePage = (): number => {
+      const selectedQuestInstance: WorldCharacterQuestInstance =
+        getSelectedQuestInstance();
+      const page: number =
+        questLogWorldMenu.state.values.selectedQuestDialoguePage ??
+        (selectedQuestInstance.isCompleted ? 2 : 1);
+      return page;
+    };
+    const selectedQuestY: number = 24;
+    const selectedQuestWidth: number = 176;
+    // Selected quest panel
+    hudElementReferences.push(
+      createPanel({
+        condition: isQuestSelected,
+        height: 184,
+        imagePath: "panels/basic",
+        width: selectedQuestWidth,
+        x: 0,
+        y: selectedQuestY,
+      }),
+    );
+    // Selected quest icon
+    hudElementReferences.push(
+      createSlot({
+        condition: isQuestSelected,
+        icons: [
+          {
+            imagePath: (): string =>
+              getQuestIconImagePath(getSelectedQuest().id),
+          },
+          {
+            condition: (): boolean => {
+              const questState: QuestState | null = getQuestState(
+                getSelectedQuest().id,
+              );
+              return (
+                questState === QuestState.InProgress ||
+                questState === QuestState.TurnIn
+              );
+            },
+            imagePath: "quest-banners/default",
+            recolors: (): CreateSpriteOptionsRecolor[] =>
+              getQuestIconRecolors(getSelectedQuest().id, false),
+          },
+        ],
+        imagePath: (): string => "slots/basic",
+        x: 7,
+        y: selectedQuestY + 7,
+      }),
+    );
+    // Selected quest name
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: isQuestSelected,
+          x: 26,
+          y: selectedQuestY + 12,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 97,
+        text: (): CreateLabelOptionsText => ({
+          value: getSelectedQuest().name,
+        }),
+      }),
+    );
+    // Selected quest objective
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: isQuestSelected,
+          x: 8,
+          y: selectedQuestY + 27,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 160,
+        text: (): CreateLabelOptionsText => {
+          const quest: Quest = getSelectedQuest();
+          const questInstance: WorldCharacterQuestInstance = getSelectedQuestInstance();
+          if (quest.hasMonster()) {
+            const monster: Monster = getDefinable(Monster, quest.monster.monsterID);
+            return {
+              value: `Defeat ${monster.name} - ${questInstance.monsterKills}/${quest.monster.kills}`,
+            };
+          }
+          throw new Error("No objective found");
+        },
+      }),
+    );
+    // Selected quest npc actor image
+    hudElementReferences.push(
+      createImage({
+        condition: isQuestSelected,
+        height: 16,
+        imagePath: (): string => getSelectedQuest().npc.actorImagePath,
+        width: 16,
+        x: 7,
+        y: selectedQuestY + 38,
+      }),
+    );
+    // Selected quest npc name
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: isQuestSelected,
+          x: 26,
+          y: selectedQuestY + 43,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 97,
+        text: (): CreateLabelOptionsText => ({
+          value: getSelectedQuest().npc.name,
+        }),
+      }),
+    );
+    // Selected quest close button
+    hudElementReferences.push(
+      createImage({
+        condition: isQuestSelected,
+        height: 11,
+        imagePath: "x",
+        onClick: (): void => {
+          questLogWorldMenu.state.setValues({
+            selectedCompletedQuestIndex: null,
+            selectedInProgressQuestIndex: null,
+            selectedQuestDialoguePage: null,
+          });
+        },
+        width: 10,
+        x: selectedQuestWidth - 17,
+        y: selectedQuestY + 7,
+      }),
+    );
+    // Selected quest text
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: isQuestSelected,
+          x: 8,
+          y: selectedQuestY + 58,
+        },
+        horizontalAlignment: "left",
+        maxLines: 6,
+        maxWidth: 160,
+        text: (): CreateLabelOptionsText => {
+          const selectedQuest: Quest = getSelectedQuest();
+          const values: string[] = [
+            selectedQuest.availableText,
+            selectedQuest.inProgressText,
+          ];
+          const page: number = getSelectedQuestDialoguePage();
+          const value: string | undefined = values[page];
+          if (typeof value === "undefined") {
+            throw new Error("No value found");
+          }
+          return {
+            value,
+          };
+        },
+      }),
+    );
+    // Selected quest pagination arrows
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          isQuestSelected() && getSelectedQuestDialoguePage() > 0,
+        height: 14,
+        imagePath: "arrows/left",
+        onClick: (): void => {
+          questLogWorldMenu.state.setValues({
+            selectedQuestDialoguePage: getSelectedQuestDialoguePage() - 1,
+          });
+        },
+        width: 14,
+        x: 7,
+        y: 148,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          isQuestSelected() &&
+          getSelectedQuestDialoguePage() <
+            (getSelectedQuestInstance().isCompleted ? 2 : 1),
+        height: 14,
+        imagePath: "arrows/right",
+        onClick: (): void => {
+          questLogWorldMenu.state.setValues({
+            selectedQuestDialoguePage: getSelectedQuestDialoguePage() + 1,
+          });
+        },
+        width: 14,
+        x: 155,
+        y: 148,
+      }),
+    );
     return mergeHUDElementReferences([
       {
         buttonIDs,
+        labelIDs,
         spriteIDs,
       },
       ...hudElementReferences,
@@ -376,6 +580,7 @@ export const questLogWorldMenu: WorldMenu<
   initialStateValues: {
     selectedCompletedQuestIndex: null,
     selectedInProgressQuestIndex: null,
+    selectedQuestDialoguePage: null,
     tab: QuestLogTab.InProgress,
   },
   preventsWalking: false,

@@ -15,7 +15,7 @@ export interface CreateSlotOptionsIcon {
 export interface CreateSlotOptions {
   condition?: () => boolean;
   icons?: CreateSlotOptionsIcon[];
-  imagePath: string;
+  imagePath: Scriptable<string>;
   isSelected?: Scriptable<boolean>;
   x: number;
   y: number;

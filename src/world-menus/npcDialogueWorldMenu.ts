@@ -24,8 +24,8 @@ import { createPressableButton } from "../functions/ui/components/createPressabl
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
+import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
-import { getQuestState } from "../functions/getQuestState";
 import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
 
 export interface NPCDialogueWorldMenuOpenOptions {
@@ -127,7 +127,7 @@ export const npcDialogueWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const quest: Quest | null = getSelectedQuest();
           if (quest !== null) {
-            switch (getQuestState(quest.id)) {
+            switch (getQuestPartyState(quest.id)) {
               case QuestState.Accept:
                 return {
                   value: quest.availableText,
@@ -217,7 +217,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                 { imagePath: getQuestIconImagePath(quest.id) },
                 {
                   condition: (): boolean => {
-                    const questState: QuestState | null = getQuestState(
+                    const questState: QuestState | null = getQuestPartyState(
                       quest.id,
                     );
                     return (
@@ -226,26 +226,8 @@ export const npcDialogueWorldMenu: WorldMenu<
                     );
                   },
                   imagePath: "quest-banners/default",
-                  recolors: (): CreateSpriteOptionsRecolor[] => {
-                    let toColor: Color | undefined;
-                    switch (getQuestPartyState(quest.id)) {
-                      case QuestState.InProgress:
-                        toColor = Color.DarkGray;
-                        break;
-                      case QuestState.TurnIn:
-                        toColor = Color.StrongLimeGreen;
-                        break;
-                    }
-                    if (typeof toColor === "undefined") {
-                      throw new Error("No recolor found for quest state.");
-                    }
-                    return [
-                      {
-                        fromColor: Color.White,
-                        toColor,
-                      },
-                    ];
-                  },
+                  recolors: (): CreateSpriteOptionsRecolor[] =>
+                    getQuestIconRecolors(quest.id, true),
                 },
               ],
               isSelected: (): boolean =>

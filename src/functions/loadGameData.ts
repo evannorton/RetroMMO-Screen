@@ -16,6 +16,7 @@ import {
   HeadCosmeticDefinition,
   ItemDefinition,
   MaskDefinition,
+  MonsterDefinition,
   NPCDefinition,
   OutfitDefinition,
   PianoDefinition,
@@ -51,6 +52,7 @@ import { HairDye } from "../classes/HairDye";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Item";
 import { Mask } from "../classes/Mask";
+import { Monster } from "../classes/Monster";
 import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
@@ -240,8 +242,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Monster":
+        case "Monster": {
+          const definition: MonsterDefinition = (
+            gameData[className] as Record<string, MonsterDefinition>
+          )[id] as MonsterDefinition;
+          new Monster({
+            definition,
+            id,
+          });
           break;
+        }
         case "MusicTrack":
           break;
         case "NPC": {
