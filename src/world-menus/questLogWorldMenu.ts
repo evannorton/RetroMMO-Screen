@@ -547,7 +547,7 @@ export const questLogWorldMenu: WorldMenu<
         },
         width: 14,
         x: 7,
-        y: 148,
+        y: 187,
       }),
     );
     hudElementReferences.push(
@@ -565,7 +565,7 @@ export const questLogWorldMenu: WorldMenu<
         },
         width: 14,
         x: 155,
-        y: 148,
+        y: 187,
       }),
     );
     return mergeHUDElementReferences([
