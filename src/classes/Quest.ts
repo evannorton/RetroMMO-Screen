@@ -13,6 +13,8 @@ export interface QuestOptions {
 export class Quest extends Definable {
   private readonly _availableText: string;
   private readonly _completedText: string;
+  private readonly _experience: number;
+  private readonly _gold: number;
   private readonly _inProgressText: string;
   private readonly _monster?: QuestMonster;
   private readonly _name: string;
@@ -21,6 +23,8 @@ export class Quest extends Definable {
     super(options.id);
     this._availableText = options.definition.availableText;
     this._completedText = options.definition.completedText;
+    this._experience = options.definition.experience;
+    this._gold = options.definition.gold;
     this._inProgressText = options.definition.inProgressText;
     this._monster =
       typeof options.definition.monster !== "undefined"
@@ -39,6 +43,14 @@ export class Quest extends Definable {
 
   public get completedText(): string {
     return this._completedText;
+  }
+
+  public get experience(): number {
+    return this._experience;
+  }
+
+  public get gold(): number {
+    return this._gold;
   }
 
   public get inProgressText(): string {
