@@ -19,9 +19,6 @@ export const getQuestState = (questID: string): QuestState | null => {
     worldCharacter.questInstances;
   const questInstance: WorldCharacterQuestInstance | undefined =
     questInstances[questID];
-  if (typeof questInstance !== "undefined" && questInstance.isCompleted) {
-    return QuestState.Complete;
-  }
   if (
     typeof questInstance !== "undefined" &&
     questInstance.isCompleted === false &&
@@ -38,6 +35,9 @@ export const getQuestState = (questID: string): QuestState | null => {
     questInstance.isCompleted === false
   ) {
     return QuestState.InProgress;
+  }
+  if (typeof questInstance !== "undefined" && questInstance.isCompleted) {
+    return QuestState.Complete;
   }
   return null;
 };

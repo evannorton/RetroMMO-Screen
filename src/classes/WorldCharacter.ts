@@ -45,7 +45,7 @@ export interface WorldCharacterOptions {
 export interface WorldCharacterQuestInstance {
   isCompleted: boolean;
   isStarted: boolean;
-  readonly monsterKills?: number;
+  monsterKills?: number;
 }
 export interface WorldCharacterResources {
   hp: number;

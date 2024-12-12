@@ -20,15 +20,6 @@ export const getQuestPartyState = (questID: string): QuestState | null => {
       partyWorldCharacter.questInstances;
     const questInstance: WorldCharacterQuestInstance | undefined =
       questInstances[questID];
-    if (typeof questInstance !== "undefined" && questInstance.isCompleted) {
-      return QuestState.Complete;
-    }
-  }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
-    const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
-    const questInstance: WorldCharacterQuestInstance | undefined =
-      questInstances[questID];
     if (
       typeof questInstance !== "undefined" &&
       questInstance.isCompleted === false &&
@@ -57,6 +48,15 @@ export const getQuestPartyState = (questID: string): QuestState | null => {
       questInstance.isCompleted === false
     ) {
       return QuestState.InProgress;
+    }
+  }
+  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+    const questInstances: Record<string, WorldCharacterQuestInstance> =
+      partyWorldCharacter.questInstances;
+    const questInstance: WorldCharacterQuestInstance | undefined =
+      questInstances[questID];
+    if (typeof questInstance !== "undefined" && questInstance.isCompleted) {
+      return QuestState.Complete;
     }
   }
   return null;

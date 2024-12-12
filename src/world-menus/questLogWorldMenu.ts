@@ -9,6 +9,7 @@ import {
   createSprite,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
+import { Monster } from "../classes/Monster";
 import { Quest } from "../classes/Quest";
 import { QuestState } from "../types/QuestState";
 import {
@@ -28,7 +29,6 @@ import { getQuestState } from "../functions/getQuestState";
 import { getWorldState } from "../functions/state/getWorldState";
 import { questLogCompletedQuestsPerPage } from "../constants/questLogCompletedQuestsPerPage";
 import { questLogInProgressQuestsPerPage } from "../constants/questLogInProgressQuestsPerPage";
-import { Monster } from "../classes/Monster";
 
 enum QuestLogTab {
   Completed = "completed",
@@ -447,9 +447,16 @@ export const questLogWorldMenu: WorldMenu<
         maxWidth: 160,
         text: (): CreateLabelOptionsText => {
           const quest: Quest = getSelectedQuest();
-          const questInstance: WorldCharacterQuestInstance = getSelectedQuestInstance();
+          const questInstance: WorldCharacterQuestInstance =
+            getSelectedQuestInstance();
           if (quest.hasMonster()) {
-            const monster: Monster = getDefinable(Monster, quest.monster.monsterID);
+            const monster: Monster = getDefinable(
+              Monster,
+              quest.monster.monsterID,
+            );
+            if (typeof questInstance.monsterKills === "undefined") {
+              throw new Error("No monster kills found");
+            }
             return {
               value: `Defeat ${monster.name} - ${questInstance.monsterKills}/${quest.monster.kills}`,
             };

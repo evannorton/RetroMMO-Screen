@@ -499,7 +499,6 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldSelectQuestUpdate>({
     event: "world/select-quest",
     onMessage: (update: WorldSelectQuestUpdate): void => {
-      console.log("yo");
       if (npcDialogueWorldMenu.isOpen() === false) {
         closeWorldMenus();
         npcDialogueWorldMenu.open({

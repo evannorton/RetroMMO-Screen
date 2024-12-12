@@ -21,7 +21,7 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
         (questGiverQuest: QuestGiverQuest): QuestState | null =>
           getQuestPartyState(questGiverQuest.questID),
       );
-    if (questStates.includes(QuestState.Complete)) {
+    if (questStates.includes(QuestState.TurnIn)) {
       return "indicators/quest/turn-in";
     }
     if (questStates.includes(QuestState.Accept)) {
