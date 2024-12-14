@@ -23,6 +23,7 @@ import {
   WorldStartBattleUpdate,
   WorldTradeUpdate,
   WorldTurnCharactersUpdate,
+  WorldTurnInQuestUpdate,
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
@@ -51,6 +52,7 @@ import {
 } from "../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
+import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
@@ -92,7 +94,9 @@ export const listenForWorldUpdates = (): void => {
         if (typeof updatedQuestInstance === "undefined") {
           throw new Error("No updated quest instance.");
         }
-        updatedQuestInstance.isStarted = true;
+        if (updatedQuestInstance.isStarted === false) {
+          updatedQuestInstance.isStarted = true;
+        }
       }
     },
   });
@@ -564,6 +568,28 @@ export const listenForWorldUpdates = (): void => {
           turn.worldCharacterID,
         );
         worldCharacter.direction = turn.direction;
+      }
+    },
+  });
+  listenToSocketioEvent<WorldTurnInQuestUpdate>({
+    event: "world/turn-in-quest",
+    onMessage: (update: WorldTurnInQuestUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        worldState.values.worldCharacterID,
+      );
+      const quest: Quest = getDefinable(Quest, update.questID);
+      for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+        const questInstance: WorldCharacterQuestInstance | undefined =
+          partyWorldCharacter.questInstances[update.questID];
+        if (canWorldCharacterTurnInQuest(partyWorldCharacter.id, quest.id)) {
+          if (typeof questInstance !== "undefined") {
+            if (questInstance.isCompleted === false) {
+              questInstance.isCompleted = true;
+            }
+          }
+        }
       }
     },
   });

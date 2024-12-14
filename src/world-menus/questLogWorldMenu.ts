@@ -286,7 +286,7 @@ export const questLogWorldMenu: WorldMenu<
       hudElementReferences.push(
         createIconListItem({
           condition: (): boolean =>
-            inProgressTabCondition() && i < getCompletedQuestIDs().length,
+            completedTabCondition() && i < getCompletedQuestIDs().length,
           icons: [
             {
               imagePath: (): string =>
@@ -525,10 +525,15 @@ export const questLogWorldMenu: WorldMenu<
         maxWidth: 160,
         text: (): CreateLabelOptionsText => {
           const selectedQuest: Quest = getSelectedQuest();
+          const questInstance: WorldCharacterQuestInstance =
+            getSelectedQuestInstance();
           const values: string[] = [
             selectedQuest.availableText,
             selectedQuest.inProgressText,
           ];
+          if (questInstance.isCompleted) {
+            values.push(selectedQuest.completedText);
+          }
           const page: number = getSelectedQuestDialoguePage();
           const value: string | undefined = values[page];
           if (typeof value === "undefined") {

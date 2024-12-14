@@ -2,6 +2,7 @@ import {
   Color,
   WorldAcceptQuestRequest,
   WorldSelectQuestRequest,
+  WorldTurnInQuestRequest,
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
@@ -265,7 +266,7 @@ export const npcDialogueWorldMenu: WorldMenu<
         }
       }
       // Quest accept button
-      const acceptButtonWidth: number = 48;
+      const acceptButtonWidth: number = 64;
       hudElementReferences.push(
         createPressableButton({
           condition: (): boolean => {
@@ -294,6 +295,39 @@ export const npcDialogueWorldMenu: WorldMenu<
           },
           width: acceptButtonWidth,
           x: x + width - acceptButtonWidth - 7,
+          y: y + height - 23,
+        }),
+      );
+      // Quest turn in button
+      const turnInButtonWidth: number = 64;
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean => {
+            const quest: Quest | null = getSelectedQuest();
+            if (quest !== null) {
+              return getQuestPartyState(quest.id) === QuestState.TurnIn;
+            }
+            return false;
+          },
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            const quest: Quest | null = getSelectedQuest();
+            if (quest === null) {
+              throw new Error("No selected quest.");
+            }
+            emitToSocketioServer<WorldTurnInQuestRequest>({
+              data: {
+                questID: quest.id,
+              },
+              event: "world/turn-in-quest",
+            });
+          },
+          text: {
+            value: "Complete",
+          },
+          width: turnInButtonWidth,
+          x: x + width - turnInButtonWidth - 7,
           y: y + height - 23,
         }),
       );
