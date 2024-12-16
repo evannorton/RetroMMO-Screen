@@ -19,6 +19,7 @@ export class Quest extends Definable {
   private readonly _monster?: QuestMonster;
   private readonly _name: string;
   private readonly _npcID: string;
+  private readonly _prerequisiteQuestID?: string;
   public constructor(options: QuestOptions) {
     super(options.id);
     this._availableText = options.definition.availableText;
@@ -35,6 +36,7 @@ export class Quest extends Definable {
         : undefined;
     this._name = options.definition.name;
     this._npcID = options.definition.npcID;
+    this._prerequisiteQuestID = options.definition.prerequisiteQuestID;
   }
 
   public get availableText(): string {
@@ -76,7 +78,18 @@ export class Quest extends Definable {
     return getDefinable(NPC, this._npcID);
   }
 
+  public get prerequisiteQuestID(): string {
+    if (typeof this._prerequisiteQuestID !== "undefined") {
+      return this._prerequisiteQuestID;
+    }
+    throw new Error(this.getAccessorErrorMessage("prerequisiteQuestID"));
+  }
+
   public hasMonster(): boolean {
     return typeof this._monster !== "undefined";
+  }
+
+  public hasPrerequisiteQuest(): boolean {
+    return typeof this._prerequisiteQuestID !== "undefined";
   }
 }

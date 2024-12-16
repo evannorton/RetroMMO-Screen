@@ -27,6 +27,7 @@ import { getDefinable } from "definables";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
+import { getQuestState } from "../functions/getQuestState";
 import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
 
 export interface NPCDialogueWorldMenuOpenOptions {
@@ -205,66 +206,80 @@ export const npcDialogueWorldMenu: WorldMenu<
       );
       // Quests list
       for (let i: number = 0; i < npcQuestsPerPage; i++) {
-        if (npc.questGiver.quests.length > i) {
-          const index: number = i;
+        const index: number = i;
+        const getQuestGiverQuests = (): readonly QuestGiverQuest[] =>
+          npc.questGiver.quests.filter(
+            (questGiverQuest: QuestGiverQuest): boolean => {
+              const quest: Quest = getDefinable(Quest, questGiverQuest.questID);
+              if (quest.hasPrerequisiteQuest()) {
+                if (
+                  getQuestState(quest.prerequisiteQuestID) !==
+                  QuestState.Complete
+                ) {
+                  return false;
+                }
+              }
+              return true;
+            },
+          );
+        const getQuest = (): Quest => {
           const questGiverQuest: QuestGiverQuest | undefined =
-            npc.questGiver.quests[i];
+            getQuestGiverQuests()[i];
           if (typeof questGiverQuest === "undefined") {
             throw new Error("No quest giver quest.");
           }
-          const quest: Quest = getDefinable(Quest, questGiverQuest.questID);
-          hudElementReferences.push(
-            createIconListItem({
-              icons: [
-                { imagePath: getQuestIconImagePath(quest.id) },
-                {
-                  condition: (): boolean => {
-                    const questState: QuestState | null = getQuestPartyState(
-                      quest.id,
-                    );
-                    return (
-                      questState === QuestState.InProgress ||
-                      questState === QuestState.TurnIn
-                    );
-                  },
-                  imagePath: "quest-banners/default",
-                  recolors: (): CreateSpriteOptionsRecolor[] =>
-                    getQuestIconRecolors(quest.id, true),
+          return getDefinable(Quest, questGiverQuest.questID);
+        };
+        hudElementReferences.push(
+          createIconListItem({
+            condition: (): boolean => getQuestGiverQuests().length > i,
+            icons: [
+              { imagePath: (): string => getQuestIconImagePath(getQuest().id) },
+              {
+                condition: (): boolean => {
+                  const questState: QuestState | null = getQuestPartyState(
+                    getQuest().id,
+                  );
+                  return (
+                    questState === QuestState.InProgress ||
+                    questState === QuestState.TurnIn
+                  );
                 },
-              ],
-              isSelected: (): boolean =>
-                npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
-              onClick: (): void => {
-                if (
-                  npcDialogueWorldMenu.state.values.selectedQuestIndex === i
-                ) {
-                  npcDialogueWorldMenu.state.setValues({
-                    selectedQuestIndex: null,
-                  });
-                  emitToSocketioServer<WorldSelectQuestRequest>({
-                    data: {},
-                    event: "world/select-quest",
-                  });
-                } else {
-                  npcDialogueWorldMenu.state.setValues({
-                    selectedQuestIndex: index,
-                  });
-                  emitToSocketioServer<WorldSelectQuestRequest>({
-                    data: {
-                      questID: quest.id,
-                    },
-                    event: "world/select-quest",
-                  });
-                }
+                imagePath: "quest-banners/default",
+                recolors: (): CreateSpriteOptionsRecolor[] =>
+                  getQuestIconRecolors(getQuest().id, true),
               },
-              slotImagePath: "slots/basic",
-              text: { value: quest.name },
-              width: 116,
-              x: questsX + 6,
-              y: questsY + 26 + i * 18,
-            }),
-          );
-        }
+            ],
+            isSelected: (): boolean =>
+              npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
+            onClick: (): void => {
+              if (npcDialogueWorldMenu.state.values.selectedQuestIndex === i) {
+                npcDialogueWorldMenu.state.setValues({
+                  selectedQuestIndex: null,
+                });
+                emitToSocketioServer<WorldSelectQuestRequest>({
+                  data: {},
+                  event: "world/select-quest",
+                });
+              } else {
+                npcDialogueWorldMenu.state.setValues({
+                  selectedQuestIndex: index,
+                });
+                emitToSocketioServer<WorldSelectQuestRequest>({
+                  data: {
+                    questID: getQuest().id,
+                  },
+                  event: "world/select-quest",
+                });
+              }
+            },
+            slotImagePath: "slots/basic",
+            text: (): CreateLabelOptionsText => ({ value: getQuest().name }),
+            width: 116,
+            x: questsX + 6,
+            y: questsY + 26 + i * 18,
+          }),
+        );
       }
       // Quest accept button
       const acceptButtonWidth: number = 64;
