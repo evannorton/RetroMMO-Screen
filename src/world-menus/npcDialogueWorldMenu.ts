@@ -203,6 +203,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           y: questsY + 20,
         }),
       );
+      // Quests list
       for (let i: number = 0; i < npcQuestsPerPage; i++) {
         if (npc.questGiver.quests.length > i) {
           const index: number = i;
