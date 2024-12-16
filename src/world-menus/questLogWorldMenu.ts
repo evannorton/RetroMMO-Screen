@@ -22,6 +22,7 @@ import { createIconListItem } from "../functions/ui/components/createIconListIte
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createSlot } from "../functions/ui/components/createSlot";
+import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
@@ -465,6 +466,15 @@ export const questLogWorldMenu: WorldMenu<
         },
       }),
     );
+    // Divider
+    hudElementReferences.push(
+      createUnderstrike({
+        condition: isQuestSelected,
+        width: 162,
+        x: 7,
+        y: selectedQuestY + 39,
+      }),
+    );
     // Selected quest npc actor image
     hudElementReferences.push(
       createImage({
@@ -473,7 +483,7 @@ export const questLogWorldMenu: WorldMenu<
         imagePath: (): string => getSelectedQuest().npc.actorImagePath,
         width: 16,
         x: 7,
-        y: selectedQuestY + 38,
+        y: selectedQuestY + 45,
       }),
     );
     // Selected quest npc name
@@ -483,7 +493,7 @@ export const questLogWorldMenu: WorldMenu<
         coordinates: {
           condition: isQuestSelected,
           x: 26,
-          y: selectedQuestY + 43,
+          y: selectedQuestY + 50,
         },
         horizontalAlignment: "left",
         maxLines: 1,
@@ -518,7 +528,7 @@ export const questLogWorldMenu: WorldMenu<
         coordinates: {
           condition: isQuestSelected,
           x: 8,
-          y: selectedQuestY + 58,
+          y: selectedQuestY + 65,
         },
         horizontalAlignment: "left",
         maxLines: 6,
@@ -559,7 +569,7 @@ export const questLogWorldMenu: WorldMenu<
         },
         width: 14,
         x: 7,
-        y: 187,
+        y: selectedQuestY + 133,
       }),
     );
     hudElementReferences.push(
@@ -577,7 +587,59 @@ export const questLogWorldMenu: WorldMenu<
         },
         width: 14,
         x: 155,
-        y: 187,
+        y: selectedQuestY + 133,
+      }),
+    );
+    // Understrike
+    hudElementReferences.push(
+      createUnderstrike({
+        condition: (): boolean =>
+          isQuestSelected() && getSelectedQuestInstance().isCompleted,
+        width: 162,
+        x: 7,
+        y: selectedQuestY + 152,
+      }),
+    );
+    // Exp reward
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            isQuestSelected() && getSelectedQuestInstance().isCompleted,
+          x: 8,
+          y: selectedQuestY + 158,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 160,
+        text: (): CreateLabelOptionsText => {
+          const selectedQuest: Quest = getSelectedQuest();
+          return {
+            value: `Experience gained: ${selectedQuest.experience}`,
+          };
+        },
+      }),
+    );
+    // Gold reward
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            isQuestSelected() && getSelectedQuestInstance().isCompleted,
+          x: 8,
+          y: selectedQuestY + 169,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 160,
+        text: (): CreateLabelOptionsText => {
+          const selectedQuest: Quest = getSelectedQuest();
+          return {
+            value: `Gold earned: ${selectedQuest.gold}`,
+          };
+        },
       }),
     );
     return mergeHUDElementReferences([
