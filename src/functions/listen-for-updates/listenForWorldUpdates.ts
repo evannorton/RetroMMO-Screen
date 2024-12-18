@@ -591,6 +591,18 @@ export const listenForWorldUpdates = (): void => {
           }
         }
       }
+      for (const worldCharacterUpdate of update.worldCharacters) {
+        const partyWorldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          worldCharacterUpdate.worldCharacterID,
+        );
+        partyWorldCharacter.resources = {
+          hp: worldCharacterUpdate.resources.hp,
+          maxHP: worldCharacterUpdate.resources.maxHP,
+          maxMP: worldCharacterUpdate.resources.maxMP ?? null,
+          mp: worldCharacterUpdate.resources.mp ?? null,
+        };
+      }
     },
   });
   listenToSocketioEvent<WorldTurnNPCUpdate>({
