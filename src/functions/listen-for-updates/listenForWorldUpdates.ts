@@ -6,6 +6,7 @@ import {
   VanitySlot,
   WorldAcceptQuestUpdate,
   WorldBonkUpdate,
+  WorldClearMarkerUpdate,
   WorldCloseBankUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
@@ -110,7 +111,8 @@ export const listenForWorldUpdates = (): void => {
   });
   listenToSocketioEvent<WorldMarkerUpdate>({
     event: "world/clear-marker",
-    onMessage: (update: WorldMarkerUpdate): void => {
+    onMessage: (update: WorldClearMarkerUpdate): void => {
+      console.log("clear");
       clearWorldCharacterMarker(update.worldCharacterID);
     },
   });
@@ -329,6 +331,15 @@ export const listenForWorldUpdates = (): void => {
             break;
         }
         worldCharacter.movedAt = getCurrentTime();
+      }
+      for (const clearedMarkerWorldCharacterID of update.clearedMarkerWorldCharacterIDs) {
+        const clearedMarkerWorldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          clearedMarkerWorldCharacterID,
+        );
+        if (clearedMarkerWorldCharacter.hasMarker()) {
+          clearWorldCharacterMarker(clearedMarkerWorldCharacterID);
+        }
       }
     },
   });
