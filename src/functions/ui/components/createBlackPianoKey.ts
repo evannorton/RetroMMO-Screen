@@ -84,7 +84,6 @@ export const createBlackPianoKey = ({
   );
   buttonIDs.push(
     createButton({
-      consumesInput: true,
       coordinates: {
         x,
         y,

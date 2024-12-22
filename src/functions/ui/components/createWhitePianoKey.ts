@@ -83,7 +83,6 @@ export const createWhitePianoKey = ({
   );
   buttonIDs.push(
     createButton({
-      consumesInput: true,
       coordinates: {
         x,
         y,
