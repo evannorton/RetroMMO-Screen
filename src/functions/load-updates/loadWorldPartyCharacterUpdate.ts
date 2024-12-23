@@ -31,12 +31,13 @@ export const loadWorldPartyCharacterUpdate = (
       };
     }
   }
+  worldCharacter.isRenewing = worldPartyCharacterUpdate.isRenewing;
+  worldCharacter.openedChestIDs = worldPartyCharacterUpdate.openedChestIDs;
   worldCharacter.resources = {
     hp: worldPartyCharacterUpdate.resources.hp,
     maxHP: worldPartyCharacterUpdate.resources.maxHP,
     maxMP: worldPartyCharacterUpdate.resources.maxMP ?? null,
     mp: worldPartyCharacterUpdate.resources.mp ?? null,
   };
-  worldCharacter.openedChestIDs = worldPartyCharacterUpdate.openedChestIDs;
   updateWorldCharacterOrder(worldCharacter.id, worldPartyCharacterUpdate.order);
 };
