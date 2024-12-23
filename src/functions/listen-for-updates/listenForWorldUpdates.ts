@@ -285,10 +285,12 @@ export const listenForWorldUpdates = (): void => {
       );
       worldCharacter.party.worldCharacters.forEach(
         (partyWorldCharacter: WorldCharacter): void => {
-          partyWorldCharacter.resources.hp =
-            partyWorldCharacter.resources.maxHP;
-          partyWorldCharacter.resources.mp =
-            partyWorldCharacter.resources.maxMP;
+          partyWorldCharacter.resources = {
+            hp: partyWorldCharacter.resources.maxHP,
+            maxHP: partyWorldCharacter.resources.maxHP,
+            maxMP: partyWorldCharacter.resources.maxMP ?? null,
+            mp: partyWorldCharacter.resources.maxMP ?? null,
+          };
         },
       );
     },
@@ -296,14 +298,26 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
     event: "world/move-characters",
     onMessage: (update: WorldMoveCharactersUpdate): void => {
-      for (const move of update.moves) {
+      for (const worldMoveCharacterUpdate of update.worldCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
-          move.worldCharacterID,
+          worldMoveCharacterUpdate.worldCharacterID,
         );
-        worldCharacter.direction = move.direction;
-        worldCharacter.step = move.step;
-        updateWorldCharacterOrder(worldCharacter.id, move.order);
+        worldCharacter.resources =
+          typeof worldMoveCharacterUpdate.resources !== "undefined"
+            ? {
+                hp: worldMoveCharacterUpdate.resources.hp,
+                maxHP: worldMoveCharacterUpdate.resources.maxHP,
+                maxMP: worldMoveCharacterUpdate.resources.maxMP ?? null,
+                mp: worldMoveCharacterUpdate.resources.mp ?? null,
+              }
+            : null;
+        worldCharacter.direction = worldMoveCharacterUpdate.direction;
+        worldCharacter.step = worldMoveCharacterUpdate.step;
+        updateWorldCharacterOrder(
+          worldCharacter.id,
+          worldMoveCharacterUpdate.order,
+        );
         switch (worldCharacter.direction) {
           case Direction.Down:
             worldCharacter.position = {
@@ -427,7 +441,7 @@ export const listenForWorldUpdates = (): void => {
       for (const partyIDToRemove of update.partyIDsToRemove) {
         getDefinable(Party, partyIDToRemove).remove();
       }
-      for (const worldPartyCharacterUpdate of update.characters) {
+      for (const worldPartyCharacterUpdate of update.worldCharacters) {
         loadWorldPartyCharacterUpdate(worldPartyCharacterUpdate);
       }
     },
@@ -501,13 +515,12 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           worldPreparationCharacter.worldCharacterID,
         );
-        worldCharacter.resources.hp = worldPreparationCharacter.resources.hp;
-        worldCharacter.resources.mp =
-          worldPreparationCharacter.resources.mp ?? null;
-        worldCharacter.resources.maxHP =
-          worldPreparationCharacter.resources.maxHP;
-        worldCharacter.resources.maxMP =
-          worldPreparationCharacter.resources.maxMP ?? null;
+        worldCharacter.resources = {
+          hp: worldPreparationCharacter.resources.hp,
+          maxHP: worldPreparationCharacter.resources.maxHP,
+          maxMP: worldPreparationCharacter.resources.maxMP ?? null,
+          mp: worldPreparationCharacter.resources.mp ?? null,
+        };
       }
     },
   });

@@ -48,10 +48,10 @@ export interface WorldCharacterQuestInstance {
   monsterKills?: number;
 }
 export interface WorldCharacterResources {
-  hp: number;
-  maxHP: number;
-  maxMP: number | null;
-  mp: number | null;
+  readonly hp: number;
+  readonly maxHP: number;
+  readonly maxMP: number | null;
+  readonly mp: number | null;
 }
 export interface WorldCharacterEmote {
   entityID: string;
@@ -350,7 +350,7 @@ export class WorldCharacter extends Definable {
     this._questInstances = questInstances;
   }
 
-  public set resources(resources: WorldCharacterResources) {
+  public set resources(resources: WorldCharacterResources | null) {
     this._resources = resources;
   }
 
