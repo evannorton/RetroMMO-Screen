@@ -36,6 +36,7 @@ export interface CreatePlayerSpriteOptions {
   maskID: Scriptable<string>;
   outfitID: Scriptable<string>;
   skinColorID: Scriptable<string>;
+  statusIconImagePath?: Scriptable<string | undefined>;
 }
 export const createCharacterSprite = ({
   coordinates,
@@ -47,6 +48,7 @@ export const createCharacterSprite = ({
   maskID,
   outfitID,
   skinColorID,
+  statusIconImagePath,
 }: CreatePlayerSpriteOptions): void => {
   if (
     (typeof entity === "undefined") ===
@@ -732,6 +734,64 @@ export const createCharacterSprite = ({
       ] as string,
     recolors,
   });
+  // Status icon sprite
+  const statusIconSpriteCondition = (): boolean => {
+    const statusIconImagePathValue: string | undefined =
+      typeof statusIconImagePath === "function"
+        ? statusIconImagePath()
+        : statusIconImagePath;
+    return typeof statusIconImagePathValue !== "undefined";
+  };
+  const statusIconSpriteID: string = createSprite({
+    animationID: "default",
+    animations: [
+      {
+        frames: [
+          {
+            height: 8,
+            sourceHeight: 8,
+            sourceWidth: 8,
+            sourceX: 0,
+            sourceY: 0,
+            width: 8,
+          },
+        ],
+        id: "default",
+      },
+    ],
+    coordinates:
+      typeof coordinates !== "undefined"
+        ? {
+            condition: (): boolean => {
+              if (
+                typeof coordinates.condition === "undefined" ||
+                coordinates.condition()
+              ) {
+                return statusIconSpriteCondition();
+              }
+              return false;
+            },
+            x: (): number =>
+              (typeof coordinates.x === "function"
+                ? coordinates.x()
+                : coordinates.x) + 4,
+            y: (): number =>
+              (typeof coordinates.y === "function"
+                ? coordinates.y()
+                : coordinates.y) + 12,
+          }
+        : undefined,
+    imagePath: (): string => {
+      const statusIconImagePathValue: string | undefined =
+        typeof statusIconImagePath === "function"
+          ? statusIconImagePath()
+          : statusIconImagePath;
+      if (typeof statusIconImagePathValue === "undefined") {
+        throw new Error("Status icon image path is undefined.");
+      }
+      return statusIconImagePathValue;
+    },
+  });
   if (typeof entity !== "undefined") {
     addEntitySprite(entity.entityID, {
       condition: headBackSpriteCondition,
@@ -744,6 +804,10 @@ export const createCharacterSprite = ({
     addEntitySprite(entity.entityID, {
       condition: headFrontSpriteCondition,
       spriteID: headFrontSpriteID,
+    });
+    addEntitySprite(entity.entityID, {
+      condition: statusIconSpriteCondition,
+      spriteID: statusIconSpriteID,
     });
   }
 };

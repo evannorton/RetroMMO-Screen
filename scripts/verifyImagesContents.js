@@ -360,6 +360,24 @@ const directoryOptions = [
   },
   {
     colorCount: 8,
+    directoryPath: ["images", "slots"],
+    isSpriteSheet: true,
+    palette: colorPalette.famicube,
+    spriteWidth: 18,
+    spriteHeight: 18,
+    size: { width: 18, height: 18, tiledX: true, tiledY: true }
+  },
+  {
+    colorCount: 8,
+    directoryPath: ["images", "status-icons"],
+    isSpriteSheet: false,
+    palette: colorPalette.famicube,
+    spriteWidth: 8,
+    spriteHeight: 8,
+    size: { width: 8, height: 8, tiledX: false, tiledY: false }
+  },
+  {
+    colorCount: 8,
     directoryPath: ["images", "tab-icons"],
     isSpriteSheet: false,
     palette: colorPalette.famicube,
@@ -375,15 +393,6 @@ const directoryOptions = [
     spriteWidth: 16,
     spriteHeight: 16,
     size: { width: 16, height: 16, tiledX: true, tiledY: true }
-  },
-  {
-    colorCount: 8,
-    directoryPath: ["images", "slots"],
-    isSpriteSheet: true,
-    palette: colorPalette.famicube,
-    spriteWidth: 18,
-    spriteHeight: 18,
-    size: { width: 18, height: 18, tiledX: true, tiledY: true }
   },
 ];
 

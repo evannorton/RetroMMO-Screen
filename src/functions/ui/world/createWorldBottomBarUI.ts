@@ -110,6 +110,13 @@ export const createWorldBottomBarUI = (): void => {
         ).id;
       },
       skinColorID: (): string => getWorldCharacter().skinColor.id,
+      statusIconImagePath: (): string | undefined => {
+        const worldCharacter: WorldCharacter = getWorldCharacter();
+        if (worldCharacter.hasIsRenewing() && worldCharacter.isRenewing) {
+          return "status-icons/renew";
+        }
+        return undefined;
+      },
     });
     createButton({
       coordinates: {

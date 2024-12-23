@@ -26,6 +26,7 @@ export interface WorldCharacterOptions {
   figureID: string;
   hairDyeItemID?: string;
   id: string;
+  isRenewing?: boolean;
   level: number;
   maskItemID?: string;
   openedChestIDs?: readonly string[];
@@ -65,6 +66,7 @@ export class WorldCharacter extends Definable {
   private _entityID: string | null = null;
   private readonly _figureID: string;
   private _hairDyeItemID: string | null;
+  private _isRenewing: boolean | null;
   private readonly _level: number;
   private _markerEntityID: string | null = null;
   private _maskItemID: string | null;
@@ -91,6 +93,7 @@ export class WorldCharacter extends Definable {
     this._direction = options.direction;
     this._figureID = options.figureID;
     this._hairDyeItemID = options.hairDyeItemID ?? null;
+    this._isRenewing = options.isRenewing ?? null;
     this._level = options.level;
     this._maskItemID = options.maskItemID ?? null;
     this._openedChestIDs = options.openedChestIDs ?? null;
@@ -186,6 +189,13 @@ export class WorldCharacter extends Definable {
       return this._hairDyeItemID;
     }
     throw new Error(this.getAccessorErrorMessage("hairDyeItemID"));
+  }
+
+  public get isRenewing(): boolean {
+    if (this._isRenewing !== null) {
+      return this._isRenewing;
+    }
+    throw new Error(this.getAccessorErrorMessage("isRenewing"));
   }
 
   public get markerEntityID(): string {
@@ -312,6 +322,10 @@ export class WorldCharacter extends Definable {
     this._hairDyeItemID = hairDyeItemID;
   }
 
+  public set isRenewing(isRenewing: boolean | null) {
+    this._isRenewing = isRenewing;
+  }
+
   public set markerEntityID(markerEntityID: string | null) {
     this._markerEntityID = markerEntityID;
   }
@@ -376,6 +390,10 @@ export class WorldCharacter extends Definable {
 
   public hasHairDyeItem(): boolean {
     return this._hairDyeItemID !== null;
+  }
+
+  public hasIsRenewing(): boolean {
+    return this._isRenewing !== null;
   }
 
   public hasMarker(): boolean {

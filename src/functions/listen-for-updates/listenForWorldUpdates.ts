@@ -313,6 +313,7 @@ export const listenForWorldUpdates = (): void => {
               }
             : null;
         worldCharacter.direction = worldMoveCharacterUpdate.direction;
+        worldCharacter.isRenewing = worldMoveCharacterUpdate.isRenewing ?? null;
         worldCharacter.step = worldMoveCharacterUpdate.step;
         updateWorldCharacterOrder(
           worldCharacter.id,
@@ -515,6 +516,7 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           worldPreparationCharacter.worldCharacterID,
         );
+        worldCharacter.isRenewing = worldPreparationCharacter.isRenewing;
         worldCharacter.resources = {
           hp: worldPreparationCharacter.resources.hp,
           maxHP: worldPreparationCharacter.resources.maxHP,
