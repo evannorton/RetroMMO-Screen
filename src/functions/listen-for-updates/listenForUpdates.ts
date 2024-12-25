@@ -22,11 +22,13 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<InitialUpdate>({
     event: "initial-update",
     onMessage: (update: InitialUpdate): void => {
-      for (const character of getDefinables(MainMenuCharacter).values()) {
-        character.remove();
+      for (const mainMenuCharacter of getDefinables(
+        MainMenuCharacter,
+      ).values()) {
+        mainMenuCharacter.remove();
       }
-      for (const character of getDefinables(WorldCharacter).values()) {
-        character.remove();
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.remove();
       }
       for (const party of getDefinables(Party).values()) {
         party.remove();
