@@ -2,6 +2,7 @@ import { NPC } from "../classes/NPC";
 import { QuestGiverQuest } from "../classes/QuestGiver";
 import { QuestState } from "../types/QuestState";
 import { getDefinable } from "definables";
+import { getQuestGiverQuests } from "./getQuestGiverQuests";
 import { getQuestPartyState } from "./getQuestPartyState";
 
 export const getNPCIndicatorImagePath = (npcID: string): string => {
@@ -16,11 +17,11 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
     return npc.shop.indicatorImagePath;
   }
   if (npc.hasQuestGiver()) {
-    const questStates: readonly (QuestState | null)[] =
-      npc.questGiver.quests.map(
-        (questGiverQuest: QuestGiverQuest): QuestState | null =>
-          getQuestPartyState(questGiverQuest.questID),
-      );
+    const questStates: readonly (QuestState | null)[] = getQuestGiverQuests(
+      npc.id,
+    ).map((questGiverQuest: QuestGiverQuest): QuestState | null =>
+      getQuestPartyState(questGiverQuest.questID),
+    );
     if (questStates.includes(QuestState.TurnIn)) {
       return "indicators/quest/turn-in";
     }

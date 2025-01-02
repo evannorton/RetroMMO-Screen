@@ -24,10 +24,10 @@ import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
+import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
-import { getQuestState } from "../functions/getQuestState";
 import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
 
 export interface NPCDialogueWorldMenuOpenOptions {
@@ -207,24 +207,9 @@ export const npcDialogueWorldMenu: WorldMenu<
       // Quests list
       for (let i: number = 0; i < npcQuestsPerPage; i++) {
         const index: number = i;
-        const getQuestGiverQuests = (): readonly QuestGiverQuest[] =>
-          npc.questGiver.quests.filter(
-            (questGiverQuest: QuestGiverQuest): boolean => {
-              const quest: Quest = getDefinable(Quest, questGiverQuest.questID);
-              if (quest.hasPrerequisiteQuest()) {
-                if (
-                  getQuestState(quest.prerequisiteQuestID) !==
-                  QuestState.Complete
-                ) {
-                  return false;
-                }
-              }
-              return true;
-            },
-          );
         const getQuest = (): Quest => {
           const questGiverQuest: QuestGiverQuest | undefined =
-            getQuestGiverQuests()[i];
+            getQuestGiverQuests(npc.id)[i];
           if (typeof questGiverQuest === "undefined") {
             throw new Error("No quest giver quest.");
           }
@@ -232,7 +217,7 @@ export const npcDialogueWorldMenu: WorldMenu<
         };
         hudElementReferences.push(
           createIconListItem({
-            condition: (): boolean => getQuestGiverQuests().length > i,
+            condition: (): boolean => getQuestGiverQuests(npc.id).length > i,
             icons: [
               { imagePath: (): string => getQuestIconImagePath(getQuest().id) },
               {
