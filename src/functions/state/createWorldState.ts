@@ -6,6 +6,7 @@ export const createWorldState = (
 ): State<WorldStateSchema> =>
   new State<WorldStateSchema>({
     lastPianoNoteAt: null,
+    lastUsedEmoteID: null,
     pianoNotes: [],
     pianoSessionID: null,
     worldCharacterID,

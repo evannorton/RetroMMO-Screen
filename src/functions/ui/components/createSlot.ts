@@ -2,6 +2,7 @@ import {
   CreateSpriteOptionsRecolor,
   HUDElementReferences,
   Scriptable,
+  createButton,
   createSprite,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
@@ -17,6 +18,10 @@ export interface CreateSlotOptions {
   icons?: CreateSlotOptionsIcon[];
   imagePath: Scriptable<string>;
   isSelected?: Scriptable<boolean>;
+  button?: {
+    condition?: () => boolean;
+    onClick: () => void;
+  };
   x: number;
   y: number;
 }
@@ -25,10 +30,12 @@ export const createSlot = ({
   icons,
   imagePath,
   isSelected,
+  button,
   x,
   y,
 }: CreateSlotOptions): HUDElementReferences => {
   const hudElementReferences: HUDElementReferences[] = [];
+  const buttonIDs: string[] = [];
   const spriteIDs: string[] = [];
   spriteIDs.push(
     createSprite({
@@ -73,6 +80,20 @@ export const createSlot = ({
       imagePath,
     }),
   );
+  if (typeof button !== "undefined") {
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: button.condition,
+          x,
+          y,
+        },
+        height: 16,
+        onClick: button.onClick,
+        width: 16,
+      }),
+    );
+  }
   if (typeof icons !== "undefined") {
     for (const icon of icons) {
       hudElementReferences.push(
@@ -92,6 +113,7 @@ export const createSlot = ({
   }
   return mergeHUDElementReferences([
     {
+      buttonIDs,
       spriteIDs,
     },
     ...hudElementReferences,

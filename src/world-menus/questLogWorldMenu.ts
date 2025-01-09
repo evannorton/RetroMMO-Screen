@@ -38,10 +38,10 @@ enum QuestLogTab {
 
 export interface QuestLogWorldMenuOpenOptions {}
 export interface QuestLogWorldMenuStateSchema {
-  tab: QuestLogTab;
   selectedCompletedQuestIndex: number | null;
   selectedInProgressQuestIndex: number | null;
   selectedQuestDialoguePage: number | null;
+  tab: QuestLogTab;
 }
 export const questLogWorldMenu: WorldMenu<
   QuestLogWorldMenuOpenOptions,

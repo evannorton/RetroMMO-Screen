@@ -37,6 +37,7 @@ export interface MainMenuStateSchema {
 }
 export interface WorldStateSchema {
   lastPianoNoteAt: number | null;
+  lastUsedEmoteID: string | null;
   pianoNotes: readonly PianoNote[];
   pianoSessionID: string | null;
   worldCharacterID: string;

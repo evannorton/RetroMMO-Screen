@@ -1,17 +1,21 @@
 import {
   NumLock,
+  State,
   createInputCollection,
   createInputPressHandler,
   emitToSocketioServer,
   takeScreenshot,
 } from "pixel-pigeon";
+import { WorldStateSchema, state } from "./state";
 import { canWalk } from "./functions/canWalk";
 import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
+import { emotesWorldMenu } from "./world-menus/emotesWorldMenu";
+import { getWorldState } from "./functions/state/getWorldState";
 import { interact } from "./functions/interact";
 import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
 import { pianoWorldMenu } from "./world-menus/pianoWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
-import { state } from "./state";
+import { useEmote } from "./functions/useEmote";
 
 export const whitePianoKeyInputCollectionIDs: readonly string[] = [
   createInputCollection({
@@ -258,10 +262,12 @@ createInputPressHandler({
     state.values.worldState !== null && pianoWorldMenu.isOpen() === false,
   inputCollectionID: emotesInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {},
-      event: "legacy/open-emotes",
-    });
+    if (emotesWorldMenu.isOpen()) {
+      emotesWorldMenu.close();
+    } else {
+      closeWorldMenus();
+      emotesWorldMenu.open({});
+    }
   },
 });
 createInputPressHandler({
@@ -269,10 +275,10 @@ createInputPressHandler({
     state.values.worldState !== null && pianoWorldMenu.isOpen() === false,
   inputCollectionID: lastEmoteInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {},
-      event: "legacy/use-last-emote",
-    });
+    const worldState: State<WorldStateSchema> = getWorldState();
+    if (worldState.values.lastUsedEmoteID !== null) {
+      useEmote(worldState.values.lastUsedEmoteID);
+    }
   },
 });
 createInputPressHandler({

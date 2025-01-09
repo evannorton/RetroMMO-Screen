@@ -6,6 +6,7 @@ import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
+import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
 import { getDefinables } from "definables";
 import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
@@ -98,6 +99,15 @@ export const listenForUpdates = (): void => {
       listenForMainMenuUpdates();
       listenForWorldUpdates();
       listenForBattleUpdates();
+      listenToSocketioEvent({
+        event: "legacy/open-emotes",
+        onMessage: (): void => {
+          if (emotesWorldMenu.isOpen() === false) {
+            closeWorldMenus();
+            emotesWorldMenu.open({});
+          }
+        },
+      });
       listenToSocketioEvent({
         event: "legacy/open-quest-log",
         onMessage: (): void => {
