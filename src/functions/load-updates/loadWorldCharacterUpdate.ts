@@ -9,8 +9,9 @@ import {
   WorldCharacter,
   WorldCharacterOptionsQuestInstance,
 } from "../../classes/WorldCharacter";
+import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
-import { createButton, createEntity } from "pixel-pigeon";
+import { createButton, createEntity, getCurrentTime } from "pixel-pigeon";
 import { createCharacterSprite } from "../ui/components/createCharacterSprite";
 import { getConstants } from "../getConstants";
 import { getDefaultedClothesDye } from "../defaulted-cosmetics/getDefaultedClothesDye";
@@ -130,5 +131,12 @@ export const loadWorldCharacterUpdate = (
   });
   if (typeof worldCharacterUpdate.marker !== "undefined") {
     addWorldCharacterMarker(worldCharacter.id, worldCharacterUpdate.marker);
+  }
+  if (typeof worldCharacterUpdate.emote !== "undefined") {
+    addWorldCharacterEmote(
+      worldCharacter.id,
+      worldCharacterUpdate.emote.emoteID,
+      getCurrentTime() - worldCharacterUpdate.emote.sinceUsed,
+    );
   }
 };

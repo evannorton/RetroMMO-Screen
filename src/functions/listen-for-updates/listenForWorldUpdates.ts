@@ -1,7 +1,6 @@
 import { Bank } from "../../classes/Bank";
 import { Chest } from "../../classes/Chest";
 import {
-  Constants,
   Direction,
   VanitySlot,
   WorldAcceptQuestUpdate,
@@ -28,30 +27,26 @@ import {
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
-import { Emote } from "../../classes/Emote";
-import {
-  EntitySprite,
-  State,
-  createEntity,
-  createSprite,
-  exitLevel,
-  getCurrentTime,
-  goToLevel,
-  listenToSocketioEvent,
-  lockCameraToEntity,
-  playAudioSource,
-  removeEntity,
-} from "pixel-pigeon";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { Quest } from "../../classes/Quest";
 import { QuestGiverQuest } from "../../classes/QuestGiver";
 import {
+  State,
+  exitLevel,
+  getCurrentTime,
+  goToLevel,
+  listenToSocketioEvent,
+  lockCameraToEntity,
+  playAudioSource,
+} from "pixel-pigeon";
+import {
   WorldCharacter,
   WorldCharacterQuestInstance,
 } from "../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../state";
+import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
@@ -59,7 +54,6 @@ import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
-import { getConstants } from "../getConstants";
 import { getWorldState } from "../state/getWorldState";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
@@ -127,78 +121,11 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldEmoteUpdate>({
     event: "world/emote",
     onMessage: (update: WorldEmoteUpdate): void => {
-      const constants: Constants = getConstants();
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
+      addWorldCharacterEmote(
         update.worldCharacterID,
+        update.emoteID,
+        getCurrentTime(),
       );
-      if (worldCharacter.hasEmote()) {
-        removeEntity(worldCharacter.emote.entityID);
-      }
-      const emote: Emote = getDefinable(Emote, update.emoteID);
-      const sprites: EntitySprite[] = [
-        {
-          spriteID: createSprite({
-            animationID: "default",
-            animations: [
-              {
-                frames: [
-                  {
-                    height: constants["tile-size"],
-                    sourceHeight: constants["tile-size"],
-                    sourceWidth: constants["tile-size"],
-                    sourceX: 0,
-                    sourceY: 0,
-                    width: constants["tile-size"],
-                  },
-                ],
-                id: "default",
-              },
-            ],
-            imagePath: emote.backgroundImagePath,
-          }),
-        },
-      ];
-      if (emote.hasForegroundImagePath()) {
-        sprites.push({
-          spriteID: createSprite({
-            animationID: "default",
-            animations: [
-              {
-                frames: [
-                  {
-                    height: constants["tile-size"],
-                    sourceHeight: constants["tile-size"],
-                    sourceWidth: constants["tile-size"],
-                    sourceX: 0,
-                    sourceY: 0,
-                    width: constants["tile-size"],
-                  },
-                ],
-                id: "default",
-              },
-            ],
-            imagePath: emote.foregroundImagePath,
-          }),
-        });
-      }
-      const entityID: string = createEntity({
-        height: constants["tile-size"],
-        layerID: "emotes",
-        levelID: worldCharacter.tilemapID,
-        position: {
-          x: worldCharacter.position.x * constants["tile-size"],
-          y:
-            worldCharacter.position.y * constants["tile-size"] -
-            constants["tile-size"],
-        },
-        sprites,
-        width: constants["tile-size"],
-      });
-      worldCharacter.emote = {
-        entityID,
-        usedAt: getCurrentTime(),
-      };
     },
   });
   listenToSocketioEvent<WorldEnterCharactersUpdate>({

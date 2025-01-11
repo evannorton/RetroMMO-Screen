@@ -1,7 +1,6 @@
 import { Constants, Direction } from "retrommo-types";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
-import { emoteDuration } from "./constants/emoteDuration";
 import { getConstants } from "./functions/getConstants";
 import {
   getCurrentTime,
@@ -30,7 +29,8 @@ export const tick = (): void => {
       worldCharacter.wasClicked = false;
       if (
         worldCharacter.hasEmote() &&
-        worldCharacter.emote.usedAt < getCurrentTime() - emoteDuration
+        worldCharacter.emote.usedAt <
+          getCurrentTime() - constants["emote-duration"]
       ) {
         removeEntity(worldCharacter.emote.entityID);
         worldCharacter.emote = null;
