@@ -171,14 +171,12 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitToMainMenuUpdate>({
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
-      getDefinables(WorldCharacter).forEach(
-        (worldCharacter: WorldCharacter): void => {
-          worldCharacter.remove();
-        },
-      );
-      getDefinables(Party).forEach((party: Party): void => {
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.remove();
+      }
+      for (const party of getDefinables(Party).values()) {
         party.remove();
-      });
+      }
       const mainMenuCharacterIDs: string[] = [];
       for (const mainMenuCharacterUpdate of update.mainMenuCharacters) {
         mainMenuCharacterIDs.push(
@@ -411,14 +409,12 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldPositionUpdate>({
     event: "world/position",
     onMessage: (update: WorldPositionUpdate): void => {
-      getDefinables(WorldCharacter).forEach(
-        (worldCharacter: WorldCharacter): void => {
-          worldCharacter.remove();
-        },
-      );
-      getDefinables(Party).forEach((party: Party): void => {
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.remove();
+      }
+      for (const party of getDefinables(Party).values()) {
         party.remove();
-      });
+      }
       goToLevel(update.tilemapID);
       for (const worldCharacterUpdate of update.worldCharacters) {
         loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -478,14 +474,12 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
     onMessage: (): void => {
-      getDefinables(WorldCharacter).forEach(
-        (worldCharacter: WorldCharacter): void => {
-          worldCharacter.remove();
-        },
-      );
-      getDefinables(Party).forEach((party: Party): void => {
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.remove();
+      }
+      for (const party of getDefinables(Party).values()) {
         party.remove();
-      });
+      }
       state.setValues({
         battleState: createBattleState(),
         worldState: null,
