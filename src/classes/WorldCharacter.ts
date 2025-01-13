@@ -78,7 +78,6 @@ export class WorldCharacter extends Definable {
   private readonly _playerID: string;
   private _position: TilePosition;
   private _questInstances: Record<string, WorldCharacterQuestInstance> = {};
-
   private _resources: WorldCharacterResources | null;
   private readonly _skinColorID: string;
   private _step: Step = Step.Right;
