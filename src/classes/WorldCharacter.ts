@@ -67,7 +67,7 @@ export class WorldCharacter extends Definable {
   private readonly _figureID: string;
   private _hairDyeItemID: string | null;
   private _isRenewing: boolean | null;
-  private readonly _level: number;
+  private _level: number;
   private _markerEntityID: string | null = null;
   private _maskItemID: string | null;
   private _movedAt: number | null = null;
@@ -197,6 +197,10 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("isRenewing"));
   }
 
+  public get level(): number {
+    return this._level;
+  }
+
   public get markerEntityID(): string {
     if (this._markerEntityID !== null) {
       return this._markerEntityID;
@@ -323,6 +327,10 @@ export class WorldCharacter extends Definable {
 
   public set isRenewing(isRenewing: boolean | null) {
     this._isRenewing = isRenewing;
+  }
+
+  public set level(level: number) {
+    this._level = level;
   }
 
   public set markerEntityID(markerEntityID: string | null) {

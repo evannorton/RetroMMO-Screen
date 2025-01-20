@@ -2,10 +2,12 @@ import { WorldExitToMainMenuRequest } from "retrommo-types";
 import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { emitToSocketioServer } from "pixel-pigeon";
+import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { state } from "../../../state";
 
 export const createWorldLogoutUI = (): void => {
-  const condition = (): boolean => state.values.worldState !== null;
+  const condition = (): boolean =>
+    state.values.worldState !== null && isWorldCombatInProgress() === false;
   createPanel({
     condition,
     height: 24,

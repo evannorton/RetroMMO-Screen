@@ -7,6 +7,7 @@ import {
   WorldBonkUpdate,
   WorldClearMarkerUpdate,
   WorldCloseBankUpdate,
+  WorldCombatUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
   WorldExitCharactersUpdate,
@@ -18,7 +19,6 @@ import {
   WorldPartyChangesUpdate,
   WorldPianoKeyUpdate,
   WorldPositionUpdate,
-  WorldPreparationUpdate,
   WorldSelectQuestUpdate,
   WorldStartBattleUpdate,
   WorldTradeUpdate,
@@ -62,6 +62,7 @@ import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { resetParty } from "../resetParty";
 import { sfxVolumeChannelID } from "../../volumeChannels";
+import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
 import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
@@ -73,6 +74,25 @@ export const listenForWorldUpdates = (): void => {
         WorldCharacter,
         worldState.values.worldCharacterID,
       );
+      const isLeader: boolean =
+        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
+      if (npcDialogueWorldMenu.isOpen() === false) {
+        closeWorldMenus();
+        npcDialogueWorldMenu.open({
+          isLeader,
+          npcID: update.npcID,
+        });
+      }
+      const npc: NPC = getDefinable(NPC, update.npcID);
+      npcDialogueWorldMenu.state.setValues({
+        selectedQuestIndex:
+          typeof update.questID !== "undefined"
+            ? npc.questGiver.quests.findIndex(
+                (questGiverQuest: QuestGiverQuest): boolean =>
+                  questGiverQuest.questID === update.questID,
+              )
+            : null,
+      });
       const quest: Quest = getDefinable(Quest, update.questID);
       for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
         const questInstance: WorldCharacterQuestInstance | undefined =
@@ -116,6 +136,30 @@ export const listenForWorldUpdates = (): void => {
       const bank: Bank = getDefinable(Bank, update.bankID);
       bank.isOpen = false;
       bank.toggledAt = getCurrentTime();
+    },
+  });
+  listenToSocketioEvent<WorldCombatUpdate>({
+    event: "world/combat",
+    onMessage: (update: WorldCombatUpdate): void => {
+      for (const worldCombatCharacter of update.worldCombatCharacters) {
+        const worldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          worldCombatCharacter.worldCharacterID,
+        );
+        worldCharacter.isRenewing = worldCombatCharacter.isRenewing;
+        worldCharacter.resources = {
+          hp: worldCombatCharacter.resources.hp,
+          maxHP: worldCombatCharacter.resources.maxHP,
+          maxMP: worldCombatCharacter.resources.maxMP ?? null,
+          mp: worldCombatCharacter.resources.mp ?? null,
+        };
+      }
+      if (
+        spellbookWorldMenu.isOpen() &&
+        spellbookWorldMenu.state.values.isAwaitingWorldCombat
+      ) {
+        spellbookWorldMenu.close();
+      }
     },
   });
   listenToSocketioEvent<WorldEmoteUpdate>({
@@ -431,31 +475,20 @@ export const listenForWorldUpdates = (): void => {
       );
     },
   });
-  listenToSocketioEvent<WorldPreparationUpdate>({
-    event: "world/preparation",
-    onMessage: (update: WorldPreparationUpdate): void => {
-      for (const worldPreparationCharacter of update.worldPreparationCharacters) {
-        const worldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldPreparationCharacter.worldCharacterID,
-        );
-        worldCharacter.isRenewing = worldPreparationCharacter.isRenewing;
-        worldCharacter.resources = {
-          hp: worldPreparationCharacter.resources.hp,
-          maxHP: worldPreparationCharacter.resources.maxHP,
-          maxMP: worldPreparationCharacter.resources.maxMP ?? null,
-          mp: worldPreparationCharacter.resources.mp ?? null,
-        };
-      }
-    },
-  });
   listenToSocketioEvent<WorldSelectQuestUpdate>({
     event: "world/select-quest",
     onMessage: (update: WorldSelectQuestUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const worldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        worldState.values.worldCharacterID,
+      );
+      const isLeader: boolean =
+        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
       if (npcDialogueWorldMenu.isOpen() === false) {
         closeWorldMenus();
         npcDialogueWorldMenu.open({
-          isLeader: false,
+          isLeader,
           npcID: update.npcID,
         });
       }
@@ -526,6 +559,25 @@ export const listenForWorldUpdates = (): void => {
         WorldCharacter,
         worldState.values.worldCharacterID,
       );
+      const isLeader: boolean =
+        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
+      if (npcDialogueWorldMenu.isOpen() === false) {
+        closeWorldMenus();
+        npcDialogueWorldMenu.open({
+          isLeader,
+          npcID: update.npcID,
+        });
+      }
+      const npc: NPC = getDefinable(NPC, update.npcID);
+      npcDialogueWorldMenu.state.setValues({
+        selectedQuestIndex:
+          typeof update.questID !== "undefined"
+            ? npc.questGiver.quests.findIndex(
+                (questGiverQuest: QuestGiverQuest): boolean =>
+                  questGiverQuest.questID === update.questID,
+              )
+            : null,
+      });
       const quest: Quest = getDefinable(Quest, update.questID);
       for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
         const questInstance: WorldCharacterQuestInstance | undefined =
@@ -549,6 +601,7 @@ export const listenForWorldUpdates = (): void => {
           maxMP: worldCharacterUpdate.resources.maxMP ?? null,
           mp: worldCharacterUpdate.resources.mp ?? null,
         };
+        partyWorldCharacter.level = worldCharacterUpdate.level;
       }
     },
   });

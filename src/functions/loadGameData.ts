@@ -1,5 +1,6 @@
-import { Bank } from "../classes/Bank";
+import { Ability } from "../classes/Ability";
 import {
+  AbilityDefinition,
   BankDefinition,
   BodyCosmeticDefinition,
   ChestDefinition,
@@ -31,6 +32,7 @@ import {
   TilesetTileAnimationFrameDefinition,
   TilesetTileDefinition,
 } from "retrommo-types";
+import { Bank } from "../classes/Bank";
 import { BodyCosmetic } from "../classes/BodyCosmetic";
 import { Chest } from "../classes/Chest";
 import { Class } from "../classes/Class";
@@ -88,8 +90,16 @@ export const loadGameData = async (): Promise<void> => {
       const getTileYAtIndex = (index: number, width: number): number =>
         Math.floor(index / width);
       switch (className) {
-        case "Ability":
+        case "Ability": {
+          const definition: AbilityDefinition = (
+            gameData[className] as Record<string, AbilityDefinition>
+          )[id] as AbilityDefinition;
+          new Ability({
+            definition,
+            id,
+          });
           break;
+        }
         case "AudioSource":
           break;
         case "Bank": {

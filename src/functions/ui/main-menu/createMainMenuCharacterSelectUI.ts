@@ -35,7 +35,7 @@ import { getDefinable } from "definables";
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { getMaxCharacters } from "../../getMaxCharacters";
-import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
+import { mainMenuCharactersPerPage } from "../../../constants";
 import { postWindowMessage } from "../../postWindowMessage";
 
 export const createMainMenuCharacterSelectUI = (): void => {

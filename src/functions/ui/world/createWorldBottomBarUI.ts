@@ -1,5 +1,18 @@
-import { Color, Direction, ResourcePool } from "retrommo-types";
-import { State, createButton, emitToSocketioServer } from "pixel-pigeon";
+import { Ability } from "../../../classes/Ability";
+import {
+  Color,
+  Direction,
+  ResourcePool,
+  WorldUseAbilityRequest,
+} from "retrommo-types";
+import {
+  State,
+  createButton,
+  createLabel,
+  createQuadrilateral,
+  emitToSocketioServer,
+  getCurrentTime,
+} from "pixel-pigeon";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../../state";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
@@ -14,6 +27,10 @@ import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairD
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
+import {
+  getSpellbookAbility,
+  spellbookWorldMenu,
+} from "../../../world-menus/spellbookWorldMenu";
 import { getWorldState } from "../../state/getWorldState";
 import { handleWorldCharacterClick } from "../../handleWorldCharacterClick";
 import {
@@ -22,6 +39,7 @@ import {
   spellbookInputCollectionID,
   statsInputCollectionID,
 } from "../../../input";
+import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 
 export const createWorldBottomBarUI = (): void => {
@@ -120,13 +138,37 @@ export const createWorldBottomBarUI = (): void => {
     });
     createButton({
       coordinates: {
-        condition: partyMemberCondition,
+        condition: (): boolean =>
+          partyMemberCondition() && isWorldCombatInProgress() === false,
         x: playerX,
         y: playerY,
       },
       height: tileSize,
       onClick: (): void => {
-        handleWorldCharacterClick(getWorldCharacter().id);
+        if (spellbookWorldMenu.state.values.startedTargetingAt !== null) {
+          if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
+            throw new Error("No selected ability index.");
+          }
+          const ability: Ability = getSpellbookAbility(
+            spellbookWorldMenu.state.values.selectedAbilityIndex,
+          );
+          const worldCharacter: WorldCharacter = getWorldCharacter();
+          const partyMemberWorldCharacter: WorldCharacter | undefined =
+            worldCharacter.party.worldCharacters[partyMemberIndex];
+          if (typeof partyMemberWorldCharacter === "undefined") {
+            throw new Error("No party member world character.");
+          }
+          emitToSocketioServer<WorldUseAbilityRequest>({
+            data: {
+              abilityID: ability.id,
+              playerID: partyMemberWorldCharacter.playerID,
+            },
+            event: "world/use-ability",
+          });
+          spellbookWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
+        } else {
+          handleWorldCharacterClick(getWorldCharacter().id);
+        }
       },
       width: tileSize,
     });
@@ -153,12 +195,44 @@ export const createWorldBottomBarUI = (): void => {
       x: 23 + partyMemberIndex * 60,
       y: 225,
     });
+    // Bottom bar player ability target
+    const targetCondition = (): boolean =>
+      partyMemberCondition() &&
+      spellbookWorldMenu.isOpen() &&
+      spellbookWorldMenu.state.values.startedTargetingAt !== null &&
+      (getCurrentTime() - spellbookWorldMenu.state.values.startedTargetingAt) %
+        1500 <
+        750 &&
+      isWorldCombatInProgress() === false;
+    createQuadrilateral({
+      color: Color.VeryDarkGray,
+      coordinates: {
+        condition: targetCondition,
+        x: playerX + 3,
+        y: playerY + 11,
+      },
+      height: 9,
+      width: 9,
+    });
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: targetCondition,
+        x: playerX + 8,
+        y: playerY + 12,
+      },
+      horizontalAlignment: "center",
+      text: {
+        value: String(partyMemberIndex + 1),
+      },
+    });
   }
   // Leave party button
   const leavePartyCondition = (): boolean =>
     condition() &&
     getDefinable(WorldCharacter, getWorldState().values.worldCharacterID).party
-      .worldCharacters.length > 1;
+      .worldCharacters.length > 1 &&
+    isWorldCombatInProgress() === false;
   createImage({
     condition: leavePartyCondition,
     height: 11,
@@ -175,7 +249,8 @@ export const createWorldBottomBarUI = (): void => {
   });
   // Stats icon
   createBottomBarIcon({
-    condition,
+    condition: (): boolean =>
+      condition() && isWorldCombatInProgress() === false,
     imagePath: "bottom-bar-icons/stats",
     inputCollectionID: statsInputCollectionID,
     isSelected: false,
@@ -191,7 +266,8 @@ export const createWorldBottomBarUI = (): void => {
   });
   // Quest log icon
   createBottomBarIcon({
-    condition,
+    condition: (): boolean =>
+      condition() && isWorldCombatInProgress() === false,
     imagePath: "bottom-bar-icons/quest-log",
     inputCollectionID: questLogInputCollectionID,
     isSelected: (): boolean => questLogWorldMenu.isOpen(),
@@ -208,23 +284,26 @@ export const createWorldBottomBarUI = (): void => {
   });
   // Spellbook icon
   createBottomBarIcon({
-    condition,
+    condition: (): boolean =>
+      condition() && isWorldCombatInProgress() === false,
     imagePath: "bottom-bar-icons/spellbook",
     inputCollectionID: spellbookInputCollectionID,
-    isSelected: false,
+    isSelected: (): boolean => spellbookWorldMenu.isOpen(),
     onClick: (): void => {
-      closeWorldMenus();
-      emitToSocketioServer({
-        data: {},
-        event: "legacy/open-spellbook",
-      });
+      if (spellbookWorldMenu.isOpen()) {
+        spellbookWorldMenu.close();
+      } else {
+        closeWorldMenus();
+        spellbookWorldMenu.open({});
+      }
     },
     x: 255,
     y: 214,
   });
   // Inventory icon
   createBottomBarIcon({
-    condition,
+    condition: (): boolean =>
+      condition() && isWorldCombatInProgress() === false,
     imagePath: "bottom-bar-icons/inventory",
     inputCollectionID: inventoryInputCollectionID,
     isSelected: false,

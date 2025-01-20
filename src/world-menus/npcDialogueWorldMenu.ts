@@ -28,7 +28,7 @@ import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
-import { npcQuestsPerPage } from "../constants/npcQuestsPerPage";
+import { npcQuestsPerPage } from "../constants";
 
 export interface NPCDialogueWorldMenuOpenOptions {
   readonly isLeader: boolean;

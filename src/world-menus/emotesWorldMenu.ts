@@ -15,7 +15,7 @@ import { WorldStateSchema, state } from "../state";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createSlot } from "../functions/ui/components/createSlot";
-import { emotesPerPage } from "../constants/emotesPerPage";
+import { emotesPerPage } from "../constants";
 import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinables } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";

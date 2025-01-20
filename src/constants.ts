@@ -1,0 +1,9 @@
+export const bankToggleDuration: number = 267 / 2;
+export const chestOpenDuration: number = 267 / 2;
+export const emotesPerPage: number = 25;
+export const mainMenuCharactersPerPage: number = 7;
+export const markerDuration: number = 267 * 2;
+export const npcQuestsPerPage: number = 3;
+export const questLogCompletedQuestsPerPage: number = 7;
+export const questLogInProgressQuestsPerPage: number = 7;
+export const spellbookAbilitiesPerPage: number = 7;

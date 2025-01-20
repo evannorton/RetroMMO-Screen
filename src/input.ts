@@ -13,6 +13,7 @@ import { emotesWorldMenu } from "./world-menus/emotesWorldMenu";
 import { getWorldState } from "./functions/state/getWorldState";
 import { interact } from "./functions/interact";
 import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
+import { isWorldCombatInProgress } from "./functions/isWorldCombatInProgress";
 import { pianoWorldMenu } from "./world-menus/pianoWorldMenu";
 import { postWindowMessage } from "./functions/postWindowMessage";
 import { useEmote } from "./functions/useEmote";
@@ -117,6 +118,45 @@ export const blackPianoKeyInputCollectionIDs: readonly string[] = [
     name: "Black Piano Key 10",
   }),
 ];
+export const targetWorldPartyCharacter1InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit1",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad1",
+      },
+    ],
+    name: "Target World Party Character 1",
+  });
+export const targetWorldPartyCharacter2InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit2",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad2",
+      },
+    ],
+    name: "Target World Party Character 2",
+  });
+export const targetWorldPartyCharacter3InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit3",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad3",
+      },
+    ],
+    name: "Target World Party Character 3",
+  });
 const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
   name: "Screenshot",
@@ -259,7 +299,9 @@ createInputPressHandler({
 });
 createInputPressHandler({
   condition: (): boolean =>
-    state.values.worldState !== null && pianoWorldMenu.isOpen() === false,
+    state.values.worldState !== null &&
+    pianoWorldMenu.isOpen() === false &&
+    isWorldCombatInProgress() === false,
   inputCollectionID: emotesInputCollectionID,
   onInput: (): void => {
     if (emotesWorldMenu.isOpen()) {
@@ -553,7 +595,8 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => state.values.worldState !== null,
+  condition: (): boolean =>
+    state.values.worldState !== null && isWorldCombatInProgress() === false,
   inputCollectionID: actionInputCollectionID,
   onInput: (): void => {
     if (isAWorldMenuOpen()) {

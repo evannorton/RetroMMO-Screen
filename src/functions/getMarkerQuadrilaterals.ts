@@ -5,7 +5,7 @@ import {
   getCurrentTime,
 } from "pixel-pigeon";
 import { getConstants } from "./getConstants";
-import { markerDuration } from "../constants/markerDuration";
+import { markerDuration } from "../constants";
 
 export const getMarkerQuadrilaterals = (
   color: Color,

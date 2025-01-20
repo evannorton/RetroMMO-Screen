@@ -17,6 +17,7 @@ import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
 import { selectWorldCharacter } from "../selectWorldCharacter";
+import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
 import { state } from "../../state";
 
 export const listenForUpdates = (): void => {
@@ -114,6 +115,15 @@ export const listenForUpdates = (): void => {
           if (questLogWorldMenu.isOpen() === false) {
             closeWorldMenus();
             questLogWorldMenu.open({});
+          }
+        },
+      });
+      listenToSocketioEvent({
+        event: "legacy/open-spellbook",
+        onMessage: (): void => {
+          if (spellbookWorldMenu.isOpen() === false) {
+            closeWorldMenus();
+            spellbookWorldMenu.open({});
           }
         },
       });

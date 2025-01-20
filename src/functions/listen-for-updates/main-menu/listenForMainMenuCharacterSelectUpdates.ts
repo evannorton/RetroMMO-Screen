@@ -19,7 +19,7 @@ import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
 import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../../load-updates/loadWorldPartyUpdate";
-import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
+import { mainMenuCharactersPerPage } from "../../../constants";
 import { selectWorldCharacter } from "../../selectWorldCharacter";
 
 export const listenForMainMenuCharacterSelectUpdates = (): void => {

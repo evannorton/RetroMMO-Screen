@@ -28,8 +28,10 @@ import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestState } from "../functions/getQuestState";
 import { getWorldState } from "../functions/state/getWorldState";
-import { questLogCompletedQuestsPerPage } from "../constants/questLogCompletedQuestsPerPage";
-import { questLogInProgressQuestsPerPage } from "../constants/questLogInProgressQuestsPerPage";
+import {
+  questLogCompletedQuestsPerPage,
+  questLogInProgressQuestsPerPage,
+} from "../constants";
 
 enum QuestLogTab {
   Completed = "completed",

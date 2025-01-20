@@ -4,7 +4,7 @@ import { MainMenuStateSchema } from "../../../state";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
 import { createMainMenuCharacterSelectState } from "../../state/main-menu/createMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
-import { mainMenuCharactersPerPage } from "../../../constants/mainMenuCharactersPerPage";
+import { mainMenuCharactersPerPage } from "../../../constants";
 
 export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
   listenToSocketioEvent<MainMenuCharacterCustomizeCreateCharacterUpdate>({

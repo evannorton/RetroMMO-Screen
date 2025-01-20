@@ -15,6 +15,7 @@ import { getInteractableEntityCollidable } from "../../getInteractableEntityColl
 import { getWorldState } from "../../state/getWorldState";
 import { interact } from "../../interact";
 import { isAWorldMenuOpen } from "../../world-menus/isAWorldMenuOpen";
+import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { state } from "../../../state";
 
 export const createWorldInteractUI = (): void => {
@@ -32,7 +33,9 @@ export const createWorldInteractUI = (): void => {
           getCurrentTime() - worldCharacter.movedAt >=
             constants["movement-duration"]
         ) {
-          return getInteractableEntityCollidable() !== null;
+          if (getInteractableEntityCollidable() !== null) {
+            return isWorldCombatInProgress() === false;
+          }
         }
       }
     }

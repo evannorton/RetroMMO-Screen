@@ -1,4 +1,8 @@
-import { ClassDefinition, ResourcePool } from "retrommo-types";
+import {
+  ClassDefinition,
+  ClassDefinitionAbilityUnlock,
+  ResourcePool,
+} from "retrommo-types";
 import { Definable, getDefinable, getDefinables } from "definables";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
@@ -11,8 +15,13 @@ export interface ClassOptions {
   definition: ClassDefinition;
   id: string;
 }
+export interface ClassAbilityUnlock {
+  readonly abilityID: string;
+  readonly level: number;
+}
 export class Class extends Definable {
   private readonly _abbreviation: string;
+  private readonly _abilityUnlocks: readonly ClassAbilityUnlock[] = [];
   private readonly _characterCustomizeClothesDyeItemIDs: string[][] = [];
   private readonly _characterCustomizeFigureIDs: string[] = [];
   private readonly _characterCustomizeHairDyeItemIDs: string[] = [];
@@ -38,6 +47,12 @@ export class Class extends Definable {
   public constructor(options: ClassOptions) {
     super(options.id);
     this._abbreviation = options.definition.abbreviation;
+    this._abilityUnlocks = options.definition.abilityUnlocks.map(
+      (abilityUnlock: ClassDefinitionAbilityUnlock): ClassAbilityUnlock => ({
+        abilityID: abilityUnlock.abilityID,
+        level: abilityUnlock.level,
+      }),
+    );
     this._description = options.definition.description;
     this._defaultClothesDyeItemID = options.definition.defaultClothesDyeItemID;
     this._defaultFigureID = options.definition.defaultFigureID;
@@ -52,6 +67,10 @@ export class Class extends Definable {
 
   public get abbreviation(): string {
     return this._abbreviation;
+  }
+
+  public get abilityUnlocks(): readonly ClassAbilityUnlock[] {
+    return this._abilityUnlocks;
   }
 
   public get clothesDyeItemOrderOffset(): [number, number] {
