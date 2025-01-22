@@ -19,6 +19,7 @@ import { emotesPerPage } from "../constants";
 import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinables } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
+import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 import { useEmote } from "../functions/useEmote";
 
 enum EmotesTab {
@@ -48,6 +49,7 @@ export const emotesWorldMenu: WorldMenu<
     // Background panel
     hudElementReferences.push(
       createPanel({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 184,
         imagePath: "panels/basic",
         width: 128,
@@ -95,6 +97,7 @@ export const emotesWorldMenu: WorldMenu<
           },
         ],
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 178,
           y: 26,
         },
@@ -103,6 +106,7 @@ export const emotesWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 16,
         imagePath: "tab-icons/emotes/free",
         width: 16,
@@ -112,6 +116,7 @@ export const emotesWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 16,
         imagePath: "tab-icons/emotes/subscriber",
         width: 16,
@@ -122,7 +127,8 @@ export const emotesWorldMenu: WorldMenu<
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: subscriberTabCondition,
+          condition: (): boolean =>
+            subscriberTabCondition() && isWorldCombatInProgress() === false,
           x: 179,
           y: 27,
         },
@@ -138,7 +144,8 @@ export const emotesWorldMenu: WorldMenu<
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: freeTabCondition,
+          condition: (): boolean =>
+            freeTabCondition() && isWorldCombatInProgress() === false,
           x: 232,
           y: 27,
         },
@@ -154,6 +161,7 @@ export const emotesWorldMenu: WorldMenu<
     // X button
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -236,7 +244,9 @@ export const emotesWorldMenu: WorldMenu<
               }
             },
           },
-          condition: (): boolean => typeof getEmote() !== "undefined",
+          condition: (): boolean =>
+            typeof getEmote() !== "undefined" &&
+            isWorldCombatInProgress() === false,
           icons: [
             {
               imagePath: (): string => {
@@ -253,7 +263,10 @@ export const emotesWorldMenu: WorldMenu<
                 if (typeof emote === "undefined") {
                   throw new Error("Emote is undefined.");
                 }
-                return emote.hasForegroundImagePath();
+                return (
+                  emote.hasForegroundImagePath() &&
+                  isWorldCombatInProgress() === false
+                );
               },
               imagePath: (): string => {
                 const emote: Emote | undefined = getEmote();
@@ -283,7 +296,8 @@ export const emotesWorldMenu: WorldMenu<
     // Page left arrow
     hudElementReferences.push(
       createImage({
-        condition: isPaginated,
+        condition: (): boolean =>
+          isPaginated() && isWorldCombatInProgress() === false,
         height: 14,
         imagePath: "arrows/left",
         onClick: (): void => {
@@ -297,7 +311,8 @@ export const emotesWorldMenu: WorldMenu<
     // Page right arrow
     hudElementReferences.push(
       createImage({
-        condition: isPaginated,
+        condition: (): boolean =>
+          isPaginated() && isWorldCombatInProgress() === false,
         height: 14,
         imagePath: "arrows/right",
         onClick: (): void => {
@@ -313,7 +328,8 @@ export const emotesWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: isPaginated,
+          condition: (): boolean =>
+            isPaginated() && isWorldCombatInProgress() === false,
           x: 296,
           y: 193,
         },

@@ -8,6 +8,7 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
 import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
 import { getDefinables } from "definables";
+import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
@@ -124,6 +125,15 @@ export const listenForUpdates = (): void => {
           if (spellbookWorldMenu.isOpen() === false) {
             closeWorldMenus();
             spellbookWorldMenu.open({});
+          }
+        },
+      });
+      listenToSocketioEvent({
+        event: "legacy/open-inventory",
+        onMessage: (): void => {
+          if (inventoryWorldMenu.isOpen() === false) {
+            closeWorldMenus();
+            inventoryWorldMenu.open({});
           }
         },
       });

@@ -28,6 +28,7 @@ import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
+import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 import { npcQuestsPerPage } from "../constants";
 
 export interface NPCDialogueWorldMenuOpenOptions {
@@ -69,6 +70,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     // Background panel
     hudElementReferences.push(
       createPanel({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height,
         imagePath: "panels/basic",
         width,
@@ -79,6 +81,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     // Close button
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -94,6 +97,7 @@ export const npcDialogueWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: x + xOffset,
           y: y + 10,
         },
@@ -118,7 +122,8 @@ export const npcDialogueWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => npc.hasDialogue(),
+          condition: (): boolean =>
+            npc.hasDialogue() && isWorldCombatInProgress() === false,
           x: x + xOffset,
           y: y + 23,
         },
@@ -159,6 +164,7 @@ export const npcDialogueWorldMenu: WorldMenu<
       // Quest panel
       hudElementReferences.push(
         createPanel({
+          condition: (): boolean => isWorldCombatInProgress() === false,
           height: questsHeight,
           imagePath: "panels/basic",
           width: questsWidth,
@@ -169,6 +175,7 @@ export const npcDialogueWorldMenu: WorldMenu<
       // Close quests button
       hudElementReferences.push(
         createImage({
+          condition: (): boolean => isWorldCombatInProgress() === false,
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -184,6 +191,7 @@ export const npcDialogueWorldMenu: WorldMenu<
         createLabel({
           color: Color.White,
           coordinates: {
+            condition: (): boolean => isWorldCombatInProgress() === false,
             x: questsX + Math.round(questsWidth / 2),
             y: questsY + 9,
           },
@@ -199,6 +207,7 @@ export const npcDialogueWorldMenu: WorldMenu<
       // Quests understrike
       hudElementReferences.push(
         createUnderstrike({
+          condition: (): boolean => isWorldCombatInProgress() === false,
           width: questsWidth - 16,
           x: questsX + 8,
           y: questsY + 20,
@@ -217,7 +226,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         };
         hudElementReferences.push(
           createIconListItem({
-            condition: (): boolean => getQuestGiverQuests(npc.id).length > i,
+            condition: (): boolean =>
+              getQuestGiverQuests(npc.id).length > i &&
+              isWorldCombatInProgress() === false,
             icons: [
               { imagePath: (): string => getQuestIconImagePath(getQuest().id) },
               {
@@ -226,8 +237,9 @@ export const npcDialogueWorldMenu: WorldMenu<
                     getQuest().id,
                   );
                   return (
-                    questState === QuestState.InProgress ||
-                    questState === QuestState.TurnIn
+                    (questState === QuestState.InProgress ||
+                      questState === QuestState.TurnIn) &&
+                    isWorldCombatInProgress() === false
                   );
                 },
                 imagePath: "quest-banners/default",
@@ -273,7 +285,10 @@ export const npcDialogueWorldMenu: WorldMenu<
           condition: (): boolean => {
             const quest: Quest | null = getSelectedQuest();
             if (quest !== null) {
-              return getQuestPartyState(quest.id) === QuestState.Accept;
+              return (
+                getQuestPartyState(quest.id) === QuestState.Accept &&
+                isWorldCombatInProgress() === false
+              );
             }
             return false;
           },
@@ -306,7 +321,10 @@ export const npcDialogueWorldMenu: WorldMenu<
           condition: (): boolean => {
             const quest: Quest | null = getSelectedQuest();
             if (quest !== null) {
-              return getQuestPartyState(quest.id) === QuestState.TurnIn;
+              return (
+                getQuestPartyState(quest.id) === QuestState.TurnIn &&
+                isWorldCombatInProgress() === false
+              );
             }
             return false;
           },

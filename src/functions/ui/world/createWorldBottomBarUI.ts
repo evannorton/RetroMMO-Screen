@@ -39,6 +39,7 @@ import {
   spellbookInputCollectionID,
   statsInputCollectionID,
 } from "../../../input";
+import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 
@@ -306,13 +307,14 @@ export const createWorldBottomBarUI = (): void => {
       condition() && isWorldCombatInProgress() === false,
     imagePath: "bottom-bar-icons/inventory",
     inputCollectionID: inventoryInputCollectionID,
-    isSelected: false,
+    isSelected: (): boolean => inventoryWorldMenu.isOpen(),
     onClick: (): void => {
-      closeWorldMenus();
-      emitToSocketioServer({
-        data: {},
-        event: "legacy/open-inventory",
-      });
+      if (inventoryWorldMenu.isOpen()) {
+        inventoryWorldMenu.close();
+      } else {
+        closeWorldMenus();
+        inventoryWorldMenu.open({});
+      }
     },
     x: 278,
     y: 214,

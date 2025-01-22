@@ -17,6 +17,7 @@ interface BlackPianoKeyStateSchema {
 
 export interface CreateBlackPianoKeyOptions {
   audioPath: string;
+  condition?: () => boolean;
   inputCollectionID: string;
   isLabelVisible: Scriptable<boolean>;
   onPlay: () => void;
@@ -26,6 +27,7 @@ export interface CreateBlackPianoKeyOptions {
 }
 export const createBlackPianoKey = ({
   audioPath,
+  condition,
   inputCollectionID,
   isLabelVisible,
   onPlay,
@@ -76,6 +78,7 @@ export const createBlackPianoKey = ({
         },
       ],
       coordinates: {
+        condition,
         x,
         y,
       },
@@ -85,6 +88,7 @@ export const createBlackPianoKey = ({
   buttonIDs.push(
     createButton({
       coordinates: {
+        condition,
         x,
         y,
       },
@@ -104,6 +108,7 @@ export const createBlackPianoKey = ({
   );
   inputPressHandlerIDs.push(
     createInputPressHandler({
+      condition,
       inputCollectionID,
       onInput: (): void => {
         playAudioSource(audioPath, {
@@ -122,9 +127,10 @@ export const createBlackPianoKey = ({
       color: Color.White,
       coordinates: {
         condition: (): boolean =>
-          typeof isLabelVisible === "function"
+          (typeof condition !== "undefined" ? condition() : true) &&
+          (typeof isLabelVisible === "function"
             ? isLabelVisible()
-            : isLabelVisible,
+            : isLabelVisible),
         x: x + 1,
         y: (): number => y + 9 + (blackPianoKeyState.values.isPressed ? 1 : 0),
       },

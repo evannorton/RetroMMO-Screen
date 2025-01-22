@@ -17,6 +17,7 @@ interface WhitePianoKeyStateSchema {
 
 export interface CreateWhitePianoKeyOptions {
   audioPath: string;
+  condition?: () => boolean;
   inputCollectionID: string;
   isLabelVisible: Scriptable<boolean>;
   onPlay: () => void;
@@ -26,6 +27,7 @@ export interface CreateWhitePianoKeyOptions {
 }
 export const createWhitePianoKey = ({
   audioPath,
+  condition,
   inputCollectionID,
   isLabelVisible,
   onPlay,
@@ -75,6 +77,7 @@ export const createWhitePianoKey = ({
         },
       ],
       coordinates: {
+        condition,
         x,
         y,
       },
@@ -84,6 +87,7 @@ export const createWhitePianoKey = ({
   buttonIDs.push(
     createButton({
       coordinates: {
+        condition,
         x,
         y,
       },
@@ -103,6 +107,7 @@ export const createWhitePianoKey = ({
   );
   inputPressHandlerIDs.push(
     createInputPressHandler({
+      condition,
       inputCollectionID,
       onInput: (): void => {
         playAudioSource(audioPath, {
@@ -121,9 +126,10 @@ export const createWhitePianoKey = ({
       color: Color.Black,
       coordinates: {
         condition: (): boolean =>
-          typeof isLabelVisible === "function"
+          (typeof condition !== "undefined" ? condition() : true) &&
+          (typeof isLabelVisible === "function"
             ? isLabelVisible()
-            : isLabelVisible,
+            : isLabelVisible),
         x: x + 3,
         y: (): number => y + 28 + (whitePianoKeyState.values.isPressed ? 1 : 0),
       },
