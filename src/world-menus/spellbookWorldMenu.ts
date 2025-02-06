@@ -108,6 +108,7 @@ export const spellbookWorldMenu: WorldMenu<
         spellbookWorldMenu.state.values.selectedAbilityIndex !== null &&
         spellbookWorldMenu.state.values.startedTargetingAt === null &&
         isWorldCombatInProgress() === false;
+      // Abilities
       for (let i: number = 0; i < spellbookAbilitiesPerPage; i++) {
         const y: number = 49 + i * 18;
         hudElementReferences.push(

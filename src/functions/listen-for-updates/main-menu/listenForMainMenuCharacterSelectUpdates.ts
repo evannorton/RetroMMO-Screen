@@ -1,10 +1,11 @@
-import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
 import {
+  ItemInstanceUpdate,
   MainMenuCharacterSelectDeleteCharacterUpdate,
   MainMenuCharacterSelectSelectCharacterUpdate,
   MainMenuCharacterSelectSortCharacterLeftUpdate,
   MainMenuCharacterSelectSortCharacterRightUpdate,
 } from "retrommo-types";
+import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
 import {
   MainMenuCharacterSelectStateSchema,
   MainMenuStateSchema,
@@ -16,6 +17,7 @@ import { getDefinable, getDefinables } from "definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
+import { loadWorldBagItemInstanceUpdate } from "../../load-updates/loadWorldBagItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../../load-updates/loadWorldPartyUpdate";
@@ -67,7 +69,12 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       );
       state.setValues({
         mainMenuState: null,
-        worldState: createWorldState(update.worldCharacterID),
+        worldState: createWorldState(
+          update.bagItemInstances.map(
+            (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          ),
+          update.worldCharacterID,
+        ),
       });
       for (const worldCharacterUpdate of update.worldCharacters) {
         loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -77,6 +84,9 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       }
       for (const worldNPCUpdate of update.npcs) {
         loadWorldNPCUpdate(worldNPCUpdate);
+      }
+      for (const bagItemInstanceUpdate of update.bagItemInstances) {
+        loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
       }
       selectWorldCharacter(update.worldCharacterID);
     },

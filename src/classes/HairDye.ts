@@ -3,8 +3,8 @@ import { HairColor } from "./HairColor";
 import { HairDyeDefinition } from "retrommo-types";
 
 export interface HairDyeOptions {
-  id: string;
-  definition: HairDyeDefinition;
+  readonly definition: HairDyeDefinition;
+  readonly id: string;
 }
 export class HairDye extends Definable {
   private readonly _hairColorID: string;

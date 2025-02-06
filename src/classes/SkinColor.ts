@@ -2,8 +2,8 @@ import { Color, SkinColorDefinition } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface SkinColorOptions {
-  id: string;
-  definition: SkinColorDefinition;
+  readonly definition: SkinColorDefinition;
+  readonly id: string;
 }
 export class SkinColor extends Definable {
   private readonly _characterCustomizeOrder?: number;

@@ -2,8 +2,8 @@ import { Definable } from "definables";
 import { EmoteDefinition } from "retrommo-types";
 
 export interface EmoteOptions {
-  id: string;
-  definition: EmoteDefinition;
+  readonly definition: EmoteDefinition;
+  readonly id: string;
 }
 export class Emote extends Definable {
   private readonly _backgroundImagePath: string;

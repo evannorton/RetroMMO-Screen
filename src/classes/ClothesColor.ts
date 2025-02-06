@@ -2,8 +2,8 @@ import { ClothesColorDefinition, Color } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface ClothesColorOptions {
-  id: string;
-  definition: ClothesColorDefinition;
+  readonly id: string;
+  readonly definition: ClothesColorDefinition;
 }
 export class ClothesColor extends Definable {
   private readonly _color1: Color;

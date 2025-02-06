@@ -2,8 +2,8 @@ import { AbilityDefinition, TargetType } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface AbilityOptions {
-  definition: AbilityDefinition;
-  id: string;
+  readonly definition: AbilityDefinition;
+  readonly id: string;
 }
 export class Ability extends Definable {
   private readonly _canBeUsedInBattle: boolean;

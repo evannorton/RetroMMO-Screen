@@ -5,8 +5,8 @@ import { Shop } from "./Shop";
 import { TilePosition } from "../types/TilePosition";
 
 export interface NPCOptions {
-  definition: NPCDefinition;
-  id: string;
+  readonly definition: NPCDefinition;
+  readonly id: string;
 }
 export class NPC extends Definable {
   private readonly _actorImagePath: string;

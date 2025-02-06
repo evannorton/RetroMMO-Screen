@@ -1,6 +1,7 @@
-import { BattleExitToWorldUpdate } from "retrommo-types";
+import { BattleExitToWorldUpdate, ItemInstanceUpdate } from "retrommo-types";
 import { createWorldState } from "../state/createWorldState";
 import { listenToSocketioEvent } from "pixel-pigeon";
+import { loadWorldBagItemInstanceUpdate } from "../load-updates/loadWorldBagItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
@@ -13,7 +14,12 @@ export const listenForBattleUpdates = (): void => {
     onMessage: (update: BattleExitToWorldUpdate): void => {
       state.setValues({
         battleState: null,
-        worldState: createWorldState(update.worldCharacterID),
+        worldState: createWorldState(
+          update.bagItemInstances.map(
+            (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
+          ),
+          update.worldCharacterID,
+        ),
       });
       for (const characterUpdate of update.worldCharacters) {
         loadWorldCharacterUpdate(characterUpdate);
@@ -23,6 +29,9 @@ export const listenForBattleUpdates = (): void => {
       }
       for (const npcUpdate of update.npcs) {
         loadWorldNPCUpdate(npcUpdate);
+      }
+      for (const bagItemInstanceUpdate of update.bagItemInstances) {
+        loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
       }
       selectWorldCharacter(update.worldCharacterID);
     },

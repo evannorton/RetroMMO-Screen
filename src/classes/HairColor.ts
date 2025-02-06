@@ -2,8 +2,8 @@ import { Color, HairColorDefinition } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface HairColorOptions {
-  id: string;
-  definition: HairColorDefinition;
+  readonly definition: HairColorDefinition;
+  readonly id: string;
 }
 export class HairColor extends Definable {
   private readonly _color1: Color;

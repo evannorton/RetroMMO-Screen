@@ -2,7 +2,7 @@ import { Definable, getDefinable } from "definables";
 import { WorldCharacter } from "./WorldCharacter";
 
 export interface PartyOptions {
-  id: string;
+  readonly id: string;
 }
 export class Party extends Definable {
   private _worldCharacterIDs: readonly string[] = [];

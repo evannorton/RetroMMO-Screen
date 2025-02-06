@@ -3,8 +3,8 @@ import { HeadCosmetic } from "./HeadCosmetic";
 import { MaskDefinition } from "retrommo-types";
 
 export interface MaskOptions {
-  definition: MaskDefinition;
-  id: string;
+  readonly definition: MaskDefinition;
+  readonly id: string;
 }
 export class Mask extends Definable {
   private readonly _classIDs: readonly string[];

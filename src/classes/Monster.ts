@@ -2,8 +2,8 @@ import { Definable } from "definables";
 import { MonsterDefinition } from "retrommo-types";
 
 export interface MonsterOptions {
-  definition: MonsterDefinition;
-  id: string;
+  readonly definition: MonsterDefinition;
+  readonly id: string;
 }
 export class Monster extends Definable {
   public readonly _name: string;

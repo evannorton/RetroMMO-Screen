@@ -2,8 +2,8 @@ import { Definable } from "definables";
 import { ShopDefinition } from "retrommo-types";
 
 export interface ShopOptions {
-  definition: ShopDefinition;
-  id: string;
+  readonly definition: ShopDefinition;
+  readonly id: string;
 }
 export class Shop extends Definable {
   private readonly _indicatorImagePath: string;

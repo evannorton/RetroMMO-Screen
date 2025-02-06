@@ -1,4 +1,5 @@
-import { InitialUpdate, MainState } from "retrommo-types";
+import { InitialUpdate, ItemInstanceUpdate, MainState } from "retrommo-types";
+import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { Party } from "../../classes/Party";
 import { WorldCharacter } from "../../classes/WorldCharacter";
@@ -13,6 +14,7 @@ import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { listenToSocketioEvent } from "pixel-pigeon";
+import { loadWorldBagItemInstanceUpdate } from "../load-updates/loadWorldBagItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
@@ -35,6 +37,9 @@ export const listenForUpdates = (): void => {
       }
       for (const party of getDefinables(Party).values()) {
         party.remove();
+      }
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
       }
       state.setValues({
         battleState: null,
@@ -83,7 +88,12 @@ export const listenForUpdates = (): void => {
             );
           }
           state.setValues({
-            worldState: createWorldState(update.world.worldCharacterID),
+            worldState: createWorldState(
+              update.world.bagItemInstances.map(
+                (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+              ),
+              update.world.worldCharacterID,
+            ),
           });
           for (const worldCharacterUpdate of update.world.worldCharacters) {
             loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -93,6 +103,9 @@ export const listenForUpdates = (): void => {
           }
           for (const npcUpdate of update.world.npcs) {
             loadWorldNPCUpdate(npcUpdate);
+          }
+          for (const bagItemInstanceUpdate of update.world.bagItemInstances) {
+            loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
           }
           selectWorldCharacter(update.world.worldCharacterID);
           break;

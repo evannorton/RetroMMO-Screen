@@ -2,8 +2,8 @@ import { BodyCosmeticDefinition } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface BodyCosmeticOptions {
-  definition: BodyCosmeticDefinition;
-  id: string;
+  readonly definition: BodyCosmeticDefinition;
+  readonly id: string;
 }
 export class BodyCosmetic extends Definable {
   private readonly _imagePaths: Readonly<Record<string, string>>;

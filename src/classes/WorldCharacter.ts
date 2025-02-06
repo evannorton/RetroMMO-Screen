@@ -20,28 +20,28 @@ export interface WorldCharacterOptionsResources {
   mp?: number;
 }
 export interface WorldCharacterOptions {
-  classID: string;
-  clothesDyeItemID?: string;
-  direction: Direction;
-  figureID: string;
-  hairDyeItemID?: string;
-  id: string;
-  isRenewing?: boolean;
-  level: number;
-  maskItemID?: string;
-  openedChestIDs?: readonly string[];
-  order: number;
-  outfitItemID?: string;
-  partyID: string;
-  playerID: string;
-  position: TilePosition;
-  questInstances?: Record<string, WorldCharacterOptionsQuestInstance>;
-  resources?: WorldCharacterOptionsResources;
-  skinColorID: string;
-  step: Step;
-  tilemapID: string;
-  userID: number;
-  username: string;
+  readonly classID: string;
+  readonly clothesDyeItemID?: string;
+  readonly direction: Direction;
+  readonly figureID: string;
+  readonly hairDyeItemID?: string;
+  readonly id: string;
+  readonly isRenewing?: boolean;
+  readonly level: number;
+  readonly maskItemID?: string;
+  readonly openedChestIDs?: readonly string[];
+  readonly order: number;
+  readonly outfitItemID?: string;
+  readonly partyID: string;
+  readonly playerID: string;
+  readonly position: TilePosition;
+  readonly questInstances?: Record<string, WorldCharacterOptionsQuestInstance>;
+  readonly resources?: WorldCharacterOptionsResources;
+  readonly skinColorID: string;
+  readonly step: Step;
+  readonly tilemapID: string;
+  readonly userID: number;
+  readonly username: string;
 }
 export interface WorldCharacterQuestInstance {
   isCompleted: boolean;
@@ -55,8 +55,8 @@ export interface WorldCharacterResources {
   readonly mp: number | null;
 }
 export interface WorldCharacterEmote {
-  entityID: string;
-  usedAt: number;
+  readonly entityID: string;
+  readonly usedAt: number;
 }
 export class WorldCharacter extends Definable {
   private readonly _classID: string;

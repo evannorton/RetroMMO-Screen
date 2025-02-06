@@ -2,8 +2,8 @@ import { ChestDefinition } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface ChestOptions {
-  definition: ChestDefinition;
-  id: string;
+  readonly definition: ChestDefinition;
+  readonly id: string;
 }
 export class Chest extends Definable {
   private readonly _imagePath: string;

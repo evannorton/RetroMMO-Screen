@@ -2,8 +2,8 @@ import { Definable } from "definables";
 import { FigureDefinition } from "retrommo-types";
 
 export interface FigureOptions {
-  id: string;
-  definition: FigureDefinition;
+  readonly definition: FigureDefinition;
+  readonly id: string;
 }
 export class Figure extends Definable {
   private readonly _characterCustomizeOrder?: number;

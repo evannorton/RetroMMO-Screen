@@ -2,8 +2,8 @@ import { Definable } from "definables";
 import { QuestGiverDefinition } from "retrommo-types";
 
 export interface QuestGiverOptions {
-  definition: QuestGiverDefinition;
-  id: string;
+  readonly definition: QuestGiverDefinition;
+  readonly id: string;
 }
 export interface QuestGiverQuest {
   readonly questID: string;

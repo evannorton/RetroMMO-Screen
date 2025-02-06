@@ -2,8 +2,8 @@ import { BankDefinition } from "retrommo-types";
 import { Definable } from "definables";
 
 export interface BankOptions {
-  definition: BankDefinition;
-  id: string;
+  readonly definition: BankDefinition;
+  readonly id: string;
 }
 export interface BankModification {
   readonly isOpen: boolean;

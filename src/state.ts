@@ -36,6 +36,7 @@ export interface MainMenuStateSchema {
   mainMenuCharacterIDs: string[];
 }
 export interface WorldStateSchema {
+  bagItemInstanceIDs: readonly string[];
   lastPianoNoteAt: number | null;
   lastUsedEmoteID: string | null;
   pianoNotes: readonly PianoNote[];

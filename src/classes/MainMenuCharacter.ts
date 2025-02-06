@@ -5,15 +5,15 @@ import { Item } from "./Item";
 import { SkinColor } from "./SkinColor";
 
 export interface MainMenuCharacterOptions {
-  classID: string;
-  clothesDyeItemID?: string;
-  figureID: string;
-  hairDyeItemID?: string;
-  id: string;
-  level: number;
-  maskItemID?: string;
-  outfitItemID?: string;
-  skinColorID: string;
+  readonly classID: string;
+  readonly clothesDyeItemID?: string;
+  readonly figureID: string;
+  readonly hairDyeItemID?: string;
+  readonly id: string;
+  readonly level: number;
+  readonly maskItemID?: string;
+  readonly outfitItemID?: string;
+  readonly skinColorID: string;
 }
 export class MainMenuCharacter extends Definable {
   private readonly _classID: string;

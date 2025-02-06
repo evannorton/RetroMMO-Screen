@@ -27,6 +27,7 @@ import {
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
+import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
@@ -55,6 +56,7 @@ import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
+import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
@@ -160,6 +162,12 @@ export const listenForWorldUpdates = (): void => {
       ) {
         spellbookWorldMenu.close();
       }
+      if (
+        inventoryWorldMenu.isOpen() &&
+        inventoryWorldMenu.state.values.isAwaitingWorldCombat
+      ) {
+        inventoryWorldMenu.close();
+      }
     },
   });
   listenToSocketioEvent<WorldEmoteUpdate>({
@@ -220,6 +228,9 @@ export const listenForWorldUpdates = (): void => {
       }
       for (const party of getDefinables(Party).values()) {
         party.remove();
+      }
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
       }
       const mainMenuCharacterIDs: string[] = [];
       for (const mainMenuCharacterUpdate of update.mainMenuCharacters) {
@@ -459,6 +470,9 @@ export const listenForWorldUpdates = (): void => {
       for (const party of getDefinables(Party).values()) {
         party.remove();
       }
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
+      }
       goToLevel(update.tilemapID);
       for (const worldCharacterUpdate of update.worldCharacters) {
         loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -512,6 +526,9 @@ export const listenForWorldUpdates = (): void => {
       }
       for (const party of getDefinables(Party).values()) {
         party.remove();
+      }
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
       }
       state.setValues({
         battleState: createBattleState(),

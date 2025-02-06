@@ -2,8 +2,8 @@ import { Definable } from "definables";
 import { HeadCosmeticDefinition } from "retrommo-types";
 
 export interface HeadCosmeticOptions {
-  definition: HeadCosmeticDefinition;
-  id: string;
+  readonly definition: HeadCosmeticDefinition;
+  readonly id: string;
 }
 export class HeadCosmetic extends Definable {
   private readonly _backImagePaths: Record<string, string | undefined>;

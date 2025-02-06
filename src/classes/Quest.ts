@@ -7,8 +7,8 @@ export interface QuestMonster {
   readonly monsterID: string;
 }
 export interface QuestOptions {
-  definition: QuestDefinition;
-  id: string;
+  readonly definition: QuestDefinition;
+  readonly id: string;
 }
 export class Quest extends Definable {
   private readonly _availableText: string;

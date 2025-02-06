@@ -12,8 +12,8 @@ import { State } from "pixel-pigeon";
 import { getMainMenuCharacterCustomizeState } from "../functions/state/main-menu/getMainMenuCharacterCustomizeState";
 
 export interface ClassOptions {
-  definition: ClassDefinition;
-  id: string;
+  readonly definition: ClassDefinition;
+  readonly id: string;
 }
 export interface ClassAbilityUnlock {
   readonly abilityID: string;

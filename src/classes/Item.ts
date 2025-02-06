@@ -1,3 +1,4 @@
+import { Ability } from "./Ability";
 import { ClothesDye } from "./ClothesDye";
 import { Definable, getDefinable } from "definables";
 import { HairDye } from "./HairDye";
@@ -6,20 +7,24 @@ import { Mask } from "./Mask";
 import { Outfit } from "./Outfit";
 
 export interface ItemOptions {
-  definition: ItemDefinition;
-  id: string;
+  readonly definition: ItemDefinition;
+  readonly id: string;
 }
 export class Item extends Definable {
+  private readonly _abilityID?: string;
   private readonly _characterCustomizeClothesDyeOrder?: [number, number];
   private readonly _characterCustomizeHairDyeOrder?: number;
   private readonly _characterCustomizeMaskOrder?: number;
   private readonly _characterCustomizeOutfitOrder?: number;
   private readonly _clothesDyeID?: string;
+  private readonly _description?: string;
   private readonly _hairDyeID?: string;
   private readonly _maskID?: string;
+  private readonly _name: string;
   private readonly _outfitID?: string;
   public constructor(options: ItemOptions) {
     super(options.id);
+    this._abilityID = options.definition.abilityID;
     this._characterCustomizeClothesDyeOrder =
       options.definition.characterCustomizeClothesDyeOrder;
     this._characterCustomizeHairDyeOrder =
@@ -29,9 +34,25 @@ export class Item extends Definable {
     this._characterCustomizeOutfitOrder =
       options.definition.characterCustomizeOutfitOrder;
     this._clothesDyeID = options.definition.clothesDyeID;
+    this._description = options.definition.description;
     this._hairDyeID = options.definition.hairDyeID;
     this._maskID = options.definition.maskID;
+    this._name = options.definition.name;
     this._outfitID = options.definition.outfitID;
+  }
+
+  public get ability(): Ability {
+    if (typeof this._abilityID !== "undefined") {
+      return getDefinable(Ability, this._abilityID);
+    }
+    throw new Error(this.getAccessorErrorMessage("ability"));
+  }
+
+  public get abilityID(): string {
+    if (typeof this._abilityID !== "undefined") {
+      return this._abilityID;
+    }
+    throw new Error(this.getAccessorErrorMessage("abilityID"));
   }
 
   public get characterCustomizeClothesDyeOrder(): [number, number] | undefined {
@@ -64,6 +85,13 @@ export class Item extends Definable {
     throw new Error(this.getAccessorErrorMessage("clothesDyeID"));
   }
 
+  public get description(): string {
+    if (typeof this._description !== "undefined") {
+      return this._description;
+    }
+    throw new Error(this.getAccessorErrorMessage("description"));
+  }
+
   public get hairDye(): HairDye {
     if (typeof this._hairDyeID !== "undefined") {
       return getDefinable(HairDye, this._hairDyeID);
@@ -92,6 +120,10 @@ export class Item extends Definable {
     throw new Error(this.getAccessorErrorMessage("maskID"));
   }
 
+  public get name(): string {
+    return this._name;
+  }
+
   public get outfit(): Outfit {
     if (typeof this._outfitID !== "undefined") {
       return getDefinable(Outfit, this._outfitID);
@@ -104,5 +136,13 @@ export class Item extends Definable {
       return this._outfitID;
     }
     throw new Error(this.getAccessorErrorMessage("outfitID"));
+  }
+
+  public hasAbility(): boolean {
+    return typeof this._abilityID !== "undefined";
+  }
+
+  public hasDescription(): boolean {
+    return typeof this._description !== "undefined";
   }
 }

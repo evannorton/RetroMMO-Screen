@@ -3,8 +3,8 @@ import { Definable, getDefinable } from "definables";
 import { OutfitDefinition } from "retrommo-types";
 
 export interface OutfitOptions {
-  definition: OutfitDefinition;
-  id: string;
+  readonly definition: OutfitDefinition;
+  readonly id: string;
 }
 export class Outfit extends Definable {
   private readonly _bodyCosmeticID: string;

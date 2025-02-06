@@ -2,9 +2,9 @@ import { Definable } from "definables";
 import { HUDElementReferences, State, removeHUDElements } from "pixel-pigeon";
 
 export interface WorldMenuOptions<OpenOptions, StateSchema> {
-  create: (options: OpenOptions) => HUDElementReferences;
-  initialStateValues: StateSchema;
-  preventsWalking?: boolean;
+  readonly create: (options: OpenOptions) => HUDElementReferences;
+  readonly initialStateValues: StateSchema;
+  readonly preventsWalking?: boolean;
 }
 export class WorldMenu<OpenOptions, StateSchema> extends Definable {
   private readonly _create: (options: OpenOptions) => HUDElementReferences;

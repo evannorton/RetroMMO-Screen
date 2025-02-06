@@ -3,8 +3,8 @@ import { ClothesDyeDefinition } from "retrommo-types";
 import { Definable, getDefinable } from "definables";
 
 export interface ClothesDyeOptions {
-  id: string;
-  definition: ClothesDyeDefinition;
+  readonly id: string;
+  readonly definition: ClothesDyeDefinition;
 }
 export class ClothesDye extends Definable {
   private readonly _isDefault?: boolean;
