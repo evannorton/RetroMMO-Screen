@@ -470,6 +470,7 @@ export const inventoryWorldMenu: WorldMenu<
       return mergeHUDElementReferences([
         {
           buttonIDs,
+          labelIDs,
           spriteIDs,
         },
         ...hudElementReferences,
