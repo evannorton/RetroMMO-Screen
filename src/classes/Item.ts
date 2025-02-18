@@ -1,6 +1,7 @@
 import { Ability } from "./Ability";
 import { ClothesDye } from "./ClothesDye";
 import { Definable, getDefinable } from "definables";
+import { EquipmentPiece } from "./EquipmentPiece";
 import { HairDye } from "./HairDye";
 import { ItemDefinition } from "retrommo-types";
 import { Mask } from "./Mask";
@@ -18,6 +19,7 @@ export class Item extends Definable {
   private readonly _characterCustomizeOutfitOrder?: number;
   private readonly _clothesDyeID?: string;
   private readonly _description?: string;
+  private readonly _equipmentPieceID?: string;
   private readonly _hairDyeID?: string;
   private readonly _maskID?: string;
   private readonly _name: string;
@@ -35,6 +37,7 @@ export class Item extends Definable {
       options.definition.characterCustomizeOutfitOrder;
     this._clothesDyeID = options.definition.clothesDyeID;
     this._description = options.definition.description;
+    this._equipmentPieceID = options.definition.equipmentPieceID;
     this._hairDyeID = options.definition.hairDyeID;
     this._maskID = options.definition.maskID;
     this._name = options.definition.name;
@@ -92,6 +95,20 @@ export class Item extends Definable {
     throw new Error(this.getAccessorErrorMessage("description"));
   }
 
+  public get equipmentPiece(): EquipmentPiece {
+    if (typeof this._equipmentPieceID !== "undefined") {
+      return getDefinable(EquipmentPiece, this._equipmentPieceID);
+    }
+    throw new Error(this.getAccessorErrorMessage("equipmentPiece"));
+  }
+
+  public get equipmentPieceID(): string {
+    if (typeof this._equipmentPieceID !== "undefined") {
+      return this._equipmentPieceID;
+    }
+    throw new Error(this.getAccessorErrorMessage("equipmentPieceID"));
+  }
+
   public get hairDye(): HairDye {
     if (typeof this._hairDyeID !== "undefined") {
       return getDefinable(HairDye, this._hairDyeID);
@@ -142,7 +159,27 @@ export class Item extends Definable {
     return typeof this._abilityID !== "undefined";
   }
 
+  public hasClothesDye(): boolean {
+    return typeof this._clothesDyeID !== "undefined";
+  }
+
   public hasDescription(): boolean {
     return typeof this._description !== "undefined";
+  }
+
+  public hasEquipmentPiece(): boolean {
+    return typeof this._equipmentPieceID !== "undefined";
+  }
+
+  public hasHairDye(): boolean {
+    return typeof this._hairDyeID !== "undefined";
+  }
+
+  public hasMask(): boolean {
+    return typeof this._maskID !== "undefined";
+  }
+
+  public hasOutfit(): boolean {
+    return typeof this._outfitID !== "undefined";
   }
 }

@@ -92,6 +92,7 @@ export const listenForUpdates = (): void => {
               update.world.bagItemInstances.map(
                 (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
               ),
+              update.world.inventoryGold,
               update.world.worldCharacterID,
             ),
           });

@@ -10,6 +10,7 @@ import {
   getCurrentTime,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
+import { Item } from "../classes/Item";
 import { ItemInstance } from "../classes/ItemInstance";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema } from "../state";
@@ -19,7 +20,13 @@ import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createSlot } from "../functions/ui/components/createSlot";
+import { doesItemHaveVanity } from "../functions/doesItemHaveVanity";
 import { getDefinable } from "definables";
+import { getEquipmentPieceClassesText } from "../functions/getEquipmentPieceClassesText";
+import { getEquipmentSlotName } from "../functions/getEquipmentSlotName";
+import { getFormattedInteger } from "../functions/getFormattedInteger";
+import { getItemVanityClassesText } from "../functions/getItemVanityClassesText";
+import { getItemVanitySlotText } from "../functions/getItemVanitySlotText";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 
@@ -356,7 +363,19 @@ export const inventoryWorldMenu: WorldMenu<
         createLabel({
           color: Color.White,
           coordinates: {
-            condition: selectedBagItemCondition,
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                return getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                ).item.hasDescription();
+              }
+              return false;
+            },
             x: 8,
             y: 159,
           },
@@ -371,6 +390,377 @@ export const inventoryWorldMenu: WorldMenu<
               value: getBagItemInstance(
                 inventoryWorldMenu.state.values.selectedBagItemIndex,
               ).item.description,
+            };
+          },
+        }),
+      );
+      // Selected bag item strength
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 40,
+            y: 161,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const item: Item = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).item;
+            return {
+              value: `${item.equipmentPiece.strength} STR`,
+            };
+          },
+        }),
+      );
+      // Selected bag item intelligence
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 88,
+            y: 161,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const item: Item = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).item;
+            return {
+              value: `${item.equipmentPiece.intelligence} INT`,
+            };
+          },
+        }),
+      );
+      // Selected bag item agility
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 136,
+            y: 161,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const item: Item = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).item;
+            return {
+              value: `${item.equipmentPiece.agility} AGI`,
+            };
+          },
+        }),
+      );
+      // Selected bag item defense
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 40,
+            y: 172,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const item: Item = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).item;
+            return {
+              value: `${item.equipmentPiece.defense} DEF`,
+            };
+          },
+        }),
+      );
+      // Selected bag item wisdom
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 88,
+            y: 172,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const item: Item = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).item;
+            return {
+              value: `${item.equipmentPiece.wisdom} WIS`,
+            };
+          },
+        }),
+      );
+      // Selected bag item luck
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                return itemInstance.item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 136,
+            y: 172,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const item: Item = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).item;
+            return {
+              value: `${item.equipmentPiece.luck} LCK`,
+            };
+          },
+        }),
+      );
+      // Selected bag item vanity slot
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                return doesItemHaveVanity(itemInstance.itemID);
+              }
+              return false;
+            },
+            x: 7,
+            y: 183,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            return {
+              value: getItemVanitySlotText(
+                getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                ).itemID,
+              ),
+            };
+          },
+        }),
+      );
+      // Selected bag item equipment slot
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 7,
+            y: 183,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const itemInstance: ItemInstance = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            );
+            const item: Item = getDefinable(Item, itemInstance.itemID);
+            return {
+              value: getEquipmentSlotName(item.equipmentPiece.slot),
+            };
+          },
+        }),
+      );
+      // Selected bag item vanity requirements
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                return doesItemHaveVanity(itemInstance.itemID);
+              }
+              return false;
+            },
+            x: 7,
+            y: 194,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            return {
+              value: getItemVanityClassesText(
+                getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                ).itemID,
+              ),
+            };
+          },
+        }),
+      );
+      // Selected bag item equipment requirements
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedBagItemCondition()) {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasEquipmentPiece();
+              }
+              return false;
+            },
+            x: 7,
+            y: 194,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+              throw new Error("Selected bag item index is null");
+            }
+            const itemInstance: ItemInstance = getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            );
+            const item: Item = getDefinable(Item, itemInstance.itemID);
+            return {
+              value: getEquipmentPieceClassesText(item.equipmentPieceID),
             };
           },
         }),
@@ -465,6 +855,23 @@ export const inventoryWorldMenu: WorldMenu<
           width: 10,
           x: 287,
           y: 31,
+        }),
+      );
+      // Gold
+      labelIDs.push(
+        createLabel({
+          color: Color.LightYellow,
+          coordinates: {
+            condition: (): boolean =>
+              inventoryWorldMenu.state.values.startedTargetingAt === null &&
+              isWorldCombatInProgress() === false,
+            x: 240,
+            y: 193,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => ({
+            value: `${getFormattedInteger(worldState.values.inventoryGold)}g`,
+          }),
         }),
       );
       return mergeHUDElementReferences([

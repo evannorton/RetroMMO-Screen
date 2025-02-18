@@ -1,4 +1,5 @@
 import { BodyCosmetic } from "./BodyCosmetic";
+import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
 import { OutfitDefinition } from "retrommo-types";
 
@@ -22,6 +23,16 @@ export class Outfit extends Definable {
       return getDefinable(BodyCosmetic, this._bodyCosmeticID);
     }
     throw new Error(this.getAccessorErrorMessage("bodyCosmetic"));
+  }
+
+  public get classIDs(): readonly string[] {
+    return this._classIDs;
+  }
+
+  public get classes(): readonly Class[] {
+    return this._classIDs.map(
+      (classID: string): Class => getDefinable(Class, classID),
+    );
   }
 
   public get isDefault(): boolean {

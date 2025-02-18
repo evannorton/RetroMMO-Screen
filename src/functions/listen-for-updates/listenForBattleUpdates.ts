@@ -18,6 +18,7 @@ export const listenForBattleUpdates = (): void => {
           update.bagItemInstances.map(
             (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
           ),
+          update.inventoryGold,
           update.worldCharacterID,
         ),
       });

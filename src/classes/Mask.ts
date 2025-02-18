@@ -1,3 +1,4 @@
+import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
 import { HeadCosmetic } from "./HeadCosmetic";
 import { MaskDefinition } from "retrommo-types";
@@ -15,6 +16,16 @@ export class Mask extends Definable {
     this._classIDs = options.definition.classIDs;
     this._headCosmeticID = options.definition.headCosmeticID;
     this._isDefault = options.definition.isDefault;
+  }
+
+  public get classIDs(): readonly string[] {
+    return this._classIDs;
+  }
+
+  public get classes(): readonly Class[] {
+    return this._classIDs.map(
+      (classID: string): Class => getDefinable(Class, classID),
+    );
   }
 
   public get headCosmetic(): HeadCosmetic {

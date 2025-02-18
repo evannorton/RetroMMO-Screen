@@ -73,6 +73,7 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
           update.bagItemInstances.map(
             (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
           ),
+          update.inventoryGold,
           update.worldCharacterID,
         ),
       });
