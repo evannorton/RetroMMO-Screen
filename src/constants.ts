@@ -7,4 +7,4 @@ export const npcQuestsPerPage: number = 3;
 export const questLogCompletedQuestsPerPage: number = 7;
 export const questLogInProgressQuestsPerPage: number = 7;
 export const spellbookAbilitiesPerPage: number = 7;
-export const bagItemsPerPage: number = 7;
+export const bagItemsPerPage: number = 8;

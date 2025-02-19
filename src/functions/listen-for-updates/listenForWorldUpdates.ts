@@ -2,6 +2,7 @@ import { Bank } from "../../classes/Bank";
 import { Chest } from "../../classes/Chest";
 import {
   Direction,
+  ItemInstanceUpdate,
   VanitySlot,
   WorldAcceptQuestUpdate,
   WorldBonkUpdate,
@@ -57,6 +58,7 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
+import { loadWorldBagItemInstanceUpdate } from "../load-updates/loadWorldBagItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
@@ -143,6 +145,18 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldCombatUpdate>({
     event: "world/combat",
     onMessage: (update: WorldCombatUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
+      }
+      for (const bagItemInstanceUpdate of update.bagItemInstances) {
+        loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      worldState.setValues({
+        bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+        ),
+      });
       for (const worldCombatCharacter of update.worldCombatCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
@@ -464,6 +478,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldPositionUpdate>({
     event: "world/position",
     onMessage: (update: WorldPositionUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
       }
@@ -483,6 +498,14 @@ export const listenForWorldUpdates = (): void => {
       for (const worldNPCUpdate of update.npcs) {
         loadWorldNPCUpdate(worldNPCUpdate);
       }
+      for (const worldBagItemInstanceUpdate of update.bagItemInstances) {
+        loadWorldBagItemInstanceUpdate(worldBagItemInstanceUpdate);
+      }
+      worldState.setValues({
+        bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+        ),
+      });
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
           .entityID,
