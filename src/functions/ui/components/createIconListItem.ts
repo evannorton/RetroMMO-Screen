@@ -10,15 +10,15 @@ import {
 import { CreateSlotOptionsIcon, createSlot } from "./createSlot";
 
 interface CreateIconListItemOptions {
-  condition?: () => boolean;
-  icons: CreateSlotOptionsIcon[];
-  isSelected: Scriptable<boolean>;
-  onClick: () => void;
-  slotImagePath: string;
-  text: Scriptable<CreateLabelOptionsText>;
-  width: number;
-  x: number;
-  y: number;
+  readonly condition?: () => boolean;
+  readonly icons: CreateSlotOptionsIcon[];
+  readonly isSelected: Scriptable<boolean>;
+  readonly onClick: () => void;
+  readonly slotImagePath: string;
+  readonly text: Scriptable<CreateLabelOptionsText>;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 
 export const createIconListItem = ({

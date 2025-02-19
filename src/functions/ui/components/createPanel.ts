@@ -1,12 +1,12 @@
 import { HUDElementReferences, createNineSlice } from "pixel-pigeon";
 
 export interface CreatePanelOptions {
-  condition?: () => boolean;
-  height: number;
-  imagePath: string;
-  width: number;
-  x: number;
-  y: number;
+  readonly condition?: () => boolean;
+  readonly height: number;
+  readonly imagePath: string;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 export const createPanel = ({
   condition,

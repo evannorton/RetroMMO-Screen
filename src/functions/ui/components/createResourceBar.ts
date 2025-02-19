@@ -8,14 +8,14 @@ import {
 import { createImage } from "./createImage";
 
 export interface CreateResourceBarOptions {
-  condition?: () => boolean;
-  iconImagePath: string;
-  maxValue: Scriptable<number>;
-  primaryColor: string;
-  secondaryColor: string;
-  value: Scriptable<number>;
-  x: Scriptable<number>;
-  y: Scriptable<number>;
+  readonly condition?: () => boolean;
+  readonly iconImagePath: string;
+  readonly maxValue: Scriptable<number>;
+  readonly primaryColor: string;
+  readonly secondaryColor: string;
+  readonly value: Scriptable<number>;
+  readonly x: Scriptable<number>;
+  readonly y: Scriptable<number>;
 }
 export const createResourceBar = ({
   condition,

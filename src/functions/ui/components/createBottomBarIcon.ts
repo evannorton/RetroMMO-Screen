@@ -7,13 +7,13 @@ import {
 import { pianoWorldMenu } from "../../../world-menus/pianoWorldMenu";
 
 export interface CreateBottomBarIconOptions {
-  condition?: () => boolean;
-  imagePath: string;
-  inputCollectionID: string;
-  isSelected: Scriptable<boolean>;
-  onClick: () => void;
-  x: number;
-  y: number;
+  readonly condition?: () => boolean;
+  readonly imagePath: string;
+  readonly inputCollectionID: string;
+  readonly isSelected: Scriptable<boolean>;
+  readonly onClick: () => void;
+  readonly x: number;
+  readonly y: number;
 }
 export const createBottomBarIcon = ({
   condition,

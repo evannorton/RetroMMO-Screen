@@ -7,11 +7,11 @@ import {
 } from "pixel-pigeon";
 
 export interface CreateVisibilityToggleOptions {
-  condition?: () => boolean;
-  isVisible: Scriptable<boolean>;
-  onClick?: () => void;
-  x: number;
-  y: number;
+  readonly condition?: () => boolean;
+  readonly isVisible: Scriptable<boolean>;
+  readonly onClick?: () => void;
+  readonly x: number;
+  readonly y: number;
 }
 export const createVisibilityToggle = ({
   condition,

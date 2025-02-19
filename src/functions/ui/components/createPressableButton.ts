@@ -14,14 +14,14 @@ interface PressableButtonStateSchema {
 }
 
 export interface CreatePressableButtonOptions {
-  condition: () => boolean;
-  onClick: () => void;
-  height: number;
-  imagePath: string;
-  text: Scriptable<CreateLabelOptionsText>;
-  width: number;
-  x: number;
-  y: number;
+  readonly condition: () => boolean;
+  readonly onClick: () => void;
+  readonly height: number;
+  readonly imagePath: string;
+  readonly text: Scriptable<CreateLabelOptionsText>;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 export const createPressableButton = ({
   condition,

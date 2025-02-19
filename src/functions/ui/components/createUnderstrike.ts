@@ -2,10 +2,10 @@ import { Color } from "retrommo-types";
 import { HUDElementReferences, createQuadrilateral } from "pixel-pigeon";
 
 export interface CreateUnderstrikeOptions {
-  condition?: () => boolean;
-  width: number;
-  x: number;
-  y: number;
+  readonly condition?: () => boolean;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
 }
 export const createUnderstrike = ({
   condition,

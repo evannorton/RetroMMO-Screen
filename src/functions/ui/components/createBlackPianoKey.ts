@@ -16,14 +16,14 @@ interface BlackPianoKeyStateSchema {
 }
 
 export interface CreateBlackPianoKeyOptions {
-  audioPath: string;
-  condition?: () => boolean;
-  inputCollectionID: string;
-  isLabelVisible: Scriptable<boolean>;
-  onPlay: () => void;
-  text: string;
-  x: number;
-  y: number;
+  readonly audioPath: string;
+  readonly condition?: () => boolean;
+  readonly inputCollectionID: string;
+  readonly isLabelVisible: Scriptable<boolean>;
+  readonly onPlay: () => void;
+  readonly text: string;
+  readonly x: number;
+  readonly y: number;
 }
 export const createBlackPianoKey = ({
   audioPath,

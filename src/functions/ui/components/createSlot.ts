@@ -9,21 +9,21 @@ import {
 import { createImage } from "./createImage";
 
 export interface CreateSlotOptionsIcon {
-  condition?: () => boolean;
-  imagePath: Scriptable<string>;
-  recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
+  readonly condition?: () => boolean;
+  readonly imagePath: Scriptable<string>;
+  readonly recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
 }
 export interface CreateSlotOptions {
-  condition?: () => boolean;
-  icons?: CreateSlotOptionsIcon[];
-  imagePath: Scriptable<string>;
-  isSelected?: Scriptable<boolean>;
-  button?: {
-    condition?: () => boolean;
-    onClick: () => void;
+  readonly condition?: () => boolean;
+  readonly icons?: CreateSlotOptionsIcon[];
+  readonly imagePath: Scriptable<string>;
+  readonly isSelected?: Scriptable<boolean>;
+  readonly button?: {
+    readonly condition?: () => boolean;
+    readonly onClick: () => void;
   };
-  x: number;
-  y: number;
+  readonly x: number;
+  readonly y: number;
 }
 export const createSlot = ({
   condition,

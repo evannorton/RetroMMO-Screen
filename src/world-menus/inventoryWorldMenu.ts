@@ -18,15 +18,9 @@ import { bagItemsPerPage } from "../constants";
 import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
-import { createPressableButton } from "../functions/ui/components/createPressableButton";
-import { createSlot } from "../functions/ui/components/createSlot";
-import { doesItemHaveVanity } from "../functions/doesItemHaveVanity";
+import { createSelectedItemDisplay } from "../functions/ui/components/createItemDisplay";
 import { getDefinable } from "definables";
-import { getEquipmentPieceClassesText } from "../functions/getEquipmentPieceClassesText";
-import { getEquipmentSlotName } from "../functions/getEquipmentSlotName";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
-import { getItemVanityClassesText } from "../functions/getItemVanityClassesText";
-import { getItemVanitySlotText } from "../functions/getItemVanitySlotText";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 
@@ -280,565 +274,95 @@ export const inventoryWorldMenu: WorldMenu<
           }),
         );
       }
-      const selectedBagItemCondition = (): boolean =>
-        inventoryWorldMenu.state.values.startedTargetingAt === null &&
-        inventoryWorldMenu.state.values.selectedBagItemIndex !== null &&
-        isWorldCombatInProgress() === false;
-      // Selected bag item panel
+      // Selected item display
       hudElementReferences.push(
-        createPanel({
-          condition: selectedBagItemCondition,
-          height: 76,
-          imagePath: "panels/basic",
-          width: 176,
-          x: 0,
-          y: 132,
-        }),
-      );
-      // Selected bag item icon
-      hudElementReferences.push(
-        createSlot({
-          condition: selectedBagItemCondition,
-          icons: [
+        createSelectedItemDisplay({
+          buttons: [
             {
-              imagePath: (): string => {
+              condition: (): boolean => {
                 if (
                   inventoryWorldMenu.state.values.selectedBagItemIndex === null
                 ) {
                   throw new Error("Selected bag item index is null");
                 }
-                return `item-icons/${
-                  getBagItemInstance(
-                    inventoryWorldMenu.state.values.selectedBagItemIndex,
-                  ).itemID
-                }`;
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                return item.hasAbility() && item.ability.canBeUsedInWorld;
               },
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                switch (itemInstance.item.ability.targetType) {
+                  case TargetType.AllAllies:
+                    emitToSocketioServer<WorldUseItemInstanceRequest>({
+                      data: {
+                        itemInstanceID: itemInstance.id,
+                      },
+                      event: "world/use-item-instance",
+                    });
+                    inventoryWorldMenu.state.setValues({
+                      isAwaitingWorldCombat: true,
+                    });
+                    break;
+                  case TargetType.None:
+                    emitToSocketioServer<WorldUseItemInstanceRequest>({
+                      data: {
+                        itemInstanceID: itemInstance.id,
+                      },
+                      event: "world/use-inventory",
+                    });
+                    inventoryWorldMenu.state.setValues({
+                      isAwaitingWorldCombat: true,
+                    });
+                    break;
+                  case TargetType.Self:
+                    emitToSocketioServer<WorldUseItemInstanceRequest>({
+                      data: {
+                        itemInstanceID: itemInstance.id,
+                      },
+                      event: "world/use-inventory",
+                    });
+                    inventoryWorldMenu.state.setValues({
+                      isAwaitingWorldCombat: true,
+                    });
+                    break;
+                  case TargetType.SingleAlly:
+                    inventoryWorldMenu.state.setValues({
+                      startedTargetingAt: getCurrentTime(),
+                    });
+                    break;
+                }
+              },
+              text: "Use",
+              width: 34,
+              x: 135,
             },
           ],
-          imagePath: "slots/basic",
-          x: 7,
-          y: 139,
-        }),
-      );
-      // Selected bag item name
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: selectedBagItemCondition,
-            x: 27,
-            y: 144,
-          },
-          horizontalAlignment: "left",
-          text: (): CreateLabelOptionsText => {
+          condition: (): boolean =>
+            inventoryWorldMenu.state.values.startedTargetingAt === null &&
+            inventoryWorldMenu.state.values.selectedBagItemIndex !== null &&
+            isWorldCombatInProgress() === false,
+          itemID: (): string => {
             if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
               throw new Error("Selected bag item index is null");
             }
-            return {
-              value: getBagItemInstance(
-                inventoryWorldMenu.state.values.selectedBagItemIndex,
-              ).item.name,
-            };
+            return getBagItemInstance(
+              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            ).itemID;
           },
-        }),
-      );
-      // Selected bag item close button
-      hudElementReferences.push(
-        createImage({
-          condition: selectedBagItemCondition,
-          height: 11,
-          imagePath: "x",
-          onClick: (): void => {
+          onClose: (): void => {
             inventoryWorldMenu.state.setValues({
               selectedBagItemIndex: null,
             });
           },
-          width: 10,
-          x: 159,
-          y: 139,
-        }),
-      );
-      // Selected bag item description
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                return getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                ).item.hasDescription();
-              }
-              return false;
-            },
-            x: 8,
-            y: 159,
-          },
-          horizontalAlignment: "left",
-          maxLines: 3,
-          maxWidth: 160,
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            return {
-              value: getBagItemInstance(
-                inventoryWorldMenu.state.values.selectedBagItemIndex,
-              ).item.description,
-            };
-          },
-        }),
-      );
-      // Selected bag item strength
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 40,
-            y: 161,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const item: Item = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            ).item;
-            return {
-              value: `${item.equipmentPiece.strength} STR`,
-            };
-          },
-        }),
-      );
-      // Selected bag item intelligence
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 88,
-            y: 161,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const item: Item = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            ).item;
-            return {
-              value: `${item.equipmentPiece.intelligence} INT`,
-            };
-          },
-        }),
-      );
-      // Selected bag item agility
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 136,
-            y: 161,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const item: Item = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            ).item;
-            return {
-              value: `${item.equipmentPiece.agility} AGI`,
-            };
-          },
-        }),
-      );
-      // Selected bag item defense
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 40,
-            y: 172,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const item: Item = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            ).item;
-            return {
-              value: `${item.equipmentPiece.defense} DEF`,
-            };
-          },
-        }),
-      );
-      // Selected bag item wisdom
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 88,
-            y: 172,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const item: Item = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            ).item;
-            return {
-              value: `${item.equipmentPiece.wisdom} WIS`,
-            };
-          },
-        }),
-      );
-      // Selected bag item luck
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                return itemInstance.item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 136,
-            y: 172,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const item: Item = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            ).item;
-            return {
-              value: `${item.equipmentPiece.luck} LCK`,
-            };
-          },
-        }),
-      );
-      // Selected bag item vanity slot
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                return doesItemHaveVanity(itemInstance.itemID);
-              }
-              return false;
-            },
-            x: 7,
-            y: 183,
-          },
-          horizontalAlignment: "left",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            return {
-              value: getItemVanitySlotText(
-                getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                ).itemID,
-              ),
-            };
-          },
-        }),
-      );
-      // Selected bag item equipment slot
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 7,
-            y: 183,
-          },
-          horizontalAlignment: "left",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const itemInstance: ItemInstance = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            );
-            const item: Item = getDefinable(Item, itemInstance.itemID);
-            return {
-              value: getEquipmentSlotName(item.equipmentPiece.slot),
-            };
-          },
-        }),
-      );
-      // Selected bag item vanity requirements
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                return doesItemHaveVanity(itemInstance.itemID);
-              }
-              return false;
-            },
-            x: 7,
-            y: 194,
-          },
-          horizontalAlignment: "left",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            return {
-              value: getItemVanityClassesText(
-                getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                ).itemID,
-              ),
-            };
-          },
-        }),
-      );
-      // Selected bag item equipment requirements
-      labelIDs.push(
-        createLabel({
-          color: Color.White,
-          coordinates: {
-            condition: (): boolean => {
-              if (selectedBagItemCondition()) {
-                if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
-                ) {
-                  throw new Error("Selected bag item index is null");
-                }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
-                );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
-                return item.hasEquipmentPiece();
-              }
-              return false;
-            },
-            x: 7,
-            y: 194,
-          },
-          horizontalAlignment: "left",
-          text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const itemInstance: ItemInstance = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            );
-            const item: Item = getDefinable(Item, itemInstance.itemID);
-            return {
-              value: getEquipmentPieceClassesText(item.equipmentPieceID),
-            };
-          },
-        }),
-      );
-      // Selected bag item use button
-      hudElementReferences.push(
-        createPressableButton({
-          condition: (): boolean => {
-            if (selectedBagItemCondition()) {
-              if (
-                inventoryWorldMenu.state.values.selectedBagItemIndex === null
-              ) {
-                throw new Error("Selected bag item index is null");
-              }
-              const itemInstance: ItemInstance = getBagItemInstance(
-                inventoryWorldMenu.state.values.selectedBagItemIndex,
-              );
-              return (
-                itemInstance.item.hasAbility() &&
-                itemInstance.item.ability.canBeUsedInWorld
-              );
-            }
-            return false;
-          },
-          height: 16,
-          imagePath: "pressable-buttons/gray",
-          onClick: (): void => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
-            }
-            const itemInstance: ItemInstance = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
-            );
-            switch (itemInstance.item.ability.targetType) {
-              case TargetType.AllAllies:
-                emitToSocketioServer<WorldUseItemInstanceRequest>({
-                  data: {
-                    itemInstanceID: itemInstance.id,
-                  },
-                  event: "world/use-item-instance",
-                });
-                inventoryWorldMenu.state.setValues({
-                  isAwaitingWorldCombat: true,
-                });
-                break;
-              case TargetType.None:
-                emitToSocketioServer<WorldUseItemInstanceRequest>({
-                  data: {
-                    itemInstanceID: itemInstance.id,
-                  },
-                  event: "world/use-inventory",
-                });
-                inventoryWorldMenu.state.setValues({
-                  isAwaitingWorldCombat: true,
-                });
-                break;
-              case TargetType.Self:
-                emitToSocketioServer<WorldUseItemInstanceRequest>({
-                  data: {
-                    itemInstanceID: itemInstance.id,
-                  },
-                  event: "world/use-inventory",
-                });
-                inventoryWorldMenu.state.setValues({
-                  isAwaitingWorldCombat: true,
-                });
-                break;
-              case TargetType.SingleAlly:
-                inventoryWorldMenu.state.setValues({
-                  startedTargetingAt: getCurrentTime(),
-                });
-                break;
-            }
-          },
-          text: { value: "Use" },
-          width: 34,
-          x: 135,
-          y: 185,
         }),
       );
       // X button

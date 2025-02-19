@@ -16,27 +16,27 @@ import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
 
 export interface CreatePlayerSpriteOptionsCoordinates {
-  condition?: () => boolean;
-  isAnimated?: boolean;
-  x: Scriptable<number>;
-  y: Scriptable<number>;
+  readonly condition?: () => boolean;
+  readonly isAnimated?: boolean;
+  readonly x: Scriptable<number>;
+  readonly y: Scriptable<number>;
 }
 export interface CreatePlayerSpriteOptionsEntity {
-  animationStartedAt: Scriptable<number | null>;
-  entityID: string;
-  step: Scriptable<Step>;
+  readonly animationStartedAt: Scriptable<number | null>;
+  readonly entityID: string;
+  readonly step: Scriptable<Step>;
 }
 export interface CreatePlayerSpriteOptions {
-  clothesDyeID: Scriptable<string>;
-  coordinates?: CreatePlayerSpriteOptionsCoordinates;
-  direction: Scriptable<Direction>;
-  entity?: CreatePlayerSpriteOptionsEntity;
-  figureID: Scriptable<string>;
-  hairDyeID: Scriptable<string>;
-  maskID: Scriptable<string>;
-  outfitID: Scriptable<string>;
-  skinColorID: Scriptable<string>;
-  statusIconImagePath?: Scriptable<string | undefined>;
+  readonly clothesDyeID: Scriptable<string>;
+  readonly coordinates?: CreatePlayerSpriteOptionsCoordinates;
+  readonly direction: Scriptable<Direction>;
+  readonly entity?: CreatePlayerSpriteOptionsEntity;
+  readonly figureID: Scriptable<string>;
+  readonly hairDyeID: Scriptable<string>;
+  readonly maskID: Scriptable<string>;
+  readonly outfitID: Scriptable<string>;
+  readonly skinColorID: Scriptable<string>;
+  readonly statusIconImagePath?: Scriptable<string | undefined>;
 }
 export const createCharacterSprite = ({
   coordinates,

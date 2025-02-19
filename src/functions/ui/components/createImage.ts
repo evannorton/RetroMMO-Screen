@@ -7,14 +7,14 @@ import {
 } from "pixel-pigeon";
 
 export interface CreateImageOptions {
-  condition?: () => boolean;
-  height: number;
-  imagePath: Scriptable<string>;
-  onClick?: () => void;
-  recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
-  width: number;
-  x: Scriptable<number>;
-  y: Scriptable<number>;
+  readonly condition?: () => boolean;
+  readonly height: number;
+  readonly imagePath: Scriptable<string>;
+  readonly onClick?: () => void;
+  readonly recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
+  readonly width: number;
+  readonly x: Scriptable<number>;
+  readonly y: Scriptable<number>;
 }
 export const createImage = ({
   condition,
