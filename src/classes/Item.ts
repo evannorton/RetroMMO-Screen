@@ -21,6 +21,7 @@ export class Item extends Definable {
   private readonly _description?: string;
   private readonly _equipmentPieceID?: string;
   private readonly _hairDyeID?: string;
+  private readonly _iconImagePath: string;
   private readonly _maskID?: string;
   private readonly _name: string;
   private readonly _outfitID?: string;
@@ -39,6 +40,7 @@ export class Item extends Definable {
     this._description = options.definition.description;
     this._equipmentPieceID = options.definition.equipmentPieceID;
     this._hairDyeID = options.definition.hairDyeID;
+    this._iconImagePath = options.definition.imageSourceID;
     this._maskID = options.definition.maskID;
     this._name = options.definition.name;
     this._outfitID = options.definition.outfitID;
@@ -121,6 +123,10 @@ export class Item extends Definable {
       return this._hairDyeID;
     }
     throw new Error(this.getAccessorErrorMessage("hairDyeID"));
+  }
+
+  public get iconImagePath(): string {
+    return this._iconImagePath;
   }
 
   public get mask(): Mask {

@@ -261,7 +261,7 @@ export const inventoryWorldMenu: WorldMenu<
             icons: [
               {
                 imagePath: (): string =>
-                  `item-icons/${getBagItemInstance(i).itemID}`,
+                  getBagItemInstance(i).item.iconImagePath,
               },
             ],
             isSelected: (): boolean =>
@@ -409,7 +409,7 @@ export const inventoryWorldMenu: WorldMenu<
                   inventoryWorldMenu.state.values.selectedBagItemIndex,
                 );
                 const item: Item = getDefinable(Item, itemInstance.itemID);
-                return `ability-icons/${item.abilityID}`;
+                return item.iconImagePath;
               },
             },
           ],

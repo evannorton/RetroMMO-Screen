@@ -119,8 +119,7 @@ export const spellbookWorldMenu: WorldMenu<
               isWorldCombatInProgress() === false,
             icons: [
               {
-                imagePath: (): string =>
-                  `ability-icons/${getSpellbookAbility(i).id}`,
+                imagePath: (): string => getSpellbookAbility(i).iconImagePath,
               },
             ],
             isSelected: (): boolean =>
@@ -169,11 +168,9 @@ export const spellbookWorldMenu: WorldMenu<
                 ) {
                   throw new Error("Selected ability index is null");
                 }
-                return `ability-icons/${
-                  getSpellbookAbility(
-                    spellbookWorldMenu.state.values.selectedAbilityIndex,
-                  ).id
-                }`;
+                return getSpellbookAbility(
+                  spellbookWorldMenu.state.values.selectedAbilityIndex,
+                ).iconImagePath;
               },
             },
           ],
@@ -388,7 +385,7 @@ export const spellbookWorldMenu: WorldMenu<
                 const ability: Ability = getSpellbookAbility(
                   spellbookWorldMenu.state.values.selectedAbilityIndex,
                 );
-                return `ability-icons/${ability.id}`;
+                return ability.iconImagePath;
               },
             },
           ],

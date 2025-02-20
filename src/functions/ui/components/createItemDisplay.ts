@@ -59,7 +59,7 @@ export const createSelectedItemDisplay = ({
       condition,
       icons: [
         {
-          imagePath: (): string => `item-icons/${getItem().id}`,
+          imagePath: (): string => getItem().iconImagePath,
         },
       ],
       imagePath: "slots/basic",

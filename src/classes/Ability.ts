@@ -9,6 +9,7 @@ export class Ability extends Definable {
   private readonly _canBeUsedInBattle: boolean;
   private readonly _canBeUsedInWorld: boolean;
   private readonly _description: string;
+  private readonly _iconImagePath: string;
   private readonly _mpCost: number;
   private readonly _name: string;
   private readonly _targetType: TargetType;
@@ -17,6 +18,7 @@ export class Ability extends Definable {
     this._canBeUsedInBattle = options.definition.canBeUsedInBattle ?? false;
     this._canBeUsedInWorld = options.definition.canBeUsedInWorld ?? false;
     this._description = options.definition.description;
+    this._iconImagePath = options.definition.imageSourceID;
     this._mpCost = options.definition.mpCost;
     this._name = options.definition.name;
     this._targetType = options.definition.targetType;
@@ -32,6 +34,10 @@ export class Ability extends Definable {
 
   public get description(): string {
     return this._description;
+  }
+
+  public get iconImagePath(): string {
+    return this._iconImagePath;
   }
 
   public get mpCost(): number {
