@@ -2,6 +2,7 @@ import {
   Color,
   EquipmentSlot,
   TargetType,
+  VanitySlot,
   WorldUseItemInstanceRequest,
 } from "retrommo-types";
 import {
@@ -98,12 +99,57 @@ const hasEquipmentItemInstance = (equipmentSlot: EquipmentSlot): boolean => {
       return worldState.values.offHandItemInstanceID !== null;
   }
 };
+const getVanityItemInstance = (vanitySlot: VanitySlot): ItemInstance => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  switch (vanitySlot) {
+    case VanitySlot.ClothesDye:
+      if (worldState.values.clothesDyeItemInstanceID === null) {
+        throw new Error("ClothesDye item instance ID is null");
+      }
+      return getDefinable(
+        ItemInstance,
+        worldState.values.clothesDyeItemInstanceID,
+      );
+    case VanitySlot.HairDye:
+      if (worldState.values.hairDyeItemInstanceID === null) {
+        throw new Error("HairDye item instance ID is null");
+      }
+      return getDefinable(
+        ItemInstance,
+        worldState.values.hairDyeItemInstanceID,
+      );
+    case VanitySlot.Mask:
+      if (worldState.values.maskItemInstanceID === null) {
+        throw new Error("Mask item instance ID is null");
+      }
+      return getDefinable(ItemInstance, worldState.values.maskItemInstanceID);
+    case VanitySlot.Outfit:
+      if (worldState.values.outfitItemInstanceID === null) {
+        throw new Error("Outfit item instance ID is null");
+      }
+      return getDefinable(ItemInstance, worldState.values.outfitItemInstanceID);
+  }
+};
+const hasVanityItemInstance = (vanitySlot: VanitySlot): boolean => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  switch (vanitySlot) {
+    case VanitySlot.ClothesDye:
+      return worldState.values.clothesDyeItemInstanceID !== null;
+    case VanitySlot.HairDye:
+      return worldState.values.hairDyeItemInstanceID !== null;
+    case VanitySlot.Mask:
+      return worldState.values.maskItemInstanceID !== null;
+    case VanitySlot.Outfit:
+      return worldState.values.outfitItemInstanceID !== null;
+  }
+};
 
 export interface InventoryWorldMenuOpenOptions {}
 export interface InventoryWorldMenuStateSchema {
   isAwaitingWorldCombat: boolean;
   selectedBagItemIndex: number | null;
   selectedEquipmentSlot: EquipmentSlot | null;
+  selectedVanitySlot: VanitySlot | null;
   startedTargetingAt: number | null;
   tab: InventoryTab;
 }
@@ -273,6 +319,7 @@ export const inventoryWorldMenu: WorldMenu<
           onClick: (): void => {
             inventoryWorldMenu.state.setValues({
               selectedEquipmentSlot: null,
+              selectedVanitySlot: null,
               tab: InventoryTab.Bag,
             });
           },
@@ -293,6 +340,7 @@ export const inventoryWorldMenu: WorldMenu<
           onClick: (): void => {
             inventoryWorldMenu.state.setValues({
               selectedBagItemIndex: null,
+              selectedVanitySlot: null,
               tab: InventoryTab.Equipment,
             });
           },
@@ -716,6 +764,101 @@ export const inventoryWorldMenu: WorldMenu<
           },
         }),
       );
+      // Vanity items
+      [
+        VanitySlot.Mask,
+        VanitySlot.Outfit,
+        VanitySlot.HairDye,
+        VanitySlot.ClothesDye,
+      ].forEach((vanitySlot: VanitySlot, vanitySlotIndex: number): void => {
+        labelIDs.push(
+          createLabel({
+            color: Color.White,
+            coordinates: {
+              condition: (): boolean =>
+                inventoryWorldMenu.state.values.startedTargetingAt === null &&
+                inventoryWorldMenu.state.values.tab === InventoryTab.Vanity &&
+                isWorldCombatInProgress() === false,
+              x: 183,
+              y: 54 + vanitySlotIndex * 36,
+            },
+            horizontalAlignment: "left",
+            text: (): CreateLabelOptionsText => {
+              switch (vanitySlot) {
+                case VanitySlot.Mask:
+                  return { value: "Mask" };
+                case VanitySlot.Outfit:
+                  return { value: "Outfit" };
+                case VanitySlot.HairDye:
+                  return { value: "Hair Dye" };
+                case VanitySlot.ClothesDye:
+                  return { value: "Clothes Dye" };
+              }
+              throw new Error("Invalid vanity slot index");
+            },
+          }),
+        );
+        hudElementReferences.push(
+          createIconListItem({
+            condition: (): boolean =>
+              inventoryWorldMenu.state.values.startedTargetingAt === null &&
+              inventoryWorldMenu.state.values.tab === InventoryTab.Vanity &&
+              isWorldCombatInProgress() === false,
+            icons: [
+              {
+                condition: (): boolean => hasVanityItemInstance(vanitySlot),
+                imagePath: (): string =>
+                  getVanityItemInstance(vanitySlot).item.iconImagePath,
+              },
+            ],
+            isSelected: (): boolean =>
+              inventoryWorldMenu.state.values.selectedVanitySlot === vanitySlot,
+            onClick: (): void => {
+              if (
+                inventoryWorldMenu.state.values.selectedVanitySlot ===
+                vanitySlot
+              ) {
+                inventoryWorldMenu.state.setValues({
+                  selectedVanitySlot: null,
+                });
+              } else {
+                inventoryWorldMenu.state.setValues({
+                  selectedVanitySlot: vanitySlot,
+                });
+              }
+            },
+            slotImagePath: "slots/basic",
+            text: (): CreateLabelOptionsText => ({
+              value: getVanityItemInstance(vanitySlot).item.name,
+            }),
+            width: 116,
+            x: 182,
+            y: 67 + vanitySlotIndex * 36,
+          }),
+        );
+      });
+      // Selected vanity item display
+      hudElementReferences.push(
+        createItemDisplay({
+          condition: (): boolean =>
+            inventoryWorldMenu.state.values.startedTargetingAt === null &&
+            inventoryWorldMenu.state.values.selectedVanitySlot !== null &&
+            isWorldCombatInProgress() === false,
+          itemID: (): string => {
+            if (inventoryWorldMenu.state.values.selectedVanitySlot === null) {
+              throw new Error("Selected vanity slot is null");
+            }
+            return getVanityItemInstance(
+              inventoryWorldMenu.state.values.selectedVanitySlot,
+            ).itemID;
+          },
+          onClose: (): void => {
+            inventoryWorldMenu.state.setValues({
+              selectedVanitySlot: null,
+            });
+          },
+        }),
+      );
       return mergeHUDElementReferences([
         {
           buttonIDs,
@@ -729,6 +872,7 @@ export const inventoryWorldMenu: WorldMenu<
       isAwaitingWorldCombat: false,
       selectedBagItemIndex: null,
       selectedEquipmentSlot: null,
+      selectedVanitySlot: null,
       startedTargetingAt: null,
       tab: InventoryTab.Bag,
     },

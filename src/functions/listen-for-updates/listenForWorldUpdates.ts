@@ -164,14 +164,30 @@ export const listenForWorldUpdates = (): void => {
       if (typeof update.offHandItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.offHandItemInstance);
       }
+      if (typeof update.clothesDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.clothesDyeItemInstance);
+      }
+      if (typeof update.hairDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.hairDyeItemInstance);
+      }
+      if (typeof update.maskItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.maskItemInstance);
+      }
+      if (typeof update.outfitItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.outfitItemInstance);
+      }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
         bodyItemInstanceID: update.bodyItemInstance?.id,
+        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
+        hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
         headItemInstanceID: update.headItemInstance?.id,
         mainHandItemInstanceID: update.mainHandItemInstance?.id,
+        maskItemInstanceID: update.maskItemInstance?.id,
         offHandItemInstanceID: update.offHandItemInstance?.id,
+        outfitItemInstanceID: update.outfitItemInstance?.id,
       });
       for (const worldCombatCharacter of update.worldCombatCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
@@ -529,14 +545,30 @@ export const listenForWorldUpdates = (): void => {
       if (typeof update.offHandItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.offHandItemInstance);
       }
+      if (typeof update.clothesDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.clothesDyeItemInstance);
+      }
+      if (typeof update.hairDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.hairDyeItemInstance);
+      }
+      if (typeof update.maskItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.maskItemInstance);
+      }
+      if (typeof update.outfitItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.outfitItemInstance);
+      }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
         bodyItemInstanceID: update.bodyItemInstance?.id,
+        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
+        hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
         headItemInstanceID: update.headItemInstance?.id,
         mainHandItemInstanceID: update.mainHandItemInstance?.id,
+        maskItemInstanceID: update.maskItemInstance?.id,
         offHandItemInstanceID: update.offHandItemInstance?.id,
+        outfitItemInstanceID: update.outfitItemInstance?.id,
       });
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)

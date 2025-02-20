@@ -75,10 +75,14 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
             (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
           ),
           bodyItemInstanceID: update.bodyItemInstance?.id,
+          clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
+          hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
           headItemInstanceID: update.headItemInstance?.id,
           inventoryGold: update.inventoryGold,
           mainHandItemInstanceID: update.mainHandItemInstance?.id,
+          maskItemInstanceID: update.maskItemInstance?.id,
           offHandItemInstanceID: update.offHandItemInstance?.id,
+          outfitItemInstanceID: update.outfitItemInstance?.id,
           worldCharacterID: update.worldCharacterID,
         }),
       });
@@ -105,6 +109,18 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       }
       if (typeof update.offHandItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.offHandItemInstance);
+      }
+      if (typeof update.clothesDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.clothesDyeItemInstance);
+      }
+      if (typeof update.hairDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.hairDyeItemInstance);
+      }
+      if (typeof update.maskItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.maskItemInstance);
+      }
+      if (typeof update.outfitItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.outfitItemInstance);
       }
       selectWorldCharacter(update.worldCharacterID);
     },

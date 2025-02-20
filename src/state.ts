@@ -38,12 +38,16 @@ export interface MainMenuStateSchema {
 export interface WorldStateSchema {
   bagItemInstanceIDs: readonly string[];
   bodyItemInstanceID: string | null;
+  clothesDyeItemInstanceID: string | null;
+  hairDyeItemInstanceID: string | null;
   headItemInstanceID: string | null;
   inventoryGold: number;
   lastPianoNoteAt: number | null;
   lastUsedEmoteID: string | null;
   mainHandItemInstanceID: string | null;
+  maskItemInstanceID: string | null;
   offHandItemInstanceID: string | null;
+  outfitItemInstanceID: string | null;
   pianoNotes: readonly PianoNote[];
   pianoSessionID: string | null;
   worldCharacterID: string;

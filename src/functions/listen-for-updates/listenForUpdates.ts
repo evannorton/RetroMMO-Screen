@@ -92,10 +92,14 @@ export const listenForUpdates = (): void => {
               (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
             ),
             bodyItemInstanceID: update.world.bodyItemInstance?.id,
+            clothesDyeItemInstanceID: update.world.clothesDyeItemInstance?.id,
+            hairDyeItemInstanceID: update.world.hairDyeItemInstance?.id,
             headItemInstanceID: update.world.headItemInstance?.id,
             inventoryGold: update.world.inventoryGold,
             mainHandItemInstanceID: update.world.mainHandItemInstance?.id,
+            maskItemInstanceID: update.world.maskItemInstance?.id,
             offHandItemInstanceID: update.world.offHandItemInstance?.id,
+            outfitItemInstanceID: update.world.outfitItemInstance?.id,
             worldCharacterID: update.world.worldCharacterID,
           });
           state.setValues({
@@ -124,6 +128,18 @@ export const listenForUpdates = (): void => {
           }
           if (typeof update.world.offHandItemInstance !== "undefined") {
             loadItemInstanceUpdate(update.world.offHandItemInstance);
+          }
+          if (typeof update.world.clothesDyeItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.clothesDyeItemInstance);
+          }
+          if (typeof update.world.hairDyeItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.hairDyeItemInstance);
+          }
+          if (typeof update.world.maskItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.maskItemInstance);
+          }
+          if (typeof update.world.outfitItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.outfitItemInstance);
           }
           selectWorldCharacter(update.world.worldCharacterID);
           break;
