@@ -89,6 +89,39 @@ export const inventoryWorldMenu: WorldMenu<
           y: 24,
         }),
       );
+      // X button
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            inventoryWorldMenu.state.values.startedTargetingAt === null &&
+            isWorldCombatInProgress() === false,
+          height: 11,
+          imagePath: "x",
+          onClick: (): void => {
+            inventoryWorldMenu.close();
+          },
+          width: 10,
+          x: 287,
+          y: 31,
+        }),
+      );
+      // Gold
+      labelIDs.push(
+        createLabel({
+          color: Color.LightYellow,
+          coordinates: {
+            condition: (): boolean =>
+              inventoryWorldMenu.state.values.startedTargetingAt === null &&
+              isWorldCombatInProgress() === false,
+            x: 240,
+            y: 193,
+          },
+          horizontalAlignment: "center",
+          text: (): CreateLabelOptionsText => ({
+            value: `${getFormattedInteger(worldState.values.inventoryGold)}g`,
+          }),
+        }),
+      );
       // Tabs
       spriteIDs.push(
         createSprite({
@@ -287,7 +320,7 @@ export const inventoryWorldMenu: WorldMenu<
           }),
         );
       }
-      // Selected item display
+      // Selected bag item display
       hudElementReferences.push(
         createSelectedItemDisplay({
           buttons: [
@@ -524,39 +557,6 @@ export const inventoryWorldMenu: WorldMenu<
             }),
           );
         },
-      );
-      // X button
-      hudElementReferences.push(
-        createImage({
-          condition: (): boolean =>
-            inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
-          height: 11,
-          imagePath: "x",
-          onClick: (): void => {
-            inventoryWorldMenu.close();
-          },
-          width: 10,
-          x: 287,
-          y: 31,
-        }),
-      );
-      // Gold
-      labelIDs.push(
-        createLabel({
-          color: Color.LightYellow,
-          coordinates: {
-            condition: (): boolean =>
-              inventoryWorldMenu.state.values.startedTargetingAt === null &&
-              isWorldCombatInProgress() === false,
-            x: 240,
-            y: 193,
-          },
-          horizontalAlignment: "center",
-          text: (): CreateLabelOptionsText => ({
-            value: `${getFormattedInteger(worldState.values.inventoryGold)}g`,
-          }),
-        }),
       );
       return mergeHUDElementReferences([
         {
