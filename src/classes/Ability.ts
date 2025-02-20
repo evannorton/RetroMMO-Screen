@@ -18,7 +18,7 @@ export class Ability extends Definable {
     this._canBeUsedInBattle = options.definition.canBeUsedInBattle ?? false;
     this._canBeUsedInWorld = options.definition.canBeUsedInWorld ?? false;
     this._description = options.definition.description;
-    this._iconImagePath = options.definition.imageSourceID;
+    this._iconImagePath = options.definition.iconImagePath;
     this._mpCost = options.definition.mpCost;
     this._name = options.definition.name;
     this._targetType = options.definition.targetType;

@@ -12,8 +12,8 @@ export class Emote extends Definable {
   private readonly _requiresSubscription: boolean;
   public constructor(options: EmoteOptions) {
     super(options.id);
-    this._backgroundImagePath = options.definition.backgroundImageSourceID;
-    this._foregroundImagePath = options.definition.foregroundImageSourceID;
+    this._backgroundImagePath = options.definition.backgroundImagePath;
+    this._foregroundImagePath = options.definition.foregroundImagePath;
     this._order = options.definition.order;
     this._requiresSubscription =
       options.definition.requiresSubscription ?? false;

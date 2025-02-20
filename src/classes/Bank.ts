@@ -15,7 +15,7 @@ export class Bank extends Definable {
   private _toggledAt: number | null = null;
   public constructor(options: BankOptions) {
     super(options.id);
-    this._imagePath = options.definition.imageSourceID;
+    this._imagePath = options.definition.imagePath;
   }
 
   public get imagePath(): string {

@@ -10,7 +10,7 @@ export class Chest extends Definable {
   private _openedAt: number | null = null;
   public constructor(options: ChestOptions) {
     super(options.id);
-    this._imagePath = options.definition.imageSourceID;
+    this._imagePath = options.definition.imagePath;
   }
 
   public get imagePath(): string {

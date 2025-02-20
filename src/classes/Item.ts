@@ -40,7 +40,7 @@ export class Item extends Definable {
     this._description = options.definition.description;
     this._equipmentPieceID = options.definition.equipmentPieceID;
     this._hairDyeID = options.definition.hairDyeID;
-    this._iconImagePath = options.definition.imageSourceID;
+    this._iconImagePath = options.definition.iconImagePath;
     this._maskID = options.definition.maskID;
     this._name = options.definition.name;
     this._outfitID = options.definition.outfitID;

@@ -22,7 +22,7 @@ export class NPC extends Definable {
   private readonly _shopID?: string;
   public constructor(options: NPCOptions) {
     super(options.id);
-    this._actorImagePath = options.definition.actorImageSourceID;
+    this._actorImagePath = options.definition.actorImagePath;
     this._dialogue = options.definition.dialogue;
     this._direction = options.definition.startDirection;
     this._encounterID = options.definition.encounterID;

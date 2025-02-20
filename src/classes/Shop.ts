@@ -9,7 +9,7 @@ export class Shop extends Definable {
   private readonly _indicatorImagePath: string;
   public constructor(options: ShopOptions) {
     super(options.id);
-    this._indicatorImagePath = options.definition.indicatorImageSourceID;
+    this._indicatorImagePath = options.definition.indicatorImagePath;
   }
 
   public get indicatorImagePath(): string {

@@ -9,7 +9,7 @@ export class CombinationLock extends Definable {
   private readonly _imagePath: string;
   public constructor(options: CombinationLockOptions) {
     super(options.id);
-    this._imagePath = options.definition.imageSourceID;
+    this._imagePath = options.definition.imagePath;
   }
 
   public get imagePath(): string {
