@@ -4,7 +4,9 @@ import {
   Direction,
   ResourcePool,
   WorldUseAbilityRequest,
+  WorldUseItemInstanceRequest,
 } from "retrommo-types";
+import { ItemInstance } from "../../../classes/ItemInstance";
 import {
   State,
   createButton,
@@ -21,6 +23,10 @@ import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { createResourceBar } from "../components/createResourceBar";
+import {
+  getBagItemInstance,
+  inventoryWorldMenu,
+} from "../../../world-menus/inventoryWorldMenu";
 import { getConstants } from "../../getConstants";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
@@ -39,7 +45,6 @@ import {
   spellbookInputCollectionID,
   statsInputCollectionID,
 } from "../../../input";
-import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 
@@ -146,19 +151,40 @@ export const createWorldBottomBarUI = (): void => {
       },
       height: tileSize,
       onClick: (): void => {
-        if (spellbookWorldMenu.state.values.startedTargetingAt !== null) {
+        const worldCharacter: WorldCharacter = getWorldCharacter();
+        const partyMemberWorldCharacter: WorldCharacter | undefined =
+          worldCharacter.party.worldCharacters[partyMemberIndex];
+        if (typeof partyMemberWorldCharacter === "undefined") {
+          throw new Error("No party member world character.");
+        }
+        if (
+          inventoryWorldMenu.isOpen() &&
+          inventoryWorldMenu.state.values.startedTargetingAt !== null
+        ) {
+          if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
+            throw new Error("No selected bag item index.");
+          }
+          const itemInstance: ItemInstance = getBagItemInstance(
+            inventoryWorldMenu.state.values.selectedBagItemIndex,
+          );
+          emitToSocketioServer<WorldUseItemInstanceRequest>({
+            data: {
+              itemInstanceID: itemInstance.id,
+              playerID: partyMemberWorldCharacter.playerID,
+            },
+            event: "world/use-item-instance",
+          });
+          inventoryWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
+        } else if (
+          spellbookWorldMenu.isOpen() &&
+          spellbookWorldMenu.state.values.startedTargetingAt !== null
+        ) {
           if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
             throw new Error("No selected ability index.");
           }
           const ability: Ability = getSpellbookAbility(
             spellbookWorldMenu.state.values.selectedAbilityIndex,
           );
-          const worldCharacter: WorldCharacter = getWorldCharacter();
-          const partyMemberWorldCharacter: WorldCharacter | undefined =
-            worldCharacter.party.worldCharacters[partyMemberIndex];
-          if (typeof partyMemberWorldCharacter === "undefined") {
-            throw new Error("No party member world character.");
-          }
           emitToSocketioServer<WorldUseAbilityRequest>({
             data: {
               abilityID: ability.id,

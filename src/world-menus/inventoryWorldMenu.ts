@@ -403,7 +403,7 @@ export const inventoryWorldMenu: WorldMenu<
                 if (
                   inventoryWorldMenu.state.values.selectedBagItemIndex === null
                 ) {
-                  throw new Error("Selected bag index is null");
+                  throw new Error("Selected bag item index is null");
                 }
                 const itemInstance: ItemInstance = getBagItemInstance(
                   inventoryWorldMenu.state.values.selectedBagItemIndex,
@@ -432,7 +432,7 @@ export const inventoryWorldMenu: WorldMenu<
           horizontalAlignment: "left",
           text: (): CreateLabelOptionsText => {
             if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag index is null");
+              throw new Error("Selected bag item index is null");
             }
             const itemInstance: ItemInstance = getBagItemInstance(
               inventoryWorldMenu.state.values.selectedBagItemIndex,
@@ -500,12 +500,11 @@ export const inventoryWorldMenu: WorldMenu<
                 if (
                   inventoryWorldMenu.state.values.selectedBagItemIndex === null
                 ) {
-                  throw new Error("Selected bag index is null");
+                  throw new Error("Selected bag item index is null");
                 }
                 const itemInstance: ItemInstance = getBagItemInstance(
                   inventoryWorldMenu.state.values.selectedBagItemIndex,
                 );
-                const item: Item = getDefinable(Item, itemInstance.itemID);
                 const partyMemberWorldCharacter: WorldCharacter | undefined =
                   worldCharacter.party.worldCharacters[inputCollectionIndex];
                 if (typeof partyMemberWorldCharacter === "undefined") {
@@ -513,7 +512,7 @@ export const inventoryWorldMenu: WorldMenu<
                 }
                 emitToSocketioServer<WorldUseItemInstanceRequest>({
                   data: {
-                    itemInstanceID: item.abilityID,
+                    itemInstanceID: itemInstance.id,
                     playerID: partyMemberWorldCharacter.playerID,
                   },
                   event: "world/use-item-instance",
