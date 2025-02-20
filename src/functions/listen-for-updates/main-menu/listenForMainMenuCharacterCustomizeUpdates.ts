@@ -30,11 +30,11 @@ export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
       ];
       mainMenuState.setValues({
         characterCustomizeState: null,
-        characterSelectState: createMainMenuCharacterSelectState(
-          Math.floor(
+        characterSelectState: createMainMenuCharacterSelectState({
+          page: Math.floor(
             (mainMenuCharacterIDs.length - 1) / mainMenuCharactersPerPage,
           ),
-        ),
+        }),
         mainMenuCharacterIDs,
       });
     },

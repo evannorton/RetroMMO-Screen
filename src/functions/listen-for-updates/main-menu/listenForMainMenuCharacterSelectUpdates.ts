@@ -17,7 +17,7 @@ import { getDefinable, getDefinables } from "definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
-import { loadWorldBagItemInstanceUpdate } from "../../load-updates/loadWorldBagItemInstanceUpdate";
+import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../../load-updates/loadWorldPartyUpdate";
@@ -67,15 +67,20 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
           mainMenuCharacter.remove();
         },
       );
+      console.log(update);
       state.setValues({
         mainMenuState: null,
-        worldState: createWorldState(
-          update.bagItemInstances.map(
+        worldState: createWorldState({
+          bagItemInstanceIDs: update.bagItemInstances.map(
             (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
           ),
-          update.inventoryGold,
-          update.worldCharacterID,
-        ),
+          bodyItemInstanceID: update.bodyItemInstance?.id,
+          headItemInstanceID: update.headItemInstance?.id,
+          inventoryGold: update.inventoryGold,
+          mainHandItemInstanceID: update.mainHandItemInstance?.id,
+          offHandItemInstanceID: update.offHandItemInstance?.id,
+          worldCharacterID: update.worldCharacterID,
+        }),
       });
       for (const worldCharacterUpdate of update.worldCharacters) {
         loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -87,7 +92,19 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         loadWorldNPCUpdate(worldNPCUpdate);
       }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
-        loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
+        loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      if (typeof update.bodyItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.bodyItemInstance);
+      }
+      if (typeof update.headItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.headItemInstance);
+      }
+      if (typeof update.mainHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.mainHandItemInstance);
+      }
+      if (typeof update.offHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.offHandItemInstance);
       }
       selectWorldCharacter(update.worldCharacterID);
     },

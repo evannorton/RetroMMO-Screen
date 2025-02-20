@@ -32,7 +32,7 @@ export const createMainMenuCharacterCreateUI = (): void => {
     onClick: (): void => {
       getMainMenuState().setValues({
         characterCreateState: null,
-        characterSelectState: createMainMenuCharacterSelectState(0),
+        characterSelectState: createMainMenuCharacterSelectState({ page: 0 }),
       });
     },
     width: 14,

@@ -33,13 +33,17 @@ export interface MainMenuStateSchema {
   characterCreateState: State<MainMenuCharacterCreateStateSchema> | null;
   characterCustomizeState: State<MainMenuCharacterCustomizeStateSchema> | null;
   characterSelectState: State<MainMenuCharacterSelectStateSchema> | null;
-  mainMenuCharacterIDs: string[];
+  mainMenuCharacterIDs: readonly string[];
 }
 export interface WorldStateSchema {
   bagItemInstanceIDs: readonly string[];
+  bodyItemInstanceID: string | null;
+  headItemInstanceID: string | null;
   inventoryGold: number;
   lastPianoNoteAt: number | null;
   lastUsedEmoteID: string | null;
+  mainHandItemInstanceID: string | null;
+  offHandItemInstanceID: string | null;
   pianoNotes: readonly PianoNote[];
   pianoSessionID: string | null;
   worldCharacterID: string;

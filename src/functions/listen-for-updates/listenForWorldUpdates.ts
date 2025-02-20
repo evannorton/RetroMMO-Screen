@@ -58,7 +58,7 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
-import { loadWorldBagItemInstanceUpdate } from "../load-updates/loadWorldBagItemInstanceUpdate";
+import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
@@ -150,12 +150,28 @@ export const listenForWorldUpdates = (): void => {
         itemInstance.remove();
       }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
-        loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
+        loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      if (typeof update.bodyItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.bodyItemInstance);
+      }
+      if (typeof update.headItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.headItemInstance);
+      }
+      if (typeof update.mainHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.mainHandItemInstance);
+      }
+      if (typeof update.offHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.offHandItemInstance);
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
+        bodyItemInstanceID: update.bodyItemInstance?.id,
+        headItemInstanceID: update.headItemInstance?.id,
+        mainHandItemInstanceID: update.mainHandItemInstance?.id,
+        offHandItemInstanceID: update.offHandItemInstance?.id,
       });
       for (const worldCombatCharacter of update.worldCombatCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
@@ -263,7 +279,7 @@ export const listenForWorldUpdates = (): void => {
         );
       }
       state.setValues({
-        mainMenuState: createMainMenuState(mainMenuCharacterIDs),
+        mainMenuState: createMainMenuState({ mainMenuCharacterIDs }),
         worldState: null,
       });
       exitLevel();
@@ -499,12 +515,28 @@ export const listenForWorldUpdates = (): void => {
         loadWorldNPCUpdate(worldNPCUpdate);
       }
       for (const worldBagItemInstanceUpdate of update.bagItemInstances) {
-        loadWorldBagItemInstanceUpdate(worldBagItemInstanceUpdate);
+        loadItemInstanceUpdate(worldBagItemInstanceUpdate);
+      }
+      if (typeof update.bodyItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.bodyItemInstance);
+      }
+      if (typeof update.headItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.headItemInstance);
+      }
+      if (typeof update.mainHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.mainHandItemInstance);
+      }
+      if (typeof update.offHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.offHandItemInstance);
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
+        bodyItemInstanceID: update.bodyItemInstance?.id,
+        headItemInstanceID: update.headItemInstance?.id,
+        mainHandItemInstanceID: update.mainHandItemInstance?.id,
+        offHandItemInstanceID: update.offHandItemInstance?.id,
       });
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)

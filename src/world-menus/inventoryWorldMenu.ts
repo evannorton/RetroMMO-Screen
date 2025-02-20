@@ -1,4 +1,9 @@
-import { Color, TargetType, WorldUseItemInstanceRequest } from "retrommo-types";
+import {
+  Color,
+  EquipmentSlot,
+  TargetType,
+  WorldUseItemInstanceRequest,
+} from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
@@ -19,8 +24,8 @@ import { WorldStateSchema } from "../state";
 import { bagItemsPerPage } from "../constants";
 import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
+import { createItemDisplay } from "../functions/ui/components/createItemDisplay";
 import { createPanel } from "../functions/ui/components/createPanel";
-import { createSelectedItemDisplay } from "../functions/ui/components/createItemDisplay";
 import { createSlot } from "../functions/ui/components/createSlot";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
@@ -47,10 +52,58 @@ export const getBagItemInstance = (i: number): ItemInstance => {
   }
   return getDefinable(ItemInstance, itemInstanceID);
 };
+const getEquipmentItemInstance = (
+  equipmentSlot: EquipmentSlot,
+): ItemInstance => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  switch (equipmentSlot) {
+    case EquipmentSlot.Head:
+      if (worldState.values.headItemInstanceID === null) {
+        throw new Error("Head item instance ID is null");
+      }
+      return getDefinable(ItemInstance, worldState.values.headItemInstanceID);
+    case EquipmentSlot.Body:
+      if (worldState.values.bodyItemInstanceID === null) {
+        throw new Error("Body item instance ID is null");
+      }
+      return getDefinable(ItemInstance, worldState.values.bodyItemInstanceID);
+    case EquipmentSlot.MainHand:
+      if (worldState.values.mainHandItemInstanceID === null) {
+        throw new Error("Main hand item instance ID is null");
+      }
+      return getDefinable(
+        ItemInstance,
+        worldState.values.mainHandItemInstanceID,
+      );
+    case EquipmentSlot.OffHand:
+      if (worldState.values.offHandItemInstanceID === null) {
+        throw new Error("Off hand item instance ID is null");
+      }
+      return getDefinable(
+        ItemInstance,
+        worldState.values.offHandItemInstanceID,
+      );
+  }
+};
+const hasEquipmentItemInstance = (equipmentSlot: EquipmentSlot): boolean => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  switch (equipmentSlot) {
+    case EquipmentSlot.Head:
+      return worldState.values.headItemInstanceID !== null;
+    case EquipmentSlot.Body:
+      return worldState.values.bodyItemInstanceID !== null;
+    case EquipmentSlot.MainHand:
+      return worldState.values.mainHandItemInstanceID !== null;
+    case EquipmentSlot.OffHand:
+      return worldState.values.offHandItemInstanceID !== null;
+  }
+};
+
 export interface InventoryWorldMenuOpenOptions {}
 export interface InventoryWorldMenuStateSchema {
   isAwaitingWorldCombat: boolean;
   selectedBagItemIndex: number | null;
+  selectedEquipmentSlot: EquipmentSlot | null;
   startedTargetingAt: number | null;
   tab: InventoryTab;
 }
@@ -87,22 +140,6 @@ export const inventoryWorldMenu: WorldMenu<
           width: 128,
           x: 176,
           y: 24,
-        }),
-      );
-      // X button
-      hudElementReferences.push(
-        createImage({
-          condition: (): boolean =>
-            inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
-          height: 11,
-          imagePath: "x",
-          onClick: (): void => {
-            inventoryWorldMenu.close();
-          },
-          width: 10,
-          x: 287,
-          y: 31,
         }),
       );
       // Gold
@@ -235,6 +272,7 @@ export const inventoryWorldMenu: WorldMenu<
           height: 20,
           onClick: (): void => {
             inventoryWorldMenu.state.setValues({
+              selectedEquipmentSlot: null,
               tab: InventoryTab.Bag,
             });
           },
@@ -275,10 +313,27 @@ export const inventoryWorldMenu: WorldMenu<
           onClick: (): void => {
             inventoryWorldMenu.state.setValues({
               selectedBagItemIndex: null,
+              selectedEquipmentSlot: null,
               tab: InventoryTab.Vanity,
             });
           },
           width: 34,
+        }),
+      );
+      // X button
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            inventoryWorldMenu.state.values.startedTargetingAt === null &&
+            isWorldCombatInProgress() === false,
+          height: 11,
+          imagePath: "x",
+          onClick: (): void => {
+            inventoryWorldMenu.close();
+          },
+          width: 10,
+          x: 287,
+          y: 31,
         }),
       );
       // Bag items
@@ -322,7 +377,7 @@ export const inventoryWorldMenu: WorldMenu<
       }
       // Selected bag item display
       hudElementReferences.push(
-        createSelectedItemDisplay({
+        createItemDisplay({
           buttons: [
             {
               condition: (): boolean => {
@@ -558,6 +613,109 @@ export const inventoryWorldMenu: WorldMenu<
           );
         },
       );
+      // Equipment items
+      [
+        EquipmentSlot.Head,
+        EquipmentSlot.Body,
+        EquipmentSlot.MainHand,
+        EquipmentSlot.OffHand,
+      ].forEach(
+        (equipmentSlot: EquipmentSlot, equipmentSlotIndex: number): void => {
+          labelIDs.push(
+            createLabel({
+              color: Color.White,
+              coordinates: {
+                condition: (): boolean =>
+                  inventoryWorldMenu.state.values.startedTargetingAt === null &&
+                  inventoryWorldMenu.state.values.tab ===
+                    InventoryTab.Equipment &&
+                  isWorldCombatInProgress() === false,
+                x: 183,
+                y: 54 + equipmentSlotIndex * 36,
+              },
+              horizontalAlignment: "left",
+              text: (): CreateLabelOptionsText => {
+                switch (equipmentSlot) {
+                  case EquipmentSlot.Head:
+                    return { value: "Head" };
+                  case EquipmentSlot.Body:
+                    return { value: "Body" };
+                  case EquipmentSlot.MainHand:
+                    return { value: "Main Hand" };
+                  case EquipmentSlot.OffHand:
+                    return { value: "Off Hand" };
+                }
+                throw new Error("Invalid equipment slot index");
+              },
+            }),
+          );
+          hudElementReferences.push(
+            createIconListItem({
+              condition: (): boolean =>
+                inventoryWorldMenu.state.values.startedTargetingAt === null &&
+                inventoryWorldMenu.state.values.tab ===
+                  InventoryTab.Equipment &&
+                isWorldCombatInProgress() === false,
+              icons: [
+                {
+                  condition: (): boolean =>
+                    hasEquipmentItemInstance(equipmentSlot),
+                  imagePath: (): string =>
+                    getEquipmentItemInstance(equipmentSlot).item.iconImagePath,
+                },
+              ],
+              isSelected: (): boolean =>
+                inventoryWorldMenu.state.values.selectedEquipmentSlot ===
+                equipmentSlot,
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedEquipmentSlot ===
+                  equipmentSlot
+                ) {
+                  inventoryWorldMenu.state.setValues({
+                    selectedEquipmentSlot: null,
+                  });
+                } else {
+                  inventoryWorldMenu.state.setValues({
+                    selectedEquipmentSlot: equipmentSlot,
+                  });
+                }
+              },
+              slotImagePath: "slots/basic",
+              text: (): CreateLabelOptionsText => ({
+                value: getEquipmentItemInstance(equipmentSlot).item.name,
+              }),
+              width: 116,
+              x: 182,
+              y: 67 + equipmentSlotIndex * 36,
+            }),
+          );
+        },
+      );
+      // Selected equipment item display
+      hudElementReferences.push(
+        createItemDisplay({
+          condition: (): boolean =>
+            inventoryWorldMenu.state.values.startedTargetingAt === null &&
+            inventoryWorldMenu.state.values.selectedEquipmentSlot !== null &&
+            isWorldCombatInProgress() === false,
+          itemID: (): string => {
+            if (
+              inventoryWorldMenu.state.values.selectedEquipmentSlot === null
+            ) {
+              throw new Error("Selected equipment slot is null");
+            }
+            return getEquipmentItemInstance(
+              inventoryWorldMenu.state.values.selectedEquipmentSlot,
+            ).itemID;
+          },
+          onClose: (): void => {
+            inventoryWorldMenu.state.setValues({
+              selectedEquipmentSlot: null,
+            });
+          },
+        }),
+      );
       return mergeHUDElementReferences([
         {
           buttonIDs,
@@ -570,6 +728,7 @@ export const inventoryWorldMenu: WorldMenu<
     initialStateValues: {
       isAwaitingWorldCombat: false,
       selectedBagItemIndex: null,
+      selectedEquipmentSlot: null,
       startedTargetingAt: null,
       tab: InventoryTab.Bag,
     },

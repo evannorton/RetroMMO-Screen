@@ -4,13 +4,13 @@ import { MainMenuCharacterCustomizeStateSchema } from "../../../state";
 import { State } from "pixel-pigeon";
 import { getDefinable } from "definables";
 
-export interface createMainMenuCharacterCustomizeStateOptions {
-  classID: string;
+export interface CreateMainMenuCharacterCustomizeStateOptions {
+  readonly classID: string;
 }
-export const createMainMenuCharacterCustomizeState = (
-  options: createMainMenuCharacterCustomizeStateOptions,
-): State<MainMenuCharacterCustomizeStateSchema> => {
-  const characterClass: Class = getDefinable(Class, options.classID);
+export const createMainMenuCharacterCustomizeState = ({
+  classID,
+}: CreateMainMenuCharacterCustomizeStateOptions): State<MainMenuCharacterCustomizeStateSchema> => {
+  const characterClass: Class = getDefinable(Class, classID);
   const [clothesDyeItemPrimaryColorIndex, clothesDyeItemSecondaryColorIndex]: [
     number,
     number,
@@ -22,7 +22,7 @@ export const createMainMenuCharacterCustomizeState = (
   const outfitItemIndex: number = characterClass.outfitItemOrderOffset;
   const state: State<MainMenuCharacterCustomizeStateSchema> =
     new State<MainMenuCharacterCustomizeStateSchema>({
-      classID: options.classID,
+      classID,
       clothesDyeItemPrimaryColorIndex,
       clothesDyeItemSecondaryColorIndex,
       direction: Direction.Down,

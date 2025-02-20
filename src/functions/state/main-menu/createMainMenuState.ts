@@ -2,12 +2,15 @@ import { MainMenuStateSchema } from "../../../state";
 import { State } from "pixel-pigeon";
 import { createMainMenuCharacterSelectState } from "./createMainMenuCharacterSelectState";
 
-export const createMainMenuState = (
-  mainMenuCharacterIDs: string[],
-): State<MainMenuStateSchema> =>
+export interface CreateMainMenuStateOptions {
+  readonly mainMenuCharacterIDs: readonly string[];
+}
+export const createMainMenuState = ({
+  mainMenuCharacterIDs,
+}: CreateMainMenuStateOptions): State<MainMenuStateSchema> =>
   new State<MainMenuStateSchema>({
     characterCreateState: null,
     characterCustomizeState: null,
-    characterSelectState: createMainMenuCharacterSelectState(0),
+    characterSelectState: createMainMenuCharacterSelectState({ page: 0 }),
     mainMenuCharacterIDs,
   });

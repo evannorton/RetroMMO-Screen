@@ -32,7 +32,7 @@ export interface CreateItemDisplayOptions {
   readonly itemID: Scriptable<string>;
   readonly onClose: () => void;
 }
-export const createSelectedItemDisplay = ({
+export const createItemDisplay = ({
   buttons,
   condition,
   itemID,

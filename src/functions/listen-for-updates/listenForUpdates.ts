@@ -2,7 +2,9 @@ import { InitialUpdate, ItemInstanceUpdate, MainState } from "retrommo-types";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { Party } from "../../classes/Party";
+import { State, listenToSocketioEvent } from "pixel-pigeon";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { WorldStateSchema, state } from "../../state";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
@@ -13,15 +15,13 @@ import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
-import { listenToSocketioEvent } from "pixel-pigeon";
-import { loadWorldBagItemInstanceUpdate } from "../load-updates/loadWorldBagItemInstanceUpdate";
+import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
-import { state } from "../../state";
 
 export const listenForUpdates = (): void => {
   listenToSocketioEvent<InitialUpdate>({
@@ -77,7 +77,7 @@ export const listenForUpdates = (): void => {
             );
           }
           state.setValues({
-            mainMenuState: createMainMenuState(mainMenuCharacterIDs),
+            mainMenuState: createMainMenuState({ mainMenuCharacterIDs }),
           });
           break;
         }
@@ -87,14 +87,19 @@ export const listenForUpdates = (): void => {
               "Initial update in World MainState is missing world.",
             );
           }
-          state.setValues({
-            worldState: createWorldState(
-              update.world.bagItemInstances.map(
-                (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
-              ),
-              update.world.inventoryGold,
-              update.world.worldCharacterID,
+          const worldState: State<WorldStateSchema> = createWorldState({
+            bagItemInstanceIDs: update.world.bagItemInstances.map(
+              (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
             ),
+            bodyItemInstanceID: update.world.bodyItemInstance?.id,
+            headItemInstanceID: update.world.headItemInstance?.id,
+            inventoryGold: update.world.inventoryGold,
+            mainHandItemInstanceID: update.world.mainHandItemInstance?.id,
+            offHandItemInstanceID: update.world.offHandItemInstance?.id,
+            worldCharacterID: update.world.worldCharacterID,
+          });
+          state.setValues({
+            worldState,
           });
           for (const worldCharacterUpdate of update.world.worldCharacters) {
             loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -106,7 +111,19 @@ export const listenForUpdates = (): void => {
             loadWorldNPCUpdate(npcUpdate);
           }
           for (const bagItemInstanceUpdate of update.world.bagItemInstances) {
-            loadWorldBagItemInstanceUpdate(bagItemInstanceUpdate);
+            loadItemInstanceUpdate(bagItemInstanceUpdate);
+          }
+          if (typeof update.world.bodyItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.bodyItemInstance);
+          }
+          if (typeof update.world.headItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.headItemInstance);
+          }
+          if (typeof update.world.mainHandItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.mainHandItemInstance);
+          }
+          if (typeof update.world.offHandItemInstance !== "undefined") {
+            loadItemInstanceUpdate(update.world.offHandItemInstance);
           }
           selectWorldCharacter(update.world.worldCharacterID);
           break;
