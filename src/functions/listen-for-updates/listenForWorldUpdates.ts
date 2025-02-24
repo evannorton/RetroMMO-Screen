@@ -735,6 +735,53 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldVanityUpdate>({
     event: "world/vanity",
     onMessage: (update: WorldVanityUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      if (typeof update.items !== "undefined") {
+        for (const itemInstance of getDefinables(ItemInstance).values()) {
+          itemInstance.remove();
+        }
+        for (const bagItemInstanceUpdate of update.items.bagItemInstances) {
+          loadItemInstanceUpdate(bagItemInstanceUpdate);
+        }
+        if (typeof update.items.bodyItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.bodyItemInstance);
+        }
+        if (typeof update.items.headItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.headItemInstance);
+        }
+        if (typeof update.items.mainHandItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.mainHandItemInstance);
+        }
+        if (typeof update.items.offHandItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.offHandItemInstance);
+        }
+        if (typeof update.items.clothesDyeItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.clothesDyeItemInstance);
+        }
+        if (typeof update.items.hairDyeItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.hairDyeItemInstance);
+        }
+        if (typeof update.items.maskItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.maskItemInstance);
+        }
+        if (typeof update.items.outfitItemInstance !== "undefined") {
+          loadItemInstanceUpdate(update.items.outfitItemInstance);
+        }
+        worldState.setValues({
+          bagItemInstanceIDs: update.items.bagItemInstances.map(
+            (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
+          ),
+          bodyItemInstanceID: update.items.bodyItemInstance?.id,
+          clothesDyeItemInstanceID: update.items.clothesDyeItemInstance?.id,
+          hairDyeItemInstanceID: update.items.hairDyeItemInstance?.id,
+          headItemInstanceID: update.items.headItemInstance?.id,
+          mainHandItemInstanceID: update.items.mainHandItemInstance?.id,
+          maskItemInstanceID: update.items.maskItemInstance?.id,
+          offHandItemInstanceID: update.items.offHandItemInstance?.id,
+          outfitItemInstanceID: update.items.outfitItemInstance?.id,
+          worldCharacterID: update.worldCharacterID,
+        });
+      }
       const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
         update.worldCharacterID,

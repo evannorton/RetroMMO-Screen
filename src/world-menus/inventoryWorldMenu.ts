@@ -3,6 +3,8 @@ import {
   EquipmentSlot,
   TargetType,
   VanitySlot,
+  WorldEquipEquipmentItemRequest,
+  WorldEquipVanityItemRequest,
   WorldUseItemInstanceRequest,
 } from "retrommo-types";
 import {
@@ -28,8 +30,10 @@ import { createImage } from "../functions/ui/components/createImage";
 import { createItemDisplay } from "../functions/ui/components/createItemDisplay";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createSlot } from "../functions/ui/components/createSlot";
+import { doesItemHaveVanity } from "../functions/doesItemHaveVanity";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
+import { getItemVanityClassIDs } from "../functions/getItemVanityClassIDs";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 import {
@@ -493,6 +497,82 @@ export const inventoryWorldMenu: WorldMenu<
               text: "Use",
               width: 34,
               x: 135,
+            },
+            {
+              condition: (): boolean => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                return (
+                  itemInstance.item.hasEquipmentPiece() &&
+                  worldCharacter.level >=
+                    itemInstance.item.equipmentPiece.level &&
+                  itemInstance.item.equipmentPiece.classIDs.includes(
+                    worldCharacter.classID,
+                  )
+                );
+              },
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                emitToSocketioServer<WorldEquipEquipmentItemRequest>({
+                  data: {
+                    itemInstanceID: itemInstance.id,
+                  },
+                  event: "world/equip-equipment-item",
+                });
+              },
+              text: "Equip",
+              width: 46,
+              x: 123,
+            },
+            {
+              condition: (): boolean => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                return (
+                  doesItemHaveVanity(itemInstance.itemID) &&
+                  getItemVanityClassIDs(itemInstance.itemID).includes(
+                    worldCharacter.classID,
+                  )
+                );
+              },
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                ) {
+                  throw new Error("Selected bag item index is null");
+                }
+                const itemInstance: ItemInstance = getBagItemInstance(
+                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                );
+                emitToSocketioServer<WorldEquipVanityItemRequest>({
+                  data: {
+                    itemInstanceID: itemInstance.id,
+                  },
+                  event: "world/equip-vanity-item",
+                });
+              },
+              text: "Equip",
+              width: 46,
+              x: 123,
             },
           ],
           condition: (): boolean =>

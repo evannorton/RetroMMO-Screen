@@ -136,6 +136,10 @@ export class WorldCharacter extends Definable {
     return getDefinable(Class, this._classID);
   }
 
+  public get classID(): string {
+    return this._classID;
+  }
+
   public get clothesDyeItem(): Item {
     if (this._clothesDyeItemID !== null) {
       return getDefinable(Item, this._clothesDyeItemID);

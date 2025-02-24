@@ -11,6 +11,7 @@ export class EquipmentPiece extends Definable {
   private readonly _classIDs: readonly string[];
   private readonly _defense: number;
   private readonly _intelligence: number;
+  private readonly _level: number;
   private readonly _luck: number;
   private readonly _slot: EquipmentSlot;
   private readonly _strength: number;
@@ -21,6 +22,7 @@ export class EquipmentPiece extends Definable {
     this._classIDs = options.definition.classIDs;
     this._defense = options.definition.defense;
     this._intelligence = options.definition.intelligence;
+    this._level = options.definition.level;
     this._luck = options.definition.luck;
     this._slot = options.definition.slot;
     this._strength = options.definition.strength;
@@ -47,6 +49,10 @@ export class EquipmentPiece extends Definable {
 
   public get intelligence(): number {
     return this._intelligence;
+  }
+
+  public get level(): number {
+    return this._level;
   }
 
   public get luck(): number {
