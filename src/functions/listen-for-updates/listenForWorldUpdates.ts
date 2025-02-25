@@ -11,6 +11,7 @@ import {
   WorldCombatUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
+  WorldEquipmentUpdate,
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
   WorldMarkerUpdate,
@@ -234,6 +235,60 @@ export const listenForWorldUpdates = (): void => {
       }
       for (const worldPartyUpdate of update.parties) {
         loadWorldPartyUpdate(worldPartyUpdate);
+      }
+    },
+  });
+  listenToSocketioEvent<WorldEquipmentUpdate>({
+    event: "world/equipment",
+    onMessage: (update: WorldEquipmentUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
+      }
+      for (const bagItemInstanceUpdate of update.bagItemInstances) {
+        loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      if (typeof update.bodyItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.bodyItemInstance);
+      }
+      if (typeof update.headItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.headItemInstance);
+      }
+      if (typeof update.mainHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.mainHandItemInstance);
+      }
+      if (typeof update.offHandItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.offHandItemInstance);
+      }
+      if (typeof update.clothesDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.clothesDyeItemInstance);
+      }
+      if (typeof update.hairDyeItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.hairDyeItemInstance);
+      }
+      if (typeof update.maskItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.maskItemInstance);
+      }
+      if (typeof update.outfitItemInstance !== "undefined") {
+        loadItemInstanceUpdate(update.outfitItemInstance);
+      }
+      worldState.setValues({
+        bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+        ),
+        bodyItemInstanceID: update.bodyItemInstance?.id,
+        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
+        hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
+        headItemInstanceID: update.headItemInstance?.id,
+        mainHandItemInstanceID: update.mainHandItemInstance?.id,
+        maskItemInstanceID: update.maskItemInstance?.id,
+        offHandItemInstanceID: update.offHandItemInstance?.id,
+        outfitItemInstanceID: update.outfitItemInstance?.id,
+      });
+      if (inventoryWorldMenu.isOpen()) {
+        inventoryWorldMenu.state.setValues({
+          selectedBagItemIndex: null,
+        });
       }
     },
   });
@@ -781,6 +836,11 @@ export const listenForWorldUpdates = (): void => {
           outfitItemInstanceID: update.items.outfitItemInstance?.id,
           worldCharacterID: update.worldCharacterID,
         });
+        if (inventoryWorldMenu.isOpen()) {
+          inventoryWorldMenu.state.setValues({
+            selectedBagItemIndex: null,
+          });
+        }
       }
       const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
