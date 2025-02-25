@@ -5,6 +5,8 @@ import {
   VanitySlot,
   WorldEquipEquipmentItemRequest,
   WorldEquipVanityItemRequest,
+  WorldUnequipEquipmentItemRequest,
+  WorldUnequipVanityItemRequest,
   WorldUseItemInstanceRequest,
 } from "retrommo-types";
 import {
@@ -31,6 +33,7 @@ import { createItemDisplay } from "../functions/ui/components/createItemDisplay"
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createSlot } from "../functions/ui/components/createSlot";
 import { doesItemHaveVanity } from "../functions/doesItemHaveVanity";
+import { getConstants } from "../functions/getConstants";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getItemVanityClassIDs } from "../functions/getItemVanityClassIDs";
@@ -783,11 +786,10 @@ export const inventoryWorldMenu: WorldMenu<
                 inventoryWorldMenu.state.values.startedTargetingAt === null &&
                 inventoryWorldMenu.state.values.tab ===
                   InventoryTab.Equipment &&
+                hasEquipmentItemInstance(equipmentSlot) &&
                 isWorldCombatInProgress() === false,
               icons: [
                 {
-                  condition: (): boolean =>
-                    hasEquipmentItemInstance(equipmentSlot),
                   imagePath: (): string =>
                     getEquipmentItemInstance(equipmentSlot).item.iconImagePath,
                 },
@@ -823,6 +825,32 @@ export const inventoryWorldMenu: WorldMenu<
       // Selected equipment item display
       hudElementReferences.push(
         createItemDisplay({
+          buttons: [
+            {
+              condition: (): boolean =>
+                worldState.values.bagItemInstanceIDs.length <
+                getConstants()["maximum-bag-items"],
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedEquipmentSlot === null
+                ) {
+                  throw new Error("Selected equipment slot is null");
+                }
+                const itemInstance: ItemInstance = getEquipmentItemInstance(
+                  inventoryWorldMenu.state.values.selectedEquipmentSlot,
+                );
+                emitToSocketioServer<WorldUnequipEquipmentItemRequest>({
+                  data: {
+                    itemInstanceID: itemInstance.id,
+                  },
+                  event: "world/unequip-equipment-item",
+                });
+              },
+              text: "Unequip",
+              width: 58,
+              x: 111,
+            },
+          ],
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
             inventoryWorldMenu.state.values.selectedEquipmentSlot !== null &&
@@ -883,10 +911,10 @@ export const inventoryWorldMenu: WorldMenu<
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
               inventoryWorldMenu.state.values.tab === InventoryTab.Vanity &&
+              hasVanityItemInstance(vanitySlot) &&
               isWorldCombatInProgress() === false,
             icons: [
               {
-                condition: (): boolean => hasVanityItemInstance(vanitySlot),
                 imagePath: (): string =>
                   getVanityItemInstance(vanitySlot).item.iconImagePath,
               },
@@ -920,6 +948,32 @@ export const inventoryWorldMenu: WorldMenu<
       // Selected vanity item display
       hudElementReferences.push(
         createItemDisplay({
+          buttons: [
+            {
+              condition: (): boolean =>
+                worldState.values.bagItemInstanceIDs.length <
+                getConstants()["maximum-bag-items"],
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedVanitySlot === null
+                ) {
+                  throw new Error("Selected vanity slot is null");
+                }
+                const itemInstance: ItemInstance = getVanityItemInstance(
+                  inventoryWorldMenu.state.values.selectedVanitySlot,
+                );
+                emitToSocketioServer<WorldUnequipVanityItemRequest>({
+                  data: {
+                    itemInstanceID: itemInstance.id,
+                  },
+                  event: "world/unequip-vanity-item",
+                });
+              },
+              text: "Unequip",
+              width: 58,
+              x: 111,
+            },
+          ],
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
             inventoryWorldMenu.state.values.selectedVanitySlot !== null &&

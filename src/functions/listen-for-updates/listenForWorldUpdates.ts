@@ -131,7 +131,6 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMarkerUpdate>({
     event: "world/clear-marker",
     onMessage: (update: WorldClearMarkerUpdate): void => {
-      console.log("clear");
       clearWorldCharacterMarker(update.worldCharacterID);
     },
   });
@@ -181,14 +180,14 @@ export const listenForWorldUpdates = (): void => {
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
-        bodyItemInstanceID: update.bodyItemInstance?.id,
-        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
-        hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
-        headItemInstanceID: update.headItemInstance?.id,
-        mainHandItemInstanceID: update.mainHandItemInstance?.id,
-        maskItemInstanceID: update.maskItemInstance?.id,
-        offHandItemInstanceID: update.offHandItemInstance?.id,
-        outfitItemInstanceID: update.outfitItemInstance?.id,
+        bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
+        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id ?? null,
+        hairDyeItemInstanceID: update.hairDyeItemInstance?.id ?? null,
+        headItemInstanceID: update.headItemInstance?.id ?? null,
+        mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
+        maskItemInstanceID: update.maskItemInstance?.id ?? null,
+        offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
+        outfitItemInstanceID: update.outfitItemInstance?.id ?? null,
       });
       for (const worldCombatCharacter of update.worldCombatCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
@@ -276,18 +275,19 @@ export const listenForWorldUpdates = (): void => {
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
-        bodyItemInstanceID: update.bodyItemInstance?.id,
-        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
-        hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
-        headItemInstanceID: update.headItemInstance?.id,
-        mainHandItemInstanceID: update.mainHandItemInstance?.id,
-        maskItemInstanceID: update.maskItemInstance?.id,
-        offHandItemInstanceID: update.offHandItemInstance?.id,
-        outfitItemInstanceID: update.outfitItemInstance?.id,
+        bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
+        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id ?? null,
+        hairDyeItemInstanceID: update.hairDyeItemInstance?.id ?? null,
+        headItemInstanceID: update.headItemInstance?.id ?? null,
+        mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
+        maskItemInstanceID: update.maskItemInstance?.id ?? null,
+        offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
+        outfitItemInstanceID: update.outfitItemInstance?.id ?? null,
       });
       if (inventoryWorldMenu.isOpen()) {
         inventoryWorldMenu.state.setValues({
           selectedBagItemIndex: null,
+          selectedEquipmentSlot: null,
         });
       }
     },
@@ -616,14 +616,14 @@ export const listenForWorldUpdates = (): void => {
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
-        bodyItemInstanceID: update.bodyItemInstance?.id,
-        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
-        hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
-        headItemInstanceID: update.headItemInstance?.id,
-        mainHandItemInstanceID: update.mainHandItemInstance?.id,
-        maskItemInstanceID: update.maskItemInstance?.id,
-        offHandItemInstanceID: update.offHandItemInstance?.id,
-        outfitItemInstanceID: update.outfitItemInstance?.id,
+        bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
+        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id ?? null,
+        hairDyeItemInstanceID: update.hairDyeItemInstance?.id ?? null,
+        headItemInstanceID: update.headItemInstance?.id ?? null,
+        mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
+        maskItemInstanceID: update.maskItemInstance?.id ?? null,
+        offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
+        outfitItemInstanceID: update.outfitItemInstance?.id ?? null,
       });
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
@@ -826,19 +826,21 @@ export const listenForWorldUpdates = (): void => {
           bagItemInstanceIDs: update.items.bagItemInstances.map(
             (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
           ),
-          bodyItemInstanceID: update.items.bodyItemInstance?.id,
-          clothesDyeItemInstanceID: update.items.clothesDyeItemInstance?.id,
-          hairDyeItemInstanceID: update.items.hairDyeItemInstance?.id,
-          headItemInstanceID: update.items.headItemInstance?.id,
-          mainHandItemInstanceID: update.items.mainHandItemInstance?.id,
-          maskItemInstanceID: update.items.maskItemInstance?.id,
-          offHandItemInstanceID: update.items.offHandItemInstance?.id,
-          outfitItemInstanceID: update.items.outfitItemInstance?.id,
+          bodyItemInstanceID: update.items.bodyItemInstance?.id ?? null,
+          clothesDyeItemInstanceID:
+            update.items.clothesDyeItemInstance?.id ?? null,
+          hairDyeItemInstanceID: update.items.hairDyeItemInstance?.id ?? null,
+          headItemInstanceID: update.items.headItemInstance?.id ?? null,
+          mainHandItemInstanceID: update.items.mainHandItemInstance?.id ?? null,
+          maskItemInstanceID: update.items.maskItemInstance?.id ?? null,
+          offHandItemInstanceID: update.items.offHandItemInstance?.id ?? null,
+          outfitItemInstanceID: update.items.outfitItemInstance?.id ?? null,
           worldCharacterID: update.worldCharacterID,
         });
         if (inventoryWorldMenu.isOpen()) {
           inventoryWorldMenu.state.setValues({
             selectedBagItemIndex: null,
+            selectedVanitySlot: null,
           });
         }
       }
