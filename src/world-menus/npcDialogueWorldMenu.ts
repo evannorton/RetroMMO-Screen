@@ -36,6 +36,7 @@ export interface NPCDialogueWorldMenuOpenOptions {
   readonly npcID: string;
 }
 export interface NPCDialogueWorldMenuStateSchema {
+  completedQuestID: string | null;
   selectedQuestIndex: number | null;
 }
 export const npcDialogueWorldMenu: WorldMenu<
@@ -85,7 +86,17 @@ export const npcDialogueWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          npcDialogueWorldMenu.close();
+          if (npcDialogueWorldMenu.state.values.selectedQuestIndex !== null) {
+            npcDialogueWorldMenu.state.setValues({ selectedQuestIndex: null });
+          } else if (
+            npcDialogueWorldMenu.state.values.completedQuestID !== null
+          ) {
+            npcDialogueWorldMenu.state.setValues({
+              completedQuestID: null,
+            });
+          } else {
+            npcDialogueWorldMenu.close();
+          }
         },
         width: 10,
         x: x + width - 17,
@@ -106,6 +117,13 @@ export const npcDialogueWorldMenu: WorldMenu<
         maxWidth: width - xOffset * 2,
         size: 1,
         text: (): CreateLabelOptionsText => {
+          if (npcDialogueWorldMenu.state.values.completedQuestID !== null) {
+            const quest: Quest = getDefinable(
+              Quest,
+              npcDialogueWorldMenu.state.values.completedQuestID,
+            );
+            return { value: `Quest Complete: ${quest.name}` };
+          }
           const pieces: string[] = [npc.name];
           const quest: Quest | null = getSelectedQuest();
           if (quest !== null) {
@@ -123,7 +141,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            npc.hasDialogue() && isWorldCombatInProgress() === false,
+            npc.hasDialogue() &&
+            npcDialogueWorldMenu.state.values.completedQuestID === null &&
+            isWorldCombatInProgress() === false,
           x: x + xOffset,
           y: y + 23,
         },
@@ -160,194 +180,259 @@ export const npcDialogueWorldMenu: WorldMenu<
     const questsY: number = 49;
     const questsWidth: number = x + width - questsX;
     const questsHeight: number = y - questsY;
-    if (npc.hasQuestGiver() && options.isLeader) {
-      // Quest panel
-      hudElementReferences.push(
-        createPanel({
-          condition: (): boolean => isWorldCombatInProgress() === false,
-          height: questsHeight,
-          imagePath: "panels/basic",
-          width: questsWidth,
-          x: questsX,
-          y: questsY,
-        }),
-      );
-      // Close quests button
-      hudElementReferences.push(
-        createImage({
-          condition: (): boolean => isWorldCombatInProgress() === false,
-          height: 11,
-          imagePath: "x",
-          onClick: (): void => {
-            npcDialogueWorldMenu.close();
-          },
-          width: 10,
-          x: questsX + questsWidth - 17,
-          y: questsY + 7,
-        }),
-      );
-      // Quests heading
+    if (npc.hasQuestGiver()) {
+      if (options.isLeader) {
+        // Quest panel
+        hudElementReferences.push(
+          createPanel({
+            condition: (): boolean => isWorldCombatInProgress() === false,
+            height: questsHeight,
+            imagePath: "panels/basic",
+            width: questsWidth,
+            x: questsX,
+            y: questsY,
+          }),
+        );
+        // Close quests button
+        hudElementReferences.push(
+          createImage({
+            condition: (): boolean => isWorldCombatInProgress() === false,
+            height: 11,
+            imagePath: "x",
+            onClick: (): void => {
+              npcDialogueWorldMenu.close();
+            },
+            width: 10,
+            x: questsX + questsWidth - 17,
+            y: questsY + 7,
+          }),
+        );
+        // Quests heading
+        labelIDs.push(
+          createLabel({
+            color: Color.White,
+            coordinates: {
+              condition: (): boolean => isWorldCombatInProgress() === false,
+              x: questsX + Math.round(questsWidth / 2),
+              y: questsY + 9,
+            },
+            horizontalAlignment: "center",
+            maxLines: 1,
+            maxWidth: questsWidth - 16,
+            size: 1,
+            text: {
+              value: "Quests",
+            },
+          }),
+        );
+        // Quests understrike
+        hudElementReferences.push(
+          createUnderstrike({
+            condition: (): boolean => isWorldCombatInProgress() === false,
+            width: questsWidth - 16,
+            x: questsX + 8,
+            y: questsY + 20,
+          }),
+        );
+        // Quests list
+        for (let i: number = 0; i < npcQuestsPerPage; i++) {
+          const index: number = i;
+          const getQuest = (): Quest => {
+            const questGiverQuest: QuestGiverQuest | undefined =
+              getQuestGiverQuests(npc.id)[i];
+            if (typeof questGiverQuest === "undefined") {
+              throw new Error("No quest giver quest.");
+            }
+            return getDefinable(Quest, questGiverQuest.questID);
+          };
+          hudElementReferences.push(
+            createIconListItem({
+              condition: (): boolean =>
+                getQuestGiverQuests(npc.id).length > i &&
+                isWorldCombatInProgress() === false,
+              icons: [
+                {
+                  imagePath: (): string => getQuestIconImagePath(getQuest().id),
+                },
+                {
+                  condition: (): boolean => {
+                    const questState: QuestState | null = getQuestPartyState(
+                      getQuest().id,
+                    );
+                    return (
+                      (questState === QuestState.InProgress ||
+                        questState === QuestState.TurnIn) &&
+                      isWorldCombatInProgress() === false
+                    );
+                  },
+                  imagePath: "quest-banners/default",
+                  recolors: (): CreateSpriteOptionsRecolor[] =>
+                    getQuestIconRecolors(getQuest().id, true),
+                },
+              ],
+              isSelected: (): boolean =>
+                npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
+              onClick: (): void => {
+                if (
+                  npcDialogueWorldMenu.state.values.selectedQuestIndex === i
+                ) {
+                  npcDialogueWorldMenu.state.setValues({
+                    selectedQuestIndex: null,
+                  });
+                  emitToSocketioServer<WorldSelectQuestRequest>({
+                    data: {},
+                    event: "world/select-quest",
+                  });
+                } else {
+                  npcDialogueWorldMenu.state.setValues({
+                    completedQuestID: null,
+                    selectedQuestIndex: index,
+                  });
+                  emitToSocketioServer<WorldSelectQuestRequest>({
+                    data: {
+                      questID: getQuest().id,
+                    },
+                    event: "world/select-quest",
+                  });
+                }
+              },
+              slotImagePath: "slots/basic",
+              text: (): CreateLabelOptionsText => ({ value: getQuest().name }),
+              width: 116,
+              x: questsX + 6,
+              y: questsY + 26 + i * 18,
+            }),
+          );
+        }
+        // Quest accept button
+        const acceptButtonWidth: number = 64;
+        hudElementReferences.push(
+          createPressableButton({
+            condition: (): boolean => {
+              const quest: Quest | null = getSelectedQuest();
+              if (quest !== null) {
+                return (
+                  getQuestPartyState(quest.id) === QuestState.Accept &&
+                  isWorldCombatInProgress() === false
+                );
+              }
+              return false;
+            },
+            height: 16,
+            imagePath: "pressable-buttons/gray",
+            onClick: (): void => {
+              const quest: Quest | null = getSelectedQuest();
+              if (quest === null) {
+                throw new Error("No selected quest.");
+              }
+              emitToSocketioServer<WorldAcceptQuestRequest>({
+                data: {
+                  questID: quest.id,
+                },
+                event: "world/accept-quest",
+              });
+            },
+            text: {
+              value: "Accept",
+            },
+            width: acceptButtonWidth,
+            x: x + width - acceptButtonWidth - 7,
+            y: y + height - 23,
+          }),
+        );
+        // Quest turn in button
+        const turnInButtonWidth: number = 64;
+        hudElementReferences.push(
+          createPressableButton({
+            condition: (): boolean => {
+              const quest: Quest | null = getSelectedQuest();
+              if (quest !== null) {
+                return (
+                  getQuestPartyState(quest.id) === QuestState.TurnIn &&
+                  isWorldCombatInProgress() === false
+                );
+              }
+              return false;
+            },
+            height: 16,
+            imagePath: "pressable-buttons/gray",
+            onClick: (): void => {
+              const quest: Quest | null = getSelectedQuest();
+              if (quest === null) {
+                throw new Error("No selected quest.");
+              }
+              emitToSocketioServer<WorldTurnInQuestRequest>({
+                data: {
+                  questID: quest.id,
+                },
+                event: "world/turn-in-quest",
+              });
+            },
+            text: {
+              value: "Complete",
+            },
+            width: turnInButtonWidth,
+            x: x + width - turnInButtonWidth - 7,
+            y: y + height - 23,
+          }),
+        );
+      }
+      // Reward experience
       labelIDs.push(
         createLabel({
           color: Color.White,
           coordinates: {
-            condition: (): boolean => isWorldCombatInProgress() === false,
-            x: questsX + Math.round(questsWidth / 2),
-            y: questsY + 9,
-          },
-          horizontalAlignment: "center",
-          maxLines: 1,
-          maxWidth: questsWidth - 16,
-          size: 1,
-          text: {
-            value: "Quests",
-          },
-        }),
-      );
-      // Quests understrike
-      hudElementReferences.push(
-        createUnderstrike({
-          condition: (): boolean => isWorldCombatInProgress() === false,
-          width: questsWidth - 16,
-          x: questsX + 8,
-          y: questsY + 20,
-        }),
-      );
-      // Quests list
-      for (let i: number = 0; i < npcQuestsPerPage; i++) {
-        const index: number = i;
-        const getQuest = (): Quest => {
-          const questGiverQuest: QuestGiverQuest | undefined =
-            getQuestGiverQuests(npc.id)[i];
-          if (typeof questGiverQuest === "undefined") {
-            throw new Error("No quest giver quest.");
-          }
-          return getDefinable(Quest, questGiverQuest.questID);
-        };
-        hudElementReferences.push(
-          createIconListItem({
             condition: (): boolean =>
-              getQuestGiverQuests(npc.id).length > i &&
+              npcDialogueWorldMenu.state.values.completedQuestID !== null &&
               isWorldCombatInProgress() === false,
-            icons: [
-              { imagePath: (): string => getQuestIconImagePath(getQuest().id) },
-              {
-                condition: (): boolean => {
-                  const questState: QuestState | null = getQuestPartyState(
-                    getQuest().id,
-                  );
-                  return (
-                    (questState === QuestState.InProgress ||
-                      questState === QuestState.TurnIn) &&
-                    isWorldCombatInProgress() === false
-                  );
-                },
-                imagePath: "quest-banners/default",
-                recolors: (): CreateSpriteOptionsRecolor[] =>
-                  getQuestIconRecolors(getQuest().id, true),
-              },
-            ],
-            isSelected: (): boolean =>
-              npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
-            onClick: (): void => {
-              if (npcDialogueWorldMenu.state.values.selectedQuestIndex === i) {
-                npcDialogueWorldMenu.state.setValues({
-                  selectedQuestIndex: null,
-                });
-                emitToSocketioServer<WorldSelectQuestRequest>({
-                  data: {},
-                  event: "world/select-quest",
-                });
-              } else {
-                npcDialogueWorldMenu.state.setValues({
-                  selectedQuestIndex: index,
-                });
-                emitToSocketioServer<WorldSelectQuestRequest>({
-                  data: {
-                    questID: getQuest().id,
-                  },
-                  event: "world/select-quest",
-                });
-              }
-            },
-            slotImagePath: "slots/basic",
-            text: (): CreateLabelOptionsText => ({ value: getQuest().name }),
-            width: 116,
-            x: questsX + 6,
-            y: questsY + 26 + i * 18,
-          }),
-        );
-      }
-      // Quest accept button
-      const acceptButtonWidth: number = 64;
-      hudElementReferences.push(
-        createPressableButton({
-          condition: (): boolean => {
-            const quest: Quest | null = getSelectedQuest();
-            if (quest !== null) {
-              return (
-                getQuestPartyState(quest.id) === QuestState.Accept &&
-                isWorldCombatInProgress() === false
-              );
+            x: x + xOffset,
+            y: y + 33,
+          },
+          horizontalAlignment: "left",
+          maxLines: 1,
+          maxWidth: width - xOffset * 2,
+          size: 1,
+          text: (): CreateLabelOptionsText => {
+            if (npcDialogueWorldMenu.state.values.completedQuestID === null) {
+              throw new Error("No completed quest.");
             }
-            return false;
+            const quest: Quest = getDefinable(
+              Quest,
+              npcDialogueWorldMenu.state.values.completedQuestID,
+            );
+            return {
+              value: `Experience gained: ${quest.experience}`,
+            };
           },
-          height: 16,
-          imagePath: "pressable-buttons/gray",
-          onClick: (): void => {
-            const quest: Quest | null = getSelectedQuest();
-            if (quest === null) {
-              throw new Error("No selected quest.");
-            }
-            emitToSocketioServer<WorldAcceptQuestRequest>({
-              data: {
-                questID: quest.id,
-              },
-              event: "world/accept-quest",
-            });
-          },
-          text: {
-            value: "Accept",
-          },
-          width: acceptButtonWidth,
-          x: x + width - acceptButtonWidth - 7,
-          y: y + height - 23,
         }),
       );
-      // Quest turn in button
-      const turnInButtonWidth: number = 64;
-      hudElementReferences.push(
-        createPressableButton({
-          condition: (): boolean => {
-            const quest: Quest | null = getSelectedQuest();
-            if (quest !== null) {
-              return (
-                getQuestPartyState(quest.id) === QuestState.TurnIn &&
-                isWorldCombatInProgress() === false
-              );
+      // Reward gold
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean =>
+              npcDialogueWorldMenu.state.values.completedQuestID !== null &&
+              isWorldCombatInProgress() === false,
+            x: x + xOffset,
+            y: y + 44,
+          },
+          horizontalAlignment: "left",
+          maxLines: 1,
+          maxWidth: width - xOffset * 2,
+          size: 1,
+          text: (): CreateLabelOptionsText => {
+            if (npcDialogueWorldMenu.state.values.completedQuestID === null) {
+              throw new Error("No completed quest.");
             }
-            return false;
+            const quest: Quest = getDefinable(
+              Quest,
+              npcDialogueWorldMenu.state.values.completedQuestID,
+            );
+            return {
+              value: `Gold earned: ${quest.gold}`,
+            };
           },
-          height: 16,
-          imagePath: "pressable-buttons/gray",
-          onClick: (): void => {
-            const quest: Quest | null = getSelectedQuest();
-            if (quest === null) {
-              throw new Error("No selected quest.");
-            }
-            emitToSocketioServer<WorldTurnInQuestRequest>({
-              data: {
-                questID: quest.id,
-              },
-              event: "world/turn-in-quest",
-            });
-          },
-          text: {
-            value: "Complete",
-          },
-          width: turnInButtonWidth,
-          x: x + width - turnInButtonWidth - 7,
-          y: y + height - 23,
         }),
       );
     }
@@ -359,6 +444,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     ]);
   },
   initialStateValues: {
+    completedQuestID: null,
     selectedQuestIndex: null,
   },
   preventsWalking: true,

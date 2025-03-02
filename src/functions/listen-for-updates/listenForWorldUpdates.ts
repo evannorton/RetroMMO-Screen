@@ -95,13 +95,11 @@ export const listenForWorldUpdates = (): void => {
       }
       const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
-        selectedQuestIndex:
-          typeof update.questID !== "undefined"
-            ? npc.questGiver.quests.findIndex(
-                (questGiverQuest: QuestGiverQuest): boolean =>
-                  questGiverQuest.questID === update.questID,
-              )
-            : null,
+        completedQuestID: null,
+        selectedQuestIndex: npc.questGiver.quests.findIndex(
+          (questGiverQuest: QuestGiverQuest): boolean =>
+            questGiverQuest.questID === update.questID,
+        ),
       });
       const quest: Quest = getDefinable(Quest, update.questID);
       for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
@@ -667,6 +665,7 @@ export const listenForWorldUpdates = (): void => {
       }
       const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
+        completedQuestID: null,
         selectedQuestIndex:
           typeof update.questID !== "undefined"
             ? npc.questGiver.quests.findIndex(
@@ -786,9 +785,13 @@ export const listenForWorldUpdates = (): void => {
       for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
         const questInstance: WorldCharacterQuestInstance | undefined =
           partyWorldCharacter.questInstances[update.questID];
-        if (canWorldCharacterTurnInQuest(partyWorldCharacter.id, quest.id)) {
-          if (typeof questInstance !== "undefined") {
+        if (typeof questInstance !== "undefined") {
+          if (canWorldCharacterTurnInQuest(partyWorldCharacter.id, quest.id)) {
             if (questInstance.isCompleted === false) {
+              npcDialogueWorldMenu.state.setValues({
+                completedQuestID: quest.id,
+                selectedQuestIndex: null,
+              });
               questInstance.isCompleted = true;
             }
           }
