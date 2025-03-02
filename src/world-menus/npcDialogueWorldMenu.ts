@@ -8,6 +8,7 @@ import {
   CreateLabelOptionsText,
   CreateSpriteOptionsRecolor,
   HUDElementReferences,
+  State,
   createLabel,
   emitToSocketioServer,
   getGameWidth,
@@ -17,7 +18,9 @@ import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
 import { QuestGiverQuest } from "../classes/QuestGiver";
 import { QuestState } from "../types/QuestState";
+import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
+import { WorldStateSchema } from "../state";
 import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
@@ -28,6 +31,7 @@ import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
+import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 import { npcQuestsPerPage } from "../constants";
 
@@ -55,6 +59,11 @@ export const npcDialogueWorldMenu: WorldMenu<
     const x: number = 0;
     const y: number = 136;
     const xOffset: number = 10;
+    const worldState: State<WorldStateSchema> = getWorldState();
+    const worldCharacter: WorldCharacter = getDefinable(
+      WorldCharacter,
+      worldState.values.worldCharacterID,
+    );
     const getSelectedQuest = (): Quest | null => {
       if (npcDialogueWorldMenu.state.values.selectedQuestIndex === null) {
         return null;
@@ -86,14 +95,20 @@ export const npcDialogueWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          if (npcDialogueWorldMenu.state.values.selectedQuestIndex !== null) {
-            npcDialogueWorldMenu.state.setValues({ selectedQuestIndex: null });
-          } else if (
-            npcDialogueWorldMenu.state.values.completedQuestID !== null
-          ) {
-            npcDialogueWorldMenu.state.setValues({
-              completedQuestID: null,
-            });
+          if (worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id) {
+            if (npcDialogueWorldMenu.state.values.selectedQuestIndex !== null) {
+              npcDialogueWorldMenu.state.setValues({
+                selectedQuestIndex: null,
+              });
+            } else if (
+              npcDialogueWorldMenu.state.values.completedQuestID !== null
+            ) {
+              npcDialogueWorldMenu.state.setValues({
+                completedQuestID: null,
+              });
+            } else {
+              npcDialogueWorldMenu.close();
+            }
           } else {
             npcDialogueWorldMenu.close();
           }
