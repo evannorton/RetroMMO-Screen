@@ -67,7 +67,6 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
           mainMenuCharacter.remove();
         },
       );
-      console.log(update);
       state.setValues({
         mainMenuState: null,
         worldState: createWorldState({

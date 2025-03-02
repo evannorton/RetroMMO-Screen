@@ -996,6 +996,7 @@ export const inventoryWorldMenu: WorldMenu<
       return mergeHUDElementReferences([
         {
           buttonIDs,
+          inputPressHandlerIDs,
           labelIDs,
           spriteIDs,
         },

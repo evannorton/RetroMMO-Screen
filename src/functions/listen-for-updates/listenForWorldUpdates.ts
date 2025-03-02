@@ -5,7 +5,10 @@ import {
   ItemInstanceUpdate,
   VanitySlot,
   WorldAcceptQuestUpdate,
+  WorldBankGoldUpdate,
+  WorldBankItemsUpdate,
   WorldBonkUpdate,
+  WorldBuyShopItemUpdate,
   WorldClearMarkerUpdate,
   WorldCloseBankUpdate,
   WorldCombatUpdate,
@@ -22,7 +25,9 @@ import {
   WorldPianoKeyUpdate,
   WorldPositionUpdate,
   WorldSelectQuestUpdate,
+  WorldSellShopItemUpdate,
   WorldStartBattleUpdate,
+  WorldTradeCompleteUpdate,
   WorldTradeUpdate,
   WorldTurnCharactersUpdate,
   WorldTurnInQuestUpdate,
@@ -120,11 +125,58 @@ export const listenForWorldUpdates = (): void => {
       }
     },
   });
+  listenToSocketioEvent<WorldBankGoldUpdate>({
+    event: "world/bank-gold",
+    onMessage: (update: WorldBankGoldUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      worldState.setValues({
+        inventoryGold: update.inventoryGold,
+      });
+    },
+  });
+  listenToSocketioEvent<WorldBankItemsUpdate>({
+    event: "world/bank-items",
+    onMessage: (update: WorldBankItemsUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+        const bagItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          bagItemInstanceID,
+        );
+        bagItemInstance.remove();
+      }
+      for (const bagItemInstanceUpdate of update.bagItemInstances) {
+        loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      worldState.setValues({
+        bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+        ),
+      });
+    },
+  });
   listenToSocketioEvent<WorldBonkUpdate>({
     event: "world/bonk",
     onMessage: (): void => {
       playAudioSource("sfx/bonk", {
         volumeChannelID: sfxVolumeChannelID,
+      });
+    },
+  });
+  listenToSocketioEvent<WorldBuyShopItemUpdate>({
+    event: "world/buy-shop-item",
+    onMessage: (update: WorldBuyShopItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      worldState.setValues({
+        bagItemInstanceIDs: [
+          ...worldState.values.bagItemInstanceIDs,
+          update.itemInstance.id,
+        ],
+        inventoryGold: update.gold,
+      });
+      new ItemInstance({
+        id: update.itemInstance.id,
+        itemID: update.itemInstance.itemID,
       });
     },
   });
@@ -146,48 +198,20 @@ export const listenForWorldUpdates = (): void => {
     event: "world/combat",
     onMessage: (update: WorldCombatUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      for (const itemInstance of getDefinables(ItemInstance).values()) {
-        itemInstance.remove();
+      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+        const bagItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          bagItemInstanceID,
+        );
+        bagItemInstance.remove();
       }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
         loadItemInstanceUpdate(bagItemInstanceUpdate);
-      }
-      if (typeof update.bodyItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.bodyItemInstance);
-      }
-      if (typeof update.headItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.headItemInstance);
-      }
-      if (typeof update.mainHandItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.mainHandItemInstance);
-      }
-      if (typeof update.offHandItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.offHandItemInstance);
-      }
-      if (typeof update.clothesDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.clothesDyeItemInstance);
-      }
-      if (typeof update.hairDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.hairDyeItemInstance);
-      }
-      if (typeof update.maskItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.maskItemInstance);
-      }
-      if (typeof update.outfitItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.outfitItemInstance);
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
-        bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
-        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id ?? null,
-        hairDyeItemInstanceID: update.hairDyeItemInstance?.id ?? null,
-        headItemInstanceID: update.headItemInstance?.id ?? null,
-        mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
-        maskItemInstanceID: update.maskItemInstance?.id ?? null,
-        offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
-        outfitItemInstanceID: update.outfitItemInstance?.id ?? null,
       });
       for (const worldCombatCharacter of update.worldCombatCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
@@ -241,8 +265,40 @@ export const listenForWorldUpdates = (): void => {
     event: "world/equipment",
     onMessage: (update: WorldEquipmentUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      for (const itemInstance of getDefinables(ItemInstance).values()) {
-        itemInstance.remove();
+      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+        const bagItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          bagItemInstanceID,
+        );
+        bagItemInstance.remove();
+      }
+      if (worldState.values.bodyItemInstanceID !== null) {
+        const bodyItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          worldState.values.bodyItemInstanceID,
+        );
+        bodyItemInstance.remove();
+      }
+      if (worldState.values.headItemInstanceID !== null) {
+        const headItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          worldState.values.headItemInstanceID,
+        );
+        headItemInstance.remove();
+      }
+      if (worldState.values.mainHandItemInstanceID !== null) {
+        const mainHandItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          worldState.values.mainHandItemInstanceID,
+        );
+        mainHandItemInstance.remove();
+      }
+      if (worldState.values.offHandItemInstanceID !== null) {
+        const offHandItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          worldState.values.offHandItemInstanceID,
+        );
+        offHandItemInstance.remove();
       }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
         loadItemInstanceUpdate(bagItemInstanceUpdate);
@@ -259,30 +315,14 @@ export const listenForWorldUpdates = (): void => {
       if (typeof update.offHandItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.offHandItemInstance);
       }
-      if (typeof update.clothesDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.clothesDyeItemInstance);
-      }
-      if (typeof update.hairDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.hairDyeItemInstance);
-      }
-      if (typeof update.maskItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.maskItemInstance);
-      }
-      if (typeof update.outfitItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.outfitItemInstance);
-      }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
         bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
-        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id ?? null,
-        hairDyeItemInstanceID: update.hairDyeItemInstance?.id ?? null,
         headItemInstanceID: update.headItemInstance?.id ?? null,
         mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
-        maskItemInstanceID: update.maskItemInstance?.id ?? null,
         offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
-        outfitItemInstanceID: update.outfitItemInstance?.id ?? null,
       });
       if (inventoryWorldMenu.isOpen()) {
         inventoryWorldMenu.state.setValues({
@@ -572,8 +612,12 @@ export const listenForWorldUpdates = (): void => {
       for (const party of getDefinables(Party).values()) {
         party.remove();
       }
-      for (const itemInstance of getDefinables(ItemInstance).values()) {
-        itemInstance.remove();
+      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+        const bagItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          bagItemInstanceID,
+        );
+        bagItemInstance.remove();
       }
       goToLevel(update.tilemapID);
       for (const worldCharacterUpdate of update.worldCharacters) {
@@ -588,47 +632,20 @@ export const listenForWorldUpdates = (): void => {
       for (const worldBagItemInstanceUpdate of update.bagItemInstances) {
         loadItemInstanceUpdate(worldBagItemInstanceUpdate);
       }
-      if (typeof update.bodyItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.bodyItemInstance);
-      }
-      if (typeof update.headItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.headItemInstance);
-      }
-      if (typeof update.mainHandItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.mainHandItemInstance);
-      }
-      if (typeof update.offHandItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.offHandItemInstance);
-      }
-      if (typeof update.clothesDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.clothesDyeItemInstance);
-      }
-      if (typeof update.hairDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.hairDyeItemInstance);
-      }
-      if (typeof update.maskItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.maskItemInstance);
-      }
-      if (typeof update.outfitItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.outfitItemInstance);
-      }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
-        bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
-        clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id ?? null,
-        hairDyeItemInstanceID: update.hairDyeItemInstance?.id ?? null,
-        headItemInstanceID: update.headItemInstance?.id ?? null,
-        mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
-        maskItemInstanceID: update.maskItemInstance?.id ?? null,
-        offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
-        outfitItemInstanceID: update.outfitItemInstance?.id ?? null,
       });
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
           .entityID,
       );
+      if (update.didTeleport === true) {
+        playAudioSource("sfx/teleport", {
+          volumeChannelID: sfxVolumeChannelID,
+        });
+      }
     },
   });
   listenToSocketioEvent<WorldSelectQuestUpdate>({
@@ -660,6 +677,20 @@ export const listenForWorldUpdates = (): void => {
       });
     },
   });
+  listenToSocketioEvent<WorldSellShopItemUpdate>({
+    event: "world/sell-shop-item",
+    onMessage: (update: WorldSellShopItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      worldState.setValues({
+        bagItemInstanceIDs: worldState.values.bagItemInstanceIDs.filter(
+          (bagItemInstanceID: string): boolean =>
+            bagItemInstanceID !== update.itemInstanceID,
+        ),
+        inventoryGold: update.gold,
+      });
+      getDefinable(ItemInstance, update.itemInstanceID).remove();
+    },
+  });
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
     onMessage: (): void => {
@@ -680,14 +711,6 @@ export const listenForWorldUpdates = (): void => {
       closeWorldMenus();
     },
   });
-  listenToSocketioEvent<WorldBonkUpdate>({
-    event: "world/teleport",
-    onMessage: (): void => {
-      playAudioSource("sfx/teleport", {
-        volumeChannelID: sfxVolumeChannelID,
-      });
-    },
-  });
   listenToSocketioEvent<WorldTradeUpdate>({
     event: "world/trade",
     onMessage: (): void => {
@@ -696,6 +719,28 @@ export const listenForWorldUpdates = (): void => {
           clearWorldCharacterMarker(worldCharacter.id);
         }
       }
+    },
+  });
+  listenToSocketioEvent<WorldTradeCompleteUpdate>({
+    event: "world/trade-complete",
+    onMessage: (update: WorldTradeCompleteUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+        const bagItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          bagItemInstanceID,
+        );
+        bagItemInstance.remove();
+      }
+      for (const bagItemInstanceUpdate of update.bagItemInstances) {
+        loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      worldState.setValues({
+        bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+        ),
+        inventoryGold: update.gold,
+      });
     },
   });
   listenToSocketioEvent<WorldTurnCharactersUpdate>({
@@ -792,23 +837,43 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (update: WorldVanityUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       if (typeof update.items !== "undefined") {
-        for (const itemInstance of getDefinables(ItemInstance).values()) {
-          itemInstance.remove();
+        for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+          const bagItemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            bagItemInstanceID,
+          );
+          bagItemInstance.remove();
+        }
+        if (worldState.values.clothesDyeItemInstanceID !== null) {
+          const clothesDyeItemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            worldState.values.clothesDyeItemInstanceID,
+          );
+          clothesDyeItemInstance.remove();
+        }
+        if (worldState.values.hairDyeItemInstanceID !== null) {
+          const hairDyeItemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            worldState.values.hairDyeItemInstanceID,
+          );
+          hairDyeItemInstance.remove();
+        }
+        if (worldState.values.maskItemInstanceID !== null) {
+          const maskItemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            worldState.values.maskItemInstanceID,
+          );
+          maskItemInstance.remove();
+        }
+        if (worldState.values.outfitItemInstanceID !== null) {
+          const outfitItemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            worldState.values.outfitItemInstanceID,
+          );
+          outfitItemInstance.remove();
         }
         for (const bagItemInstanceUpdate of update.items.bagItemInstances) {
           loadItemInstanceUpdate(bagItemInstanceUpdate);
-        }
-        if (typeof update.items.bodyItemInstance !== "undefined") {
-          loadItemInstanceUpdate(update.items.bodyItemInstance);
-        }
-        if (typeof update.items.headItemInstance !== "undefined") {
-          loadItemInstanceUpdate(update.items.headItemInstance);
-        }
-        if (typeof update.items.mainHandItemInstance !== "undefined") {
-          loadItemInstanceUpdate(update.items.mainHandItemInstance);
-        }
-        if (typeof update.items.offHandItemInstance !== "undefined") {
-          loadItemInstanceUpdate(update.items.offHandItemInstance);
         }
         if (typeof update.items.clothesDyeItemInstance !== "undefined") {
           loadItemInstanceUpdate(update.items.clothesDyeItemInstance);
@@ -826,14 +891,10 @@ export const listenForWorldUpdates = (): void => {
           bagItemInstanceIDs: update.items.bagItemInstances.map(
             (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
           ),
-          bodyItemInstanceID: update.items.bodyItemInstance?.id ?? null,
           clothesDyeItemInstanceID:
             update.items.clothesDyeItemInstance?.id ?? null,
           hairDyeItemInstanceID: update.items.hairDyeItemInstance?.id ?? null,
-          headItemInstanceID: update.items.headItemInstance?.id ?? null,
-          mainHandItemInstanceID: update.items.mainHandItemInstance?.id ?? null,
           maskItemInstanceID: update.items.maskItemInstance?.id ?? null,
-          offHandItemInstanceID: update.items.offHandItemInstance?.id ?? null,
           outfitItemInstanceID: update.items.outfitItemInstance?.id ?? null,
           worldCharacterID: update.worldCharacterID,
         });
