@@ -27,6 +27,7 @@ import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
+import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
@@ -35,12 +36,16 @@ import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 import { npcQuestsPerPage } from "../constants";
 
+export interface NPCDialogueWorldMenuStateQuestCompletion {
+  readonly didLevelUp: boolean;
+  readonly questID: string;
+}
 export interface NPCDialogueWorldMenuOpenOptions {
   readonly isLeader: boolean;
   readonly npcID: string;
 }
 export interface NPCDialogueWorldMenuStateSchema {
-  completedQuestID: string | null;
+  questCompletion: NPCDialogueWorldMenuStateQuestCompletion | null;
   selectedQuestIndex: number | null;
 }
 export const npcDialogueWorldMenu: WorldMenu<
@@ -101,10 +106,10 @@ export const npcDialogueWorldMenu: WorldMenu<
                 selectedQuestIndex: null,
               });
             } else if (
-              npcDialogueWorldMenu.state.values.completedQuestID !== null
+              npcDialogueWorldMenu.state.values.questCompletion !== null
             ) {
               npcDialogueWorldMenu.state.setValues({
-                completedQuestID: null,
+                questCompletion: null,
               });
             } else {
               npcDialogueWorldMenu.close();
@@ -132,10 +137,10 @@ export const npcDialogueWorldMenu: WorldMenu<
         maxWidth: width - xOffset * 2,
         size: 1,
         text: (): CreateLabelOptionsText => {
-          if (npcDialogueWorldMenu.state.values.completedQuestID !== null) {
+          if (npcDialogueWorldMenu.state.values.questCompletion !== null) {
             const quest: Quest = getDefinable(
               Quest,
-              npcDialogueWorldMenu.state.values.completedQuestID,
+              npcDialogueWorldMenu.state.values.questCompletion.questID,
             );
             return { value: `Quest Complete: ${quest.name}` };
           }
@@ -157,7 +162,7 @@ export const npcDialogueWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean =>
             npc.hasDialogue() &&
-            npcDialogueWorldMenu.state.values.completedQuestID === null &&
+            npcDialogueWorldMenu.state.values.questCompletion === null &&
             isWorldCombatInProgress() === false,
           x: x + xOffset,
           y: y + 23,
@@ -300,7 +305,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                   });
                 } else {
                   npcDialogueWorldMenu.state.setValues({
-                    completedQuestID: null,
+                    questCompletion: null,
                     selectedQuestIndex: index,
                   });
                   emitToSocketioServer<WorldSelectQuestRequest>({
@@ -398,7 +403,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           color: Color.White,
           coordinates: {
             condition: (): boolean =>
-              npcDialogueWorldMenu.state.values.completedQuestID !== null &&
+              npcDialogueWorldMenu.state.values.questCompletion !== null &&
               isWorldCombatInProgress() === false,
             x: x + xOffset,
             y: y + 33,
@@ -408,15 +413,23 @@ export const npcDialogueWorldMenu: WorldMenu<
           maxWidth: width - xOffset * 2,
           size: 1,
           text: (): CreateLabelOptionsText => {
-            if (npcDialogueWorldMenu.state.values.completedQuestID === null) {
+            if (npcDialogueWorldMenu.state.values.questCompletion === null) {
               throw new Error("No completed quest.");
             }
             const quest: Quest = getDefinable(
               Quest,
-              npcDialogueWorldMenu.state.values.completedQuestID,
+              npcDialogueWorldMenu.state.values.questCompletion.questID,
             );
+            const pieces: string[] = [
+              `Experience gained: ${getFormattedInteger(quest.experience)}`,
+            ];
+            if (npcDialogueWorldMenu.state.values.questCompletion.didLevelUp) {
+              pieces.push(
+                `(Leveled up to ${getFormattedInteger(worldCharacter.level)}!)`,
+              );
+            }
             return {
-              value: `Experience gained: ${quest.experience}`,
+              value: pieces.join(" "),
             };
           },
         }),
@@ -427,7 +440,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           color: Color.White,
           coordinates: {
             condition: (): boolean =>
-              npcDialogueWorldMenu.state.values.completedQuestID !== null &&
+              npcDialogueWorldMenu.state.values.questCompletion !== null &&
               isWorldCombatInProgress() === false,
             x: x + xOffset,
             y: y + 44,
@@ -437,15 +450,15 @@ export const npcDialogueWorldMenu: WorldMenu<
           maxWidth: width - xOffset * 2,
           size: 1,
           text: (): CreateLabelOptionsText => {
-            if (npcDialogueWorldMenu.state.values.completedQuestID === null) {
+            if (npcDialogueWorldMenu.state.values.questCompletion === null) {
               throw new Error("No completed quest.");
             }
             const quest: Quest = getDefinable(
               Quest,
-              npcDialogueWorldMenu.state.values.completedQuestID,
+              npcDialogueWorldMenu.state.values.questCompletion.questID,
             );
             return {
-              value: `Gold earned: ${quest.gold}`,
+              value: `Gold earned: ${getFormattedInteger(quest.gold)}`,
             };
           },
         }),
@@ -459,7 +472,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     ]);
   },
   initialStateValues: {
-    completedQuestID: null,
+    questCompletion: null,
     selectedQuestIndex: null,
   },
   preventsWalking: true,

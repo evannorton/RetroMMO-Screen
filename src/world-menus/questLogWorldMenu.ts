@@ -24,6 +24,7 @@ import { createPanel } from "../functions/ui/components/createPanel";
 import { createSlot } from "../functions/ui/components/createSlot";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
+import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestState } from "../functions/getQuestState";
@@ -645,7 +646,9 @@ export const questLogWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const selectedQuest: Quest = getSelectedQuest();
           return {
-            value: `Experience gained: ${selectedQuest.experience}`,
+            value: `Experience gained: ${getFormattedInteger(
+              selectedQuest.experience,
+            )}`,
           };
         },
       }),
@@ -668,7 +671,7 @@ export const questLogWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const selectedQuest: Quest = getSelectedQuest();
           return {
-            value: `Gold earned: ${selectedQuest.gold}`,
+            value: `Gold earned: ${getFormattedInteger(selectedQuest.gold)}`,
           };
         },
       }),

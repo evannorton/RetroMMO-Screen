@@ -95,7 +95,7 @@ export const listenForWorldUpdates = (): void => {
       }
       const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
-        completedQuestID: null,
+        questCompletion: null,
         selectedQuestIndex: npc.questGiver.quests.findIndex(
           (questGiverQuest: QuestGiverQuest): boolean =>
             questGiverQuest.questID === update.questID,
@@ -665,7 +665,7 @@ export const listenForWorldUpdates = (): void => {
       }
       const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
-        completedQuestID: null,
+        questCompletion: null,
         selectedQuestIndex:
           typeof update.questID !== "undefined"
             ? npc.questGiver.quests.findIndex(
@@ -771,6 +771,25 @@ export const listenForWorldUpdates = (): void => {
           npcID: update.npcID,
         });
       }
+      let didLevelUp: boolean = false;
+      for (const worldCharacterUpdate of update.worldCharacters) {
+        const partyWorldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          worldCharacterUpdate.worldCharacterID,
+        );
+        partyWorldCharacter.resources = {
+          hp: worldCharacterUpdate.resources.hp,
+          maxHP: worldCharacterUpdate.resources.maxHP,
+          maxMP: worldCharacterUpdate.resources.maxMP ?? null,
+          mp: worldCharacterUpdate.resources.mp ?? null,
+        };
+        if (partyWorldCharacter.level !== worldCharacterUpdate.level) {
+          partyWorldCharacter.level = worldCharacterUpdate.level;
+          if (partyWorldCharacter.id === worldState.values.worldCharacterID) {
+            didLevelUp = true;
+          }
+        }
+      }
       const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
         selectedQuestIndex:
@@ -789,26 +808,16 @@ export const listenForWorldUpdates = (): void => {
           if (canWorldCharacterTurnInQuest(partyWorldCharacter.id, quest.id)) {
             if (questInstance.isCompleted === false) {
               npcDialogueWorldMenu.state.setValues({
-                completedQuestID: quest.id,
+                questCompletion: {
+                  didLevelUp,
+                  questID: quest.id,
+                },
                 selectedQuestIndex: null,
               });
               questInstance.isCompleted = true;
             }
           }
         }
-      }
-      for (const worldCharacterUpdate of update.worldCharacters) {
-        const partyWorldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldCharacterUpdate.worldCharacterID,
-        );
-        partyWorldCharacter.resources = {
-          hp: worldCharacterUpdate.resources.hp,
-          maxHP: worldCharacterUpdate.resources.maxHP,
-          maxMP: worldCharacterUpdate.resources.maxMP ?? null,
-          mp: worldCharacterUpdate.resources.mp ?? null,
-        };
-        partyWorldCharacter.level = worldCharacterUpdate.level;
       }
     },
   });
