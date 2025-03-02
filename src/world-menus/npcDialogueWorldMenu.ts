@@ -140,11 +140,11 @@ export const npcDialogueWorldMenu: WorldMenu<
                   value: quest.availableText,
                 };
               case QuestState.Complete:
+              case QuestState.TurnIn:
                 return {
                   value: quest.completedText,
                 };
               case QuestState.InProgress:
-              case QuestState.TurnIn:
                 return {
                   value: quest.inProgressText,
                 };
