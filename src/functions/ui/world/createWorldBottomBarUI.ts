@@ -47,6 +47,7 @@ import {
 } from "../../../input";
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
+import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
 
 export const createWorldBottomBarUI = (): void => {
   const tileSize: number = getConstants()["tile-size"];
@@ -280,13 +281,14 @@ export const createWorldBottomBarUI = (): void => {
       condition() && isWorldCombatInProgress() === false,
     imagePath: "bottom-bar-icons/stats",
     inputCollectionID: statsInputCollectionID,
-    isSelected: false,
+    isSelected: (): boolean => statsWorldMenu.isOpen(),
     onClick: (): void => {
-      closeWorldMenus();
-      emitToSocketioServer({
-        data: {},
-        event: "legacy/open-stats",
-      });
+      if (statsWorldMenu.isOpen()) {
+        statsWorldMenu.close();
+      } else {
+        closeWorldMenus();
+        statsWorldMenu.open({});
+      }
     },
     x: 209,
     y: 214,

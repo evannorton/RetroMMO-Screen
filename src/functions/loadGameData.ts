@@ -3,6 +3,7 @@ import {
   AbilityDefinition,
   BankDefinition,
   BodyCosmeticDefinition,
+  BoostDefinition,
   ChestDefinition,
   ClassDefinition,
   ClothesColorDefinition,
@@ -35,6 +36,7 @@ import {
 } from "retrommo-types";
 import { Bank } from "../classes/Bank";
 import { BodyCosmetic } from "../classes/BodyCosmetic";
+import { Boost } from "../classes/Boost";
 import { Chest } from "../classes/Chest";
 import { Class } from "../classes/Class";
 import { ClothesColor } from "../classes/ClothesColor";
@@ -121,6 +123,16 @@ export const loadGameData = async (): Promise<void> => {
             gameData[className] as Record<string, BodyCosmeticDefinition>
           )[id] as BodyCosmeticDefinition;
           new BodyCosmetic({
+            definition,
+            id,
+          });
+          break;
+        }
+        case "Boost": {
+          const definition: BoostDefinition = (
+            gameData[className] as Record<string, BoostDefinition>
+          )[id] as BoostDefinition;
+          new Boost({
             definition,
             id,
           });

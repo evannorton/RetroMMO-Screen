@@ -477,7 +477,9 @@ export const questLogWorldMenu: WorldMenu<
               throw new Error("No monster kills found");
             }
             return {
-              value: `Defeat ${monster.name} - ${questInstance.monsterKills}/${quest.monster.kills}`,
+              value: `Defeat ${monster.name} - ${getFormattedInteger(
+                questInstance.monsterKills,
+              )}/${getFormattedInteger(quest.monster.kills)}`,
             };
           }
           throw new Error("No objective found");

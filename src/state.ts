@@ -36,20 +36,29 @@ export interface MainMenuStateSchema {
   mainMenuCharacterIDs: readonly string[];
 }
 export interface WorldStateSchema {
+  agility: number;
   bagItemInstanceIDs: readonly string[];
   bodyItemInstanceID: string | null;
+  boostItemInstanceIDs: readonly string[];
   clothesDyeItemInstanceID: string | null;
+  defense: number;
+  experienceUntilLevel: number | null;
   hairDyeItemInstanceID: string | null;
   headItemInstanceID: string | null;
+  intelligence: number;
   inventoryGold: number;
   lastPianoNoteAt: number | null;
   lastUsedEmoteID: string | null;
+  luck: number;
   mainHandItemInstanceID: string | null;
   maskItemInstanceID: string | null;
   offHandItemInstanceID: string | null;
   outfitItemInstanceID: string | null;
   pianoNotes: readonly PianoNote[];
   pianoSessionID: string | null;
+  strength: number;
+  timePlayed: number;
+  wisdom: number;
   worldCharacterID: string;
 }
 export interface BattleStateSchema {}

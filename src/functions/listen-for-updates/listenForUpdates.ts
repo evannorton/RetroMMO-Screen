@@ -22,6 +22,7 @@ import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
+import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
 
 export const listenForUpdates = (): void => {
   listenToSocketioEvent<InitialUpdate>({
@@ -154,6 +155,15 @@ export const listenForUpdates = (): void => {
           if (emotesWorldMenu.isOpen() === false) {
             closeWorldMenus();
             emotesWorldMenu.open({});
+          }
+        },
+      });
+      listenToSocketioEvent({
+        event: "legacy/open-stats",
+        onMessage: (): void => {
+          if (statsWorldMenu.isOpen() === false) {
+            closeWorldMenus();
+            statsWorldMenu.open({});
           }
         },
       });

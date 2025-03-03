@@ -6,11 +6,17 @@ export interface ChestOptions {
   readonly id: string;
 }
 export class Chest extends Definable {
+  private readonly _countsTowardTotal: boolean;
   private readonly _imagePath: string;
   private _openedAt: number | null = null;
   public constructor(options: ChestOptions) {
     super(options.id);
+    this._countsTowardTotal = options.definition.countsTowardTotal ?? false;
     this._imagePath = options.definition.imagePath;
+  }
+
+  public get countsTowardTotal(): boolean {
+    return this._countsTowardTotal;
   }
 
   public get imagePath(): string {

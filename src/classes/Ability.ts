@@ -1,11 +1,13 @@
 import { AbilityDefinition, TargetType } from "retrommo-types";
-import { Definable } from "definables";
+import { Boost } from "./Boost";
+import { Definable, getDefinable } from "definables";
 
 export interface AbilityOptions {
   readonly definition: AbilityDefinition;
   readonly id: string;
 }
 export class Ability extends Definable {
+  private readonly _boostItemID?: string;
   private readonly _canBeUsedInBattle: boolean;
   private readonly _canBeUsedInWorld: boolean;
   private readonly _description: string;
@@ -15,6 +17,7 @@ export class Ability extends Definable {
   private readonly _targetType: TargetType;
   public constructor(options: AbilityOptions) {
     super(options.id);
+    this._boostItemID = options.definition.boostItemID;
     this._canBeUsedInBattle = options.definition.canBeUsedInBattle ?? false;
     this._canBeUsedInWorld = options.definition.canBeUsedInWorld ?? false;
     this._description = options.definition.description;
@@ -22,6 +25,20 @@ export class Ability extends Definable {
     this._mpCost = options.definition.mpCost;
     this._name = options.definition.name;
     this._targetType = options.definition.targetType;
+  }
+
+  public get boost(): Boost {
+    if (typeof this._boostItemID !== "undefined") {
+      return getDefinable(Boost, this._boostItemID);
+    }
+    throw new Error(this.getAccessorErrorMessage("boost"));
+  }
+
+  public get boostItemID(): string {
+    if (typeof this._boostItemID !== "undefined") {
+      return this._boostItemID;
+    }
+    throw new Error(this.getAccessorErrorMessage("boostItemID"));
   }
 
   public get canBeUsedInBattle(): boolean {
@@ -50,5 +67,9 @@ export class Ability extends Definable {
 
   public get targetType(): TargetType {
     return this._targetType;
+  }
+
+  public hasBoost(): boolean {
+    return typeof this._boostItemID !== "undefined";
   }
 }
