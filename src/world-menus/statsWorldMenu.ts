@@ -5,9 +5,10 @@ import {
   HUDElementReferences,
   State,
   createLabel,
+  getCurrentTime,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
-import { Item } from "../classes/Item";
+import { ItemInstance } from "../classes/ItemInstance";
 import { Quest } from "../classes/Quest";
 import {
   WorldCharacter,
@@ -47,20 +48,6 @@ export const statsWorldMenu: WorldMenu<
     );
     const constants: Constants = getConstants();
     // Panel
-    // new Panel(
-    //   "world/stats",
-    //   (): PanelOptions => ({
-    //     height: 174,
-    //     imageSourceID: "panels/basic",
-    //     width: 282,
-    //     x: 11,
-    //     y: 24,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     hudElementReferences.push(
       createPanel({
         condition: (): boolean => isWorldCombatInProgress() === false,
@@ -72,29 +59,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Close button
-    // new Picture(
-    //   "world/stats/close",
-    //   (): PictureOptions => ({
-    //     grayscale: false,
-    //     height: 11,
-    //     imageSourceID: "x",
-    //     recolors: [],
-    //     sourceHeight: 11,
-    //     sourceWidth: 10,
-    //     sourceX: 0,
-    //     sourceY: 0,
-    //     width: 10,
-    //     x: 276,
-    //     y: 31,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    //   (player: Player): void => {
-    //     player.closeStats();
-    //   },
-    // );
     hudElementReferences.push(
       createImage({
         condition: (): boolean => isWorldCombatInProgress() === false,
@@ -109,24 +73,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Username
-    // new Label(
-    //   "world/stats/username",
-    //   (player: Player): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "center",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: player.username,
-    //     verticalAlignment: "top",
-    //     x: 152,
-    //     y: 33,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -140,27 +86,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Divider 1
-    // new Picture(
-    //   "world/stats/dividers/1",
-    //   (): PictureOptions => ({
-    //     grayscale: false,
-    //     height: 1,
-    //     imageSourceID: "divider",
-    //     recolors: [],
-    //     sourceHeight: 1,
-    //     sourceWidth: 266,
-    //     sourceX: 0,
-    //     sourceY: 0,
-    //     width: 266,
-    //     x: 19,
-    //     y: 44,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    //   undefined,
-    // );
     hudElementReferences.push(
       createUnderstrike({
         condition: (): boolean => isWorldCombatInProgress() === false,
@@ -170,28 +95,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Level
-    // new Label(
-    //   "world/stats/level",
-    //   (player: Player): LabelOptions => {
-    //     const level: number = player.level;
-    //     const classObject: Class = player.class;
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "left",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `Level ${level} ${classObject.name}`,
-    //       verticalAlignment: "top",
-    //       x: 20,
-    //       y: 50,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -209,24 +112,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // HP name
-    // new Label(
-    //   "world/stats/hp/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "HP",
-    //     verticalAlignment: "top",
-    //     x: 160,
-    //     y: 50,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -240,28 +125,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // HP value
-    // new Label(
-    //   "world/stats/hp/value",
-    //   (player: Player): LabelOptions => {
-    //     const hp: number = player.hp;
-    //     const maxHP: number = player.getMaxHP();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `${hp}/${maxHP}`,
-    //       verticalAlignment: "top",
-    //       x: 284,
-    //       y: 50,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -279,24 +142,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Experience name
-    // new Label(
-    //   "world/stats/experience/name",
-    //   (player: Player): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: player.isMaxLevel() ? "Max level" : "Next level",
-    //     verticalAlignment: "top",
-    //     x: 20,
-    //     y: 67,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -315,28 +160,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Experience value
-    // new Label(
-    //   "world/stats/experience/value",
-    //   (player: Player): LabelOptions => {
-    //     const experienceUntilLevel: number = player.experienceUntilLevel;
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `${experienceUntilLevel}xp`,
-    //       verticalAlignment: "top",
-    //       x: 144,
-    //       y: 67,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     player.isMaxLevel() === false &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -361,25 +184,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // MP name
-    // new Label(
-    //   "world/stats/mp/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "MP",
-    //     verticalAlignment: "top",
-    //     x: 160,
-    //     y: 67,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     player.hasResourcePool(ResourcePool.MP) &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -395,29 +199,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // MP value
-    // new Label(
-    //   "world/stats/mp/value",
-    //   (player: Player): LabelOptions => {
-    //     const mp: number = player.mp;
-    //     const maxMP: number | null = player.getMaxMP();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `${mp}/${maxMP}`,
-    //       verticalAlignment: "top",
-    //       x: 284,
-    //       y: 67,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     player.hasResourcePool(ResourcePool.MP) &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -445,24 +226,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Strength name
-    // new Label(
-    //   "world/stats/strength/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "Strength",
-    //     verticalAlignment: "top",
-    //     x: 20,
-    //     y: 84,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -476,31 +239,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Strength value
-    // new Label(
-    //   "world/stats/strength/value",
-    //   (player: Player): LabelOptions => {
-    //     const strength: number = player.getStrength();
-    //     const bonusStrength: number = player.getBonusStrength();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text:
-    //         bonusStrength === 0
-    //           ? String(strength)
-    //           : `${strength} (+${bonusStrength})`,
-    //       verticalAlignment: "top",
-    //       x: 144,
-    //       y: 84,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -525,24 +263,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Intelligence name
-    // new Label(
-    //   "world/stats/intelligence/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "Intelligence",
-    //     verticalAlignment: "top",
-    //     x: 160,
-    //     y: 84,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -556,31 +276,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Intelligence value
-    // new Label(
-    //   "world/stats/intelligence/value",
-    //   (player: Player): LabelOptions => {
-    //     const intelligence: number | null = player.getIntelligence();
-    //     const bonusIntelligence: number | null = player.getBonusIntelligence();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text:
-    //         bonusIntelligence === 0
-    //           ? String(intelligence)
-    //           : `${intelligence} (+${bonusIntelligence})`,
-    //       verticalAlignment: "top",
-    //       x: 284,
-    //       y: 84,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -605,24 +300,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Defense name
-    // new Label(
-    //   "world/stats/defense/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "Defense",
-    //     verticalAlignment: "top",
-    //     x: 20,
-    //     y: 101,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -636,31 +313,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Defense value
-    // new Label(
-    //   "world/stats/defense/value",
-    //   (player: Player): LabelOptions => {
-    //     const defense: number | null = player.getDefense();
-    //     const bonusDefense: number | null = player.getBonusDefense();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text:
-    //         bonusDefense === 0
-    //           ? String(defense)
-    //           : `${defense} (+${bonusDefense})`,
-    //       verticalAlignment: "top",
-    //       x: 144,
-    //       y: 101,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -685,24 +337,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Wisdom name
-    // new Label(
-    //   "world/stats/wisdom/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "Wisdom",
-    //     verticalAlignment: "top",
-    //     x: 160,
-    //     y: 101,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -716,29 +350,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Wisdom value
-    // new Label(
-    //   "world/stats/wisdom/value",
-    //   (player: Player): LabelOptions => {
-    //     const wisdom: number | null = player.getWisdom();
-    //     const bonusWisdom: number | null = player.getBonusWisdom();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text:
-    //         bonusWisdom === 0 ? String(wisdom) : `${wisdom} (+${bonusWisdom})`,
-    //       verticalAlignment: "top",
-    //       x: 284,
-    //       y: 101,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -763,24 +374,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Agility name
-    // new Label(
-    //   "world/stats/agility/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "Agility",
-    //     verticalAlignment: "top",
-    //     x: 20,
-    //     y: 118,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -794,31 +387,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Agility value
-    // new Label(
-    //   "world/stats/agility/value",
-    //   (player: Player): LabelOptions => {
-    //     const agility: number | null = player.getAgility();
-    //     const bonusAgility: number | null = player.getBonusAgility();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text:
-    //         bonusAgility === 0
-    //           ? String(agility)
-    //           : `${agility} (+${bonusAgility})`,
-    //       verticalAlignment: "top",
-    //       x: 144,
-    //       y: 118,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -843,24 +411,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Luck name
-    // new Label(
-    //   "world/stats/luck/name",
-    //   (): LabelOptions => ({
-    //     color: Color.White,
-    //     horizontalAlignment: "left",
-    //     maxLines: 1,
-    //     maxWidth: 304,
-    //     size: 1,
-    //     text: "Luck",
-    //     verticalAlignment: "top",
-    //     x: 160,
-    //     y: 118,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -874,28 +424,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Luck value
-    // new Label(
-    //   "world/stats/luck/value",
-    //   (player: Player): LabelOptions => {
-    //     const luck: number | null = player.getLuck();
-    //     const bonusLuck: number | null = player.getBonusLuck();
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: bonusLuck === 0 ? String(luck) : `${luck} (+${bonusLuck})`,
-    //       verticalAlignment: "top",
-    //       x: 284,
-    //       y: 118,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -920,27 +448,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Divider 2
-    // new Picture(
-    //   "world/stats/dividers/2",
-    //   (): PictureOptions => ({
-    //     grayscale: false,
-    //     height: 1,
-    //     imageSourceID: "divider",
-    //     recolors: [],
-    //     sourceHeight: 1,
-    //     sourceWidth: 266,
-    //     sourceX: 0,
-    //     sourceY: 0,
-    //     width: 266,
-    //     x: 19,
-    //     y: 130,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    //   undefined,
-    // );
     hudElementReferences.push(
       createUnderstrike({
         condition: (): boolean => isWorldCombatInProgress() === false,
@@ -1007,13 +514,16 @@ export const statsWorldMenu: WorldMenu<
               condition: (): boolean =>
                 i < worldState.values.boostItemInstanceIDs.length,
               imagePath: (): string => {
-                const itemID: string | undefined =
+                const itemInstanceID: string | undefined =
                   worldState.values.boostItemInstanceIDs[i];
-                if (typeof itemID === "undefined") {
+                if (typeof itemInstanceID === "undefined") {
                   throw new Error("Item ID is undefined");
                 }
-                const item: Item = getDefinable(Item, itemID);
-                return item.iconImagePath;
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  itemInstanceID,
+                );
+                return itemInstance.item.iconImagePath;
               },
             },
           ],
@@ -1072,27 +582,6 @@ export const statsWorldMenu: WorldMenu<
     //   },
     // );
     // Divider 3
-    // new Picture(
-    //   "world/stats/dividers/3",
-    //   (): PictureOptions => ({
-    //     grayscale: false,
-    //     height: 1,
-    //     imageSourceID: "divider",
-    //     recolors: [],
-    //     sourceHeight: 1,
-    //     sourceWidth: 266,
-    //     sourceX: 0,
-    //     sourceY: 0,
-    //     width: 266,
-    //     x: 19,
-    //     y: 167,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    //   undefined,
-    // );
     hudElementReferences.push(
       createUnderstrike({
         condition: (): boolean => isWorldCombatInProgress() === false,
@@ -1102,29 +591,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Time played
-    // new Label(
-    //   "world/stats/time-played",
-    //   (player: Player): LabelOptions => {
-    //     const timePlayed: number = player.timePlayed;
-    //     const hours: number = Math.floor(timePlayed / (1000 * 60 * 60));
-    //     const minutes: number = Math.floor(timePlayed / (1000 * 60)) % 60;
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "left",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `Time played: ${hours}:${minutes.toString().padStart(2, "0")}`,
-    //       verticalAlignment: "top",
-    //       x: 20,
-    //       y: 177,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -1135,7 +601,9 @@ export const statsWorldMenu: WorldMenu<
         },
         horizontalAlignment: "left",
         text: (): CreateLabelOptionsText => {
-          const timePlayed: number = worldState.values.timePlayed;
+          const timePlayed: number =
+            worldState.values.timePlayed.amount +
+            (getCurrentTime() - worldState.values.timePlayed.updatedAt);
           const hours: number = Math.floor(timePlayed / (1000 * 60 * 60));
           const minutes: number = Math.floor(timePlayed / (1000 * 60)) % 60;
           return {
@@ -1147,32 +615,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Quests
-    // new Label(
-    //   "world/stats/quests",
-    //   (player: Player): LabelOptions => {
-    //     const character: SavefileCharacter = getPlayerActiveCharacter(player.id);
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `Quests: ${
-    //         Object.values(character.questInstances).filter(
-    //           (questInstance: SavefileQuestInstance): boolean =>
-    //             questInstance.completedAt !== null,
-    //         ).length
-    //       }/${getDefinables(Quest).size}`,
-    //       verticalAlignment: "top",
-    //       x: 286,
-    //       y: 172,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -1199,33 +641,6 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // Treasure
-    // new Label(
-    //   "world/stats/treasure",
-    //   (player: Player): LabelOptions => {
-    //     const openedChests: number = player.chestOpens.filter(
-    //       ({ chestID }: SavefileChestOpen): boolean =>
-    //         getDefinable(Chest, chestID).countsTowardTold,
-    //     ).length;
-    //     const totalChests: number = Array.from(
-    //       getDefinables(Chest).values(),
-    //     ).filter((chest: Chest): boolean => chest.countsTowardTold).length;
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "right",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `Treasure: ${openedChests}/${totalChests}`,
-    //       verticalAlignment: "top",
-    //       x: 286,
-    //       y: 183,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,

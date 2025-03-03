@@ -89,18 +89,29 @@ export const listenForUpdates = (): void => {
             );
           }
           const worldState: State<WorldStateSchema> = createWorldState({
+            agility: update.world.agility,
             bagItemInstanceIDs: update.world.bagItemInstances.map(
               (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
             ),
             bodyItemInstanceID: update.world.bodyItemInstance?.id,
+            boostItemInstanceIDs: update.world.boostItemInstances.map(
+              (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+            ),
             clothesDyeItemInstanceID: update.world.clothesDyeItemInstance?.id,
+            defense: update.world.defense,
+            experienceUntilLevel: update.world.experienceUntilLevel,
             hairDyeItemInstanceID: update.world.hairDyeItemInstance?.id,
             headItemInstanceID: update.world.headItemInstance?.id,
+            intelligence: update.world.intelligence,
             inventoryGold: update.world.inventoryGold,
+            luck: update.world.luck,
             mainHandItemInstanceID: update.world.mainHandItemInstance?.id,
             maskItemInstanceID: update.world.maskItemInstance?.id,
             offHandItemInstanceID: update.world.offHandItemInstance?.id,
             outfitItemInstanceID: update.world.outfitItemInstance?.id,
+            strength: update.world.strength,
+            timePlayed: update.world.timePlayed,
+            wisdom: update.world.wisdom,
             worldCharacterID: update.world.worldCharacterID,
           });
           state.setValues({
@@ -117,6 +128,10 @@ export const listenForUpdates = (): void => {
           }
           for (const bagItemInstanceUpdate of update.world.bagItemInstances) {
             loadItemInstanceUpdate(bagItemInstanceUpdate);
+          }
+          for (const boostItemInstanceUpdate of update.world
+            .boostItemInstances) {
+            loadItemInstanceUpdate(boostItemInstanceUpdate);
           }
           if (typeof update.world.bodyItemInstance !== "undefined") {
             loadItemInstanceUpdate(update.world.bodyItemInstance);

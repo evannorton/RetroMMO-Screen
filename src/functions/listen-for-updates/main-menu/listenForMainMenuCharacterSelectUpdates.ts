@@ -70,18 +70,29 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       state.setValues({
         mainMenuState: null,
         worldState: createWorldState({
+          agility: update.agility,
           bagItemInstanceIDs: update.bagItemInstances.map(
             (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
           ),
           bodyItemInstanceID: update.bodyItemInstance?.id,
+          boostItemInstanceIDs: update.boostItemInstances.map(
+            (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          ),
           clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
+          defense: update.defense,
+          experienceUntilLevel: update.experienceUntilLevel,
           hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
           headItemInstanceID: update.headItemInstance?.id,
+          intelligence: update.intelligence,
           inventoryGold: update.inventoryGold,
+          luck: update.luck,
           mainHandItemInstanceID: update.mainHandItemInstance?.id,
           maskItemInstanceID: update.maskItemInstance?.id,
           offHandItemInstanceID: update.offHandItemInstance?.id,
           outfitItemInstanceID: update.outfitItemInstance?.id,
+          strength: update.strength,
+          timePlayed: update.timePlayed,
+          wisdom: update.wisdom,
           worldCharacterID: update.worldCharacterID,
         }),
       });
@@ -96,6 +107,9 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
         loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      for (const boostItemInstanceUpdate of update.boostItemInstances) {
+        loadItemInstanceUpdate(boostItemInstanceUpdate);
       }
       if (typeof update.bodyItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.bodyItemInstance);

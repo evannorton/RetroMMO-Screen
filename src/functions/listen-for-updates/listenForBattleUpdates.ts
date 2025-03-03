@@ -13,18 +13,30 @@ export const listenForBattleUpdates = (): void => {
     event: "battle/exit-to-world",
     onMessage: (update: BattleExitToWorldUpdate): void => {
       const worldState: State<WorldStateSchema> = createWorldState({
+        agility: update.agility,
         bagItemInstanceIDs: update.bagItemInstances.map(
           (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
         ),
         bodyItemInstanceID: update.bodyItemInstance?.id,
+        boostItemInstanceIDs: update.boostItemInstances.map(
+          (boostItemInstance: ItemInstanceUpdate): string =>
+            boostItemInstance.id,
+        ),
         clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
+        defense: update.defense,
+        experienceUntilLevel: update.experienceUntilLevel,
         hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
         headItemInstanceID: update.headItemInstance?.id,
+        intelligence: update.intelligence,
         inventoryGold: update.inventoryGold,
+        luck: update.luck,
         mainHandItemInstanceID: update.mainHandItemInstance?.id,
         maskItemInstanceID: update.maskItemInstance?.id,
         offHandItemInstanceID: update.offHandItemInstance?.id,
         outfitItemInstanceID: update.outfitItemInstance?.id,
+        strength: update.strength,
+        timePlayed: update.timePlayed,
+        wisdom: update.wisdom,
         worldCharacterID: update.worldCharacterID,
       });
       state.setValues({
@@ -42,6 +54,9 @@ export const listenForBattleUpdates = (): void => {
       }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
         loadItemInstanceUpdate(bagItemInstanceUpdate);
+      }
+      for (const boostItemInstanceUpdate of update.boostItemInstances) {
+        loadItemInstanceUpdate(boostItemInstanceUpdate);
       }
       if (typeof update.bodyItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.bodyItemInstance);

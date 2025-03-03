@@ -10,6 +10,7 @@ import {
 } from "./types/TilePosition";
 import { PianoNote } from "./types/PianoNote";
 import { State } from "pixel-pigeon";
+import { TimePlayed } from "./types/TimePlayed";
 
 export interface MainMenuCharacterCustomizeStateSchema {
   classID: string;
@@ -57,7 +58,7 @@ export interface WorldStateSchema {
   pianoNotes: readonly PianoNote[];
   pianoSessionID: string | null;
   strength: number;
-  timePlayed: number;
+  timePlayed: TimePlayed;
   wisdom: number;
   worldCharacterID: string;
 }

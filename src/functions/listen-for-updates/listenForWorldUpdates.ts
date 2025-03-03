@@ -203,11 +203,25 @@ export const listenForWorldUpdates = (): void => {
         );
         bagItemInstance.remove();
       }
+      for (const boostItemInstanceID of worldState.values
+        .boostItemInstanceIDs) {
+        const boostItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          boostItemInstanceID,
+        );
+        boostItemInstance.remove();
+      }
       for (const bagItemInstanceUpdate of update.bagItemInstances) {
         loadItemInstanceUpdate(bagItemInstanceUpdate);
       }
+      for (const boostItemInstanceUpdate of update.boostItemInstances) {
+        loadItemInstanceUpdate(boostItemInstanceUpdate);
+      }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+        ),
+        boostItemInstanceIDs: update.boostItemInstances.map(
           (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
         ),
       });
@@ -819,6 +833,9 @@ export const listenForWorldUpdates = (): void => {
           }
         }
       }
+      worldState.setValues({
+        experienceUntilLevel: update.experienceUntilLevel,
+      });
     },
   });
   listenToSocketioEvent<WorldTurnNPCUpdate>({
