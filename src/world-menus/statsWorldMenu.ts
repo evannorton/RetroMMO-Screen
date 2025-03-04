@@ -503,32 +503,6 @@ export const statsWorldMenu: WorldMenu<
       );
     }
     // Selected boost info
-    // new Label(
-    //   `world/stats/boosts`,
-    //   (player: Player): LabelOptions => {
-    //     const item: Item = getItemInstanceItem(player.selectedBoostItemInstance);
-    //     const ability: Ability = item.ability;
-    //     const boost: Boost = ability.boost;
-    //     return {
-    //       color: Color.White,
-    //       horizontalAlignment: "center",
-    //       maxLines: 1,
-    //       maxWidth: 304,
-    //       size: 1,
-    //       text: `+${getFormattedInteger(boost.amount)} ${getStatAbbreviation(
-    //         boost.stat,
-    //       )}`,
-    //       verticalAlignment: "top",
-    //       x: 257,
-    //       y: 136,
-    //     };
-    //   },
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     player.hasSelectedBoostItemInstance() &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    // );
     labelIDs.push(
       createLabel({
         color: Color.White,
