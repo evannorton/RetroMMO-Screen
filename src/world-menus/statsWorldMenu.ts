@@ -1,10 +1,12 @@
+import { Boost } from "../classes/Boost";
 import { Chest } from "../classes/Chest";
-import { Color, Constants, ResourcePool } from "retrommo-types";
+import { Color, Constants, ResourcePool, Stat } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
   State,
   createLabel,
+  emitToSocketioServer,
   getCurrentTime,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
@@ -18,22 +20,22 @@ import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema } from "../state";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
+import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createSlot } from "../functions/ui/components/createSlot";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
-import { getBonusAgility } from "../functions/bonus-stats/getBonusAgility";
-import { getBonusDefense } from "../functions/bonus-stats/getBonusDefense";
-import { getBonusIntelligence } from "../functions/bonus-stats/getBonusIntelligence";
-import { getBonusLuck } from "../functions/bonus-stats/getBonusLuck";
-import { getBonusStrength } from "../functions/bonus-stats/getBonusStrength";
-import { getBonusWisdom } from "../functions/bonus-stats/getBonusWisdom";
 import { getConstants } from "../functions/getConstants";
 import { getDefinable, getDefinables, getDefinablesCount } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
+import { getStatAbbreviation } from "../functions/stats/getStatAbbreviation";
+import { getStatBonusAmount } from "../functions/stats/getStatBonusAmount";
+import { getStatName } from "../functions/stats/getStatName";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 
 export interface StatsWorldMenuOpenOptions {}
-export interface StatsWorldMenuStateSchema {}
+export interface StatsWorldMenuStateSchema {
+  selectedBoostIndex: number | null;
+}
 export const statsWorldMenu: WorldMenu<
   StatsWorldMenuOpenOptions,
   StatsWorldMenuStateSchema
@@ -235,7 +237,7 @@ export const statsWorldMenu: WorldMenu<
           y: 84,
         },
         horizontalAlignment: "left",
-        text: { value: "Strength" },
+        text: { value: getStatName(Stat.Strength) },
       }),
     );
     // Strength value
@@ -250,7 +252,7 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
           const strength: number = worldState.values.strength;
-          const bonusStrength: number = getBonusStrength();
+          const bonusStrength: number = getStatBonusAmount(Stat.Strength);
           return {
             value:
               bonusStrength === 0
@@ -272,7 +274,7 @@ export const statsWorldMenu: WorldMenu<
           y: 84,
         },
         horizontalAlignment: "left",
-        text: { value: "Intelligence" },
+        text: { value: getStatName(Stat.Intelligence) },
       }),
     );
     // Intelligence value
@@ -287,7 +289,9 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
           const intelligence: number = worldState.values.intelligence;
-          const bonusIntelligence: number = getBonusIntelligence();
+          const bonusIntelligence: number = getStatBonusAmount(
+            Stat.Intelligence,
+          );
           return {
             value:
               bonusIntelligence === 0
@@ -309,7 +313,7 @@ export const statsWorldMenu: WorldMenu<
           y: 101,
         },
         horizontalAlignment: "left",
-        text: { value: "Defense" },
+        text: { value: getStatName(Stat.Defense) },
       }),
     );
     // Defense value
@@ -324,7 +328,7 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
           const defense: number = worldState.values.defense;
-          const bonusDefense: number = getBonusDefense();
+          const bonusDefense: number = getStatBonusAmount(Stat.Defense);
           return {
             value:
               bonusDefense === 0
@@ -346,7 +350,7 @@ export const statsWorldMenu: WorldMenu<
           y: 101,
         },
         horizontalAlignment: "left",
-        text: { value: "Wisdom" },
+        text: { value: getStatName(Stat.Wisdom) },
       }),
     );
     // Wisdom value
@@ -361,7 +365,7 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
           const wisdom: number = worldState.values.wisdom;
-          const bonusWisdom: number = getBonusWisdom();
+          const bonusWisdom: number = getStatBonusAmount(Stat.Wisdom);
           return {
             value:
               bonusWisdom === 0
@@ -383,7 +387,7 @@ export const statsWorldMenu: WorldMenu<
           y: 118,
         },
         horizontalAlignment: "left",
-        text: { value: "Agility" },
+        text: { value: getStatName(Stat.Agility) },
       }),
     );
     // Agility value
@@ -398,7 +402,7 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
           const agility: number = worldState.values.agility;
-          const bonusAgility: number = getBonusAgility();
+          const bonusAgility: number = getStatBonusAmount(Stat.Agility);
           return {
             value:
               bonusAgility === 0
@@ -420,7 +424,7 @@ export const statsWorldMenu: WorldMenu<
           y: 118,
         },
         horizontalAlignment: "left",
-        text: { value: "Luck" },
+        text: { value: getStatName(Stat.Luck) },
       }),
     );
     // Luck value
@@ -435,7 +439,7 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
           const luck: number = worldState.values.luck;
-          const bonusLuck: number = getBonusLuck();
+          const bonusLuck: number = getStatBonusAmount(Stat.Luck);
           return {
             value:
               bonusLuck === 0
@@ -457,58 +461,21 @@ export const statsWorldMenu: WorldMenu<
       }),
     );
     // For each boost slot
-    // for (let i: number = 0; i < serverConstants.maximumBoosts; i++) {
-    //   // Boost icon
-    //   new Switch(
-    //     `world/stats/boosts/${i}`,
-    //     (): SwitchOptions => ({
-    //       height: 16,
-    //       width: 16,
-    //       x: 23 + i * 35,
-    //       y: 141,
-    //     }),
-    //     (player: Player): boolean =>
-    //       player.statsIsOpen &&
-    //       player.hasBoostItemInstance(i) &&
-    //       (player.party.hasWorldCombatStartedAt() === false ||
-    //         player.party.worldCombatIsOngoing() === false),
-    //     (player: Player): void => {
-    //       player.toggleBoostItemInstanceSelection(i);
-    //     },
-    //   );
-    //   new Slot(
-    //     `world/stats/boosts/${i}`,
-    //     (player: Player): SlotOptions => {
-    //       const savefileItemInstance: SavefileItemInstance | null =
-    //         player.hasBoostItemInstance(i)
-    //           ? player.getBoostItemInstance(i)
-    //           : null;
-    //       const item: Item | null =
-    //         savefileItemInstance !== null
-    //           ? getItemInstanceItem(savefileItemInstance)
-    //           : null;
-    //       return {
-    //         grayscale: false,
-    //         iconImageSourceID: item !== null ? item.imageSource.id : null,
-    //         panelImageSourceID: "panels/basic",
-    //         selected:
-    //           player.hasBoostItemInstance(i) &&
-    //           player.hasSelectedBoostItemInstance() &&
-    //           player.hasBoostItemInstanceSelected(i),
-    //         x: 23 + i * 35,
-    //         y: 141,
-    //       };
-    //     },
-    //     (player: Player): boolean =>
-    //       player.statsIsOpen &&
-    //       (player.party.hasWorldCombatStartedAt() === false ||
-    //         player.party.worldCombatIsOngoing() === false),
-    //     undefined,
-    //   );
-    // }
     for (let i: number = 0; i < constants["maximum-boosts"]; i++) {
       hudElementReferences.push(
         createSlot({
+          button: {
+            condition: (): boolean =>
+              i < worldState.values.boostItemInstanceIDs.length,
+            onClick: (): void => {
+              statsWorldMenu.state.setValues({
+                selectedBoostIndex:
+                  statsWorldMenu.state.values.selectedBoostIndex === i
+                    ? null
+                    : i,
+              });
+            },
+          },
           icons: [
             {
               condition: (): boolean =>
@@ -528,12 +495,14 @@ export const statsWorldMenu: WorldMenu<
             },
           ],
           imagePath: "slots/basic",
+          isSelected: (): boolean =>
+            statsWorldMenu.state.values.selectedBoostIndex === i,
           x: 23 + i * 35,
           y: 141,
         }),
       );
     }
-    // // Selected boost info
+    // Selected boost info
     // new Label(
     //   `world/stats/boosts`,
     //   (player: Player): LabelOptions => {
@@ -560,27 +529,69 @@ export const statsWorldMenu: WorldMenu<
     //     (player.party.hasWorldCombatStartedAt() === false ||
     //       player.party.worldCombatIsOngoing() === false),
     // );
-    // // Destroy boost
-    // new Button(
-    //   `world/stats/boosts`,
-    //   (): ButtonOptions => ({
-    //     color: Color.White,
-    //     height: 16,
-    //     imageSourceID: "buttons/red",
-    //     text: "Destroy",
-    //     width: 48,
-    //     x: 233,
-    //     y: 147,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.statsIsOpen &&
-    //     player.hasSelectedBoostItemInstance() &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false),
-    //   (player: Player): void => {
-    //     player.destroySelectedBoostItemInstance();
-    //   },
-    // );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            statsWorldMenu.state.values.selectedBoostIndex !== null,
+          x: 257,
+          y: 136,
+        },
+        horizontalAlignment: "center",
+        text: (): CreateLabelOptionsText => {
+          if (statsWorldMenu.state.values.selectedBoostIndex === null) {
+            throw new Error("Selected boost index is null");
+          }
+          const itemInstanceID: string | undefined =
+            worldState.values.boostItemInstanceIDs[
+              statsWorldMenu.state.values.selectedBoostIndex
+            ];
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("Item ID is undefined");
+          }
+          const itemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            itemInstanceID,
+          );
+          const boost: Boost = itemInstance.item.ability.boost;
+          return {
+            value: `+${getFormattedInteger(boost.amount)} ${getStatAbbreviation(
+              boost.stat,
+            )}`,
+          };
+        },
+      }),
+    );
+    // Destroy boost
+    hudElementReferences.push(
+      createPressableButton({
+        condition: (): boolean =>
+          statsWorldMenu.state.values.selectedBoostIndex !== null,
+        height: 16,
+        imagePath: "pressable-buttons/red",
+        onClick: (): void => {
+          if (statsWorldMenu.state.values.selectedBoostIndex === null) {
+            throw new Error("Selected boost index is null");
+          }
+          const itemInstanceID: string | undefined =
+            worldState.values.boostItemInstanceIDs[
+              statsWorldMenu.state.values.selectedBoostIndex
+            ];
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("Item ID is undefined");
+          }
+          emitToSocketioServer({
+            data: { itemInstanceID },
+            event: "world/destroy-boost",
+          });
+        },
+        text: { value: "Destroy" },
+        width: 48,
+        x: 233,
+        y: 147,
+      }),
+    );
     // Divider 3
     hudElementReferences.push(
       createUnderstrike({
@@ -673,6 +684,8 @@ export const statsWorldMenu: WorldMenu<
       ...hudElementReferences,
     ]);
   },
-  initialStateValues: {},
+  initialStateValues: {
+    selectedBoostIndex: null,
+  },
   preventsWalking: false,
 });

@@ -12,6 +12,7 @@ import {
   WorldClearMarkerUpdate,
   WorldCloseBankUpdate,
   WorldCombatUpdate,
+  WorldDestroyBoostUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
   WorldEquipmentUpdate,
@@ -73,6 +74,7 @@ import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { resetParty } from "../resetParty";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
+import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
 import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
@@ -249,6 +251,24 @@ export const listenForWorldUpdates = (): void => {
         inventoryWorldMenu.state.values.isAwaitingWorldCombat
       ) {
         inventoryWorldMenu.close();
+      }
+    },
+  });
+  listenToSocketioEvent<WorldDestroyBoostUpdate>({
+    event: "world/destroy-boost",
+    onMessage: (update: WorldDestroyBoostUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      worldState.setValues({
+        boostItemInstanceIDs: worldState.values.boostItemInstanceIDs.filter(
+          (boostItemInstanceID: string): boolean =>
+            boostItemInstanceID !== update.itemInstanceID,
+        ),
+      });
+      getDefinable(ItemInstance, update.itemInstanceID).remove();
+      if (statsWorldMenu.isOpen()) {
+        statsWorldMenu.state.setValues({
+          selectedBoostIndex: null,
+        });
       }
     },
   });
