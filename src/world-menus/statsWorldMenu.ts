@@ -84,7 +84,9 @@ export const statsWorldMenu: WorldMenu<
           y: 33,
         },
         horizontalAlignment: "center",
-        text: { value: worldCharacter.username },
+        text: (): CreateLabelOptionsText => ({
+          value: worldCharacter.player.username,
+        }),
       }),
     );
     // Divider 1
