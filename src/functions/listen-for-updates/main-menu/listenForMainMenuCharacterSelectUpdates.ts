@@ -1,28 +1,19 @@
+import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
 import {
-  ItemInstanceUpdate,
   MainMenuCharacterSelectDeleteCharacterUpdate,
-  MainMenuCharacterSelectSelectCharacterUpdate,
   MainMenuCharacterSelectSortCharacterLeftUpdate,
   MainMenuCharacterSelectSortCharacterRightUpdate,
 } from "retrommo-types";
-import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
 import {
   MainMenuCharacterSelectStateSchema,
   MainMenuStateSchema,
-  state,
 } from "../../../state";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
-import { createWorldState } from "../../state/createWorldState";
-import { getDefinable, getDefinables } from "definables";
+import { getDefinable } from "definables";
 import { getLastPlayableCharacterIndex } from "../../getLastPlayableCharacterIndex";
 import { getMainMenuCharacterSelectState } from "../../state/main-menu/getMainMenuCharacterSelectState";
 import { getMainMenuState } from "../../state/main-menu/getMainMenuState";
-import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
-import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
-import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
-import { loadWorldPartyUpdate } from "../../load-updates/loadWorldPartyUpdate";
 import { mainMenuCharactersPerPage } from "../../../constants";
-import { selectWorldCharacter } from "../../selectWorldCharacter";
 
 export const listenForMainMenuCharacterSelectUpdates = (): void => {
   listenToSocketioEvent<MainMenuCharacterSelectDeleteCharacterUpdate>({
@@ -57,85 +48,6 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       mainMenuState.setValues({
         mainMenuCharacterIDs,
       });
-    },
-  });
-  listenToSocketioEvent<MainMenuCharacterSelectSelectCharacterUpdate>({
-    event: "main-menu/character-select/select-character",
-    onMessage: (update: MainMenuCharacterSelectSelectCharacterUpdate): void => {
-      getDefinables(MainMenuCharacter).forEach(
-        (mainMenuCharacter: MainMenuCharacter): void => {
-          mainMenuCharacter.remove();
-        },
-      );
-      state.setValues({
-        mainMenuState: null,
-        worldState: createWorldState({
-          agility: update.agility,
-          bagItemInstanceIDs: update.bagItemInstances.map(
-            (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
-          ),
-          bodyItemInstanceID: update.bodyItemInstance?.id,
-          boostItemInstanceIDs: update.boostItemInstances.map(
-            (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
-          ),
-          clothesDyeItemInstanceID: update.clothesDyeItemInstance?.id,
-          defense: update.defense,
-          experienceUntilLevel: update.experienceUntilLevel,
-          hairDyeItemInstanceID: update.hairDyeItemInstance?.id,
-          headItemInstanceID: update.headItemInstance?.id,
-          intelligence: update.intelligence,
-          inventoryGold: update.inventoryGold,
-          luck: update.luck,
-          mainHandItemInstanceID: update.mainHandItemInstance?.id,
-          maskItemInstanceID: update.maskItemInstance?.id,
-          offHandItemInstanceID: update.offHandItemInstance?.id,
-          outfitItemInstanceID: update.outfitItemInstance?.id,
-          strength: update.strength,
-          timePlayed: update.timePlayed,
-          wisdom: update.wisdom,
-          worldCharacterID: update.worldCharacterID,
-        }),
-      });
-      for (const worldCharacterUpdate of update.worldCharacters) {
-        loadWorldCharacterUpdate(worldCharacterUpdate);
-      }
-      for (const worldPartyUpdate of update.parties) {
-        loadWorldPartyUpdate(worldPartyUpdate);
-      }
-      for (const worldNPCUpdate of update.npcs) {
-        loadWorldNPCUpdate(worldNPCUpdate);
-      }
-      for (const bagItemInstanceUpdate of update.bagItemInstances) {
-        loadItemInstanceUpdate(bagItemInstanceUpdate);
-      }
-      for (const boostItemInstanceUpdate of update.boostItemInstances) {
-        loadItemInstanceUpdate(boostItemInstanceUpdate);
-      }
-      if (typeof update.bodyItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.bodyItemInstance);
-      }
-      if (typeof update.headItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.headItemInstance);
-      }
-      if (typeof update.mainHandItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.mainHandItemInstance);
-      }
-      if (typeof update.offHandItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.offHandItemInstance);
-      }
-      if (typeof update.clothesDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.clothesDyeItemInstance);
-      }
-      if (typeof update.hairDyeItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.hairDyeItemInstance);
-      }
-      if (typeof update.maskItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.maskItemInstance);
-      }
-      if (typeof update.outfitItemInstance !== "undefined") {
-        loadItemInstanceUpdate(update.outfitItemInstance);
-      }
-      selectWorldCharacter(update.worldCharacterID);
     },
   });
   listenToSocketioEvent<MainMenuCharacterSelectSortCharacterLeftUpdate>({

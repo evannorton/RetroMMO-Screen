@@ -80,6 +80,7 @@ interface StateSchema {
   isSubscribed: boolean;
   mainMenuState: State<MainMenuStateSchema> | null;
   pianoStartedAt: number | null;
+  selectedPlayerID: string | null;
   serverURL: string | null;
   worldState: State<WorldStateSchema> | null;
 }
@@ -101,6 +102,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   isSubscribed: false,
   mainMenuState: null,
   pianoStartedAt: null,
+  selectedPlayerID: null,
   serverURL: null,
   worldState: null,
 });

@@ -39,14 +39,12 @@ export const loadWorldCharacterUpdate = (
     }
   }
   const worldCharacter: WorldCharacter = new WorldCharacter({
-    classID: worldCharacterUpdate.classID,
     clothesDyeItemID: worldCharacterUpdate.clothesDyeItemID,
     direction: worldCharacterUpdate.direction,
     figureID: worldCharacterUpdate.figureID,
     hairDyeItemID: worldCharacterUpdate.hairDyeItemID,
     id: worldCharacterUpdate.id,
     isRenewing: worldCharacterUpdate.isRenewing,
-    level: worldCharacterUpdate.level,
     maskItemID: worldCharacterUpdate.maskItemID,
     openedChestIDs: worldCharacterUpdate.openedChestIDs,
     order: worldCharacterUpdate.order,
@@ -70,8 +68,6 @@ export const loadWorldCharacterUpdate = (
     skinColorID: worldCharacterUpdate.skinColorID,
     step: worldCharacterUpdate.step,
     tilemapID: worldCharacterUpdate.tilemapID,
-    userID: worldCharacterUpdate.userID,
-    username: worldCharacterUpdate.username,
   });
   const tileSize: number = constants["tile-size"];
   worldCharacter.entityID = createEntity({

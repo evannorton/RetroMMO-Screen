@@ -425,7 +425,9 @@ export const npcDialogueWorldMenu: WorldMenu<
             ];
             if (npcDialogueWorldMenu.state.values.questCompletion.didLevelUp) {
               pieces.push(
-                `(Leveled up to ${getFormattedInteger(worldCharacter.level)}!)`,
+                `(Leveled up to ${getFormattedInteger(
+                  worldCharacter.player.character.level,
+                )}!)`,
               );
             }
             return {

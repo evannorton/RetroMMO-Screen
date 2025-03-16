@@ -31,7 +31,6 @@ import {
   WorldTradeCompleteUpdate,
   WorldTradeUpdate,
   WorldTurnCharactersUpdate,
-  WorldTurnInQuestUpdate,
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
@@ -57,12 +56,12 @@ import {
 import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
-import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { definableExists, getDefinable, getDefinables } from "definables";
+import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
@@ -72,6 +71,7 @@ import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCha
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { resetParty } from "../resetParty";
+import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
@@ -367,35 +367,18 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitCharactersUpdate>({
     event: "world/exit-characters",
     onMessage: (update: WorldExitCharactersUpdate): void => {
-      const affectedPartyIDs: string[] = [];
-      for (const worldCharacterID of update.worldCharacterIDs) {
-        const worldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldCharacterID,
-        );
-        const party: Party = getDefinable(Party, worldCharacter.party.id);
-        party.worldCharacters = party.worldCharacters.filter(
-          (partyWorldCharacter: WorldCharacter): boolean =>
-            partyWorldCharacter.id !== worldCharacter.id,
-        );
-        if (affectedPartyIDs.includes(party.id) === false) {
-          affectedPartyIDs.push(party.id);
-        }
-        worldCharacter.remove();
-      }
-      for (const affectedPartyID of affectedPartyIDs) {
-        const affectedParty: Party = getDefinable(Party, affectedPartyID);
-        if (affectedParty.worldCharacters.length === 0) {
-          affectedParty.remove();
-        } else {
-          resetParty(affectedPartyID);
-        }
-      }
+      exitWorldCharacters(update.worldCharacterIDs);
     },
   });
   listenToSocketioEvent<WorldExitToMainMenuUpdate>({
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const selfWorldCharacter: WorldCharacter = getDefinable(
+        WorldCharacter,
+        worldState.values.worldCharacterID,
+      );
+      selfWorldCharacter.player.character = null;
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
       }
@@ -423,6 +406,7 @@ export const listenForWorldUpdates = (): void => {
       }
       state.setValues({
         mainMenuState: createMainMenuState({ mainMenuCharacterIDs }),
+        selectedPlayerID: null,
         worldState: null,
       });
       exitLevel();
@@ -545,9 +529,9 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (update: WorldPartyChangesUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldPartyUpdate of update.parties) {
-        const party: Party = definableExists(Party, worldPartyUpdate.partyID)
-          ? getDefinable(Party, worldPartyUpdate.partyID)
-          : new Party({ id: worldPartyUpdate.partyID });
+        const party: Party = definableExists(Party, worldPartyUpdate.id)
+          ? getDefinable(Party, worldPartyUpdate.id)
+          : new Party({ id: worldPartyUpdate.id });
         const oldPartyWorldCharacterIDs: readonly string[] =
           party.worldCharacterIDs;
         party.worldCharacters = worldPartyUpdate.worldCharacterIDs.map(
@@ -741,6 +725,11 @@ export const listenForWorldUpdates = (): void => {
         worldState: null,
       });
       exitLevel();
+      if (selectedPlayerWorldMenu.isOpen()) {
+        selectedPlayerWorldMenu.state.setValues({
+          isBattleStarting: true,
+        });
+      }
       closeWorldMenus();
     },
   });
@@ -786,76 +775,6 @@ export const listenForWorldUpdates = (): void => {
         );
         worldCharacter.direction = turn.direction;
       }
-    },
-  });
-  listenToSocketioEvent<WorldTurnInQuestUpdate>({
-    event: "world/turn-in-quest",
-    onMessage: (update: WorldTurnInQuestUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
-        worldState.values.worldCharacterID,
-      );
-      const isLeader: boolean =
-        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
-      if (npcDialogueWorldMenu.isOpen() === false) {
-        closeWorldMenus();
-        npcDialogueWorldMenu.open({
-          isLeader,
-          npcID: update.npcID,
-        });
-      }
-      let didLevelUp: boolean = false;
-      for (const worldCharacterUpdate of update.worldCharacters) {
-        const partyWorldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldCharacterUpdate.worldCharacterID,
-        );
-        partyWorldCharacter.resources = {
-          hp: worldCharacterUpdate.resources.hp,
-          maxHP: worldCharacterUpdate.resources.maxHP,
-          maxMP: worldCharacterUpdate.resources.maxMP ?? null,
-          mp: worldCharacterUpdate.resources.mp ?? null,
-        };
-        if (partyWorldCharacter.level !== worldCharacterUpdate.level) {
-          partyWorldCharacter.level = worldCharacterUpdate.level;
-          if (partyWorldCharacter.id === worldState.values.worldCharacterID) {
-            didLevelUp = true;
-          }
-        }
-      }
-      const npc: NPC = getDefinable(NPC, update.npcID);
-      npcDialogueWorldMenu.state.setValues({
-        selectedQuestIndex:
-          typeof update.questID !== "undefined"
-            ? npc.questGiver.quests.findIndex(
-                (questGiverQuest: QuestGiverQuest): boolean =>
-                  questGiverQuest.questID === update.questID,
-              )
-            : null,
-      });
-      const quest: Quest = getDefinable(Quest, update.questID);
-      for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
-        const questInstance: WorldCharacterQuestInstance | undefined =
-          partyWorldCharacter.questInstances[update.questID];
-        if (typeof questInstance !== "undefined") {
-          if (canWorldCharacterTurnInQuest(partyWorldCharacter.id, quest.id)) {
-            if (questInstance.isCompleted === false) {
-              npcDialogueWorldMenu.state.setValues({
-                questCompletion: {
-                  didLevelUp,
-                  questID: quest.id,
-                },
-                selectedQuestIndex: null,
-              });
-              questInstance.isCompleted = true;
-            }
-          }
-        }
-      }
-      worldState.setValues({
-        experienceUntilLevel: update.experienceUntilLevel,
-      });
     },
   });
   listenToSocketioEvent<WorldTurnNPCUpdate>({

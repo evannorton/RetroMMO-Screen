@@ -1,9 +1,9 @@
-import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
 import { Direction, Step } from "retrommo-types";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
 import { Party } from "./Party";
+import { Player } from "./Player";
 import { SkinColor } from "./SkinColor";
 import { TilePosition } from "../types/TilePosition";
 import { removeEntity } from "pixel-pigeon";
@@ -20,14 +20,12 @@ export interface WorldCharacterOptionsResources {
   mp?: number;
 }
 export interface WorldCharacterOptions {
-  readonly classID: string;
   readonly clothesDyeItemID?: string;
   readonly direction: Direction;
   readonly figureID: string;
   readonly hairDyeItemID?: string;
   readonly id: string;
   readonly isRenewing?: boolean;
-  readonly level: number;
   readonly maskItemID?: string;
   readonly openedChestIDs?: readonly string[];
   readonly order: number;
@@ -40,8 +38,6 @@ export interface WorldCharacterOptions {
   readonly skinColorID: string;
   readonly step: Step;
   readonly tilemapID: string;
-  readonly userID: number;
-  readonly username: string;
 }
 export interface WorldCharacterQuestInstance {
   isCompleted: boolean;
@@ -59,7 +55,6 @@ export interface WorldCharacterEmote {
   readonly usedAt: number;
 }
 export class WorldCharacter extends Definable {
-  private readonly _classID: string;
   private _clothesDyeItemID: string | null;
   private _direction: Direction;
   private _emote: WorldCharacterEmote | null = null;
@@ -67,7 +62,6 @@ export class WorldCharacter extends Definable {
   private readonly _figureID: string;
   private _hairDyeItemID: string | null;
   private _isRenewing: boolean | null;
-  private _level: number;
   private _markerEntityID: string | null = null;
   private _maskItemID: string | null;
   private _movedAt: number | null = null;
@@ -82,18 +76,14 @@ export class WorldCharacter extends Definable {
   private readonly _skinColorID: string;
   private _step: Step = Step.Right;
   private _tilemapID: string;
-  private readonly _userID: number;
-  private readonly _username: string;
   private _wasClicked: boolean = false;
   public constructor(options: WorldCharacterOptions) {
     super(options.id);
-    this._classID = options.classID;
     this._clothesDyeItemID = options.clothesDyeItemID ?? null;
     this._direction = options.direction;
     this._figureID = options.figureID;
     this._hairDyeItemID = options.hairDyeItemID ?? null;
     this._isRenewing = options.isRenewing ?? null;
-    this._level = options.level;
     this._maskItemID = options.maskItemID ?? null;
     this._openedChestIDs = options.openedChestIDs ?? null;
     this._order = options.order;
@@ -128,16 +118,6 @@ export class WorldCharacter extends Definable {
     this._skinColorID = options.skinColorID;
     this._step = options.step;
     this._tilemapID = options.tilemapID;
-    this._userID = options.userID;
-    this._username = options.username;
-  }
-
-  public get class(): Class {
-    return getDefinable(Class, this._classID);
-  }
-
-  public get classID(): string {
-    return this._classID;
   }
 
   public get clothesDyeItem(): Item {
@@ -199,10 +179,6 @@ export class WorldCharacter extends Definable {
       return this._isRenewing;
     }
     throw new Error(this.getAccessorErrorMessage("isRenewing"));
-  }
-
-  public get level(): number {
-    return this._level;
   }
 
   public get markerEntityID(): string {
@@ -278,6 +254,10 @@ export class WorldCharacter extends Definable {
     return this._questInstances;
   }
 
+  public get player(): Player {
+    return getDefinable(Player, this._playerID);
+  }
+
   public get resources(): WorldCharacterResources {
     if (this._resources !== null) {
       return this._resources;
@@ -299,10 +279,6 @@ export class WorldCharacter extends Definable {
 
   public get tilemapID(): string {
     return this._tilemapID;
-  }
-
-  public get username(): string {
-    return this._username;
   }
 
   public get wasClicked(): boolean {
@@ -331,10 +307,6 @@ export class WorldCharacter extends Definable {
 
   public set isRenewing(isRenewing: boolean | null) {
     this._isRenewing = isRenewing;
-  }
-
-  public set level(level: number) {
-    this._level = level;
   }
 
   public set markerEntityID(markerEntityID: string | null) {

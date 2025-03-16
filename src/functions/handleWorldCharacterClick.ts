@@ -1,19 +1,19 @@
 import { WorldCharacter } from "../classes/WorldCharacter";
-import { WorldClickCharacterRequest } from "retrommo-types";
 import { closeWorldMenus } from "./world-menus/closeWorldMenus";
-import { emitToSocketioServer } from "pixel-pigeon";
-import { getDefinable } from "definables/lib/getDefinable";
+import { getDefinable } from "definables";
+import { selectedPlayerWorldMenu } from "../world-menus/selectedPlayerWorldMenu";
+import { state } from "../state";
 
 export const handleWorldCharacterClick = (worldCharacterID: string): void => {
-  closeWorldMenus();
   const worldCharacter: WorldCharacter = getDefinable(
     WorldCharacter,
     worldCharacterID,
   );
-  emitToSocketioServer<WorldClickCharacterRequest>({
-    data: {
-      playerID: worldCharacter.playerID,
-    },
-    event: "world/click-character",
-  });
+  if (state.values.selectedPlayerID !== worldCharacter.playerID) {
+    closeWorldMenus();
+    state.setValues({ selectedPlayerID: worldCharacter.playerID });
+    selectedPlayerWorldMenu.open({ playerID: worldCharacter.playerID });
+  } else {
+    closeWorldMenus();
+  }
 };

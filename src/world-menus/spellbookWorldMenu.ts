@@ -41,10 +41,10 @@ const getAbilityIDs = (): string[] => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  return worldCharacter.class.abilityUnlocks
+  return worldCharacter.player.character.class.abilityUnlocks
     .filter(
       (abilityUnlock: ClassAbilityUnlock): boolean =>
-        abilityUnlock.level <= worldCharacter.level,
+        abilityUnlock.level <= worldCharacter.player.character.level,
     )
     .map(
       (abilityUnlock: ClassAbilityUnlock): string => abilityUnlock.abilityID,

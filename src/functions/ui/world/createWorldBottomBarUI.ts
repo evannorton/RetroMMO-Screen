@@ -92,7 +92,8 @@ export const createWorldBottomBarUI = (): void => {
       return partyMemberCharacter;
     };
     const partyMemberMPCondition = (): boolean =>
-      getWorldCharacter().class.resourcePool === ResourcePool.MP;
+      getWorldCharacter().player.character.class.resourcePool ===
+      ResourcePool.MP;
     // Bottom bar player sprite
     const playerX: number = 6 + partyMemberIndex * 60;
     const playerY: number = 216;

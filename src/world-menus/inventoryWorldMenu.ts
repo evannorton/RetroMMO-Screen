@@ -513,10 +513,10 @@ export const inventoryWorldMenu: WorldMenu<
                 );
                 return (
                   itemInstance.item.hasEquipmentPiece() &&
-                  worldCharacter.level >=
+                  worldCharacter.player.character.level >=
                     itemInstance.item.equipmentPiece.level &&
                   itemInstance.item.equipmentPiece.classIDs.includes(
-                    worldCharacter.classID,
+                    worldCharacter.player.character.classID,
                   )
                 );
               },
@@ -553,7 +553,7 @@ export const inventoryWorldMenu: WorldMenu<
                 return (
                   doesItemHaveVanity(itemInstance.itemID) &&
                   getItemVanityClassIDs(itemInstance.itemID).includes(
-                    worldCharacter.classID,
+                    worldCharacter.player.character.classID,
                   )
                 );
               },

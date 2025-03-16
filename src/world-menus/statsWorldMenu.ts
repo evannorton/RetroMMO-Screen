@@ -109,9 +109,9 @@ export const statsWorldMenu: WorldMenu<
         },
         horizontalAlignment: "left",
         text: (): CreateLabelOptionsText => ({
-          value: `Level ${getFormattedInteger(worldCharacter.level)} ${
-            worldCharacter.class.name
-          }`,
+          value: `Level ${getFormattedInteger(
+            worldCharacter.player.character.level,
+          )} ${worldCharacter.player.character.class.name}`,
         }),
       }),
     );
@@ -157,7 +157,7 @@ export const statsWorldMenu: WorldMenu<
         horizontalAlignment: "left",
         text: {
           value:
-            worldCharacter.level === constants["maximum-level"]
+            worldCharacter.player.character.level === constants["maximum-level"]
               ? "Max level"
               : "Next level",
         },
@@ -169,8 +169,8 @@ export const statsWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            worldCharacter.level < constants["maximum-level"] &&
-            isWorldCombatInProgress() === false,
+            worldCharacter.player.character.level <
+              constants["maximum-level"] && isWorldCombatInProgress() === false,
           x: 144,
           y: 67,
         },
@@ -193,8 +193,8 @@ export const statsWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            worldCharacter.class.resourcePool === ResourcePool.MP &&
-            isWorldCombatInProgress() === false,
+            worldCharacter.player.character.class.resourcePool ===
+              ResourcePool.MP && isWorldCombatInProgress() === false,
           x: 160,
           y: 67,
         },
@@ -208,8 +208,8 @@ export const statsWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            worldCharacter.class.resourcePool === ResourcePool.MP &&
-            isWorldCombatInProgress() === false,
+            worldCharacter.player.character.class.resourcePool ===
+              ResourcePool.MP && isWorldCombatInProgress() === false,
           x: 284,
           y: 67,
         },
