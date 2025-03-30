@@ -18,6 +18,9 @@ export const addWorldCharacterMarker = (
     case MarkerType.Party:
       markerColor = Color.StrongCyan;
       break;
+    case MarkerType.Selected:
+      markerColor = Color.White;
+      break;
     case MarkerType.Trade:
       markerColor = Color.LightYellow;
       break;

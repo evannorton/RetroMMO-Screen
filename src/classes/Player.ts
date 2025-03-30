@@ -1,5 +1,6 @@
 import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
+import { WorldCharacter } from "./WorldCharacter";
 
 export interface PlayerOptionsCharacter {
   readonly classID: string;
@@ -10,6 +11,7 @@ export interface PlayerOptions {
   readonly id: string;
   readonly userID: number;
   readonly username: string;
+  readonly worldCharacterID?: string;
 }
 export interface PlayerCharacter {
   readonly classID: string;
@@ -26,6 +28,7 @@ export class Player extends Definable {
   private _character: PlayerCharacter | null;
   private readonly _userID: number;
   private _username: string;
+  private _worldCharacterID: string | null;
   public constructor(options: PlayerOptions) {
     super(options.id);
     this._character =
@@ -37,6 +40,7 @@ export class Player extends Definable {
         : null;
     this._userID = options.userID;
     this._username = options.username;
+    this._worldCharacterID = options.worldCharacterID ?? null;
   }
 
   public get character(): PlayerCharacterWithAccessors {
@@ -60,6 +64,20 @@ export class Player extends Definable {
     return this._username;
   }
 
+  public get worldCharacter(): WorldCharacter {
+    if (this._worldCharacterID !== null) {
+      return getDefinable(WorldCharacter, this._worldCharacterID);
+    }
+    throw new Error(this.getAccessorErrorMessage("worldCharacter"));
+  }
+
+  public get worldCharacterID(): string {
+    if (this._worldCharacterID !== null) {
+      return this._worldCharacterID;
+    }
+    throw new Error(this.getAccessorErrorMessage("worldCharacterID"));
+  }
+
   public set character(character: PlayerCharacter | null) {
     this._character = character;
   }
@@ -68,7 +86,15 @@ export class Player extends Definable {
     this._username = username;
   }
 
+  public set worldCharacterID(worldCharacterID: string | null) {
+    this._worldCharacterID = worldCharacterID;
+  }
+
   public hasCharacter(): boolean {
     return this._character !== null;
+  }
+
+  public hasWorldCharacter(): boolean {
+    return this._worldCharacterID !== null;
   }
 }

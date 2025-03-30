@@ -7,6 +7,7 @@ import {
 } from "pixel-pigeon";
 import { Player } from "../classes/Player";
 import { WorldMenu } from "../classes/WorldMenu";
+import { clearWorldCharacterMarker } from "../functions/clearWorldCharacterMarker";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { getDefinable } from "definables";
@@ -265,6 +266,16 @@ export const selectedPlayerWorldMenu: WorldMenu<
     isBattleStarting: false,
   },
   onClose: (): void => {
+    if (state.values.selectedPlayerID === null) {
+      throw new Error("No player ID selected");
+    }
+    const selectedPlayer: Player = getDefinable(
+      Player,
+      state.values.selectedPlayerID,
+    );
+    if (selectedPlayer.hasWorldCharacter()) {
+      clearWorldCharacterMarker(selectedPlayer.worldCharacterID);
+    }
     if (selectedPlayerWorldMenu.state.values.isBattleStarting === false) {
       state.setValues({ selectedPlayerID: null });
     }

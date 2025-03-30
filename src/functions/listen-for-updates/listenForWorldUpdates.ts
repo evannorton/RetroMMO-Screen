@@ -3,6 +3,7 @@ import { Chest } from "../../classes/Chest";
 import {
   Direction,
   ItemInstanceUpdate,
+  MarkerType,
   VanitySlot,
   WorldAcceptQuestUpdate,
   WorldBankGoldUpdate,
@@ -38,6 +39,7 @@ import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
+import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
 import { QuestGiverQuest } from "../../classes/QuestGiver";
 import {
@@ -286,7 +288,15 @@ export const listenForWorldUpdates = (): void => {
     event: "world/enter-characters",
     onMessage: (update: WorldEnterCharactersUpdate): void => {
       for (const worldCharacterUpdate of update.worldCharacters) {
+        const worldCharacterUpdatePlayer: Player = getDefinable(
+          Player,
+          worldCharacterUpdate.playerID,
+        );
+        worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
         loadWorldCharacterUpdate(worldCharacterUpdate);
+        if (state.values.selectedPlayerID === worldCharacterUpdate.playerID) {
+          addWorldCharacterMarker(worldCharacterUpdate.id, MarkerType.Selected);
+        }
       }
       for (const worldPartyUpdate of update.parties) {
         loadWorldPartyUpdate(worldPartyUpdate);
@@ -637,7 +647,15 @@ export const listenForWorldUpdates = (): void => {
       }
       goToLevel(update.tilemapID);
       for (const worldCharacterUpdate of update.worldCharacters) {
+        const worldCharacterUpdatePlayer: Player = getDefinable(
+          Player,
+          worldCharacterUpdate.playerID,
+        );
+        worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
         loadWorldCharacterUpdate(worldCharacterUpdate);
+        if (state.values.selectedPlayerID === worldCharacterUpdate.playerID) {
+          addWorldCharacterMarker(worldCharacterUpdate.id, MarkerType.Selected);
+        }
       }
       for (const worldPartyUpdate of update.parties) {
         loadWorldPartyUpdate(worldPartyUpdate);

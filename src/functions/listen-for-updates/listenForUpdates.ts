@@ -6,6 +6,7 @@ import {
   InitialUpdate,
   ItemInstanceUpdate,
   MainState,
+  MarkerType,
   RemovePlayerUpdate,
   RenamePlayerUpdate,
   TurnInQuestUpdate,
@@ -24,6 +25,7 @@ import {
   WorldCharacterQuestInstance,
 } from "../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../state";
+import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
@@ -93,14 +95,19 @@ export const listenForUpdates = (): void => {
           battleState: null,
           worldState,
         });
-        for (const characterUpdate of update.character.worldCharacters) {
-          loadWorldCharacterUpdate(characterUpdate);
+        for (const worldCharacterUpdate of update.character.worldCharacters) {
+          loadWorldCharacterUpdate(worldCharacterUpdate);
+          const worldCharacterUpdatePlayer: Player = getDefinable(
+            Player,
+            worldCharacterUpdate.playerID,
+          );
+          worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
         }
-        for (const partyUpdate of update.character.parties) {
-          loadWorldPartyUpdate(partyUpdate);
+        for (const worldPartyUpdate of update.character.parties) {
+          loadWorldPartyUpdate(worldPartyUpdate);
         }
-        for (const npcUpdate of update.character.npcs) {
-          loadWorldNPCUpdate(npcUpdate);
+        for (const worldNPCUpdate of update.character.npcs) {
+          loadWorldNPCUpdate(worldNPCUpdate);
         }
         for (const bagItemInstanceUpdate of update.character.bagItemInstances) {
           loadItemInstanceUpdate(bagItemInstanceUpdate);
@@ -148,6 +155,17 @@ export const listenForUpdates = (): void => {
       if (typeof update.world !== "undefined") {
         for (const worldCharacterUpdate of update.world.worldCharacters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
+          const worldCharacterUpdatePlayer: Player = getDefinable(
+            Player,
+            worldCharacterUpdate.playerID,
+          );
+          worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
+          if (state.values.selectedPlayerID === worldCharacterUpdatePlayer.id) {
+            addWorldCharacterMarker(
+              worldCharacterUpdatePlayer.worldCharacterID,
+              MarkerType.Selected,
+            );
+          }
         }
         for (const worldPartyUpdate of update.world.parties) {
           loadWorldPartyUpdate(worldPartyUpdate);
@@ -163,6 +181,9 @@ export const listenForUpdates = (): void => {
         classID: update.classID,
         level: update.level,
       };
+      if (typeof update.worldCharacterID !== "undefined") {
+        player.worldCharacterID = update.worldCharacterID;
+      }
       if (typeof update.world !== "undefined") {
         loadWorldCharacterUpdate(update.world.worldCharacter);
         loadWorldPartyUpdate(update.world.party);
@@ -205,6 +226,11 @@ export const listenForUpdates = (): void => {
         });
         for (const worldCharacterUpdate of update.character.worldCharacters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
+          const worldCharacterUpdatePlayer: Player = getDefinable(
+            Player,
+            worldCharacterUpdate.playerID,
+          );
+          worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
         }
         for (const worldPartyUpdate of update.character.parties) {
           loadWorldPartyUpdate(worldPartyUpdate);
@@ -250,13 +276,10 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<ExitPlayerUpdate>({
     event: "exit-player",
     onMessage: (update: ExitPlayerUpdate): void => {
-      if (typeof update.worldCharacterID !== "undefined") {
-        const worldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          update.worldCharacterID,
-        );
-        worldCharacter.player.character = null;
-        exitWorldCharacters([update.worldCharacterID]);
+      const player: Player = getDefinable(Player, update.id);
+      if (player.hasWorldCharacter()) {
+        player.character = null;
+        exitWorldCharacters([player.worldCharacterID]);
       }
       if (state.values.selectedPlayerID === update.id) {
         selectedPlayerWorldMenu.close();
@@ -295,6 +318,7 @@ export const listenForUpdates = (): void => {
           id: playerUpdate.id,
           userID: playerUpdate.userID,
           username: playerUpdate.username,
+          worldCharacterID: playerUpdate.worldCharacterID,
         });
       }
       state.setValues({
@@ -470,7 +494,6 @@ export const listenForUpdates = (): void => {
     event: "remove-player",
     onMessage: (update: RemovePlayerUpdate): void => {
       const player: Player = getDefinable(Player, update.id);
-      player.remove();
       if (state.values.selectedPlayerID === update.id) {
         selectedPlayerWorldMenu.close();
       }
@@ -480,6 +503,7 @@ export const listenForUpdates = (): void => {
       ) {
         exitWorldCharacters([update.worldCharacterID]);
       }
+      player.remove();
     },
   });
   listenToSocketioEvent<RenamePlayerUpdate>({
