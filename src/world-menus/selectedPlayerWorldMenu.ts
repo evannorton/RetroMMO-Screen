@@ -7,7 +7,6 @@ import {
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Player } from "../classes/Player";
-import { World } from "pixel-pigeon/api/types/World";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema, state } from "../state";
