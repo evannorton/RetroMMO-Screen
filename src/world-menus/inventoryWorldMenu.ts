@@ -711,7 +711,7 @@ export const inventoryWorldMenu: WorldMenu<
             createInputPressHandler({
               condition: (): boolean =>
                 inventoryWorldMenu.state.values.startedTargetingAt !== null &&
-                worldCharacter.party.worldCharacterIDs.length >
+                worldCharacter.player.character.party.playerIDs.length >
                   inputCollectionIndex &&
                 isWorldCombatInProgress() === false,
               inputCollectionID,
@@ -724,15 +724,15 @@ export const inventoryWorldMenu: WorldMenu<
                 const itemInstance: ItemInstance = getBagItemInstance(
                   inventoryWorldMenu.state.values.selectedBagItemIndex,
                 );
-                const partyMemberWorldCharacter: WorldCharacter | undefined =
-                  worldCharacter.party.worldCharacters[inputCollectionIndex];
-                if (typeof partyMemberWorldCharacter === "undefined") {
-                  throw new Error("No party member world character.");
+                const partyMemberPlayerID: string | undefined =
+                  worldCharacter.player.character.party.playerIDs[inputCollectionIndex];
+                if (typeof partyMemberPlayerID === "undefined") {
+                  throw new Error("No party member player.");
                 }
                 emitToSocketioServer<WorldUseItemInstanceRequest>({
                   data: {
                     itemInstanceID: itemInstance.id,
-                    playerID: partyMemberWorldCharacter.playerID,
+                    playerID: partyMemberPlayerID,
                   },
                   event: "world/use-item-instance",
                 });

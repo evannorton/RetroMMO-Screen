@@ -12,10 +12,10 @@ export const exitWorldCharacters = (
       WorldCharacter,
       worldCharacterID,
     );
-    const party: Party = getDefinable(Party, worldCharacter.party.id);
-    party.worldCharacters = party.worldCharacters.filter(
-      (partyWorldCharacter: WorldCharacter): boolean =>
-        partyWorldCharacter.id !== worldCharacter.id,
+    const party: Party = getDefinable(Party, worldCharacter.player.character.party.id);
+    party.playerIDs = party.playerIDs.filter(
+      (partyPlayerID: string): boolean =>
+        partyPlayerID !== worldCharacter.playerID,
     );
     if (affectedPartyIDs.includes(party.id) === false) {
       affectedPartyIDs.push(party.id);
@@ -24,7 +24,7 @@ export const exitWorldCharacters = (
   }
   for (const affectedPartyID of affectedPartyIDs) {
     const affectedParty: Party = getDefinable(Party, affectedPartyID);
-    if (affectedParty.worldCharacters.length === 0) {
+    if (affectedParty.playerIDs.length === 0) {
       affectedParty.remove();
     } else {
       resetParty(affectedPartyID);

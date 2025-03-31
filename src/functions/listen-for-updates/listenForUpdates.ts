@@ -147,10 +147,7 @@ export const listenForUpdates = (): void => {
       }
       for (const playerUpdate of update.players) {
         const player: Player = getDefinable(Player, playerUpdate.id);
-        player.character = {
-          ...player.character,
-          level: playerUpdate.level,
-        };
+        player.character.level = playerUpdate.level;
       }
       if (typeof update.world !== "undefined") {
         for (const worldCharacterUpdate of update.world.worldCharacters) {
@@ -180,6 +177,7 @@ export const listenForUpdates = (): void => {
       player.character = {
         classID: update.classID,
         level: update.level,
+        partyID: update.partyID,
       };
       if (typeof update.worldCharacterID !== "undefined") {
         player.worldCharacterID = update.worldCharacterID;
@@ -313,6 +311,7 @@ export const listenForUpdates = (): void => {
               ? {
                   classID: playerUpdate.character.classID,
                   level: playerUpdate.character.level,
+                  partyID: playerUpdate.character.partyID,
                 }
               : undefined,
           id: playerUpdate.id,
@@ -527,6 +526,7 @@ export const listenForUpdates = (): void => {
         player.character = {
           classID: player.character.classID,
           level: playerUpdate.level,
+          partyID: player.character.partyID,
         };
       }
       const didLevelUp: boolean =
@@ -534,7 +534,8 @@ export const listenForUpdates = (): void => {
       if (typeof update.world !== "undefined") {
         const worldUpdate: TurnInQuestWorldUpdate = update.world;
         const isLeader: boolean =
-          worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
+          worldCharacter.player.character.party.playerIDs[0] ===
+          worldCharacter.playerID;
         if (npcDialogueWorldMenu.isOpen() === false) {
           closeWorldMenus();
           npcDialogueWorldMenu.open({
@@ -565,13 +566,16 @@ export const listenForUpdates = (): void => {
               : null,
         });
         const quest: Quest = getDefinable(Quest, worldUpdate.questID);
-        for (const partyWorldCharacter of worldCharacter.party
-          .worldCharacters) {
+        for (const partyPlayer of worldCharacter.player.character.party
+          .players) {
           const questInstance: WorldCharacterQuestInstance | undefined =
-            partyWorldCharacter.questInstances[worldUpdate.questID];
+            partyPlayer.worldCharacter.questInstances[worldUpdate.questID];
           if (typeof questInstance !== "undefined") {
             if (
-              canWorldCharacterTurnInQuest(partyWorldCharacter.id, quest.id)
+              canWorldCharacterTurnInQuest(
+                partyPlayer.worldCharacterID,
+                quest.id,
+              )
             ) {
               if (questInstance.isCompleted === false) {
                 npcDialogueWorldMenu.state.setValues({

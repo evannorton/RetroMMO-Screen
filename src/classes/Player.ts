@@ -1,10 +1,12 @@
 import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
+import { Party } from "./Party";
 import { WorldCharacter } from "./WorldCharacter";
 
 export interface PlayerOptionsCharacter {
   readonly classID: string;
   readonly level: number;
+  readonly partyID: string;
 }
 export interface PlayerOptions {
   readonly character?: PlayerOptionsCharacter;
@@ -15,10 +17,12 @@ export interface PlayerOptions {
 }
 export interface PlayerCharacter {
   readonly classID: string;
-  readonly level: number;
+  level: number;
+  partyID: string;
 }
 export interface PlayerCharacterWithAccessors extends PlayerCharacter {
   class: Class;
+  party: Party;
 }
 export interface PlayerModification {
   readonly isOpen: boolean;
@@ -36,6 +40,7 @@ export class Player extends Definable {
         ? {
             classID: options.character.classID,
             level: options.character.level,
+            partyID: options.character.partyID,
           }
         : null;
     this._userID = options.userID;
@@ -45,11 +50,14 @@ export class Player extends Definable {
 
   public get character(): PlayerCharacterWithAccessors {
     if (this._character !== null) {
-      const { classID } = this._character;
+      const { classID, partyID } = this._character;
       return {
         ...this._character,
         get class(): Class {
           return getDefinable(Class, classID);
+        },
+        get party(): Party {
+          return getDefinable(Party, partyID);
         },
       };
     }

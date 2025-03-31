@@ -2,7 +2,6 @@ import { Definable, getDefinable } from "definables";
 import { Direction, Step } from "retrommo-types";
 import { Figure } from "./Figure";
 import { Item } from "./Item";
-import { Party } from "./Party";
 import { Player } from "./Player";
 import { SkinColor } from "./SkinColor";
 import { TilePosition } from "../types/TilePosition";
@@ -30,7 +29,6 @@ export interface WorldCharacterOptions {
   readonly openedChestIDs?: readonly string[];
   readonly order: number;
   readonly outfitItemID?: string;
-  readonly partyID: string;
   readonly playerID: string;
   readonly position: TilePosition;
   readonly questInstances?: Record<string, WorldCharacterOptionsQuestInstance>;
@@ -68,7 +66,6 @@ export class WorldCharacter extends Definable {
   private _openedChestIDs: readonly string[] | null;
   private _order: number;
   private _outfitItemID: string | null;
-  private _partyID: string;
   private readonly _playerID: string;
   private _position: TilePosition;
   private _questInstances: Record<string, WorldCharacterQuestInstance> = {};
@@ -88,7 +85,6 @@ export class WorldCharacter extends Definable {
     this._openedChestIDs = options.openedChestIDs ?? null;
     this._order = options.order;
     this._outfitItemID = options.outfitItemID ?? null;
-    this._partyID = options.partyID;
     this._playerID = options.playerID;
     this._position = {
       x: options.position.x,
@@ -234,14 +230,6 @@ export class WorldCharacter extends Definable {
     throw new Error(this.getAccessorErrorMessage("outfitItemID"));
   }
 
-  public get party(): Party {
-    return getDefinable(Party, this._partyID);
-  }
-
-  public get partyID(): string {
-    return this._partyID;
-  }
-
   public get playerID(): string {
     return this._playerID;
   }
@@ -331,10 +319,6 @@ export class WorldCharacter extends Definable {
 
   public set outfitItemID(outfitItemID: string | null) {
     this._outfitItemID = outfitItemID;
-  }
-
-  public set partyID(partyID: string) {
-    this._partyID = partyID;
   }
 
   public set position(position: TilePosition) {

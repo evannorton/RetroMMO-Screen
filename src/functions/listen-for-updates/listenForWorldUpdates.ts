@@ -89,7 +89,8 @@ export const listenForWorldUpdates = (): void => {
         worldState.values.worldCharacterID,
       );
       const isLeader: boolean =
-        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
+        worldCharacter.player.character.party.playerIDs[0] ===
+        worldCharacter.id;
       if (npcDialogueWorldMenu.isOpen() === false) {
         closeWorldMenus();
         npcDialogueWorldMenu.open({
@@ -106,18 +107,18 @@ export const listenForWorldUpdates = (): void => {
         ),
       });
       const quest: Quest = getDefinable(Quest, update.questID);
-      for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+      for (const partyPlayer of worldCharacter.player.character.party.players) {
         const questInstance: WorldCharacterQuestInstance | undefined =
-          partyWorldCharacter.questInstances[update.questID];
+          partyPlayer.worldCharacter.questInstances[update.questID];
         if (typeof questInstance === "undefined") {
-          partyWorldCharacter.questInstances[update.questID] = {
+          partyPlayer.worldCharacter.questInstances[update.questID] = {
             isCompleted: false,
             isStarted: false,
             monsterKills: quest.hasMonster() ? 0 : undefined,
           };
         }
         const updatedQuestInstance: WorldCharacterQuestInstance | undefined =
-          partyWorldCharacter.questInstances[update.questID];
+          partyPlayer.worldCharacter.questInstances[update.questID];
         if (typeof updatedQuestInstance === "undefined") {
           throw new Error("No updated quest instance.");
         }
@@ -430,13 +431,13 @@ export const listenForWorldUpdates = (): void => {
         WorldCharacter,
         getWorldState().values.worldCharacterID,
       );
-      worldCharacter.party.worldCharacters.forEach(
-        (partyWorldCharacter: WorldCharacter): void => {
-          partyWorldCharacter.resources = {
-            hp: partyWorldCharacter.resources.maxHP,
-            maxHP: partyWorldCharacter.resources.maxHP,
-            maxMP: partyWorldCharacter.resources.maxMP ?? null,
-            mp: partyWorldCharacter.resources.maxMP ?? null,
+      worldCharacter.player.character.party.players.forEach(
+        (partyPlayer: Player): void => {
+          partyPlayer.worldCharacter.resources = {
+            hp: partyPlayer.worldCharacter.resources.maxHP,
+            maxHP: partyPlayer.worldCharacter.resources.maxHP,
+            maxMP: partyPlayer.worldCharacter.resources.maxMP ?? null,
+            mp: partyPlayer.worldCharacter.resources.maxMP ?? null,
           };
         },
       );
@@ -519,18 +520,17 @@ export const listenForWorldUpdates = (): void => {
       getDefinable(
         WorldCharacter,
         getWorldState().values.worldCharacterID,
-      ).party.worldCharacters.forEach(
-        (worldCharacter: WorldCharacter): void => {
-          if (
-            worldCharacter.openedChestIDs.includes(update.chestID) === false
-          ) {
-            worldCharacter.openedChestIDs = [
-              ...worldCharacter.openedChestIDs,
-              update.chestID,
-            ];
-          }
-        },
-      );
+      ).player.character.party.players.forEach((partyPlayer: Player): void => {
+        if (
+          partyPlayer.worldCharacter.openedChestIDs.includes(update.chestID) ===
+          false
+        ) {
+          partyPlayer.worldCharacter.openedChestIDs = [
+            ...partyPlayer.worldCharacter.openedChestIDs,
+            update.chestID,
+          ];
+        }
+      });
       getDefinable(Chest, update.chestID).openedAt = getCurrentTime();
     },
   });
@@ -542,26 +542,19 @@ export const listenForWorldUpdates = (): void => {
         const party: Party = definableExists(Party, worldPartyUpdate.id)
           ? getDefinable(Party, worldPartyUpdate.id)
           : new Party({ id: worldPartyUpdate.id });
-        const oldPartyWorldCharacterIDs: readonly string[] =
-          party.worldCharacterIDs;
-        party.worldCharacters = worldPartyUpdate.worldCharacterIDs.map(
-          (worldCharacterID: string): WorldCharacter =>
-            getDefinable(WorldCharacter, worldCharacterID),
-        );
-        party.worldCharacters.forEach(
-          (
-            partyWorldCharacter: WorldCharacter,
-            partyWorldCharacterIndex: number,
-          ): void => {
-            partyWorldCharacter.partyID = party.id;
+        const oldPartyPlayerIDs: readonly string[] = party.playerIDs;
+        party.playerIDs = worldPartyUpdate.playerIDs;
+        party.players.forEach(
+          (partyPlayer: Player, partyPlayerIndex: number): void => {
+            partyPlayer.character.partyID = party.id;
             const partyWorldCharacterJoined: boolean =
-              oldPartyWorldCharacterIDs.includes(partyWorldCharacter.id) ===
-              false;
+              oldPartyPlayerIDs.includes(partyPlayer.id) === false;
             const partyWorldCharacterIsSelf: boolean =
-              partyWorldCharacter.id === worldState.values.worldCharacterID;
+              partyPlayer.worldCharacterID ===
+              worldState.values.worldCharacterID;
             // If self is joining a party
             if (
-              partyWorldCharacterIndex > 0 &&
+              partyPlayerIndex > 0 &&
               partyWorldCharacterJoined &&
               partyWorldCharacterIsSelf
             ) {
@@ -575,11 +568,9 @@ export const listenForWorldUpdates = (): void => {
                   }
                 },
               );
-            } else if (
-              party.worldCharacterIDs.length > oldPartyWorldCharacterIDs.length
-            ) {
-              if (partyWorldCharacter.hasMarker()) {
-                clearWorldCharacterMarker(partyWorldCharacter.id);
+            } else if (party.playerIDs.length > oldPartyPlayerIDs.length) {
+              if (partyPlayer.worldCharacter.hasMarker()) {
+                clearWorldCharacterMarker(partyPlayer.worldCharacter.id);
               }
             }
           },
@@ -691,7 +682,8 @@ export const listenForWorldUpdates = (): void => {
         worldState.values.worldCharacterID,
       );
       const isLeader: boolean =
-        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
+        worldCharacter.player.character.party.playerIDs[0] ===
+        worldCharacter.playerID;
       if (npcDialogueWorldMenu.isOpen() === false) {
         closeWorldMenus();
         npcDialogueWorldMenu.open({
@@ -804,7 +796,8 @@ export const listenForWorldUpdates = (): void => {
         worldState.values.worldCharacterID,
       );
       const isLeader: boolean =
-        worldCharacter.party.worldCharacterIDs[0] === worldCharacter.id;
+        worldCharacter.player.character.party.playerIDs[0] ===
+        worldCharacter.playerID;
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
       if (update.wasInteracted === true) {

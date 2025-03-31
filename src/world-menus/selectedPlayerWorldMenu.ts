@@ -116,8 +116,8 @@ export const selectedPlayerWorldMenu: WorldMenu<
     //   (player: Player): boolean =>
     //     player.hasActiveCharacter() &&
     //     player.hasQueuedPlayer() &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false) &&
+    //     (player.character.party.hasWorldCombatStartedAt() === false ||
+    //       player.character.party.worldCombatIsOngoing() === false) &&
     //     player.hasSelfSelected(),
     //   (player: Player): void => {
     //     player.closeWorldMenus();
@@ -156,8 +156,8 @@ export const selectedPlayerWorldMenu: WorldMenu<
     //   (player: Player): boolean =>
     //     player.hasActiveCharacter() &&
     //     player.hasQueuedPlayer() &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false) &&
+    //     (player.character.party.hasWorldCombatStartedAt() === false ||
+    //       player.character.party.worldCombatIsOngoing() === false) &&
     //     player.canInvitePlayerToDuel(player.queuedPlayer.playerID),
     //   (player: Player): void => {
     //     player.invitePlayerToDuel();
@@ -178,8 +178,8 @@ export const selectedPlayerWorldMenu: WorldMenu<
     //   (player: Player): boolean =>
     //     player.hasActiveCharacter() &&
     //     player.hasQueuedPlayer() &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false) &&
+    //     (player.character.party.hasWorldCombatStartedAt() === false ||
+    //       player.character.party.worldCombatIsOngoing() === false) &&
     //     player.canInvitePlayerToParty(player.queuedPlayer.playerID),
     //   (player: Player): void => {
     //     player.invitePlayerToParty();
@@ -200,8 +200,8 @@ export const selectedPlayerWorldMenu: WorldMenu<
     //   (player: Player): boolean =>
     //     player.hasActiveCharacter() &&
     //     player.hasQueuedPlayer() &&
-    //     (player.party.hasWorldCombatStartedAt() === false ||
-    //       player.party.worldCombatIsOngoing() === false) &&
+    //     (player.character.party.hasWorldCombatStartedAt() === false ||
+    //       player.character.party.worldCombatIsOngoing() === false) &&
     //     player.canInvitePlayerToTrade(player.queuedPlayer.playerID),
     //   (player: Player): void => {
     //     player.invitePlayerToTrade();

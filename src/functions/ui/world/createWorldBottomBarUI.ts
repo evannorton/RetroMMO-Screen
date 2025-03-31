@@ -7,6 +7,7 @@ import {
   WorldUseItemInstanceRequest,
 } from "retrommo-types";
 import { ItemInstance } from "../../../classes/ItemInstance";
+import { Player } from "../../../classes/Player";
 import {
   State,
   createButton,
@@ -70,39 +71,41 @@ export const createWorldBottomBarUI = (): void => {
     const partyMemberCondition = (): boolean => {
       if (condition()) {
         const worldState: State<WorldStateSchema> = getWorldState();
-        const character: WorldCharacter = getDefinable(
+        const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
           worldState.values.worldCharacterID,
         );
-        return partyMemberIndex < character.party.worldCharacters.length;
+        return (
+          partyMemberIndex <
+          worldCharacter.player.character.party.playerIDs.length
+        );
       }
       return false;
     };
-    const getWorldCharacter = (): WorldCharacter => {
+    const getPlayer = (): Player => {
       const worldState: State<WorldStateSchema> = getWorldState();
       const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
         worldState.values.worldCharacterID,
       );
-      const partyMemberCharacter: WorldCharacter | undefined =
-        worldCharacter.party.worldCharacters[partyMemberIndex];
-      if (typeof partyMemberCharacter === "undefined") {
-        throw new Error("No party member character.");
+      const partyMemberPlayer: Player | undefined =
+        worldCharacter.player.character.party.players[partyMemberIndex];
+      if (typeof partyMemberPlayer === "undefined") {
+        throw new Error("No party member player.");
       }
-      return partyMemberCharacter;
+      return partyMemberPlayer;
     };
     const partyMemberMPCondition = (): boolean =>
-      getWorldCharacter().player.character.class.resourcePool ===
-      ResourcePool.MP;
+      getPlayer().character.class.resourcePool === ResourcePool.MP;
     // Bottom bar player sprite
     const playerX: number = 6 + partyMemberIndex * 60;
     const playerY: number = 216;
     createCharacterSprite({
       clothesDyeID: (): string => {
-        const worldCharacter: WorldCharacter = getWorldCharacter();
+        const player: Player = getPlayer();
         return getDefaultedClothesDye(
-          worldCharacter.hasClothesDyeItem()
-            ? worldCharacter.clothesDyeItem.id
+          player.worldCharacter.hasClothesDyeItem()
+            ? player.worldCharacter.clothesDyeItem.id
             : undefined,
         ).id;
       },
@@ -112,33 +115,38 @@ export const createWorldBottomBarUI = (): void => {
         y: playerY,
       },
       direction: Direction.Down,
-      figureID: (): string => getWorldCharacter().figure.id,
+      figureID: (): string => getPlayer().worldCharacter.figure.id,
       hairDyeID: (): string => {
-        const worldCharacter: WorldCharacter = getWorldCharacter();
+        const player: Player = getPlayer();
         return getDefaultedHairDye(
-          worldCharacter.hasHairDyeItem()
-            ? worldCharacter.hairDyeItem.id
+          player.worldCharacter.hasHairDyeItem()
+            ? player.worldCharacter.hairDyeItem.id
             : undefined,
         ).id;
       },
       maskID: (): string => {
-        const worldCharacter: WorldCharacter = getWorldCharacter();
+        const player: Player = getPlayer();
         return getDefaultedMask(
-          worldCharacter.hasMaskItem() ? worldCharacter.maskItem.id : undefined,
-        ).id;
-      },
-      outfitID: (): string => {
-        const worldCharacter: WorldCharacter = getWorldCharacter();
-        return getDefaultedOutfit(
-          worldCharacter.hasOutfitItem()
-            ? worldCharacter.outfitItem.id
+          player.worldCharacter.hasMaskItem()
+            ? player.worldCharacter.maskItem.id
             : undefined,
         ).id;
       },
-      skinColorID: (): string => getWorldCharacter().skinColor.id,
+      outfitID: (): string => {
+        const player: Player = getPlayer();
+        return getDefaultedOutfit(
+          player.worldCharacter.hasOutfitItem()
+            ? player.worldCharacter.outfitItem.id
+            : undefined,
+        ).id;
+      },
+      skinColorID: (): string => getPlayer().worldCharacter.skinColor.id,
       statusIconImagePath: (): string | undefined => {
-        const worldCharacter: WorldCharacter = getWorldCharacter();
-        if (worldCharacter.hasIsRenewing() && worldCharacter.isRenewing) {
+        const player: Player = getPlayer();
+        if (
+          player.worldCharacter.hasIsRenewing() &&
+          player.worldCharacter.isRenewing
+        ) {
           return "status-icons/renew";
         }
         return undefined;
@@ -153,12 +161,7 @@ export const createWorldBottomBarUI = (): void => {
       },
       height: tileSize,
       onClick: (): void => {
-        const worldCharacter: WorldCharacter = getWorldCharacter();
-        const partyMemberWorldCharacter: WorldCharacter | undefined =
-          worldCharacter.party.worldCharacters[partyMemberIndex];
-        if (typeof partyMemberWorldCharacter === "undefined") {
-          throw new Error("No party member world character.");
-        }
+        const partyMemberWorldPlayer: Player = getPlayer();
         if (
           inventoryWorldMenu.isOpen() &&
           inventoryWorldMenu.state.values.startedTargetingAt !== null
@@ -172,7 +175,7 @@ export const createWorldBottomBarUI = (): void => {
           emitToSocketioServer<WorldUseItemInstanceRequest>({
             data: {
               itemInstanceID: itemInstance.id,
-              playerID: partyMemberWorldCharacter.playerID,
+              playerID: partyMemberWorldPlayer.id,
             },
             event: "world/use-item-instance",
           });
@@ -190,13 +193,13 @@ export const createWorldBottomBarUI = (): void => {
           emitToSocketioServer<WorldUseAbilityRequest>({
             data: {
               abilityID: ability.id,
-              playerID: partyMemberWorldCharacter.playerID,
+              playerID: partyMemberWorldPlayer.id,
             },
             event: "world/use-ability",
           });
           spellbookWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
         } else {
-          handleWorldCharacterClick(getWorldCharacter().id);
+          handleWorldCharacterClick(partyMemberWorldPlayer.id);
         }
       },
       width: tileSize,
@@ -205,10 +208,10 @@ export const createWorldBottomBarUI = (): void => {
     createResourceBar({
       condition: partyMemberCondition,
       iconImagePath: "resource-bar-icons/hp",
-      maxValue: (): number => getWorldCharacter().resources.maxHP,
+      maxValue: (): number => getPlayer().worldCharacter.resources.maxHP,
       primaryColor: Color.BrightRed,
       secondaryColor: Color.DarkPink,
-      value: (): number => getWorldCharacter().resources.hp,
+      value: (): number => getPlayer().worldCharacter.resources.hp,
       x: 23 + partyMemberIndex * 60,
       y: 215,
     });
@@ -217,10 +220,11 @@ export const createWorldBottomBarUI = (): void => {
       condition: (): boolean =>
         partyMemberCondition() && partyMemberMPCondition(),
       iconImagePath: "resource-bar-icons/mp",
-      maxValue: (): number => getWorldCharacter().resources.maxMP as number,
+      maxValue: (): number =>
+        getPlayer().worldCharacter.resources.maxMP as number,
       primaryColor: Color.PureBlue,
       secondaryColor: Color.StrongBlue,
-      value: (): number => getWorldCharacter().resources.mp as number,
+      value: (): number => getPlayer().worldCharacter.resources.mp as number,
       x: 23 + partyMemberIndex * 60,
       y: 225,
     });
@@ -259,8 +263,8 @@ export const createWorldBottomBarUI = (): void => {
   // Leave party button
   const leavePartyCondition = (): boolean =>
     condition() &&
-    getDefinable(WorldCharacter, getWorldState().values.worldCharacterID).party
-      .worldCharacters.length > 1 &&
+    getDefinable(WorldCharacter, getWorldState().values.worldCharacterID).player
+      .character.party.playerIDs.length > 1 &&
     isWorldCombatInProgress() === false;
   createImage({
     condition: leavePartyCondition,

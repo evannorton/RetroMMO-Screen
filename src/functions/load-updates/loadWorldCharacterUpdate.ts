@@ -49,7 +49,6 @@ export const loadWorldCharacterUpdate = (
     openedChestIDs: worldCharacterUpdate.openedChestIDs,
     order: worldCharacterUpdate.order,
     outfitItemID: worldCharacterUpdate.outfitItemID,
-    partyID: worldCharacterUpdate.partyID,
     playerID: worldCharacterUpdate.playerID,
     position: {
       x: worldCharacterUpdate.x,

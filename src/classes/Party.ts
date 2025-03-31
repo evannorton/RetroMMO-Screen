@@ -1,30 +1,27 @@
 import { Definable, getDefinable } from "definables";
-import { WorldCharacter } from "./WorldCharacter";
+import { Player } from "./Player";
 
 export interface PartyOptions {
   readonly id: string;
 }
 export class Party extends Definable {
-  private _worldCharacterIDs: readonly string[] = [];
+  private _playerIDs: readonly string[] = [];
 
   public constructor(options: PartyOptions) {
     super(options.id);
   }
 
-  public get worldCharacterIDs(): readonly string[] {
-    return this._worldCharacterIDs;
+  public get playerIDs(): readonly string[] {
+    return this._playerIDs;
   }
 
-  public get worldCharacters(): readonly WorldCharacter[] {
-    return this._worldCharacterIDs.map(
-      (worldCharacterID: string): WorldCharacter =>
-        getDefinable(WorldCharacter, worldCharacterID),
+  public get players(): readonly Player[] {
+    return this._playerIDs.map(
+      (playerID: string): Player => getDefinable(Player, playerID),
     );
   }
 
-  public set worldCharacters(worldCharacters: readonly WorldCharacter[]) {
-    this._worldCharacterIDs = worldCharacters.map(
-      (worldCharacter: WorldCharacter): string => worldCharacter.id,
-    );
+  public set playerIDs(players: readonly string[]) {
+    this._playerIDs = players.map((playerID: string): string => playerID);
   }
 }

@@ -15,31 +15,31 @@ export const getQuestPartyState = (questID: string): QuestState | null => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+  for (const partyPlayer of worldCharacter.player.character.party.players) {
     const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
+      partyPlayer.worldCharacter.questInstances;
     const questInstance: WorldCharacterQuestInstance | undefined =
       questInstances[questID];
     if (
       typeof questInstance !== "undefined" &&
       questInstance.isCompleted === false &&
-      canWorldCharacterTurnInQuest(partyWorldCharacter.id, questID)
+      canWorldCharacterTurnInQuest(partyPlayer.id, questID)
     ) {
       return QuestState.TurnIn;
     }
   }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+  for (const partyPlayer of worldCharacter.player.character.party.players) {
     const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
+      partyPlayer.worldCharacter.questInstances;
     const questInstance: WorldCharacterQuestInstance | undefined =
       questInstances[questID];
     if (typeof questInstance === "undefined") {
       return QuestState.Accept;
     }
   }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+  for (const partyPlayer of worldCharacter.player.character.party.players) {
     const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
+      partyPlayer.worldCharacter.questInstances;
     const questInstance: WorldCharacterQuestInstance | undefined =
       questInstances[questID];
     if (
@@ -50,9 +50,9 @@ export const getQuestPartyState = (questID: string): QuestState | null => {
       return QuestState.InProgress;
     }
   }
-  for (const partyWorldCharacter of worldCharacter.party.worldCharacters) {
+  for (const partyPlayer of worldCharacter.player.character.party.players) {
     const questInstances: Record<string, WorldCharacterQuestInstance> =
-      partyWorldCharacter.questInstances;
+      partyPlayer.worldCharacter.questInstances;
     const questInstance: WorldCharacterQuestInstance | undefined =
       questInstances[questID];
     if (typeof questInstance !== "undefined" && questInstance.isCompleted) {

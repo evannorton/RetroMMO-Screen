@@ -14,12 +14,12 @@ export const canWalk = (): boolean => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  const partyLeaderWorldCharacterID: string | undefined =
-    worldCharacter.party.worldCharacterIDs[0];
-  if (typeof partyLeaderWorldCharacterID === "undefined") {
+  const partyLeaderWorldPlayerID: string | undefined =
+    worldCharacter.player.character.party.playerIDs[0];
+  if (typeof partyLeaderWorldPlayerID === "undefined") {
     throw new Error("No party leader.");
   }
-  if (partyLeaderWorldCharacterID !== worldCharacter.id) {
+  if (partyLeaderWorldPlayerID !== worldCharacter.playerID) {
     return false;
   }
   for (const worldMenu of getDefinables(WorldMenu).values()) {

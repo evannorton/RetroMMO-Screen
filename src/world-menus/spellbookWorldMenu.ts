@@ -467,7 +467,7 @@ export const spellbookWorldMenu: WorldMenu<
             createInputPressHandler({
               condition: (): boolean =>
                 spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-                worldCharacter.party.worldCharacterIDs.length >
+                worldCharacter.player.character.party.playerIDs.length >
                   inputCollectionIndex &&
                 isWorldCombatInProgress() === false,
               inputCollectionID,
@@ -480,15 +480,17 @@ export const spellbookWorldMenu: WorldMenu<
                 const ability: Ability = getSpellbookAbility(
                   spellbookWorldMenu.state.values.selectedAbilityIndex,
                 );
-                const partyMemberWorldCharacter: WorldCharacter | undefined =
-                  worldCharacter.party.worldCharacters[inputCollectionIndex];
-                if (typeof partyMemberWorldCharacter === "undefined") {
-                  throw new Error("No party member world character.");
+                const partyMemberPlayerID: string | undefined =
+                  worldCharacter.player.character.party.playerIDs[
+                    inputCollectionIndex
+                  ];
+                if (typeof partyMemberPlayerID === "undefined") {
+                  throw new Error("No party member player ID.");
                 }
                 emitToSocketioServer<WorldUseAbilityRequest>({
                   data: {
                     abilityID: ability.id,
-                    playerID: partyMemberWorldCharacter.playerID,
+                    playerID: partyMemberPlayerID,
                   },
                   event: "world/use-ability",
                 });
