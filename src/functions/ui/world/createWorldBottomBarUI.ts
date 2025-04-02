@@ -199,7 +199,7 @@ export const createWorldBottomBarUI = (): void => {
           });
           spellbookWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
         } else {
-          handleWorldCharacterClick(partyMemberWorldPlayer.id);
+          handleWorldCharacterClick(partyMemberWorldPlayer.worldCharacterID);
         }
       },
       width: tileSize,
