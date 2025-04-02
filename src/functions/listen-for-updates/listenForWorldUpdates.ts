@@ -23,7 +23,6 @@ import {
   WorldMoveCharactersUpdate,
   WorldOpenBankUpdate,
   WorldOpenChestUpdate,
-  WorldPartyChangesUpdate,
   WorldPianoKeyUpdate,
   WorldPositionUpdate,
   WorldSelectQuestUpdate,
@@ -38,7 +37,6 @@ import {
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
-import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
 import { QuestGiverQuest } from "../../classes/QuestGiver";
@@ -62,17 +60,14 @@ import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
-import { definableExists, getDefinable, getDefinables } from "definables";
 import { exitWorldCharacters } from "../exitWorldCharacters";
+import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
-import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
-import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
-import { resetParty } from "../resetParty";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
@@ -299,9 +294,6 @@ export const listenForWorldUpdates = (): void => {
           addWorldCharacterMarker(worldCharacterUpdate.id, MarkerType.Selected);
         }
       }
-      for (const worldPartyUpdate of update.parties) {
-        loadWorldPartyUpdate(worldPartyUpdate);
-      }
     },
   });
   listenToSocketioEvent<WorldEquipmentUpdate>({
@@ -392,9 +384,6 @@ export const listenForWorldUpdates = (): void => {
       selfWorldCharacter.player.character = null;
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
-      }
-      for (const party of getDefinables(Party).values()) {
-        party.remove();
       }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
@@ -534,57 +523,6 @@ export const listenForWorldUpdates = (): void => {
       getDefinable(Chest, update.chestID).openedAt = getCurrentTime();
     },
   });
-  listenToSocketioEvent<WorldPartyChangesUpdate>({
-    event: "world/party-change",
-    onMessage: (update: WorldPartyChangesUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      for (const worldPartyUpdate of update.parties) {
-        const party: Party = definableExists(Party, worldPartyUpdate.id)
-          ? getDefinable(Party, worldPartyUpdate.id)
-          : new Party({ id: worldPartyUpdate.id });
-        const oldPartyPlayerIDs: readonly string[] = party.playerIDs;
-        party.playerIDs = worldPartyUpdate.playerIDs;
-        party.players.forEach(
-          (partyPlayer: Player, partyPlayerIndex: number): void => {
-            partyPlayer.character.partyID = party.id;
-            const partyWorldCharacterJoined: boolean =
-              oldPartyPlayerIDs.includes(partyPlayer.id) === false;
-            const partyWorldCharacterIsSelf: boolean =
-              partyPlayer.worldCharacterID ===
-              worldState.values.worldCharacterID;
-            // If self is joining a party
-            if (
-              partyPlayerIndex > 0 &&
-              partyWorldCharacterJoined &&
-              partyWorldCharacterIsSelf
-            ) {
-              worldState.setValues({
-                pianoSessionID: null,
-              });
-              getDefinables(WorldCharacter).forEach(
-                (worldCharacter: WorldCharacter): void => {
-                  if (worldCharacter.hasMarker()) {
-                    clearWorldCharacterMarker(worldCharacter.id);
-                  }
-                },
-              );
-            } else if (party.playerIDs.length > oldPartyPlayerIDs.length) {
-              if (partyPlayer.worldCharacter.hasMarker()) {
-                clearWorldCharacterMarker(partyPlayer.worldCharacter.id);
-              }
-            }
-          },
-        );
-        resetParty(party.id);
-      }
-      for (const partyIDToRemove of update.partyIDsToRemove) {
-        getDefinable(Party, partyIDToRemove).remove();
-      }
-      for (const worldPartyCharacterUpdate of update.worldCharacters) {
-        loadWorldPartyCharacterUpdate(worldPartyCharacterUpdate);
-      }
-    },
-  });
   listenToSocketioEvent<WorldMarkerUpdate>({
     event: "world/marker",
     onMessage: (update: WorldMarkerUpdate): void => {
@@ -626,9 +564,6 @@ export const listenForWorldUpdates = (): void => {
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
       }
-      for (const party of getDefinables(Party).values()) {
-        party.remove();
-      }
       for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
         const bagItemInstance: ItemInstance = getDefinable(
           ItemInstance,
@@ -647,9 +582,6 @@ export const listenForWorldUpdates = (): void => {
         if (state.values.selectedPlayerID === worldCharacterUpdate.playerID) {
           addWorldCharacterMarker(worldCharacterUpdate.id, MarkerType.Selected);
         }
-      }
-      for (const worldPartyUpdate of update.parties) {
-        loadWorldPartyUpdate(worldPartyUpdate);
       }
       for (const worldNPCUpdate of update.npcs) {
         loadWorldNPCUpdate(worldNPCUpdate);
@@ -723,9 +655,6 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (): void => {
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
-      }
-      for (const party of getDefinables(Party).values()) {
-        party.remove();
       }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();

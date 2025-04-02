@@ -7,6 +7,7 @@ import {
   ItemInstanceUpdate,
   MainState,
   MarkerType,
+  PartyChangesUpdate,
   RemovePlayerUpdate,
   RenamePlayerUpdate,
   TurnInQuestUpdate,
@@ -27,13 +28,14 @@ import {
 import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
+import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
+import { definableExists, getDefinable, getDefinables } from "definables";
 import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
 import { exitWorldCharacters } from "../exitWorldCharacters";
-import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
@@ -41,9 +43,11 @@ import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
+import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { loadWorldPartyUpdate } from "../load-updates/loadWorldPartyUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
+import { resetParty } from "../resetParty";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
@@ -487,6 +491,61 @@ export const listenForUpdates = (): void => {
           }
         },
       });
+    },
+  });
+  listenToSocketioEvent<PartyChangesUpdate>({
+    event: "party-change",
+    onMessage: (update: PartyChangesUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      for (const worldPartyUpdate of update.parties) {
+        const party: Party = definableExists(Party, worldPartyUpdate.id)
+          ? getDefinable(Party, worldPartyUpdate.id)
+          : new Party({ id: worldPartyUpdate.id });
+        party.playerIDs = worldPartyUpdate.playerIDs;
+        if (typeof update.world !== "undefined") {
+          const oldPartyPlayerIDs: readonly string[] = party.playerIDs;
+          party.players.forEach(
+            (partyPlayer: Player, partyPlayerIndex: number): void => {
+              partyPlayer.character.partyID = party.id;
+              const partyWorldCharacterJoined: boolean =
+                oldPartyPlayerIDs.includes(partyPlayer.id) === false;
+              const partyWorldCharacterIsSelf: boolean =
+                partyPlayer.worldCharacterID ===
+                worldState.values.worldCharacterID;
+              // If self is joining a party
+              if (
+                partyPlayerIndex > 0 &&
+                partyWorldCharacterJoined &&
+                partyWorldCharacterIsSelf
+              ) {
+                worldState.setValues({
+                  pianoSessionID: null,
+                });
+                getDefinables(WorldCharacter).forEach(
+                  (worldCharacter: WorldCharacter): void => {
+                    if (worldCharacter.hasMarker()) {
+                      clearWorldCharacterMarker(worldCharacter.id);
+                    }
+                  },
+                );
+              } else if (party.playerIDs.length > oldPartyPlayerIDs.length) {
+                if (partyPlayer.worldCharacter.hasMarker()) {
+                  clearWorldCharacterMarker(partyPlayer.worldCharacter.id);
+                }
+              }
+            },
+          );
+          resetParty(party.id);
+        }
+      }
+      for (const partyIDToRemove of update.partyIDsToRemove) {
+        getDefinable(Party, partyIDToRemove).remove();
+      }
+      if (typeof update.world !== "undefined") {
+        for (const worldPartyCharacterUpdate of update.world.worldCharacters) {
+          loadWorldPartyCharacterUpdate(worldPartyCharacterUpdate);
+        }
+      }
     },
   });
   listenToSocketioEvent<RemovePlayerUpdate>({
