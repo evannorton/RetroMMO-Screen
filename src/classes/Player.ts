@@ -21,8 +21,8 @@ export interface PlayerCharacter {
   partyID: string;
 }
 export interface PlayerCharacterWithAccessors extends PlayerCharacter {
-  class: Class;
-  party: Party;
+  readonly class: Class;
+  readonly party: Party;
 }
 export interface PlayerModification {
   readonly isOpen: boolean;
@@ -50,15 +50,17 @@ export class Player extends Definable {
 
   public get character(): PlayerCharacterWithAccessors {
     if (this._character !== null) {
-      const { classID, partyID } = this._character;
+      const { classID, level, partyID } = this._character;
       return {
-        ...this._character,
         get class(): Class {
           return getDefinable(Class, classID);
         },
+        classID,
+        level,
         get party(): Party {
           return getDefinable(Party, partyID);
         },
+        partyID,
       };
     }
     throw new Error(this.getAccessorErrorMessage("character"));
