@@ -58,7 +58,7 @@ export const listenForUpdates = (): void => {
     event: "add-player",
     onMessage: (update: AddPlayerUpdate): void => {
       new Player({
-        id: update.id,
+        id: update.playerID,
         userID: update.userID,
         username: update.username,
       });
@@ -71,41 +71,48 @@ export const listenForUpdates = (): void => {
         const worldState: State<WorldStateSchema> = createWorldState({
           agility: update.character.agility,
           bagItemInstanceIDs: update.character.bagItemInstances.map(
-            (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
+            (bagItemInstance: ItemInstanceUpdate): string =>
+              bagItemInstance.itemInstanceID,
           ),
-          bodyItemInstanceID: update.character.bodyItemInstance?.id,
+          bodyItemInstanceID: update.character.bodyItemInstance?.itemInstanceID,
           boostItemInstanceIDs: update.character.boostItemInstances.map(
             (boostItemInstance: ItemInstanceUpdate): string =>
-              boostItemInstance.id,
+              boostItemInstance.itemInstanceID,
           ),
-          clothesDyeItemInstanceID: update.character.clothesDyeItemInstance?.id,
+          clothesDyeItemInstanceID:
+            update.character.clothesDyeItemInstance?.itemInstanceID,
           defense: update.character.defense,
           experienceUntilLevel: update.character.experienceUntilLevel,
-          hairDyeItemInstanceID: update.character.hairDyeItemInstance?.id,
-          headItemInstanceID: update.character.headItemInstance?.id,
+          hairDyeItemInstanceID:
+            update.character.hairDyeItemInstance?.itemInstanceID,
+          headItemInstanceID: update.character.headItemInstance?.itemInstanceID,
           intelligence: update.character.intelligence,
           inventoryGold: update.character.inventoryGold,
           luck: update.character.luck,
-          mainHandItemInstanceID: update.character.mainHandItemInstance?.id,
-          maskItemInstanceID: update.character.maskItemInstance?.id,
-          offHandItemInstanceID: update.character.offHandItemInstance?.id,
-          outfitItemInstanceID: update.character.outfitItemInstance?.id,
+          mainHandItemInstanceID:
+            update.character.mainHandItemInstance?.itemInstanceID,
+          maskItemInstanceID: update.character.maskItemInstance?.itemInstanceID,
+          offHandItemInstanceID:
+            update.character.offHandItemInstance?.itemInstanceID,
+          outfitItemInstanceID:
+            update.character.outfitItemInstance?.itemInstanceID,
           strength: update.character.strength,
           timePlayed: update.character.timePlayed,
           wisdom: update.character.wisdom,
-          worldCharacterID: update.character.worldCharacterID,
+          worldCharacterID: update.character.characterID,
         });
         state.setValues({
           battleState: null,
           worldState,
         });
-        for (const worldCharacterUpdate of update.character.worldCharacters) {
+        for (const worldCharacterUpdate of update.character.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
           const worldCharacterUpdatePlayer: Player = getDefinable(
             Player,
             worldCharacterUpdate.playerID,
           );
-          worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
+          worldCharacterUpdatePlayer.worldCharacterID =
+            worldCharacterUpdate.characterID;
         }
         for (const worldPartyUpdate of update.character.parties) {
           loadPartyUpdate(worldPartyUpdate);
@@ -144,23 +151,24 @@ export const listenForUpdates = (): void => {
         if (typeof update.character.outfitItemInstance !== "undefined") {
           loadItemInstanceUpdate(update.character.outfitItemInstance);
         }
-        selectWorldCharacter(update.character.worldCharacterID);
+        selectWorldCharacter(update.character.characterID);
         if (state.values.selectedPlayerID !== null) {
           selectedPlayerWorldMenu.open({});
         }
       }
       for (const playerUpdate of update.players) {
-        const player: Player = getDefinable(Player, playerUpdate.id);
+        const player: Player = getDefinable(Player, playerUpdate.playerID);
         player.character.level = playerUpdate.level;
       }
       if (typeof update.world !== "undefined") {
-        for (const worldCharacterUpdate of update.world.worldCharacters) {
+        for (const worldCharacterUpdate of update.world.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
           const worldCharacterUpdatePlayer: Player = getDefinable(
             Player,
             worldCharacterUpdate.playerID,
           );
-          worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
+          worldCharacterUpdatePlayer.worldCharacterID =
+            worldCharacterUpdate.characterID;
           if (state.values.selectedPlayerID === worldCharacterUpdatePlayer.id) {
             addWorldCharacterMarker(
               worldCharacterUpdatePlayer.worldCharacterID,
@@ -187,11 +195,11 @@ export const listenForUpdates = (): void => {
         id: update.partyID,
       });
       party.playerIDs = [update.playerID];
-      if (typeof update.worldCharacterID !== "undefined") {
-        player.worldCharacterID = update.worldCharacterID;
+      if (typeof update.characterID !== "undefined") {
+        player.worldCharacterID = update.characterID;
       }
       if (typeof update.world !== "undefined") {
-        loadWorldCharacterUpdate(update.world.worldCharacter);
+        loadWorldCharacterUpdate(update.world.character);
       }
       if (typeof update.character !== "undefined") {
         getDefinables(MainMenuCharacter).forEach(
@@ -204,38 +212,48 @@ export const listenForUpdates = (): void => {
           worldState: createWorldState({
             agility: update.character.agility,
             bagItemInstanceIDs: update.character.bagItemInstances.map(
-              (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+              (itemInstanceUpdate: ItemInstanceUpdate): string =>
+                itemInstanceUpdate.itemInstanceID,
             ),
-            bodyItemInstanceID: update.character.bodyItemInstance?.id,
+            bodyItemInstanceID:
+              update.character.bodyItemInstance?.itemInstanceID,
             boostItemInstanceIDs: update.character.boostItemInstances.map(
-              (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+              (itemInstanceUpdate: ItemInstanceUpdate): string =>
+                itemInstanceUpdate.itemInstanceID,
             ),
             clothesDyeItemInstanceID:
-              update.character.clothesDyeItemInstance?.id,
+              update.character.clothesDyeItemInstance?.itemInstanceID,
             defense: update.character.defense,
             experienceUntilLevel: update.character.experienceUntilLevel,
-            hairDyeItemInstanceID: update.character.hairDyeItemInstance?.id,
-            headItemInstanceID: update.character.headItemInstance?.id,
+            hairDyeItemInstanceID:
+              update.character.hairDyeItemInstance?.itemInstanceID,
+            headItemInstanceID:
+              update.character.headItemInstance?.itemInstanceID,
             intelligence: update.character.intelligence,
             inventoryGold: update.character.inventoryGold,
             luck: update.character.luck,
-            mainHandItemInstanceID: update.character.mainHandItemInstance?.id,
-            maskItemInstanceID: update.character.maskItemInstance?.id,
-            offHandItemInstanceID: update.character.offHandItemInstance?.id,
-            outfitItemInstanceID: update.character.outfitItemInstance?.id,
+            mainHandItemInstanceID:
+              update.character.mainHandItemInstance?.itemInstanceID,
+            maskItemInstanceID:
+              update.character.maskItemInstance?.itemInstanceID,
+            offHandItemInstanceID:
+              update.character.offHandItemInstance?.itemInstanceID,
+            outfitItemInstanceID:
+              update.character.outfitItemInstance?.itemInstanceID,
             strength: update.character.strength,
             timePlayed: update.character.timePlayed,
             wisdom: update.character.wisdom,
-            worldCharacterID: update.character.worldCharacterID,
+            worldCharacterID: update.character.characterID,
           }),
         });
-        for (const worldCharacterUpdate of update.character.worldCharacters) {
+        for (const worldCharacterUpdate of update.character.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
           const worldCharacterUpdatePlayer: Player = getDefinable(
             Player,
             worldCharacterUpdate.playerID,
           );
-          worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
+          worldCharacterUpdatePlayer.worldCharacterID =
+            worldCharacterUpdate.characterID;
         }
         for (const worldPartyUpdate of update.character.parties) {
           loadPartyUpdate(worldPartyUpdate);
@@ -274,20 +292,20 @@ export const listenForUpdates = (): void => {
         if (typeof update.character.outfitItemInstance !== "undefined") {
           loadItemInstanceUpdate(update.character.outfitItemInstance);
         }
-        selectWorldCharacter(update.character.worldCharacterID);
+        selectWorldCharacter(update.character.characterID);
       }
     },
   });
   listenToSocketioEvent<ExitPlayerUpdate>({
     event: "exit-player",
     onMessage: (update: ExitPlayerUpdate): void => {
-      const player: Player = getDefinable(Player, update.id);
+      const player: Player = getDefinable(Player, update.playerID);
+      if (state.values.selectedPlayerID === update.playerID) {
+        selectedPlayerWorldMenu.close();
+      }
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
         player.character = null;
-      }
-      if (state.values.selectedPlayerID === update.id) {
-        selectedPlayerWorldMenu.close();
       }
     },
   });
@@ -321,10 +339,10 @@ export const listenForUpdates = (): void => {
                   partyID: playerUpdate.character.partyID,
                 }
               : undefined,
-          id: playerUpdate.id,
+          id: playerUpdate.playerID,
           userID: playerUpdate.userID,
           username: playerUpdate.username,
-          worldCharacterID: playerUpdate.worldCharacterID,
+          worldCharacterID: playerUpdate.characterID,
         });
       }
       for (const partyUpdate of update.parties) {
@@ -358,7 +376,7 @@ export const listenForUpdates = (): void => {
                 clothesDyeItemID: mainMenuCharacterUpdate.clothesDyeItemID,
                 figureID: mainMenuCharacterUpdate.figureID,
                 hairDyeItemID: mainMenuCharacterUpdate.hairDyeItemID,
-                id: mainMenuCharacterUpdate.id,
+                id: mainMenuCharacterUpdate.characterID,
                 level: mainMenuCharacterUpdate.level,
                 maskItemID: mainMenuCharacterUpdate.maskItemID,
                 outfitItemID: mainMenuCharacterUpdate.outfitItemID,
@@ -380,33 +398,40 @@ export const listenForUpdates = (): void => {
           const worldState: State<WorldStateSchema> = createWorldState({
             agility: update.world.agility,
             bagItemInstanceIDs: update.world.bagItemInstances.map(
-              (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+              (itemInstanceUpdate: ItemInstanceUpdate): string =>
+                itemInstanceUpdate.itemInstanceID,
             ),
-            bodyItemInstanceID: update.world.bodyItemInstance?.id,
+            bodyItemInstanceID: update.world.bodyItemInstance?.itemInstanceID,
             boostItemInstanceIDs: update.world.boostItemInstances.map(
-              (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+              (itemInstanceUpdate: ItemInstanceUpdate): string =>
+                itemInstanceUpdate.itemInstanceID,
             ),
-            clothesDyeItemInstanceID: update.world.clothesDyeItemInstance?.id,
+            clothesDyeItemInstanceID:
+              update.world.clothesDyeItemInstance?.itemInstanceID,
             defense: update.world.defense,
             experienceUntilLevel: update.world.experienceUntilLevel,
-            hairDyeItemInstanceID: update.world.hairDyeItemInstance?.id,
-            headItemInstanceID: update.world.headItemInstance?.id,
+            hairDyeItemInstanceID:
+              update.world.hairDyeItemInstance?.itemInstanceID,
+            headItemInstanceID: update.world.headItemInstance?.itemInstanceID,
             intelligence: update.world.intelligence,
             inventoryGold: update.world.inventoryGold,
             luck: update.world.luck,
-            mainHandItemInstanceID: update.world.mainHandItemInstance?.id,
-            maskItemInstanceID: update.world.maskItemInstance?.id,
-            offHandItemInstanceID: update.world.offHandItemInstance?.id,
-            outfitItemInstanceID: update.world.outfitItemInstance?.id,
+            mainHandItemInstanceID:
+              update.world.mainHandItemInstance?.itemInstanceID,
+            maskItemInstanceID: update.world.maskItemInstance?.itemInstanceID,
+            offHandItemInstanceID:
+              update.world.offHandItemInstance?.itemInstanceID,
+            outfitItemInstanceID:
+              update.world.outfitItemInstance?.itemInstanceID,
             strength: update.world.strength,
             timePlayed: update.world.timePlayed,
             wisdom: update.world.wisdom,
-            worldCharacterID: update.world.worldCharacterID,
+            worldCharacterID: update.world.characterID,
           });
           state.setValues({
             worldState,
           });
-          for (const worldCharacterUpdate of update.world.worldCharacters) {
+          for (const worldCharacterUpdate of update.world.characters) {
             loadWorldCharacterUpdate(worldCharacterUpdate);
           }
           for (const npcUpdate of update.world.npcs) {
@@ -443,7 +468,7 @@ export const listenForUpdates = (): void => {
           if (typeof update.world.outfitItemInstance !== "undefined") {
             loadItemInstanceUpdate(update.world.outfitItemInstance);
           }
-          selectWorldCharacter(update.world.worldCharacterID);
+          selectWorldCharacter(update.world.characterID);
           break;
         }
       }
@@ -502,14 +527,14 @@ export const listenForUpdates = (): void => {
       for (const partyUpdate of update.parties) {
         const oldPartyPlayerIDs: readonly string[] = definableExists(
           Party,
-          partyUpdate.id,
+          partyUpdate.partyID,
         )
-          ? getDefinable(Party, partyUpdate.id).playerIDs
+          ? getDefinable(Party, partyUpdate.partyID).playerIDs
           : [];
         loadPartyUpdate(partyUpdate);
-        const party: Party = getDefinable(Party, partyUpdate.id);
+        const party: Party = getDefinable(Party, partyUpdate.partyID);
         for (const player of party.players) {
-          player.character.partyID = partyUpdate.id;
+          player.character.partyID = partyUpdate.partyID;
         }
         if (typeof update.world !== "undefined") {
           const worldState: State<WorldStateSchema> = getWorldState();
@@ -557,7 +582,7 @@ export const listenForUpdates = (): void => {
         getDefinable(Party, partyIDToRemove).remove();
       }
       if (typeof update.world !== "undefined") {
-        for (const worldPartyCharacterUpdate of update.world.worldCharacters) {
+        for (const worldPartyCharacterUpdate of update.world.characters) {
           loadWorldPartyCharacterUpdate(worldPartyCharacterUpdate);
         }
       }
@@ -566,15 +591,12 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<RemovePlayerUpdate>({
     event: "remove-player",
     onMessage: (update: RemovePlayerUpdate): void => {
-      const player: Player = getDefinable(Player, update.id);
-      if (state.values.selectedPlayerID === update.id) {
+      const player: Player = getDefinable(Player, update.playerID);
+      if (state.values.selectedPlayerID === update.playerID) {
         selectedPlayerWorldMenu.close();
       }
-      if (
-        state.values.worldState !== null &&
-        typeof update.worldCharacterID !== "undefined"
-      ) {
-        exitWorldCharacters([update.worldCharacterID]);
+      if (player.hasWorldCharacter()) {
+        exitWorldCharacters([player.worldCharacterID]);
       }
       player.remove();
     },
@@ -582,7 +604,7 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<RenamePlayerUpdate>({
     event: "rename-player",
     onMessage: (update: RenamePlayerUpdate): void => {
-      const player: Player = getDefinable(Player, update.id);
+      const player: Player = getDefinable(Player, update.playerID);
       player.username = update.username;
     },
   });
@@ -596,7 +618,7 @@ export const listenForUpdates = (): void => {
       );
       const previousLevel: number = worldCharacter.player.character.level;
       for (const playerUpdate of update.players) {
-        const player: Player = getDefinable(Player, playerUpdate.id);
+        const player: Player = getDefinable(Player, playerUpdate.playerID);
         player.character = {
           classID: player.character.classID,
           level: playerUpdate.level,
@@ -617,10 +639,10 @@ export const listenForUpdates = (): void => {
             npcID: worldUpdate.npcID,
           });
         }
-        for (const worldCharacterUpdate of worldUpdate.worldCharacters) {
+        for (const worldCharacterUpdate of worldUpdate.characters) {
           const partyWorldCharacter: WorldCharacter = getDefinable(
             WorldCharacter,
-            worldCharacterUpdate.worldCharacterID,
+            worldCharacterUpdate.characterID,
           );
           partyWorldCharacter.resources = {
             hp: worldCharacterUpdate.resources.hp,

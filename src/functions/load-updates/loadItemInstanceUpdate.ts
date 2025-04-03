@@ -5,7 +5,7 @@ export const loadItemInstanceUpdate = (
   bagItemInstanceUpdate: ItemInstanceUpdate,
 ): void => {
   new ItemInstance({
-    id: bagItemInstanceUpdate.id,
+    id: bagItemInstanceUpdate.itemInstanceID,
     itemID: bagItemInstanceUpdate.itemID,
   });
 };

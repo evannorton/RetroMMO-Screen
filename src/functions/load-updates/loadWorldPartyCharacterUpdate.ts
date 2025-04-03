@@ -14,7 +14,7 @@ export const loadWorldPartyCharacterUpdate = (
 ): void => {
   const worldCharacter: WorldCharacter = getDefinable(
     WorldCharacter,
-    worldPartyCharacterUpdate.worldCharacterID,
+    worldPartyCharacterUpdate.characterID,
   );
   const questInstances: Record<string, WorldCharacterOptionsQuestInstance> = {};
   if (typeof worldPartyCharacterUpdate.questInstances !== "undefined") {

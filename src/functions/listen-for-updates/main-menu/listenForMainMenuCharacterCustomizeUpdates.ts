@@ -18,7 +18,7 @@ export const listenForMainMenuCharacterCustomizeUpdates = (): void => {
         clothesDyeItemID: update.mainMenuCharacter.clothesDyeItemID,
         figureID: update.mainMenuCharacter.figureID,
         hairDyeItemID: update.mainMenuCharacter.hairDyeItemID,
-        id: update.mainMenuCharacter.id,
+        id: update.mainMenuCharacter.characterID,
         level: update.mainMenuCharacter.level,
         maskItemID: update.mainMenuCharacter.maskItemID,
         outfitItemID: update.mainMenuCharacter.outfitItemID,

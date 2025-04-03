@@ -3,8 +3,8 @@ import { PartyUpdate } from "retrommo-types";
 import { definableExists, getDefinable } from "definables";
 
 export const loadPartyUpdate = (partyUpdate: PartyUpdate): void => {
-  const party: Party = definableExists(Party, partyUpdate.id)
-    ? getDefinable(Party, partyUpdate.id)
-    : new Party({ id: partyUpdate.id });
+  const party: Party = definableExists(Party, partyUpdate.partyID)
+    ? getDefinable(Party, partyUpdate.partyID)
+    : new Party({ id: partyUpdate.partyID });
   party.playerIDs = partyUpdate.playerIDs;
 };

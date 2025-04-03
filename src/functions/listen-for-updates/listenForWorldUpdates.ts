@@ -147,7 +147,8 @@ export const listenForWorldUpdates = (): void => {
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
         ),
       });
     },
@@ -167,20 +168,20 @@ export const listenForWorldUpdates = (): void => {
       worldState.setValues({
         bagItemInstanceIDs: [
           ...worldState.values.bagItemInstanceIDs,
-          update.itemInstance.id,
+          update.itemInstance.itemInstanceID,
         ],
         inventoryGold: update.gold,
       });
       new ItemInstance({
-        id: update.itemInstance.id,
+        id: update.itemInstance.itemInstanceID,
         itemID: update.itemInstance.itemID,
       });
     },
   });
-  listenToSocketioEvent<WorldMarkerUpdate>({
+  listenToSocketioEvent<WorldClearMarkerUpdate>({
     event: "world/clear-marker",
     onMessage: (update: WorldClearMarkerUpdate): void => {
-      clearWorldCharacterMarker(update.worldCharacterID);
+      clearWorldCharacterMarker(update.characterID);
     },
   });
   listenToSocketioEvent<WorldCloseBankUpdate>({
@@ -218,16 +219,18 @@ export const listenForWorldUpdates = (): void => {
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
         ),
         boostItemInstanceIDs: update.boostItemInstances.map(
-          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
         ),
       });
       for (const worldCombatCharacter of update.worldCombatCharacters) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
-          worldCombatCharacter.worldCharacterID,
+          worldCombatCharacter.characterID,
         );
         worldCharacter.isRenewing = worldCombatCharacter.isRenewing;
         worldCharacter.resources = {
@@ -273,7 +276,7 @@ export const listenForWorldUpdates = (): void => {
     event: "world/emote",
     onMessage: (update: WorldEmoteUpdate): void => {
       addWorldCharacterEmote(
-        update.worldCharacterID,
+        update.characterID,
         update.emoteID,
         getCurrentTime(),
       );
@@ -282,15 +285,19 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldEnterCharactersUpdate>({
     event: "world/enter-characters",
     onMessage: (update: WorldEnterCharactersUpdate): void => {
-      for (const worldCharacterUpdate of update.worldCharacters) {
+      for (const worldCharacterUpdate of update.characters) {
         const worldCharacterUpdatePlayer: Player = getDefinable(
           Player,
           worldCharacterUpdate.playerID,
         );
-        worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
+        worldCharacterUpdatePlayer.worldCharacterID =
+          worldCharacterUpdate.characterID;
         loadWorldCharacterUpdate(worldCharacterUpdate);
         if (state.values.selectedPlayerID === worldCharacterUpdate.playerID) {
-          addWorldCharacterMarker(worldCharacterUpdate.id, MarkerType.Selected);
+          addWorldCharacterMarker(
+            worldCharacterUpdate.characterID,
+            MarkerType.Selected,
+          );
         }
       }
     },
@@ -351,12 +358,15 @@ export const listenForWorldUpdates = (): void => {
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
         ),
-        bodyItemInstanceID: update.bodyItemInstance?.id ?? null,
-        headItemInstanceID: update.headItemInstance?.id ?? null,
-        mainHandItemInstanceID: update.mainHandItemInstance?.id ?? null,
-        offHandItemInstanceID: update.offHandItemInstance?.id ?? null,
+        bodyItemInstanceID: update.bodyItemInstance?.itemInstanceID ?? null,
+        headItemInstanceID: update.headItemInstance?.itemInstanceID ?? null,
+        mainHandItemInstanceID:
+          update.mainHandItemInstance?.itemInstanceID ?? null,
+        offHandItemInstanceID:
+          update.offHandItemInstance?.itemInstanceID ?? null,
       });
       if (inventoryWorldMenu.isOpen()) {
         inventoryWorldMenu.state.setValues({
@@ -369,7 +379,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitCharactersUpdate>({
     event: "world/exit-characters",
     onMessage: (update: WorldExitCharactersUpdate): void => {
-      for (const worldCharacterID of update.worldCharacterIDs) {
+      for (const worldCharacterID of update.characterIDs) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
           worldCharacterID,
@@ -402,7 +412,7 @@ export const listenForWorldUpdates = (): void => {
             clothesDyeItemID: mainMenuCharacterUpdate.clothesDyeItemID,
             figureID: mainMenuCharacterUpdate.figureID,
             hairDyeItemID: mainMenuCharacterUpdate.hairDyeItemID,
-            id: mainMenuCharacterUpdate.id,
+            id: mainMenuCharacterUpdate.characterID,
             level: mainMenuCharacterUpdate.level,
             maskItemID: mainMenuCharacterUpdate.maskItemID,
             outfitItemID: mainMenuCharacterUpdate.outfitItemID,
@@ -440,10 +450,10 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
     event: "world/move-characters",
     onMessage: (update: WorldMoveCharactersUpdate): void => {
-      for (const worldMoveCharacterUpdate of update.worldCharacters) {
+      for (const worldMoveCharacterUpdate of update.characters) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
-          worldMoveCharacterUpdate.worldCharacterID,
+          worldMoveCharacterUpdate.characterID,
         );
         worldCharacter.resources =
           typeof worldMoveCharacterUpdate.resources !== "undefined"
@@ -531,7 +541,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMarkerUpdate>({
     event: "world/marker",
     onMessage: (update: WorldMarkerUpdate): void => {
-      addWorldCharacterMarker(update.worldCharacterID, update.type);
+      addWorldCharacterMarker(update.characterID, update.type);
     },
   });
   listenToSocketioEvent<WorldPianoKeyUpdate>({
@@ -577,15 +587,19 @@ export const listenForWorldUpdates = (): void => {
         bagItemInstance.remove();
       }
       goToLevel(update.tilemapID);
-      for (const worldCharacterUpdate of update.worldCharacters) {
+      for (const worldCharacterUpdate of update.characters) {
         const worldCharacterUpdatePlayer: Player = getDefinable(
           Player,
           worldCharacterUpdate.playerID,
         );
-        worldCharacterUpdatePlayer.worldCharacterID = worldCharacterUpdate.id;
+        worldCharacterUpdatePlayer.worldCharacterID =
+          worldCharacterUpdate.characterID;
         loadWorldCharacterUpdate(worldCharacterUpdate);
         if (state.values.selectedPlayerID === worldCharacterUpdate.playerID) {
-          addWorldCharacterMarker(worldCharacterUpdate.id, MarkerType.Selected);
+          addWorldCharacterMarker(
+            worldCharacterUpdate.characterID,
+            MarkerType.Selected,
+          );
         }
       }
       for (const worldNPCUpdate of update.npcs) {
@@ -596,7 +610,8 @@ export const listenForWorldUpdates = (): void => {
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
         ),
       });
       lockCameraToEntity(
@@ -703,7 +718,8 @@ export const listenForWorldUpdates = (): void => {
       }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstance: ItemInstanceUpdate): string => itemInstance.id,
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
         ),
         inventoryGold: update.gold,
       });
@@ -715,7 +731,7 @@ export const listenForWorldUpdates = (): void => {
       for (const turn of update.turns) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
-          turn.worldCharacterID,
+          turn.characterID,
         );
         worldCharacter.direction = turn.direction;
       }
@@ -802,14 +818,18 @@ export const listenForWorldUpdates = (): void => {
         }
         worldState.setValues({
           bagItemInstanceIDs: update.items.bagItemInstances.map(
-            (bagItemInstance: ItemInstanceUpdate): string => bagItemInstance.id,
+            (bagItemInstanceUpdate: ItemInstanceUpdate): string =>
+              bagItemInstanceUpdate.itemInstanceID,
           ),
           clothesDyeItemInstanceID:
-            update.items.clothesDyeItemInstance?.id ?? null,
-          hairDyeItemInstanceID: update.items.hairDyeItemInstance?.id ?? null,
-          maskItemInstanceID: update.items.maskItemInstance?.id ?? null,
-          outfitItemInstanceID: update.items.outfitItemInstance?.id ?? null,
-          worldCharacterID: update.worldCharacterID,
+            update.items.clothesDyeItemInstance?.itemInstanceID ?? null,
+          hairDyeItemInstanceID:
+            update.items.hairDyeItemInstance?.itemInstanceID ?? null,
+          maskItemInstanceID:
+            update.items.maskItemInstance?.itemInstanceID ?? null,
+          outfitItemInstanceID:
+            update.items.outfitItemInstance?.itemInstanceID ?? null,
+          worldCharacterID: update.characterID,
         });
         if (inventoryWorldMenu.isOpen()) {
           inventoryWorldMenu.state.setValues({
@@ -820,7 +840,7 @@ export const listenForWorldUpdates = (): void => {
       }
       const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
-        update.worldCharacterID,
+        update.characterID,
       );
       switch (update.slot) {
         case VanitySlot.ClothesDye:
