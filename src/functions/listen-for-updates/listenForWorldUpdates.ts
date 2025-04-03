@@ -60,7 +60,6 @@ import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
-import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
@@ -370,12 +369,19 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitCharactersUpdate>({
     event: "world/exit-characters",
     onMessage: (update: WorldExitCharactersUpdate): void => {
-      exitWorldCharacters(update.worldCharacterIDs);
+      for (const worldCharacterID of update.worldCharacterIDs) {
+        const worldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          worldCharacterID,
+        );
+        worldCharacter.remove();
+      }
     },
   });
   listenToSocketioEvent<WorldExitToMainMenuUpdate>({
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
+      closeWorldMenus();
       const worldState: State<WorldStateSchema> = getWorldState();
       const selfWorldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
@@ -410,7 +416,6 @@ export const listenForWorldUpdates = (): void => {
         worldState: null,
       });
       exitLevel();
-      closeWorldMenus();
     },
   });
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
@@ -489,7 +494,7 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           clearedMarkerWorldCharacterID,
         );
-        if (clearedMarkerWorldCharacter.hasMarker()) {
+        if (clearedMarkerWorldCharacter.hasMarkerEntity()) {
           clearWorldCharacterMarker(clearedMarkerWorldCharacterID);
         }
       }
@@ -676,7 +681,7 @@ export const listenForWorldUpdates = (): void => {
     event: "world/trade",
     onMessage: (): void => {
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
-        if (worldCharacter.hasMarker()) {
+        if (worldCharacter.hasMarkerEntity()) {
           clearWorldCharacterMarker(worldCharacter.id);
         }
       }

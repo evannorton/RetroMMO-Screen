@@ -73,6 +73,7 @@ export const loadWorldCharacterUpdate = (
     buttons: [
       {
         buttonID: createButton({
+          allowsMousedownThrough: true,
           height: tileSize,
           width: tileSize,
         }),

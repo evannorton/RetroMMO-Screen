@@ -12,7 +12,10 @@ export const exitWorldCharacters = (
       WorldCharacter,
       worldCharacterID,
     );
-    const party: Party = getDefinable(Party, worldCharacter.player.character.party.id);
+    const party: Party = getDefinable(
+      Party,
+      worldCharacter.player.character.party.id,
+    );
     party.playerIDs = party.playerIDs.filter(
       (partyPlayerID: string): boolean =>
         partyPlayerID !== worldCharacter.playerID,

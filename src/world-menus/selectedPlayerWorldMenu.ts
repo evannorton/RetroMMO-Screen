@@ -1,9 +1,17 @@
-import { Color } from "retrommo-types";
+import {
+  Color,
+  Constants,
+  WorldDuelInviteRequest,
+  WorldPartyInviteRequest,
+  WorldTradeInviteRequest,
+} from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
   State,
   createLabel,
+  emitToSocketioServer,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Player } from "../classes/Player";
@@ -11,11 +19,11 @@ import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema, state } from "../state";
 import { clearWorldCharacterMarker } from "../functions/clearWorldCharacterMarker";
-import { closeWorldMenus } from "../functions/world-menus/closeWorldMenus";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { emotesWorldMenu } from "./emotesWorldMenu";
+import { getConstants } from "../functions/getConstants";
 import { getDefinable } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
@@ -46,6 +54,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
       WorldCharacter,
       worldState.values.worldCharacterID,
     );
+    const constants: Constants = getConstants();
     // Background panel
     hudElementReferences.push(
       createPanel({
@@ -102,28 +111,6 @@ export const selectedPlayerWorldMenu: WorldMenu<
       }),
     );
     // Emote button
-    // new Button(
-    //   "world/player-selected/emote",
-    //   (): ButtonOptions => ({
-    //     color: Color.White,
-    //     height: 16,
-    //     imageSourceID: "buttons/gray",
-    //     text: "Emote",
-    //     width: 40,
-    //     x: 132,
-    //     y: 172,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.hasActiveCharacter() &&
-    //     player.hasQueuedPlayer() &&
-    //     (player.character.party.hasWorldCombatStartedAt() === false ||
-    //       player.character.party.worldCombatIsOngoing() === false) &&
-    //     player.hasSelfSelected(),
-    //   (player: Player): void => {
-    //     player.closeWorldMenus();
-    //     emitUpdate(player.id, "legacy/open-emotes", {});
-    //   },
-    // );
     if (worldCharacter.playerID === state.values.selectedPlayerID) {
       hudElementReferences.push(
         createPressableButton({
@@ -131,7 +118,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
-            closeWorldMenus();
+            selectedPlayerWorldMenu.close();
             emotesWorldMenu.open({});
           },
           text: { value: "Emote" },
@@ -141,72 +128,123 @@ export const selectedPlayerWorldMenu: WorldMenu<
         }),
       );
     }
-    // // Duel button
-    // new Button(
-    //   "world/player-selected/duel",
-    //   (player: Player): ButtonOptions => ({
-    //     color: Color.White,
-    //     height: 16,
-    //     imageSourceID: "buttons/gray",
-    //     text: "Battle",
-    //     width: 40,
-    //     x: player.getWorldPlayerSelectedDuelButtonX(),
-    //     y: 172,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.hasActiveCharacter() &&
-    //     player.hasQueuedPlayer() &&
-    //     (player.character.party.hasWorldCombatStartedAt() === false ||
-    //       player.character.party.worldCombatIsOngoing() === false) &&
-    //     player.canInvitePlayerToDuel(player.queuedPlayer.playerID),
-    //   (player: Player): void => {
-    //     player.invitePlayerToDuel();
-    //   },
-    // );
-    // // Party button
-    // new Button(
-    //   "world/player-selected/party",
-    //   (player: Player): ButtonOptions => ({
-    //     color: Color.White,
-    //     height: 16,
-    //     imageSourceID: "buttons/gray",
-    //     text: "Party",
-    //     width: 40,
-    //     x: player.getWorldPlayerSelectedPartyButtonX(),
-    //     y: 172,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.hasActiveCharacter() &&
-    //     player.hasQueuedPlayer() &&
-    //     (player.character.party.hasWorldCombatStartedAt() === false ||
-    //       player.character.party.worldCombatIsOngoing() === false) &&
-    //     player.canInvitePlayerToParty(player.queuedPlayer.playerID),
-    //   (player: Player): void => {
-    //     player.invitePlayerToParty();
-    //   },
-    // );
-    // // Trade button
-    // new Button(
-    //   "world/player-selected/trade",
-    //   (player: Player): ButtonOptions => ({
-    //     color: Color.White,
-    //     height: 16,
-    //     imageSourceID: "buttons/gray",
-    //     text: "Trade",
-    //     width: 40,
-    //     x: player.getWorldPlayerSelectedTradeButtonX(),
-    //     y: 172,
-    //   }),
-    //   (player: Player): boolean =>
-    //     player.hasActiveCharacter() &&
-    //     player.hasQueuedPlayer() &&
-    //     (player.character.party.hasWorldCombatStartedAt() === false ||
-    //       player.character.party.worldCombatIsOngoing() === false) &&
-    //     player.canInvitePlayerToTrade(player.queuedPlayer.playerID),
-    //   (player: Player): void => {
-    //     player.invitePlayerToTrade();
-    //   },
-    // );
+    if (worldCharacter.playerID !== state.values.selectedPlayerID) {
+      const buttonWidth: number = 40;
+      const buttonSpacing: number = 4;
+      const duelButtonCondition = (): boolean =>
+        worldCharacter.player.character.party.playerIDs[0] ===
+          worldCharacter.playerID &&
+        worldCharacter.player.character.party.playerIDs.includes(
+          selectedPlayer.id,
+        ) === false;
+      const partyButtonCondition = (): boolean =>
+        worldCharacter.player.character.party.playerIDs[0] ===
+          worldCharacter.playerID &&
+        worldCharacter.player.character.party.playerIDs.length <
+          constants["maximum-party-size"] &&
+        selectedPlayer.character.party.playerIDs.length === 1;
+      const tradeButtonCondition = (): boolean =>
+        worldCharacter.playerID !== selectedPlayer.id;
+      const buttonConditions: (() => boolean)[] = [
+        duelButtonCondition,
+        partyButtonCondition,
+        tradeButtonCondition,
+      ];
+      const getButtonsCount = (): number => {
+        let count: number = 0;
+        for (const condition of buttonConditions) {
+          if (condition()) {
+            count++;
+          }
+        }
+        return count;
+      };
+      const getButtonX = (index: number): number => {
+        let adjustedIndex: number = 0;
+        for (let i: number = 0; i < index; i++) {
+          const buttonCondition: (() => boolean) | undefined =
+            buttonConditions[i];
+          if (typeof buttonCondition === "undefined") {
+            throw new Error(`Button condition at index ${i} is undefined`);
+          }
+          if (buttonCondition()) {
+            adjustedIndex++;
+          }
+        }
+        const buttonsCount: number = getButtonsCount();
+        const buttonsWidth: number =
+          buttonsCount * buttonWidth + (buttonsCount - 1) * buttonSpacing;
+        const center: number = Math.floor(getGameWidth() / 2);
+        const startX: number = center - Math.floor(buttonsWidth / 2);
+        return startX + adjustedIndex * (buttonWidth + buttonSpacing);
+      };
+      // Duel button
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean =>
+            duelButtonCondition() && isWorldCombatInProgress() === false,
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            selectedPlayerWorldMenu.close();
+            emitToSocketioServer<WorldDuelInviteRequest>({
+              data: {
+                playerID: selectedPlayer.id,
+              },
+              event: "world/duel-invite",
+            });
+          },
+          text: { value: "Battle" },
+          width: buttonWidth,
+          x: (): number => getButtonX(0),
+          y: 172,
+        }),
+      );
+      // Party button
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean =>
+            partyButtonCondition() && isWorldCombatInProgress() === false,
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            selectedPlayerWorldMenu.close();
+            emitToSocketioServer<WorldPartyInviteRequest>({
+              data: {
+                playerID: selectedPlayer.id,
+              },
+              event: "world/party-invite",
+            });
+          },
+          text: { value: "Party" },
+          width: buttonWidth,
+          x: (): number => getButtonX(1),
+          y: 172,
+        }),
+      );
+      // Trade button
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean =>
+            tradeButtonCondition() && isWorldCombatInProgress() === false,
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            selectedPlayerWorldMenu.close();
+            emitToSocketioServer<WorldTradeInviteRequest>({
+              data: {
+                playerID: selectedPlayer.id,
+              },
+              event: "world/trade-invite",
+            });
+          },
+          text: { value: "Trade" },
+          width: buttonWidth,
+          x: (): number => getButtonX(2),
+          y: 172,
+        }),
+      );
+    }
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
   initialStateValues: {

@@ -20,7 +20,7 @@ export interface CreatePressableButtonOptions {
   readonly imagePath: string;
   readonly text: Scriptable<CreateLabelOptionsText>;
   readonly width: number;
-  readonly x: number;
+  readonly x: Scriptable<number>;
   readonly y: number;
 }
 export const createPressableButton = ({
@@ -88,7 +88,7 @@ export const createPressableButton = ({
       color: Color.White,
       coordinates: {
         condition,
-        x: x + width / 2,
+        x: (typeof x === "function" ? x() : x) + width / 2,
         y: (): number => {
           if (pressableButtonState.values.isPressed) {
             return y + 3;

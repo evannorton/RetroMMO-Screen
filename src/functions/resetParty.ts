@@ -13,7 +13,7 @@ export const resetParty = (partyID: string): void => {
   for (const partyPlayer of party.players) {
     if (partyPlayer !== partyLeaderPlayer) {
       updateWorldCharacterPosition(
-        partyPlayer.id,
+        partyPlayer.worldCharacterID,
         partyLeaderPlayer.worldCharacter.position,
       );
       partyPlayer.worldCharacter.direction = Direction.Down;

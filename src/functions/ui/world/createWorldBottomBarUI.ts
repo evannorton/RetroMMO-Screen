@@ -1,6 +1,7 @@
 import { Ability } from "../../../classes/Ability";
 import {
   Color,
+  Constants,
   Direction,
   ResourcePool,
   WorldUseAbilityRequest,
@@ -53,6 +54,7 @@ import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
 export const createWorldBottomBarUI = (): void => {
   const tileSize: number = getConstants()["tile-size"];
   const condition = (): boolean => state.values.worldState !== null;
+  const constants: Constants = getConstants();
   // Bottom bar background
   createPanel({
     condition,
@@ -65,7 +67,7 @@ export const createWorldBottomBarUI = (): void => {
   // For each party member
   for (
     let partyMemberIndex: number = 0;
-    partyMemberIndex < 3;
+    partyMemberIndex < constants["maximum-party-size"];
     partyMemberIndex++
   ) {
     const partyMemberCondition = (): boolean => {

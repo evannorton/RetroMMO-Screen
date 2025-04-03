@@ -363,7 +363,7 @@ export class WorldCharacter extends Definable {
     return this._isRenewing !== null;
   }
 
-  public hasMarker(): boolean {
+  public hasMarkerEntity(): boolean {
     return this._markerEntityID !== null;
   }
 

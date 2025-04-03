@@ -64,7 +64,7 @@ export const tick = (): void => {
               y: y - constants["tile-size"],
             });
           }
-          if (worldCharacter.hasMarker()) {
+          if (worldCharacter.hasMarkerEntity()) {
             setEntityPosition(worldCharacter.markerEntityID, {
               x,
               y,
@@ -87,7 +87,7 @@ export const tick = (): void => {
               y: y - constants["tile-size"],
             });
           }
-          if (worldCharacter.hasMarker()) {
+          if (worldCharacter.hasMarkerEntity()) {
             setEntityPosition(worldCharacter.markerEntityID, {
               x,
               y,
@@ -110,7 +110,7 @@ export const tick = (): void => {
               y: y - constants["tile-size"],
             });
           }
-          if (worldCharacter.hasMarker()) {
+          if (worldCharacter.hasMarkerEntity()) {
             setEntityPosition(worldCharacter.markerEntityID, {
               x,
               y,
@@ -133,7 +133,7 @@ export const tick = (): void => {
               y: y - constants["tile-size"],
             });
           }
-          if (worldCharacter.hasMarker()) {
+          if (worldCharacter.hasMarkerEntity()) {
             setEntityPosition(worldCharacter.markerEntityID, {
               x,
               y,

@@ -50,17 +50,27 @@ export class Player extends Definable {
 
   public get character(): PlayerCharacterWithAccessors {
     if (this._character !== null) {
-      const { classID, level, partyID } = this._character;
+      const character: PlayerCharacter = this._character;
       return {
         get class(): Class {
-          return getDefinable(Class, classID);
+          return getDefinable(Class, character.classID);
         },
-        classID,
-        level,
+        classID: character.classID,
+        get level(): number {
+          return character.level;
+        },
+        set level(level: number) {
+          character.level = level;
+        },
         get party(): Party {
-          return getDefinable(Party, partyID);
+          return getDefinable(Party, character.partyID);
         },
-        partyID,
+        get partyID(): string {
+          return character.partyID;
+        },
+        set partyID(partyID: string) {
+          character.partyID = partyID;
+        },
       };
     }
     throw new Error(this.getAccessorErrorMessage("character"));
