@@ -101,7 +101,8 @@ export const npcDialogueWorldMenu: WorldMenu<
         imagePath: "x",
         onClick: (): void => {
           if (
-            worldCharacter.player.character.party.playerIDs[0] === worldCharacter.playerID
+            worldCharacter.player.character.party.playerIDs[0] ===
+            worldCharacter.playerID
           ) {
             if (npcDialogueWorldMenu.state.values.selectedQuestIndex !== null) {
               npcDialogueWorldMenu.state.setValues({

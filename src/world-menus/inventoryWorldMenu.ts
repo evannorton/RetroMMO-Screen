@@ -725,7 +725,9 @@ export const inventoryWorldMenu: WorldMenu<
                   inventoryWorldMenu.state.values.selectedBagItemIndex,
                 );
                 const partyMemberPlayerID: string | undefined =
-                  worldCharacter.player.character.party.playerIDs[inputCollectionIndex];
+                  worldCharacter.player.character.party.playerIDs[
+                    inputCollectionIndex
+                  ];
                 if (typeof partyMemberPlayerID === "undefined") {
                   throw new Error("No party member player.");
                 }
