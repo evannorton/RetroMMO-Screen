@@ -252,6 +252,14 @@ export const listenForWorldUpdates = (): void => {
       ) {
         inventoryWorldMenu.close();
       }
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        if (
+          state.values.selectedPlayerID !== worldCharacter.playerID &&
+          worldCharacter.hasMarkerEntity()
+        ) {
+          clearWorldCharacterMarker(worldCharacter.id);
+        }
+      }
     },
   });
   listenToSocketioEvent<WorldDestroyBoostUpdate>({
