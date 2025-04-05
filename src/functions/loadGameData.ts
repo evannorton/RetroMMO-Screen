@@ -18,6 +18,7 @@ import {
   HairDyeDefinition,
   HeadCosmeticDefinition,
   ItemDefinition,
+  LandscapeDefinition,
   MaskDefinition,
   MonsterDefinition,
   NPCDefinition,
@@ -25,6 +26,7 @@ import {
   PianoDefinition,
   QuestDefinition,
   QuestGiverDefinition,
+  ReachableDefinition,
   ShopDefinition,
   SkinColorDefinition,
   TilemapDefinition,
@@ -57,6 +59,7 @@ import { HairColor } from "../classes/HairColor";
 import { HairDye } from "../classes/HairDye";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Item";
+import { Landscape } from "../classes/Landscape";
 import { Mask } from "../classes/Mask";
 import { Monster } from "../classes/Monster";
 import { NPC } from "../classes/NPC";
@@ -64,6 +67,7 @@ import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
 import { Quest } from "../classes/Quest";
 import { QuestGiver } from "../classes/QuestGiver";
+import { Reachable } from "../classes/Reachable";
 import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "definables";
@@ -264,8 +268,16 @@ export const loadGameData = async (): Promise<void> => {
         }
         case "Label":
           break;
-        case "Landscape":
+        case "Landscape": {
+          const definition: LandscapeDefinition = (
+            gameData[className] as Record<string, LandscapeDefinition>
+          )[id] as LandscapeDefinition;
+          new Landscape({
+            definition,
+            id,
+          });
           break;
+        }
         case "Mask": {
           const definition: MaskDefinition = (
             gameData[className] as Record<string, MaskDefinition>
@@ -344,8 +356,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Reachable":
+        case "Reachable": {
+          const definition: ReachableDefinition = (
+            gameData[className] as Record<string, ReachableDefinition>
+          )[id] as ReachableDefinition;
+          new Reachable({
+            definition,
+            id,
+          });
           break;
+        }
         case "Rectangle":
           break;
         case "ResourceBar":

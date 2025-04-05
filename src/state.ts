@@ -62,7 +62,9 @@ export interface WorldStateSchema {
   wisdom: number;
   worldCharacterID: string;
 }
-export interface BattleStateSchema {}
+export interface BattleStateSchema {
+  reachableID: string;
+}
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
   constants: Constants | null;

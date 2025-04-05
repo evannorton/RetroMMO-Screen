@@ -357,8 +357,15 @@ export const listenForUpdates = (): void => {
       });
       switch (update.mainState) {
         case MainState.Battle:
+          if (typeof update.battle === "undefined") {
+            throw new Error(
+              "Initial update in World MainState is missing world.",
+            );
+          }
           state.setValues({
-            battleState: createBattleState(),
+            battleState: createBattleState({
+              reachableID: update.battle.reachableID,
+            }),
           });
           break;
         case MainState.MainMenu: {

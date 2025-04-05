@@ -680,7 +680,7 @@ export const listenForWorldUpdates = (): void => {
   });
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
-    onMessage: (): void => {
+    onMessage: (update: WorldStartBattleUpdate): void => {
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
       }
@@ -688,7 +688,7 @@ export const listenForWorldUpdates = (): void => {
         itemInstance.remove();
       }
       state.setValues({
-        battleState: createBattleState(),
+        battleState: createBattleState({ reachableID: update.reachableID }),
         worldState: null,
       });
       exitLevel();
