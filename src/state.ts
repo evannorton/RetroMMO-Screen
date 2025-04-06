@@ -63,6 +63,8 @@ export interface WorldStateSchema {
   worldCharacterID: string;
 }
 export interface BattleStateSchema {
+  enemyBattleCharacterIDs: readonly string[];
+  friendlyBattleCharacterIDs: readonly string[];
   reachableID: string;
 }
 interface StateSchema {

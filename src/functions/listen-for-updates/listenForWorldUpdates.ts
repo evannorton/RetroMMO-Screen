@@ -413,7 +413,7 @@ export const listenForWorldUpdates = (): void => {
         itemInstance.remove();
       }
       const mainMenuCharacterIDs: string[] = [];
-      for (const mainMenuCharacterUpdate of update.mainMenuCharacters) {
+      for (const mainMenuCharacterUpdate of update.characters) {
         mainMenuCharacterIDs.push(
           new MainMenuCharacter({
             classID: mainMenuCharacterUpdate.classID,
@@ -688,7 +688,11 @@ export const listenForWorldUpdates = (): void => {
         itemInstance.remove();
       }
       state.setValues({
-        battleState: createBattleState({ reachableID: update.reachableID }),
+        battleState: createBattleState({
+          enemyBattleCharacterIDs: update.enemyCharacterIDs,
+          friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
+          reachableID: update.reachableID,
+        }),
         worldState: null,
       });
       exitLevel();

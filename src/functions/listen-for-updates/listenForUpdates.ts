@@ -364,6 +364,8 @@ export const listenForUpdates = (): void => {
           }
           state.setValues({
             battleState: createBattleState({
+              enemyBattleCharacterIDs: update.battle.enemyCharacterIDs,
+              friendlyBattleCharacterIDs: update.battle.friendlyCharacterIDs,
               reachableID: update.battle.reachableID,
             }),
           });
@@ -375,8 +377,7 @@ export const listenForUpdates = (): void => {
             );
           }
           const mainMenuCharacterIDs: string[] = [];
-          for (const mainMenuCharacterUpdate of update.mainMenu
-            .mainMenuCharacters) {
+          for (const mainMenuCharacterUpdate of update.mainMenu.characters) {
             mainMenuCharacterIDs.push(
               new MainMenuCharacter({
                 classID: mainMenuCharacterUpdate.classID,

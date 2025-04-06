@@ -13,10 +13,10 @@ export interface WorldCharacterOptionsQuestInstance {
   readonly isStarted: boolean;
 }
 export interface WorldCharacterOptionsResources {
-  hp: number;
-  maxHP: number;
-  maxMP?: number;
-  mp?: number;
+  readonly hp: number;
+  readonly maxHP: number;
+  readonly maxMP?: number;
+  readonly mp?: number;
 }
 export interface WorldCharacterOptions {
   readonly clothesDyeItemID?: string;
