@@ -23,7 +23,7 @@ export const getQuestPartyState = (questID: string): QuestState | null => {
     if (
       typeof questInstance !== "undefined" &&
       questInstance.isCompleted === false &&
-      canWorldCharacterTurnInQuest(partyPlayer.id, questID)
+      canWorldCharacterTurnInQuest(partyPlayer.worldCharacterID, questID)
     ) {
       return QuestState.TurnIn;
     }
