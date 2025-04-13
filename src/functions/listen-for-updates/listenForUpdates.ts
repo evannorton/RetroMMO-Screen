@@ -13,6 +13,7 @@ import {
   TurnInQuestUpdate,
   TurnInQuestWorldUpdate,
 } from "retrommo-types";
+import { BattleCharacter } from "../../classes/BattleCharacter";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -35,11 +36,13 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
+import { exitBattleCharacters } from "../exitBattleCharacters";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
+import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadPartyUpdate } from "../load-updates/loadPartyUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
@@ -105,6 +108,10 @@ export const listenForUpdates = (): void => {
           battleState: null,
           worldState,
         });
+        for (const battleCharacter of getDefinables(BattleCharacter).values()) {
+          battleCharacter.player.battleCharacterID = null;
+          battleCharacter.remove();
+        }
         for (const worldCharacterUpdate of update.character.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
           const worldCharacterUpdatePlayer: Player = getDefinable(
@@ -159,6 +166,7 @@ export const listenForUpdates = (): void => {
       for (const playerUpdate of update.players) {
         const player: Player = getDefinable(Player, playerUpdate.playerID);
         player.character.level = playerUpdate.level;
+        player.battleCharacterID = null;
       }
       if (typeof update.world !== "undefined") {
         for (const worldCharacterUpdate of update.world.characters) {
@@ -306,6 +314,8 @@ export const listenForUpdates = (): void => {
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
         player.character = null;
+        player.worldCharacterID = null;
+        player.battleCharacterID = null;
       }
     },
   });
@@ -359,8 +369,11 @@ export const listenForUpdates = (): void => {
         case MainState.Battle:
           if (typeof update.battle === "undefined") {
             throw new Error(
-              "Initial update in World MainState is missing world.",
+              "Initial update in World MainState is missing battle.",
             );
+          }
+          for (const battleCharacterUpdate of update.battle.characters) {
+            loadBattleCharacterUpdate(battleCharacterUpdate);
           }
           state.setValues({
             battleState: createBattleState({
@@ -605,6 +618,8 @@ export const listenForUpdates = (): void => {
       }
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
+      } else if (player.hasBattleCharacter()) {
+        exitBattleCharacters([player.battleCharacterID]);
       }
       player.remove();
     },

@@ -1,3 +1,4 @@
+import { BattleCharacter } from "./BattleCharacter";
 import { Class } from "./Class";
 import { Definable, getDefinable } from "definables";
 import { Party } from "./Party";
@@ -9,6 +10,7 @@ export interface PlayerOptionsCharacter {
   readonly partyID: string;
 }
 export interface PlayerOptions {
+  readonly battleCharacterID?: string;
   readonly character?: PlayerOptionsCharacter;
   readonly id: string;
   readonly userID: number;
@@ -29,12 +31,14 @@ export interface PlayerModification {
   readonly modifiedAt: number;
 }
 export class Player extends Definable {
+  private _battleCharacterID: string | null;
   private _character: PlayerCharacter | null;
   private readonly _userID: number;
   private _username: string;
   private _worldCharacterID: string | null;
   public constructor(options: PlayerOptions) {
     super(options.id);
+    this._battleCharacterID = options.battleCharacterID ?? null;
     this._character =
       typeof options.character !== "undefined"
         ? {
@@ -46,6 +50,20 @@ export class Player extends Definable {
     this._userID = options.userID;
     this._username = options.username;
     this._worldCharacterID = options.worldCharacterID ?? null;
+  }
+
+  public get battleCharacter(): BattleCharacter {
+    if (this._battleCharacterID !== null) {
+      return getDefinable(BattleCharacter, this._battleCharacterID);
+    }
+    throw new Error(this.getAccessorErrorMessage("battleCharacter"));
+  }
+
+  public get battleCharacterID(): string {
+    if (this._battleCharacterID !== null) {
+      return this._battleCharacterID;
+    }
+    throw new Error(this.getAccessorErrorMessage("battleCharacterID"));
   }
 
   public get character(): PlayerCharacterWithAccessors {
@@ -98,6 +116,10 @@ export class Player extends Definable {
     throw new Error(this.getAccessorErrorMessage("worldCharacterID"));
   }
 
+  public set battleCharacterID(battleCharacterID: string | null) {
+    this._battleCharacterID = battleCharacterID;
+  }
+
   public set character(character: PlayerCharacter | null) {
     this._character = character;
   }
@@ -108,6 +130,10 @@ export class Player extends Definable {
 
   public set worldCharacterID(worldCharacterID: string | null) {
     this._worldCharacterID = worldCharacterID;
+  }
+
+  public hasBattleCharacter(): boolean {
+    return this._battleCharacterID !== null;
   }
 
   public hasCharacter(): boolean {

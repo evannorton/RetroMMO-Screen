@@ -2,6 +2,7 @@ import { Direction, Step } from "retrommo-types";
 import { Party } from "../classes/Party";
 import { Player } from "../classes/Player";
 import { getDefinable } from "definables";
+import { state } from "../state";
 import { updateWorldCharacterPosition } from "./updateWorldCharacterPosition";
 
 export const resetParty = (partyID: string): void => {
@@ -10,14 +11,16 @@ export const resetParty = (partyID: string): void => {
   if (typeof partyLeaderPlayer === "undefined") {
     throw new Error("No party leader character.");
   }
-  for (const partyPlayer of party.players) {
-    if (partyPlayer !== partyLeaderPlayer) {
-      updateWorldCharacterPosition(
-        partyPlayer.worldCharacterID,
-        partyLeaderPlayer.worldCharacter.position,
-      );
-      partyPlayer.worldCharacter.direction = Direction.Down;
-      partyPlayer.worldCharacter.step = Step.Right;
+  if (state.values.worldState !== null) {
+    for (const partyPlayer of party.players) {
+      if (partyPlayer !== partyLeaderPlayer) {
+        updateWorldCharacterPosition(
+          partyPlayer.worldCharacterID,
+          partyLeaderPlayer.worldCharacter.position,
+        );
+        partyPlayer.worldCharacter.direction = Direction.Down;
+        partyPlayer.worldCharacter.step = Step.Right;
+      }
     }
   }
 };

@@ -389,9 +389,6 @@ export class WorldCharacter extends Definable {
     if (this._markerEntityID !== null) {
       removeEntity(this._markerEntityID);
     }
-    if (this._playerID !== null) {
-      this.player.worldCharacterID = null;
-    }
     super.remove();
   }
 }

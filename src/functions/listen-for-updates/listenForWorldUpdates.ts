@@ -63,6 +63,7 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
+import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
@@ -392,6 +393,7 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           worldCharacterID,
         );
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
     },
@@ -406,7 +408,9 @@ export const listenForWorldUpdates = (): void => {
         worldState.values.worldCharacterID,
       );
       selfWorldCharacter.player.character = null;
+      selfWorldCharacter.player.worldCharacterID = null;
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
@@ -585,6 +589,7 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (update: WorldPositionUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
       for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
@@ -682,10 +687,20 @@ export const listenForWorldUpdates = (): void => {
     event: "world/start-battle",
     onMessage: (update: WorldStartBattleUpdate): void => {
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
+      }
+      for (const battleCharacterUpdate of update.characters) {
+        loadBattleCharacterUpdate(battleCharacterUpdate);
+        const battleCharacterPlayer: Player = getDefinable(
+          Player,
+          battleCharacterUpdate.playerID,
+        );
+        battleCharacterPlayer.battleCharacterID =
+          battleCharacterUpdate.characterID;
       }
       state.setValues({
         battleState: createBattleState({
