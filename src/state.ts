@@ -1,4 +1,5 @@
 import { Constants, Direction } from "retrommo-types";
+import { HUDElementReferences, State } from "pixel-pigeon";
 import {
   InitialBankTilePosition,
   InitialChestTilePosition,
@@ -9,7 +10,6 @@ import {
   InitialPianoTilePosition,
 } from "./types/TilePosition";
 import { PianoNote } from "./types/PianoNote";
-import { State } from "pixel-pigeon";
 import { TimePlayed } from "./types/TimePlayed";
 
 export interface MainMenuCharacterCustomizeStateSchema {
@@ -65,6 +65,7 @@ export interface WorldStateSchema {
 export interface BattleStateSchema {
   enemyBattleCharacterIDs: readonly string[];
   friendlyBattleCharacterIDs: readonly string[];
+  hudElementReferences: HUDElementReferences;
   reachableID: string;
 }
 interface StateSchema {

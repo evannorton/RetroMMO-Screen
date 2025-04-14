@@ -59,6 +59,7 @@ import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
+import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
@@ -706,6 +707,10 @@ export const listenForWorldUpdates = (): void => {
         battleState: createBattleState({
           enemyBattleCharacterIDs: update.enemyCharacterIDs,
           friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
+          hudElementReferences: createBattleUI({
+            enemyBattleCharacterIDs: update.enemyCharacterIDs,
+            friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
+          }),
           reachableID: update.reachableID,
         }),
         worldState: null,

@@ -14,6 +14,7 @@ import {
   TurnInQuestWorldUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
+import { BattleStateSchema, WorldStateSchema, state } from "../../state";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -21,23 +22,24 @@ import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
 import { QuestGiverQuest } from "../../classes/QuestGiver";
-import { State, listenToSocketioEvent } from "pixel-pigeon";
+import { State, listenToSocketioEvent, removeHUDElements } from "pixel-pigeon";
 import {
   WorldCharacter,
   WorldCharacterQuestInstance,
 } from "../../classes/WorldCharacter";
-import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleState } from "../state/createBattleState";
+import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
 import { exitBattleCharacters } from "../exitBattleCharacters";
 import { exitWorldCharacters } from "../exitWorldCharacters";
+import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
@@ -71,6 +73,8 @@ export const listenForUpdates = (): void => {
     event: "end-player-battle",
     onMessage: (update: EndPlayerBattleUpdate): void => {
       if (typeof update.character !== "undefined") {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        removeHUDElements(battleState.values.hudElementReferences);
         const worldState: State<WorldStateSchema> = createWorldState({
           agility: update.character.agility,
           bagItemInstanceIDs: update.character.bagItemInstances.map(
@@ -330,6 +334,9 @@ export const listenForUpdates = (): void => {
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.remove();
       }
+      for (const battleCharacter of getDefinables(BattleCharacter).values()) {
+        battleCharacter.remove();
+      }
       for (const party of getDefinables(Party).values()) {
         party.remove();
       }
@@ -358,6 +365,9 @@ export const listenForUpdates = (): void => {
       for (const partyUpdate of update.parties) {
         loadPartyUpdate(partyUpdate);
       }
+      if (state.values.battleState !== null) {
+        removeHUDElements(state.values.battleState.values.hudElementReferences);
+      }
       state.setValues({
         battleState: null,
         isSubscribed: update.isSubscribed,
@@ -379,6 +389,10 @@ export const listenForUpdates = (): void => {
             battleState: createBattleState({
               enemyBattleCharacterIDs: update.battle.enemyCharacterIDs,
               friendlyBattleCharacterIDs: update.battle.friendlyCharacterIDs,
+              hudElementReferences: createBattleUI({
+                enemyBattleCharacterIDs: update.battle.enemyCharacterIDs,
+                friendlyBattleCharacterIDs: update.battle.friendlyCharacterIDs,
+              }),
               reachableID: update.battle.reachableID,
             }),
           });

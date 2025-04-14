@@ -1,9 +1,11 @@
 import { Color } from "retrommo-types";
 import {
   CreateLabelOptionsText,
+  HUDElementReferences,
   Scriptable,
   createLabel,
   createQuadrilateral,
+  mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { createImage } from "./createImage";
 
@@ -26,15 +28,20 @@ export const createResourceBar = ({
   value,
   x,
   y,
-}: CreateResourceBarOptions): void => {
-  createImage({
-    condition,
-    height: 8,
-    imagePath: "calipers",
-    width: 41,
-    x,
-    y,
-  });
+}: CreateResourceBarOptions): HUDElementReferences => {
+  const labelIDs: string[] = [];
+  const quadrilateralIDs: string[] = [];
+  const hudElementReferences: HUDElementReferences[] = [];
+  hudElementReferences.push(
+    createImage({
+      condition,
+      height: 8,
+      imagePath: "calipers",
+      width: 41,
+      x,
+      y,
+    }),
+  );
   const maxFillingWidth: number = 38;
   const fillingWidth = (): number => {
     const calculatedValue: number = typeof value === "number" ? value : value();
@@ -51,44 +58,59 @@ export const createResourceBar = ({
         ? percentageWidth + 1
         : percentageWidth;
   };
-  createQuadrilateral({
-    color: primaryColor,
-    coordinates: {
-      condition,
-      x: (typeof x === "number" ? x : x()) + 3,
-      y: (typeof y === "number" ? y : y()) + 5,
-    },
-    height: 2,
-    width: fillingWidth,
-  });
-  createQuadrilateral({
-    color: secondaryColor,
-    coordinates: {
-      condition,
-      x: (): number => (typeof x === "number" ? x : x()) + 3,
-      y: (): number => (typeof y === "number" ? y : y()) + 7,
-    },
-    height: 1,
-    width: fillingWidth,
-  });
-  createImage({
-    condition,
-    height: 7,
-    imagePath: iconImagePath,
-    width: 7,
-    x: (typeof x === "number" ? x : x()) + 4,
-    y,
-  });
-  createLabel({
-    color: Color.White,
-    coordinates: {
-      condition,
-      x: (typeof x === "number" ? x : x()) + 37,
-      y,
-    },
-    horizontalAlignment: "right",
-    text: (): CreateLabelOptionsText => ({
-      value: String(typeof value === "number" ? value : value()),
+  quadrilateralIDs.push(
+    createQuadrilateral({
+      color: primaryColor,
+      coordinates: {
+        condition,
+        x: (typeof x === "number" ? x : x()) + 3,
+        y: (typeof y === "number" ? y : y()) + 5,
+      },
+      height: 2,
+      width: fillingWidth,
     }),
-  });
+  );
+  quadrilateralIDs.push(
+    createQuadrilateral({
+      color: secondaryColor,
+      coordinates: {
+        condition,
+        x: (): number => (typeof x === "number" ? x : x()) + 3,
+        y: (): number => (typeof y === "number" ? y : y()) + 7,
+      },
+      height: 1,
+      width: fillingWidth,
+    }),
+  );
+  hudElementReferences.push(
+    createImage({
+      condition,
+      height: 7,
+      imagePath: iconImagePath,
+      width: 7,
+      x: (typeof x === "number" ? x : x()) + 4,
+      y,
+    }),
+  );
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition,
+        x: (typeof x === "number" ? x : x()) + 37,
+        y,
+      },
+      horizontalAlignment: "right",
+      text: (): CreateLabelOptionsText => ({
+        value: String(typeof value === "number" ? value : value()),
+      }),
+    }),
+  );
+  return mergeHUDElementReferences([
+    {
+      labelIDs,
+      quadrilateralIDs,
+    },
+    ...hudElementReferences,
+  ]);
 };
