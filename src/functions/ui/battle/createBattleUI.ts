@@ -263,16 +263,16 @@ export const createBattleUI = ({
       const totalWidth: number = width + leftWidth + rightWidth;
       const startX: number = Math.floor(gameWidth / 2 - totalWidth / 2);
       return startX + leftWidth;
-    }
+    };
     ellipseIDs.push(
       createEllipse({
-        coordinates: {
-          x: (): number => getX()+4,
-          y: 122
-        },
         color: (): string =>
           getDefinable(Reachable, getBattleState().values.reachableID).landscape
             .shadowColor,
+        coordinates: {
+          x: (): number => getX() + 4,
+          y: 122,
+        },
         height: 8,
         width: 23,
       }),
@@ -288,7 +288,7 @@ export const createBattleUI = ({
           ).id;
         },
         coordinates: {
-          x: (): number =>  getX(),
+          x: (): number => getX(),
           y: 96,
         },
         direction: Direction.Down,
