@@ -14,7 +14,7 @@ interface PressableButtonStateSchema {
 }
 
 export interface CreatePressableButtonOptions {
-  readonly condition: () => boolean;
+  readonly condition?: () => boolean;
   readonly onClick: () => void;
   readonly height: number;
   readonly imagePath: string;

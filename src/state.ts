@@ -67,6 +67,7 @@ export interface BattleStateSchema {
   friendlyBattleCharacterIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
   reachableID: string;
+  selectedAbilityID: string | null;
 }
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
