@@ -15,7 +15,9 @@ import {
   State,
   createEllipse,
   createLabel,
+  createQuadrilateral,
   emitToSocketioServer,
+  getCurrentTime,
   getGameHeight,
   getGameWidth,
   mergeHUDElementReferences,
@@ -65,19 +67,25 @@ const selectAbility = (abilityID: string): void => {
       break;
     case TargetType.SingleEnemy:
       battleState.setValues({
-        selectedAbilityID: ability.id,
+        selectedAbility: {
+          abilityID: ability.id,
+          selectedAt: getCurrentTime(),
+        },
       });
       break;
     case TargetType.SingleAlly:
       battleState.setValues({
-        selectedAbilityID: ability.id,
+        selectedAbility: {
+          abilityID: ability.id,
+          selectedAt: getCurrentTime(),
+        },
       });
       break;
   }
 };
-const isTargetting = (): boolean => {
+const isTargeting = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  return battleState.values.selectedAbilityID !== null;
+  return battleState.values.selectedAbility !== null;
 };
 
 export interface CreateBattleUIOptions {
@@ -90,6 +98,7 @@ export const createBattleUI = ({
 }: CreateBattleUIOptions): HUDElementReferences => {
   const ellipseIDs: string[] = [];
   const labelIDs: string[] = [];
+  const quadrilateralIDs: string[] = [];
   const hudElementReferences: HUDElementReferences[] = [];
   const gameWidth: number = getGameWidth();
   const gameHeight: number = getGameHeight();
@@ -268,6 +277,7 @@ export const createBattleUI = ({
       const startX: number = Math.floor(gameWidth / 2 - totalWidth / 2);
       return startX + leftWidth;
     };
+    // Enemy shadow
     ellipseIDs.push(
       createEllipse({
         color: (): string =>
@@ -281,6 +291,7 @@ export const createBattleUI = ({
         width: 23,
       }),
     );
+    // Enemy character sprite
     hudElementReferences.push(
       createCharacterSprite({
         clothesDyeID: (): string => {
@@ -323,6 +334,84 @@ export const createBattleUI = ({
         },
         scale: 2,
         skinColorID: (): string => getBattleCharacter().skinColorID,
+      }),
+    );
+    // Enemy targetting number
+    //  if (state.hasBattleQueuedAbility() && isTargetingEnemy()) {
+    //   if (
+    //     (state.currentTime - state.battleQueuedAbility.selectedAt) %
+    //       1500 <
+    //     750
+    //   ) {
+    //     const squareLength: number = 9;
+    //     drawRectangle(
+    //       Color.VeryDarkGray,
+    //       x + Math.round(width / 2) - Math.ceil(squareLength / 2),
+    //       y + height - 5,
+    //       squareLength,
+    //       squareLength,
+    //       ZIndex.KeyIndicator,
+    //     );
+    //     drawText(
+    //       String(aliveEnemyIndex + 1),
+    //       Color.White,
+    //       x + Math.round(width / 2),
+    //       y + height - 4,
+    //       1,
+    //       304,
+    //       1,
+    //       "center",
+    //       "top",
+    //       ZIndex.KeyIndicator,
+    //     );
+    //   }
+    // }
+    const targetingNumberCondition = (): boolean => {
+      if (isTargeting()) {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selectedAbility === null) {
+          throw new Error("selectedAbility is null");
+        }
+        const ability: Ability = getDefinable(
+          Ability,
+          battleState.values.selectedAbility.abilityID,
+        );
+        if (ability.targetType === TargetType.SingleEnemy) {
+          return (
+            battleState.values.selectedAbility === null ||
+            (getCurrentTime() - battleState.values.selectedAbility.selectedAt) %
+              1500 <
+              750
+          );
+        }
+        return false;
+      }
+      return false;
+    };
+    quadrilateralIDs.push(
+      createQuadrilateral({
+        color: Color.VeryDarkGray,
+        coordinates: {
+          condition: targetingNumberCondition,
+          x: (): number => getX() + 11,
+          y: 123,
+        },
+        height: 9,
+        width: 9,
+      }),
+    );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: targetingNumberCondition,
+          x: (): number => getX() + 16,
+          y: 124,
+        },
+        horizontalAlignment: "center",
+        text: (): CreateLabelOptionsText => ({
+          value: String(i + 1),
+        }),
       }),
     );
   }
@@ -375,7 +464,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargetting() === false,
+      condition: (): boolean => isTargeting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -413,7 +502,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargetting() === false,
+      condition: (): boolean => isTargeting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -451,7 +540,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargetting() === false,
+      condition: (): boolean => isTargeting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -489,7 +578,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargetting() === false,
+      condition: (): boolean => isTargeting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -529,7 +618,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargetting() === false,
+      condition: (): boolean => isTargeting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -567,12 +656,12 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargetting(),
+      condition: (): boolean => isTargeting(),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         getBattleState().setValues({
-          selectedAbilityID: null,
+          selectedAbility: null,
         });
       },
       text: { value: "Cancel" },
@@ -643,7 +732,7 @@ export const createBattleUI = ({
       maxWidth: 229,
       size: 1,
       text: (): CreateLabelOptionsText => {
-        if (isTargetting()) {
+        if (isTargeting()) {
           return { value: "Select a target." };
         }
         return {
@@ -704,6 +793,7 @@ export const createBattleUI = ({
     {
       ellipseIDs,
       labelIDs,
+      quadrilateralIDs,
     },
     ...hudElementReferences,
   ]);

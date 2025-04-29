@@ -62,12 +62,16 @@ export interface WorldStateSchema {
   wisdom: number;
   worldCharacterID: string;
 }
+export interface BattleStateSelectedAbility {
+  readonly abilityID: string;
+  readonly selectedAt: number;
+}
 export interface BattleStateSchema {
   enemyBattleCharacterIDs: readonly string[];
   friendlyBattleCharacterIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
   reachableID: string;
-  selectedAbilityID: string | null;
+  selectedAbility: BattleStateSelectedAbility | null;
 }
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
