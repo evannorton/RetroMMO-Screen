@@ -493,7 +493,7 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        console.log("pass");
+        selectAbility("pass");
       },
       text: { value: "Pass" },
       width: 49,
