@@ -75,6 +75,10 @@ const selectAbility = (abilityID: string): void => {
       break;
   }
 };
+const isTargetting = (): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  return battleState.values.selectedAbilityID !== null;
+};
 
 export interface CreateBattleUIOptions {
   readonly enemyBattleCharacterIDs: readonly string[];
@@ -371,6 +375,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
+      condition: (): boolean => isTargetting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -408,6 +413,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
+      condition: (): boolean => isTargetting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -445,6 +451,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
+      condition: (): boolean => isTargetting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -482,6 +489,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
+      condition: (): boolean => isTargetting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -521,6 +529,7 @@ export const createBattleUI = ({
   // );
   hudElementReferences.push(
     createPressableButton({
+      condition: (): boolean => isTargetting() === false,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -532,7 +541,7 @@ export const createBattleUI = ({
       y: 218,
     }),
   );
-  // // Commands cancel button
+  // Commands cancel button
   // new Button(
   //   "battle/commands/cancel",
   //   (): ButtonOptions => ({
@@ -556,6 +565,22 @@ export const createBattleUI = ({
   //     player.handleCancelCommand();
   //   },
   // );
+  hudElementReferences.push(
+    createPressableButton({
+      condition: (): boolean => isTargetting(),
+      height: 16,
+      imagePath: "pressable-buttons/gray",
+      onClick: (): void => {
+        getBattleState().setValues({
+          selectedAbilityID: null,
+        });
+      },
+      text: { value: "Cancel" },
+      width: 49,
+      x: 6,
+      y: 146,
+    }),
+  );
   // Instructions panel
   // new Panel(
   //   "battle/instructions",
@@ -617,12 +642,17 @@ export const createBattleUI = ({
       maxLines: 1,
       maxWidth: 229,
       size: 1,
-      text: (): CreateLabelOptionsText => ({
-        value: "Select an action.",
-      }),
+      text: (): CreateLabelOptionsText => {
+        if (isTargetting()) {
+          return { value: "Select a target." };
+        }
+        return {
+          value: "Select an action.",
+        };
+      },
     }),
   );
-  // // Selected ability label
+  // Selected ability label
   // new Label(
   //   "battle/instructions/ability",
   //   (player: Player): LabelOptions => ({
