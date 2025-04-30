@@ -1,6 +1,6 @@
 import { Ability } from "../../../classes/Ability";
 import { BattleCharacter } from "../../../classes/BattleCharacter";
-import { BattleStateSchema, state } from "../../../state";
+import { BattleMenuState, BattleStateSchema, state } from "../../../state";
 import {
   BattleUseAbilityRequest,
   Color,
@@ -9,6 +9,7 @@ import {
   ResourcePool,
   TargetType,
 } from "retrommo-types";
+import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
@@ -25,7 +26,9 @@ import {
 } from "pixel-pigeon";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { Reachable } from "../../../classes/Reachable";
+import { battleAbilitiesPerPage } from "../../../constants";
 import { createCharacterSprite } from "../components/createCharacterSprite";
+import { createIconListItem } from "../components/createIconListItem";
 import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
@@ -33,6 +36,7 @@ import { createResourceBar } from "../components/createResourceBar";
 import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
 import { getConstants } from "../../getConstants";
+import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
@@ -97,10 +101,15 @@ const selectAbility = (abilityID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const ability: Ability = getDefinable(Ability, abilityID);
   battleState.setValues({
+    abilitiesPage: 0,
+    itemsPage: 0,
+    menuState: BattleMenuState.Default,
     queuedAction: {
       actionDefinableReference: ability.getReference(),
       queuedAt: getCurrentTime(),
     },
+    selectedAbilityIndex: null,
+    selectedItemIndex: null,
   });
   switch (ability.targetType) {
     case TargetType.AllAllies:
@@ -121,6 +130,63 @@ const isTargeting = (): boolean => {
     }
   }
   return false;
+};
+const getAbilityIDs = (): string[] => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  const battleCharacter: BattleCharacter = getDefinable(
+    BattleCharacter,
+    battleState.values.battleCharacterID,
+  );
+  return battleCharacter.player.character.class.abilityUnlocks
+    .filter(
+      (abilityUnlock: ClassAbilityUnlock): boolean =>
+        getDefinable(Ability, abilityUnlock.abilityID).canBeUsedInBattle &&
+        abilityUnlock.level <= battleCharacter.player.character.level,
+    )
+    .map(
+      (abilityUnlock: ClassAbilityUnlock): string => abilityUnlock.abilityID,
+    );
+};
+const getLastAbilitiesPage = (): number =>
+  Math.max(
+    Math.floor((getAbilityIDs().length - 1) / battleAbilitiesPerPage),
+    0,
+  );
+const pageAbilities = (offset: number): void => {
+  const pages: number[] = [];
+  for (let i: number = 0; i < getLastAbilitiesPage() + 1; i++) {
+    pages.push(i);
+  }
+  const battleState: State<BattleStateSchema> = getBattleState();
+  battleState.setValues({
+    abilitiesPage: getCyclicIndex(
+      pages.indexOf(battleState.values.abilitiesPage) + offset,
+      pages,
+    ),
+  });
+};
+const getPaginatedAbilityIDs = (): string[] => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  const abilityIDs: string[] = getAbilityIDs();
+  const startIndex: number =
+    battleState.values.abilitiesPage * battleAbilitiesPerPage;
+  const endIndex: number =
+    startIndex + battleAbilitiesPerPage > abilityIDs.length
+      ? abilityIDs.length
+      : startIndex + battleAbilitiesPerPage;
+  return abilityIDs.slice(startIndex, endIndex);
+};
+const getPaginatedAbility = (i: number): Ability => {
+  const abilityIDs: string[] = getPaginatedAbilityIDs();
+  const abilityID: string | undefined = abilityIDs[i];
+  if (typeof abilityID === "undefined") {
+    throw new Error("Ability ID not found");
+  }
+  return getDefinable(Ability, abilityID);
+};
+const hasPaginatedAbility = (i: number): boolean => {
+  const abilityIDs: string[] = getPaginatedAbilityIDs();
+  return typeof abilityIDs[i] !== "undefined";
 };
 
 export interface CreateBattleUIOptions {
@@ -471,7 +537,20 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        console.log("ability");
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.menuState === BattleMenuState.Abilities) {
+          battleState.setValues({
+            abilitiesPage: 0,
+            itemsPage: 0,
+            menuState: BattleMenuState.Default,
+            selectedAbilityIndex: null,
+            selectedItemIndex: null,
+          });
+        } else {
+          battleState.setValues({
+            menuState: BattleMenuState.Abilities,
+          });
+        }
       },
       text: { value: "Ability" },
       width: 49,
@@ -624,6 +703,247 @@ export const createBattleUI = ({
       y: 149,
     }),
   );
+  // Abilities panel
+  // new Panel(
+  //   "battle/spellbook",
+  //   (): PanelOptions => ({
+  //     height: 110,
+  //     imageSourceID: "panels/basic",
+  //     width: 243,
+  //     x: 61,
+  //     y: 90,
+  //   }),
+  //   (player: Player): boolean =>
+  //     player.hasBattle() &&
+  //     player.battle.isOver() === false &&
+  //     player.battle.getPlayerSpellbookIsOpen(player.id),
+  // );
+  hudElementReferences.push(
+    createPanel({
+      condition: (): boolean =>
+        getBattleState().values.menuState === BattleMenuState.Abilities,
+      height: 110,
+      imagePath: "panels/basic",
+      width: 243,
+      x: 61,
+      y: 90,
+    }),
+  );
+  // For each battle ability
+  for (let i: number = 0; i < battleAbilitiesPerPage; i++) {
+    // Icon list item
+    hudElementReferences.push(
+      createIconListItem({
+        condition: (): boolean =>
+          getBattleState().values.menuState === BattleMenuState.Abilities &&
+          hasPaginatedAbility(i),
+        icons: [
+          {
+            imagePath: (): string => getPaginatedAbility(i).iconImagePath,
+          },
+        ],
+        isSelected: (): boolean =>
+          getBattleState().values.selectedAbilityIndex ===
+          i + getBattleState().values.abilitiesPage * battleAbilitiesPerPage,
+        onClick: (): void => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (
+            battleState.values.selectedAbilityIndex ===
+            i + battleState.values.abilitiesPage * battleAbilitiesPerPage
+          ) {
+            battleState.setValues({
+              selectedAbilityIndex: null,
+            });
+          } else {
+            battleState.setValues({
+              selectedAbilityIndex:
+                i + battleState.values.abilitiesPage * battleAbilitiesPerPage,
+            });
+          }
+        },
+        slotImagePath: "slots/basic",
+        text: (): CreateLabelOptionsText => ({
+          value: getPaginatedAbility(i).name,
+        }),
+        width: 116,
+        x: 68,
+        y: 97 + i * 20,
+      }),
+    );
+  }
+  // Abilities page up arrow
+  hudElementReferences.push(
+    createImage({
+      condition: (): boolean =>
+        getBattleState().values.menuState === BattleMenuState.Abilities &&
+        getAbilityIDs().length > battleAbilitiesPerPage,
+      height: 16,
+      imagePath: "arrows/up",
+      onClick: (): void => {
+        pageAbilities(-1);
+      },
+      width: 12,
+      x: 188,
+      y: 97,
+    }),
+  );
+  // Abilities page number
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: (): boolean =>
+          getBattleState().values.menuState === BattleMenuState.Abilities &&
+          getAbilityIDs().length > battleAbilitiesPerPage,
+        x: 194,
+        y: 141,
+      },
+      horizontalAlignment: "center",
+      text: (): CreateLabelOptionsText => ({
+        value: String(getBattleState().values.abilitiesPage + 1),
+      }),
+    }),
+  );
+  // Abilities page down arrow
+  hudElementReferences.push(
+    createImage({
+      condition: (): boolean =>
+        getBattleState().values.menuState === BattleMenuState.Abilities &&
+        getAbilityIDs().length > battleAbilitiesPerPage,
+      height: 16,
+      imagePath: "arrows/down",
+      onClick: (): void => {
+        pageAbilities(1);
+      },
+      width: 12,
+      x: 188,
+      y: 177,
+    }),
+  );
+  // // Selected ability name
+  // new Label(
+  //   `battle/spellbook/selected-ability/name`,
+  //   (player: Player): LabelOptions => {
+  //     const ability: Ability = player.battle.getPlayerSelectedSpellbookAbility(
+  //       player.id,
+  //     );
+  //     return {
+  //       color: Color.White,
+  //       horizontalAlignment: "center",
+  //       maxLines: 1,
+  //       maxWidth: 96,
+  //       size: 1,
+  //       text: ability.name,
+  //       verticalAlignment: "middle",
+  //       x: 253,
+  //       y: 109,
+  //     };
+  //   },
+  //   (player: Player): boolean =>
+  //     player.hasBattle() &&
+  //     player.battle.isOver() === false &&
+  //     player.battle.getPlayerSpellbookIsOpen(player.id) &&
+  //     player.battle.playerHasSelectedSpellbookAbility(player.id),
+  // );
+  // // Selected ability icon
+  // new Picture(
+  //   "battle/spellbook/selected-ability/icon",
+  //   (player: Player): PictureOptions => {
+  //     const ability: Ability = player.battle.getPlayerSelectedSpellbookAbility(
+  //       player.id,
+  //     );
+  //     return {
+  //       grayscale: false,
+  //       height: 16,
+  //       imageSourceID: ability.imageSource.id,
+  //       recolors: [],
+  //       sourceHeight: 16,
+  //       sourceWidth: 16,
+  //       sourceX: 0,
+  //       sourceY: 0,
+  //       width: 16,
+  //       x: 244,
+  //       y: 124,
+  //     };
+  //   },
+  //   (player: Player): boolean =>
+  //     player.hasBattle() &&
+  //     player.battle.isOver() === false &&
+  //     player.battle.getPlayerSpellbookIsOpen(player.id) &&
+  //     player.battle.playerHasSelectedSpellbookAbility(player.id),
+  //   undefined,
+  // );
+  // // Selected ability mp cost
+  // new Label(
+  //   `battle/spellbook/selected-ability/mp-cost`,
+  //   (player: Player): LabelOptions => {
+  //     const ability: Ability = player.battle.getPlayerSelectedSpellbookAbility(
+  //       player.id,
+  //     );
+  //     return {
+  //       color: Color.White,
+  //       horizontalAlignment: "center",
+  //       maxLines: 1,
+  //       maxWidth: 96,
+  //       size: 1,
+  //       text: `${ability.mpCost} MP`,
+  //       verticalAlignment: "middle",
+  //       x: 253,
+  //       y: 153,
+  //     };
+  //   },
+  //   (player: Player): boolean =>
+  //     player.hasBattle() &&
+  //     player.battle.isOver() === false &&
+  //     player.battle.getPlayerSpellbookIsOpen(player.id) &&
+  //     player.battle.playerHasSelectedSpellbookAbility(player.id) &&
+  //     player.battle.getPlayerSelectedSpellbookAbility(player.id).mpCost > 0,
+  // );
+  // // Selected ability use
+  // new Button(
+  //   "battle/spellbook/selected-ability/use",
+  //   (): ButtonOptions => ({
+  //     color: Color.White,
+  //     height: 16,
+  //     imageSourceID: "buttons/gray",
+  //     text: "Use",
+  //     width: 34,
+  //     x: 216,
+  //     y: 168,
+  //   }),
+  //   (player: Player): boolean =>
+  //     player.hasBattle() &&
+  //     player.battle.isOver() === false &&
+  //     player.battle.getPlayerSpellbookIsOpen(player.id) &&
+  //     player.battle.playerHasSelectedSpellbookAbility(player.id) &&
+  //     player.battle.playerSelectedSpellbookAbilityIsUsable(player.id),
+  //   (player: Player): void => {
+  //     player.useSelectedBattleSpellbookAbility();
+  //   },
+  // );
+  // // Selected ability bind
+  // new Button(
+  //   "battle/spellbook/selected-ability/bind",
+  //   (): ButtonOptions => ({
+  //     color: Color.White,
+  //     height: 16,
+  //     imageSourceID: "buttons/gray",
+  //     text: "Bind",
+  //     width: 34,
+  //     x: 255,
+  //     y: 168,
+  //   }),
+  //   (player: Player): boolean =>
+  //     player.hasBattle() &&
+  //     player.battle.isOver() === false &&
+  //     player.battle.getPlayerSpellbookIsOpen(player.id) &&
+  //     player.battle.playerHasSelectedSpellbookAbility(player.id) &&
+  //     player.battle.getPlayerSelectedSpellbookAbility(player.id)
+  //       .canBeUsedInBattle,
+  //   (player: Player): void => {
+  //     player.battle.bindPlayerHotkeys(player.id);
+  //   },
+  // );
   return mergeHUDElementReferences([
     {
       buttonIDs,

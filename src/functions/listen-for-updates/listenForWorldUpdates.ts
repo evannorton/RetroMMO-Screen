@@ -705,6 +705,7 @@ export const listenForWorldUpdates = (): void => {
       }
       state.setValues({
         battleState: createBattleState({
+          battleCharacterID: update.battleCharacterID,
           enemyBattleCharacterIDs: update.enemyCharacterIDs,
           friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
           hudElementReferences: createBattleUI({

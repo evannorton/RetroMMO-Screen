@@ -67,12 +67,23 @@ export interface BattleStateSelectedAction {
   readonly actionDefinableReference: DefinableReference;
   readonly queuedAt: number;
 }
+export enum BattleMenuState {
+  Default = "default",
+  Abilities = "abilities",
+  Items = "items",
+}
 export interface BattleStateSchema {
+  abilitiesPage: number;
+  battleCharacterID: string;
   enemyBattleCharacterIDs: readonly string[];
   friendlyBattleCharacterIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
+  itemsPage: number;
+  menuState: BattleMenuState;
   queuedAction: BattleStateSelectedAction | null;
   reachableID: string;
+  selectedAbilityIndex: number | null;
+  selectedItemIndex: number | null;
 }
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;

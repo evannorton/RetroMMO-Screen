@@ -1,4 +1,6 @@
 export const bankToggleDuration: number = 267 / 2;
+export const battleAbilitiesPerPage: number = 5;
+export const battleItemsPerPage: number = 5;
 export const chestOpenDuration: number = 267 / 2;
 export const emotesPerPage: number = 25;
 export const mainMenuCharactersPerPage: number = 7;
