@@ -18,5 +18,5 @@ export const createBattleState = ({
     friendlyBattleCharacterIDs,
     hudElementReferences,
     reachableID,
-    selectedAbility: null,
+    selectedAction: null,
   });

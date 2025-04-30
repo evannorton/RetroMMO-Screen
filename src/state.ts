@@ -1,4 +1,5 @@
 import { Constants, Direction } from "retrommo-types";
+import { DefinableReference } from "definables";
 import { HUDElementReferences, State } from "pixel-pigeon";
 import {
   InitialBankTilePosition,
@@ -62,8 +63,8 @@ export interface WorldStateSchema {
   wisdom: number;
   worldCharacterID: string;
 }
-export interface BattleStateSelectedAbility {
-  readonly abilityID: string;
+export interface BattleStateSelectedAction {
+  readonly actionDefinableReference: DefinableReference;
   readonly selectedAt: number;
 }
 export interface BattleStateSchema {
@@ -71,7 +72,7 @@ export interface BattleStateSchema {
   friendlyBattleCharacterIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
   reachableID: string;
-  selectedAbility: BattleStateSelectedAbility | null;
+  selectedAction: BattleStateSelectedAction | null;
 }
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;
