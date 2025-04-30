@@ -13,6 +13,7 @@ import {
   CreateLabelOptionsText,
   HUDElementReferences,
   State,
+  createButton,
   createEllipse,
   createLabel,
   createQuadrilateral,
@@ -28,6 +29,7 @@ import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
 import { createResourceBar } from "../components/createResourceBar";
+import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
 import { getConstants } from "../../getConstants";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
@@ -37,33 +39,27 @@ import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit
 import { getDefinable } from "definables";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
 
+const useAbility = (abilityID: string, playerID?: string): void => {
+  emitToSocketioServer<BattleUseAbilityRequest>({
+    data: {
+      abilityID,
+      playerID,
+    },
+    event: "battle/use-ability",
+  });
+};
 const selectAbility = (abilityID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const ability: Ability = getDefinable(Ability, abilityID);
   switch (ability.targetType) {
     case TargetType.AllAllies:
-      emitToSocketioServer<BattleUseAbilityRequest>({
-        data: {
-          abilityID: ability.id,
-        },
-        event: "battle/use-ability",
-      });
+      useAbility(ability.id);
       break;
     case TargetType.None:
-      emitToSocketioServer<BattleUseAbilityRequest>({
-        data: {
-          abilityID: ability.id,
-        },
-        event: "battle/use-ability",
-      });
+      useAbility(ability.id);
       break;
     case TargetType.Self:
-      emitToSocketioServer<BattleUseAbilityRequest>({
-        data: {
-          abilityID: ability.id,
-        },
-        event: "battle/use-ability",
-      });
+      useAbility(ability.id);
       break;
     case TargetType.SingleEnemy:
       battleState.setValues({
@@ -96,6 +92,7 @@ export const createBattleUI = ({
   enemyBattleCharacterIDs,
   friendlyBattleCharacterIDs,
 }: CreateBattleUIOptions): HUDElementReferences => {
+  const buttonIDs: string[] = [];
   const ellipseIDs: string[] = [];
   const labelIDs: string[] = [];
   const quadrilateralIDs: string[] = [];
@@ -334,6 +331,40 @@ export const createBattleUI = ({
         },
         scale: 2,
         skinColorID: (): string => getBattleCharacter().skinColorID,
+      }),
+    );
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: (): boolean => {
+            const battleState: State<BattleStateSchema> = getBattleState();
+            if (isTargeting()) {
+              if (battleState.values.selectedAbility === null) {
+                throw new Error("selectedAbility is null");
+              }
+              const ability: Ability = getDefinable(
+                Ability,
+                battleState.values.selectedAbility.abilityID,
+              );
+              return ability.targetType === TargetType.SingleEnemy;
+            }
+            return false;
+          },
+          x: getX(),
+          y: 96,
+        },
+        height: 32,
+        onClick: (): void => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.selectedAbility === null) {
+            throw new Error("selectedAbility is null");
+          }
+          useAbility(
+            battleState.values.selectedAbility.abilityID,
+            getBattleCharacter().playerID,
+          );
+        },
+        width: 32,
       }),
     );
     // Enemy targetting number
@@ -765,7 +796,31 @@ export const createBattleUI = ({
   //     player.battle.playerHasAMenuOpen(player.id) === false &&
   //     player.battle.playerIsTargeting(player.id),
   // );
-  // // Selected ability Slot
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: (): boolean => isTargeting(),
+        x: 276,
+        y: 154,
+      },
+      horizontalAlignment: "right",
+      size: 1,
+      text: (): CreateLabelOptionsText => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selectedAbility === null) {
+          throw new Error("selectedAbility is null");
+        }
+        return {
+          value: getDefinable(
+            Ability,
+            battleState.values.selectedAbility.abilityID,
+          ).name,
+        };
+      },
+    }),
+  );
+  // Selected ability Slot
   // new Slot(
   //   "battle/instructions/ability",
   //   (player: Player): SlotOptions => {
@@ -789,8 +844,32 @@ export const createBattleUI = ({
   //     player.battle.playerIsTargeting(player.id),
   //   undefined,
   // );
+  hudElementReferences.push(
+    createSlot({
+      condition: (): boolean => isTargeting(),
+      icons: [
+        {
+          imagePath: (): string => {
+            const battleState: State<BattleStateSchema> = getBattleState();
+            if (battleState.values.selectedAbility === null) {
+              throw new Error("selectedAbility is null");
+            }
+            const ability: Ability = getDefinable(
+              Ability,
+              battleState.values.selectedAbility.abilityID,
+            );
+            return ability.iconImagePath;
+          },
+        },
+      ],
+      imagePath: "slots/basic",
+      x: 280,
+      y: 149,
+    }),
+  );
   return mergeHUDElementReferences([
     {
+      buttonIDs,
       ellipseIDs,
       labelIDs,
       quadrilateralIDs,
