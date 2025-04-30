@@ -348,6 +348,10 @@ export const listenForUpdates = (): void => {
       }
       for (const playerUpdate of update.players) {
         new Player({
+          battleCharacterID:
+            update.mainState === MainState.Battle
+              ? playerUpdate.characterID
+              : undefined,
           character:
             typeof playerUpdate.character !== "undefined"
               ? {
@@ -359,7 +363,10 @@ export const listenForUpdates = (): void => {
           id: playerUpdate.playerID,
           userID: playerUpdate.userID,
           username: playerUpdate.username,
-          worldCharacterID: playerUpdate.characterID,
+          worldCharacterID:
+            update.mainState === MainState.World
+              ? playerUpdate.characterID
+              : undefined,
         });
       }
       for (const partyUpdate of update.parties) {
@@ -631,6 +638,7 @@ export const listenForUpdates = (): void => {
       if (state.values.selectedPlayerID === update.playerID) {
         selectedPlayerWorldMenu.close();
       }
+      console.log(player);
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
       } else if (player.hasBattleCharacter()) {
