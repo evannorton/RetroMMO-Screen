@@ -65,14 +65,14 @@ export interface WorldStateSchema {
 }
 export interface BattleStateSelectedAction {
   readonly actionDefinableReference: DefinableReference;
-  readonly selectedAt: number;
+  readonly queuedAt: number;
 }
 export interface BattleStateSchema {
   enemyBattleCharacterIDs: readonly string[];
   friendlyBattleCharacterIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
+  queuedAction: BattleStateSelectedAction | null;
   reachableID: string;
-  selectedAction: BattleStateSelectedAction | null;
 }
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;

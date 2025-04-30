@@ -41,42 +41,40 @@ import { getDefinable } from "definables";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
 
 const targetBlinkDuration: number = 750;
-const getSelectedAction = (): Ability | ItemInstance => {
+const getQueuedAction = (): Ability | ItemInstance => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.selectedAction === null) {
-    throw new Error("selectedAction is null");
+  if (battleState.values.queuedAction === null) {
+    throw new Error("queuedAction is null");
   }
-  switch (
-    battleState.values.selectedAction.actionDefinableReference.className
-  ) {
+  switch (battleState.values.queuedAction.actionDefinableReference.className) {
     case "Ability":
       return getDefinable(
         Ability,
-        battleState.values.selectedAction.actionDefinableReference.id,
+        battleState.values.queuedAction.actionDefinableReference.id,
       );
     case "ItemInstance":
       return getDefinable(
         ItemInstance,
-        battleState.values.selectedAction.actionDefinableReference.id,
+        battleState.values.queuedAction.actionDefinableReference.id,
       );
     default:
       throw new Error(
-        `selectedAction.actionDefinableReference.className is not a valid class name: ${battleState.values.selectedAction.actionDefinableReference.className}`,
+        `queuedAction.actionDefinableReference.className is not a valid class name: ${battleState.values.queuedAction.actionDefinableReference.className}`,
       );
   }
 };
-const getSelectedActionAbility = (): Ability => {
-  const selectedAction: Ability | ItemInstance = getSelectedAction();
-  if (selectedAction instanceof Ability) {
-    return selectedAction;
+const getQueuedActionAbility = (): Ability => {
+  const queuedAction: Ability | ItemInstance = getQueuedAction();
+  if (queuedAction instanceof Ability) {
+    return queuedAction;
   }
-  if (selectedAction instanceof ItemInstance) {
-    return selectedAction.item.ability;
+  if (queuedAction instanceof ItemInstance) {
+    return queuedAction.item.ability;
   }
-  throw new Error("selectedAction is not an Ability or ItemInstance");
+  throw new Error("queuedAction is not an Ability or ItemInstance");
 };
 const useAction = (playerID?: string): void => {
-  const action: Ability | ItemInstance = getSelectedAction();
+  const action: Ability | ItemInstance = getQueuedAction();
   if (action instanceof Ability) {
     emitToSocketioServer<BattleUseAbilityRequest>({
       data: {
@@ -99,9 +97,9 @@ const selectAbility = (abilityID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const ability: Ability = getDefinable(Ability, abilityID);
   battleState.setValues({
-    selectedAction: {
+    queuedAction: {
       actionDefinableReference: ability.getReference(),
-      selectedAt: getCurrentTime(),
+      queuedAt: getCurrentTime(),
     },
   });
   switch (ability.targetType) {
@@ -114,8 +112,8 @@ const selectAbility = (abilityID: string): void => {
 };
 const isTargeting = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.selectedAction !== null) {
-    const ability: Ability = getSelectedActionAbility();
+  if (battleState.values.queuedAction !== null) {
+    const ability: Ability = getQueuedActionAbility();
     switch (ability.targetType) {
       case TargetType.SingleAlly:
       case TargetType.SingleEnemy:
@@ -379,7 +377,7 @@ export const createBattleUI = ({
         coordinates: {
           condition: (): boolean => {
             if (isTargeting()) {
-              const ability: Ability = getSelectedActionAbility();
+              const ability: Ability = getQueuedActionAbility();
               return ability.targetType === TargetType.SingleEnemy;
             }
             return false;
@@ -398,13 +396,13 @@ export const createBattleUI = ({
     const targetingNumberCondition = (): boolean => {
       if (isTargeting()) {
         const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.selectedAction === null) {
-          throw new Error("selectedAction is null");
+        if (battleState.values.queuedAction === null) {
+          throw new Error("queuedAction is null");
         }
-        const ability: Ability = getSelectedActionAbility();
+        const ability: Ability = getQueuedActionAbility();
         if (ability.targetType === TargetType.SingleEnemy) {
           return (
-            ((getCurrentTime() - battleState.values.selectedAction.selectedAt) %
+            ((getCurrentTime() - battleState.values.queuedAction.queuedAt) %
               targetBlinkDuration) *
               2 <
             targetBlinkDuration
@@ -534,7 +532,7 @@ export const createBattleUI = ({
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         getBattleState().setValues({
-          selectedAction: null,
+          queuedAction: null,
         });
       },
       text: { value: "Cancel" },
@@ -576,7 +574,7 @@ export const createBattleUI = ({
       },
     }),
   );
-  // Selected ability label
+  // Queued action label
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -588,7 +586,7 @@ export const createBattleUI = ({
       horizontalAlignment: "right",
       size: 1,
       text: (): CreateLabelOptionsText => {
-        const action: Ability | ItemInstance = getSelectedAction();
+        const action: Ability | ItemInstance = getQueuedAction();
         if (action instanceof Ability) {
           return {
             value: action.name,
@@ -599,25 +597,25 @@ export const createBattleUI = ({
             value: action.item.name,
           };
         }
-        throw new Error("selectedAction is not an Ability or ItemInstance");
+        throw new Error("queuedAction is not an Ability or ItemInstance");
       },
     }),
   );
-  // Selected ability Slot
+  // Queued action Slot
   hudElementReferences.push(
     createSlot({
       condition: (): boolean => isTargeting(),
       icons: [
         {
           imagePath: (): string => {
-            const action: Ability | ItemInstance = getSelectedAction();
+            const action: Ability | ItemInstance = getQueuedAction();
             if (action instanceof Ability) {
               return action.iconImagePath;
             }
             if (action instanceof ItemInstance) {
               return action.item.iconImagePath;
             }
-            throw new Error("selectedAction is not an Ability or ItemInstance");
+            throw new Error("queuedAction is not an Ability or ItemInstance");
           },
         },
       ],
