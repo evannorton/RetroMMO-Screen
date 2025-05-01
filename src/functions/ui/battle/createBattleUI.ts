@@ -720,7 +720,9 @@ export const createBattleUI = ({
           });
         } else {
           battleState.setValues({
+            itemsPage: 0,
             menuState: BattleMenuState.Abilities,
+            selectedItemInstanceIndex: null,
           });
         }
       },
@@ -748,7 +750,9 @@ export const createBattleUI = ({
           });
         } else {
           battleState.setValues({
+            abilitiesPage: 0,
             menuState: BattleMenuState.Items,
+            selectedAbilityIndex: null,
           });
         }
       },
