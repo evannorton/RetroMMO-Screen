@@ -759,7 +759,6 @@ export const createBattleUI = ({
     createLabel({
       color: Color.White,
       coordinates: {
-        condition: (): boolean => true,
         x: 69,
         y: 148,
       },
