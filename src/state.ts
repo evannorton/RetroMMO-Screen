@@ -78,12 +78,13 @@ export interface BattleStateSchema {
   enemyBattleCharacterIDs: readonly string[];
   friendlyBattleCharacterIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
+  itemInstanceIDs: readonly string[];
   itemsPage: number;
   menuState: BattleMenuState;
   queuedAction: BattleStateSelectedAction | null;
   reachableID: string;
   selectedAbilityIndex: number | null;
-  selectedItemIndex: number | null;
+  selectedItemInstanceIndex: number | null;
 }
 interface StateSchema {
   battleState: State<BattleStateSchema> | null;

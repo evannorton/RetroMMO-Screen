@@ -27,7 +27,7 @@ import {
 } from "pixel-pigeon";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { Reachable } from "../../../classes/Reachable";
-import { battleAbilitiesPerPage } from "../../../constants";
+import { battleAbilitiesPerPage, battleItemsPerPage } from "../../../constants";
 import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createIconListItem } from "../components/createIconListItem";
 import { createImage } from "../components/createImage";
@@ -98,7 +98,7 @@ const useAction = (playerID?: string): void => {
     });
   }
 };
-const selectAbility = (abilityID: string): void => {
+const useAbility = (abilityID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const ability: Ability = getDefinable(Ability, abilityID);
   battleState.setValues({
@@ -110,13 +110,35 @@ const selectAbility = (abilityID: string): void => {
       queuedAt: getCurrentTime(),
     },
     selectedAbilityIndex: null,
-    selectedItemIndex: null,
+    selectedItemInstanceIndex: null,
   });
   switch (ability.targetType) {
     case TargetType.AllAllies:
     case TargetType.None:
     case TargetType.Self:
-      useAction(ability.id);
+      useAction();
+      break;
+  }
+};
+const useItemInstance = (itemInstanceID: string): void => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  const itemInstance: ItemInstance = getDefinable(ItemInstance, itemInstanceID);
+  battleState.setValues({
+    abilitiesPage: 0,
+    itemsPage: 0,
+    menuState: BattleMenuState.Default,
+    queuedAction: {
+      actionDefinableReference: itemInstance.getReference(),
+      queuedAt: getCurrentTime(),
+    },
+    selectedAbilityIndex: null,
+    selectedItemInstanceIndex: null,
+  });
+  switch (itemInstance.item.ability.targetType) {
+    case TargetType.AllAllies:
+    case TargetType.None:
+    case TargetType.Self:
+      useAction();
       break;
   }
 };
@@ -132,7 +154,7 @@ const isTargeting = (): boolean => {
   }
   return false;
 };
-const getAbilityIDs = (): string[] => {
+const getAbilityIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const battleCharacter: BattleCharacter = getDefinable(
     BattleCharacter,
@@ -167,16 +189,16 @@ const pageAbilities = (offset: number): void => {
   });
 };
 const getAbility = (i: number): Ability => {
-  const abilityIDs: string[] = getAbilityIDs();
+  const abilityIDs: readonly string[] = getAbilityIDs();
   const abilityID: string | undefined = abilityIDs[i];
   if (typeof abilityID === "undefined") {
     throw new Error("Ability ID not found");
   }
   return getDefinable(Ability, abilityID);
 };
-const getPaginatedAbilityIDs = (): string[] => {
+const getPaginatedAbilityIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  const abilityIDs: string[] = getAbilityIDs();
+  const abilityIDs: readonly string[] = getAbilityIDs();
   const startIndex: number =
     battleState.values.abilitiesPage * battleAbilitiesPerPage;
   const endIndex: number =
@@ -186,7 +208,7 @@ const getPaginatedAbilityIDs = (): string[] => {
   return abilityIDs.slice(startIndex, endIndex);
 };
 const getPaginatedAbility = (i: number): Ability => {
-  const abilityIDs: string[] = getPaginatedAbilityIDs();
+  const abilityIDs: readonly string[] = getPaginatedAbilityIDs();
   const abilityID: string | undefined = abilityIDs[i];
   if (typeof abilityID === "undefined") {
     throw new Error("Ability ID not found");
@@ -194,7 +216,7 @@ const getPaginatedAbility = (i: number): Ability => {
   return getDefinable(Ability, abilityID);
 };
 const hasPaginatedAbility = (i: number): boolean => {
-  const abilityIDs: string[] = getPaginatedAbilityIDs();
+  const abilityIDs: readonly string[] = getPaginatedAbilityIDs();
   return typeof abilityIDs[i] !== "undefined";
 };
 const selectedAbilityCondition = (): boolean => {
@@ -210,6 +232,72 @@ const getSelectedAbility = (): Ability => {
     throw new Error("selectedAbilityIndex is null");
   }
   return getAbility(battleState.values.selectedAbilityIndex);
+};
+const getItemInstanceIDs = (): readonly string[] => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  return battleState.values.itemInstanceIDs;
+};
+const getLastItemsPage = (): number =>
+  Math.max(
+    Math.floor((getItemInstanceIDs().length - 1) / battleItemsPerPage),
+    0,
+  );
+const pageItems = (offset: number): void => {
+  const pages: number[] = [];
+  for (let i: number = 0; i < getLastItemsPage() + 1; i++) {
+    pages.push(i);
+  }
+  const battleState: State<BattleStateSchema> = getBattleState();
+  battleState.setValues({
+    itemsPage: getCyclicIndex(
+      pages.indexOf(battleState.values.itemsPage) + offset,
+      pages,
+    ),
+  });
+};
+const getItemInstance = (i: number): ItemInstance => {
+  const itemInstanceIDs: readonly string[] = getItemInstanceIDs();
+  const itemInstanceID: string | undefined = itemInstanceIDs[i];
+  if (typeof itemInstanceID === "undefined") {
+    throw new Error("ItemInstance ID not found");
+  }
+  return getDefinable(ItemInstance, itemInstanceID);
+};
+const getPaginatedItemInstanceIDs = (): readonly string[] => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  const itemInstanceIDs: readonly string[] = getItemInstanceIDs();
+  const startIndex: number = battleState.values.itemsPage * battleItemsPerPage;
+  const endIndex: number =
+    startIndex + battleItemsPerPage > itemInstanceIDs.length
+      ? itemInstanceIDs.length
+      : startIndex + battleItemsPerPage;
+  return itemInstanceIDs.slice(startIndex, endIndex);
+};
+const getPaginatedItemInstance = (i: number): ItemInstance => {
+  const itemInstanceIDs: readonly string[] = getPaginatedItemInstanceIDs();
+  const itemInstanceID: string | undefined = itemInstanceIDs[i];
+  if (typeof itemInstanceID === "undefined") {
+    throw new Error("ItemInstance ID not found");
+  }
+  return getDefinable(ItemInstance, itemInstanceID);
+};
+const hasPaginatedItemInstance = (i: number): boolean => {
+  const itemInstanceIDs: readonly string[] = getPaginatedItemInstanceIDs();
+  return typeof itemInstanceIDs[i] !== "undefined";
+};
+const selectedItemInstanceCondition = (): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  return (
+    battleState.values.menuState === BattleMenuState.Items &&
+    battleState.values.selectedItemInstanceIndex !== null
+  );
+};
+const getSelectedItemInstance = (): ItemInstance => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  if (battleState.values.selectedItemInstanceIndex === null) {
+    throw new Error("selectedItemInstanceIndex is null");
+  }
+  return getItemInstance(battleState.values.selectedItemInstanceIndex);
 };
 
 export interface CreateBattleUIOptions {
@@ -545,7 +633,7 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        selectAbility("attack");
+        useAbility("attack");
       },
       text: { value: "Attack" },
       width: 49,
@@ -567,7 +655,7 @@ export const createBattleUI = ({
             itemsPage: 0,
             menuState: BattleMenuState.Default,
             selectedAbilityIndex: null,
-            selectedItemIndex: null,
+            selectedItemInstanceIndex: null,
           });
         } else {
           battleState.setValues({
@@ -588,7 +676,20 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        console.log("item");
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.menuState === BattleMenuState.Items) {
+          battleState.setValues({
+            abilitiesPage: 0,
+            itemsPage: 0,
+            menuState: BattleMenuState.Default,
+            selectedAbilityIndex: null,
+            selectedItemInstanceIndex: null,
+          });
+        } else {
+          battleState.setValues({
+            menuState: BattleMenuState.Items,
+          });
+        }
       },
       text: { value: "Item" },
       width: 49,
@@ -603,7 +704,7 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        selectAbility("pass");
+        useAbility("pass");
       },
       text: { value: "Pass" },
       width: 49,
@@ -618,7 +719,7 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        selectAbility("escape");
+        useAbility("escape");
       },
       text: { value: "Escape" },
       width: 49,
@@ -893,7 +994,7 @@ export const createBattleUI = ({
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         const ability: Ability = getSelectedAbility();
-        selectAbility(ability.id);
+        useAbility(ability.id);
       },
       text: { value: "Use" },
       width: 34,
@@ -905,6 +1006,170 @@ export const createBattleUI = ({
   hudElementReferences.push(
     createPressableButton({
       condition: selectedAbilityCondition,
+      height: 16,
+      imagePath: "pressable-buttons/gray",
+      onClick: (): void => {
+        console.log("Bind");
+      },
+      text: { value: "Bind" },
+      width: 34,
+      x: 255,
+      y: 168,
+    }),
+  );
+  // Items panel
+  hudElementReferences.push(
+    createPanel({
+      condition: (): boolean =>
+        getBattleState().values.menuState === BattleMenuState.Items,
+      height: 110,
+      imagePath: "panels/basic",
+      width: 243,
+      x: 61,
+      y: 90,
+    }),
+  );
+  // For each item instance
+  for (let i: number = 0; i < battleItemsPerPage; i++) {
+    // Icon list item
+    hudElementReferences.push(
+      createIconListItem({
+        condition: (): boolean =>
+          getBattleState().values.menuState === BattleMenuState.Items &&
+          hasPaginatedItemInstance(i),
+        icons: [
+          {
+            imagePath: (): string =>
+              getPaginatedItemInstance(i).item.iconImagePath,
+          },
+        ],
+        isSelected: (): boolean =>
+          getBattleState().values.selectedItemInstanceIndex ===
+          i + getBattleState().values.itemsPage * battleItemsPerPage,
+        onClick: (): void => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (
+            battleState.values.selectedItemInstanceIndex ===
+            i + battleState.values.itemsPage * battleItemsPerPage
+          ) {
+            battleState.setValues({
+              selectedItemInstanceIndex: null,
+            });
+          } else {
+            battleState.setValues({
+              selectedItemInstanceIndex:
+                i + battleState.values.itemsPage * battleItemsPerPage,
+            });
+          }
+        },
+        slotImagePath: "slots/basic",
+        text: (): CreateLabelOptionsText => ({
+          value: getPaginatedItemInstance(i).item.name,
+        }),
+        width: 116,
+        x: 68,
+        y: 97 + i * 20,
+      }),
+    );
+  }
+  // Items page up arrow
+  hudElementReferences.push(
+    createImage({
+      condition: (): boolean =>
+        getBattleState().values.menuState === BattleMenuState.Items &&
+        getItemInstanceIDs().length > battleItemsPerPage,
+      height: 16,
+      imagePath: "arrows/up",
+      onClick: (): void => {
+        pageItems(-1);
+      },
+      width: 12,
+      x: 188,
+      y: 97,
+    }),
+  );
+  // Items page number
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: (): boolean =>
+          getBattleState().values.menuState === BattleMenuState.Items &&
+          getItemInstanceIDs().length > battleItemsPerPage,
+        x: 194,
+        y: 141,
+      },
+      horizontalAlignment: "center",
+      text: (): CreateLabelOptionsText => ({
+        value: String(getBattleState().values.itemsPage + 1),
+      }),
+    }),
+  );
+  // Items page down arrow
+  hudElementReferences.push(
+    createImage({
+      condition: (): boolean =>
+        getBattleState().values.menuState === BattleMenuState.Items &&
+        getItemInstanceIDs().length > battleItemsPerPage,
+      height: 16,
+      imagePath: "arrows/down",
+      onClick: (): void => {
+        pageItems(1);
+      },
+      width: 12,
+      x: 188,
+      y: 177,
+    }),
+  );
+  // Selected item instance name
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: selectedItemInstanceCondition,
+        x: 252,
+        y: 106,
+      },
+      horizontalAlignment: "center",
+      text: (): CreateLabelOptionsText => ({
+        value: getSelectedItemInstance().item.name,
+      }),
+    }),
+  );
+  // Selected item instance icon
+  hudElementReferences.push(
+    createImage({
+      condition: selectedItemInstanceCondition,
+      height: 16,
+      imagePath: (): string => getSelectedItemInstance().item.iconImagePath,
+      width: 16,
+      x: 244,
+      y: 124,
+    }),
+  );
+  // Selected item instance use button
+  hudElementReferences.push(
+    createPressableButton({
+      condition: (): boolean =>
+        selectedItemInstanceCondition() &&
+        getSelectedItemInstance().item.hasAbility() &&
+        getSelectedItemInstance().item.ability.canBeUsedInBattle,
+      height: 16,
+      imagePath: "pressable-buttons/gray",
+      onClick: (): void => {
+        const itemInstance: ItemInstance = getSelectedItemInstance();
+        useItemInstance(itemInstance.id);
+      },
+      text: { value: "Use" },
+      width: 34,
+      x: 216,
+      y: 168,
+    }),
+  );
+  // Selected item instance bind button
+  hudElementReferences.push(
+    createPressableButton({
+      condition: selectedItemInstanceCondition,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {

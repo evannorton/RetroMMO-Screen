@@ -694,6 +694,9 @@ export const listenForWorldUpdates = (): void => {
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
       }
+      for (const itemInstanceUpdate of update.itemInstances) {
+        loadItemInstanceUpdate(itemInstanceUpdate);
+      }
       for (const battleCharacterUpdate of update.characters) {
         loadBattleCharacterUpdate(battleCharacterUpdate);
         const battleCharacterPlayer: Player = getDefinable(
@@ -712,6 +715,10 @@ export const listenForWorldUpdates = (): void => {
             enemyBattleCharacterIDs: update.enemyCharacterIDs,
             friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
           }),
+          itemInstanceIDs: update.itemInstances.map(
+            (itemInstanceUpdate: ItemInstanceUpdate): string =>
+              itemInstanceUpdate.itemInstanceID,
+          ),
           reachableID: update.reachableID,
         }),
         worldState: null,

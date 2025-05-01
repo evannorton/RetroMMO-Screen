@@ -6,6 +6,7 @@ export interface CreateBattleStateOptions {
   readonly enemyBattleCharacterIDs: readonly string[];
   readonly friendlyBattleCharacterIDs: readonly string[];
   readonly hudElementReferences: HUDElementReferences;
+  readonly itemInstanceIDs: readonly string[];
   readonly reachableID: string;
 }
 export const createBattleState = ({
@@ -13,6 +14,7 @@ export const createBattleState = ({
   enemyBattleCharacterIDs,
   friendlyBattleCharacterIDs,
   hudElementReferences,
+  itemInstanceIDs,
   reachableID,
 }: CreateBattleStateOptions): State<BattleStateSchema> =>
   new State<BattleStateSchema>({
@@ -21,10 +23,11 @@ export const createBattleState = ({
     enemyBattleCharacterIDs,
     friendlyBattleCharacterIDs,
     hudElementReferences,
+    itemInstanceIDs,
     itemsPage: 0,
     menuState: BattleMenuState.Default,
     queuedAction: null,
     reachableID,
     selectedAbilityIndex: null,
-    selectedItemIndex: null,
+    selectedItemInstanceIndex: null,
   });

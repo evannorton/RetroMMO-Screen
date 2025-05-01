@@ -392,6 +392,9 @@ export const listenForUpdates = (): void => {
           for (const battleCharacterUpdate of update.battle.characters) {
             loadBattleCharacterUpdate(battleCharacterUpdate);
           }
+          for (const itemInstanceUpdate of update.battle.itemInstances) {
+            loadItemInstanceUpdate(itemInstanceUpdate);
+          }
           state.setValues({
             battleState: createBattleState({
               battleCharacterID: update.battle.battleCharacterID,
@@ -401,6 +404,10 @@ export const listenForUpdates = (): void => {
                 enemyBattleCharacterIDs: update.battle.enemyCharacterIDs,
                 friendlyBattleCharacterIDs: update.battle.friendlyCharacterIDs,
               }),
+              itemInstanceIDs: update.battle.itemInstances.map(
+                (itemInstanceUpdate: ItemInstanceUpdate): string =>
+                  itemInstanceUpdate.itemInstanceID,
+              ),
               reachableID: update.battle.reachableID,
             }),
           });
