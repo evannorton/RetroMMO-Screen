@@ -117,6 +117,7 @@ const useAbility = (abilityID: string): void => {
   });
   switch (ability.targetType) {
     case TargetType.AllAllies:
+    case TargetType.AllEnemies:
     case TargetType.None:
     case TargetType.Self:
       useAction();
@@ -139,6 +140,7 @@ const useItemInstance = (itemInstanceID: string): void => {
   });
   switch (itemInstance.item.ability.targetType) {
     case TargetType.AllAllies:
+    case TargetType.AllEnemies:
     case TargetType.None:
     case TargetType.Self:
       useAction();
