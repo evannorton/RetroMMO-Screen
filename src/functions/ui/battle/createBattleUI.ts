@@ -27,7 +27,11 @@ import {
 } from "pixel-pigeon";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { Reachable } from "../../../classes/Reachable";
-import { battleAbilitiesPerPage, battleItemsPerPage } from "../../../constants";
+import {
+  battleAbilitiesPerPage,
+  battleItemsPerPage,
+  targetBlinkDuration,
+} from "../../../constants";
 import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createIconListItem } from "../components/createIconListItem";
 import { createImage } from "../components/createImage";
@@ -45,7 +49,6 @@ import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit
 import { getDefinable } from "definables";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
 
-const targetBlinkDuration: number = 750;
 const getQueuedAction = (): Ability | ItemInstance => {
   const battleState: State<BattleStateSchema> = getBattleState();
   if (battleState.values.queuedAction === null) {
@@ -419,6 +422,23 @@ export const createBattleUI = ({
         skinColorID: (): string => getBattleCharacter().skinColorID,
       }),
     );
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: (): boolean =>
+            partyMemberCondition() &&
+            isTargeting() &&
+            getQueuedActionAbility().targetType === TargetType.SingleAlly,
+          x: 73 + i * 81,
+          y: 216,
+        },
+        height: 32,
+        onClick: (): void => {
+          useAction(getBattleCharacter().playerID);
+        },
+        width: 32,
+      }),
+    );
     // Battler HP bar
     hudElementReferences.push(
       createResourceBar({
@@ -460,6 +480,47 @@ export const createBattleUI = ({
         y: 226,
       }),
     );
+    // Battler ability target
+    const targetCondition = (): boolean => {
+      if (partyMemberCondition() && isTargeting()) {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.queuedAction === null) {
+          throw new Error("queuedAction is null");
+        }
+        const ability: Ability = getQueuedActionAbility();
+        if (ability.targetType === TargetType.SingleAlly) {
+          return (
+            ((getCurrentTime() - battleState.values.queuedAction.queuedAt) %
+              targetBlinkDuration) *
+              2 <
+            targetBlinkDuration
+          );
+        }
+      }
+      return false;
+    };
+    createQuadrilateral({
+      color: Color.VeryDarkGray,
+      coordinates: {
+        condition: targetCondition,
+        x: i * 81 + 76,
+        y: 227,
+      },
+      height: 9,
+      width: 9,
+    });
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: targetCondition,
+        x: i * 81 + 81,
+        y: 228,
+      },
+      horizontalAlignment: "center",
+      text: {
+        value: String(i + 1),
+      },
+    });
   }
   // Enemy characters
   for (let i: number = 0; i < enemyBattleCharacterIDs.length; i++) {

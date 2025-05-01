@@ -1,3 +1,4 @@
+export const bagItemsPerPage: number = 8;
 export const bankToggleDuration: number = 267 / 2;
 export const battleAbilitiesPerPage: number = 5;
 export const battleItemsPerPage: number = 5;
@@ -9,4 +10,4 @@ export const npcQuestsPerPage: number = 3;
 export const questLogCompletedQuestsPerPage: number = 7;
 export const questLogInProgressQuestsPerPage: number = 7;
 export const spellbookAbilitiesPerPage: number = 7;
-export const bagItemsPerPage: number = 8;
+export const targetBlinkDuration: number = 1500;
