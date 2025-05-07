@@ -15,6 +15,7 @@ import {
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import { BattleStateSchema, WorldStateSchema, state } from "../../state";
+import { Battler } from "../../classes/Battler";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -37,7 +38,7 @@ import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
-import { exitBattleCharacters } from "../exitBattleCharacters";
+import { exitBattlers } from "../exitBattlers";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
@@ -45,6 +46,7 @@ import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
+import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadPartyUpdate } from "../load-updates/loadPartyUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
@@ -115,6 +117,9 @@ export const listenForUpdates = (): void => {
         for (const battleCharacter of getDefinables(BattleCharacter).values()) {
           battleCharacter.player.battleCharacterID = null;
           battleCharacter.remove();
+        }
+        for (const battler of getDefinables(Battler).values()) {
+          battler.remove();
         }
         for (const worldCharacterUpdate of update.character.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -337,6 +342,9 @@ export const listenForUpdates = (): void => {
       for (const battleCharacter of getDefinables(BattleCharacter).values()) {
         battleCharacter.remove();
       }
+      for (const battler of getDefinables(Battler).values()) {
+        battler.remove();
+      }
       for (const party of getDefinables(Party).values()) {
         party.remove();
       }
@@ -392,17 +400,20 @@ export const listenForUpdates = (): void => {
           for (const battleCharacterUpdate of update.battle.characters) {
             loadBattleCharacterUpdate(battleCharacterUpdate);
           }
+          for (const battlerUpdate of update.battle.battlers) {
+            loadBattlerUpdate(battlerUpdate);
+          }
           for (const itemInstanceUpdate of update.battle.itemInstances) {
             loadItemInstanceUpdate(itemInstanceUpdate);
           }
           state.setValues({
             battleState: createBattleState({
-              battleCharacterID: update.battle.battleCharacterID,
-              enemyBattleCharacterIDs: update.battle.enemyCharacterIDs,
-              friendlyBattleCharacterIDs: update.battle.friendlyCharacterIDs,
+              battlerID: update.battle.battlerID,
+              enemyBattlerIDs: update.battle.enemyBattlerIDs,
+              friendlyBattlerIDs: update.battle.friendlyBattlerIDs,
               hudElementReferences: createBattleUI({
-                enemyBattleCharacterIDs: update.battle.enemyCharacterIDs,
-                friendlyBattleCharacterIDs: update.battle.friendlyCharacterIDs,
+                enemyBattlerIDs: update.battle.enemyBattlerIDs,
+                friendlyBattlerIDs: update.battle.friendlyBattlerIDs,
               }),
               itemInstanceIDs: update.battle.itemInstances.map(
                 (itemInstanceUpdate: ItemInstanceUpdate): string =>
@@ -645,11 +656,10 @@ export const listenForUpdates = (): void => {
       if (state.values.selectedPlayerID === update.playerID) {
         selectedPlayerWorldMenu.close();
       }
-      console.log(player);
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
       } else if (player.hasBattleCharacter()) {
-        exitBattleCharacters([player.battleCharacterID]);
+        exitBattlers([player.battleCharacter.battlerID]);
       }
       player.remove();
     },

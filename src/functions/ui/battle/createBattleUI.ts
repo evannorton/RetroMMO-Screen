@@ -1,5 +1,4 @@
 import { Ability } from "../../../classes/Ability";
-import { BattleCharacter } from "../../../classes/BattleCharacter";
 import { BattleMenuState, BattleStateSchema, state } from "../../../state";
 import {
   BattleUseAbilityRequest,
@@ -10,6 +9,7 @@ import {
   ResourcePool,
   TargetType,
 } from "retrommo-types";
+import { Battler } from "../../../classes/Battler";
 import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
   CreateLabelOptionsText,
@@ -81,29 +81,29 @@ const getQueuedActionAbility = (): Ability => {
   }
   throw new Error("queuedAction is not an Ability or ItemInstance");
 };
-const useAction = (playerID?: string): void => {
+const useAction = (battlerID?: string): void => {
   const action: Ability | ItemInstance = getQueuedAction();
   if (action instanceof Ability) {
     emitToSocketioServer<BattleUseAbilityRequest>({
       data: {
         abilityID: action.id,
-        playerID,
+        battlerID,
       },
       event: "battle/use-ability",
     });
   } else if (action instanceof ItemInstance) {
     emitToSocketioServer<BattleUseItemInstanceRequest>({
       data: {
+        battlerID,
         itemInstanceID: action.id,
-        playerID,
       },
       event: "battle/use-item-instance",
     });
   }
 };
-const useAbility = (abilityID: string): void => {
+const useAbility = (battlerID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  const ability: Ability = getDefinable(Ability, abilityID);
+  const ability: Ability = getDefinable(Ability, battlerID);
   battleState.setValues({
     abilitiesPage: 0,
     itemsPage: 0,
@@ -159,17 +159,24 @@ const isTargeting = (): boolean => {
   }
   return false;
 };
+const canUseAbility = (abilityID: string): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  const battler: Battler = getDefinable(Battler, battleState.values.battlerID);
+  const ability: Ability = getDefinable(Ability, abilityID);
+  return (
+    ability.hasFleeChance() === false ||
+    battleState.values.friendlyBattlerIDs[0] === battler.id
+  );
+};
 const getAbilityIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  const battleCharacter: BattleCharacter = getDefinable(
-    BattleCharacter,
-    battleState.values.battleCharacterID,
-  );
-  return battleCharacter.player.character.class.abilityUnlocks
+  const battler: Battler = getDefinable(Battler, battleState.values.battlerID);
+  return battler.battleCharacter.player.character.class.abilityUnlocks
     .filter(
       (abilityUnlock: ClassAbilityUnlock): boolean =>
         getDefinable(Ability, abilityUnlock.abilityID).canBeUsedInBattle &&
-        abilityUnlock.level <= battleCharacter.player.character.level,
+        abilityUnlock.level <= battler.battleCharacter.player.character.level &&
+        canUseAbility(abilityUnlock.abilityID),
     )
     .map(
       (abilityUnlock: ClassAbilityUnlock): string => abilityUnlock.abilityID,
@@ -306,12 +313,12 @@ const getSelectedItemInstance = (): ItemInstance => {
 };
 
 export interface CreateBattleUIOptions {
-  readonly enemyBattleCharacterIDs: readonly string[];
-  readonly friendlyBattleCharacterIDs: readonly string[];
+  readonly enemyBattlerIDs: readonly string[];
+  readonly friendlyBattlerIDs: readonly string[];
 }
 export const createBattleUI = ({
-  enemyBattleCharacterIDs,
-  friendlyBattleCharacterIDs,
+  enemyBattlerIDs,
+  friendlyBattlerIDs,
 }: CreateBattleUIOptions): HUDElementReferences => {
   const buttonIDs: string[] = [];
   const ellipseIDs: string[] = [];
@@ -338,17 +345,16 @@ export const createBattleUI = ({
   for (let i: number = 0; i < constants["maximum-party-size"]; i++) {
     const partyMemberCondition = (): boolean => {
       if (state.values.battleState !== null) {
-        return typeof friendlyBattleCharacterIDs[i] !== "undefined";
+        return typeof friendlyBattlerIDs[i] !== "undefined";
       }
       return false;
     };
-    const getBattleCharacter = (): BattleCharacter => {
-      const friendlyBattleCharacterID: string | undefined =
-        friendlyBattleCharacterIDs[i];
-      if (typeof friendlyBattleCharacterID === "undefined") {
-        throw new Error("friendlyBattleCharacterID is undefined");
+    const getBattler = (): Battler => {
+      const friendlyBattlerID: string | undefined = friendlyBattlerIDs[i];
+      if (typeof friendlyBattlerID === "undefined") {
+        throw new Error("friendlyBattlerID is undefined");
       }
-      return getDefinable(BattleCharacter, friendlyBattleCharacterID);
+      return getDefinable(Battler, friendlyBattlerID);
     };
     // Battler panel
     hudElementReferences.push(
@@ -375,7 +381,7 @@ export const createBattleUI = ({
         maxWidth: 64,
         size: 1,
         text: (): CreateLabelOptionsText => ({
-          value: getBattleCharacter().player.username,
+          value: getBattler().battleCharacter.player.username,
         }),
       }),
     );
@@ -383,10 +389,10 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createCharacterSprite({
         clothesDyeID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedClothesDye(
-            battleCharacter.hasClothesDyeItem()
-              ? battleCharacter.clothesDyeItemID
+            battler.battleCharacter.hasClothesDyeItem()
+              ? battler.battleCharacter.clothesDyeItemID
               : undefined,
           ).id;
         },
@@ -396,32 +402,32 @@ export const createBattleUI = ({
           y: 216,
         },
         direction: Direction.Down,
-        figureID: (): string => getBattleCharacter().figureID,
+        figureID: (): string => getBattler().battleCharacter.figureID,
         hairDyeID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedHairDye(
-            battleCharacter.hasHairDyeItem()
-              ? battleCharacter.hairDyeItemID
+            battler.battleCharacter.hasHairDyeItem()
+              ? battler.battleCharacter.hairDyeItemID
               : undefined,
           ).id;
         },
         maskID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedMask(
-            battleCharacter.hasMaskItem()
-              ? battleCharacter.maskItemID
+            battler.battleCharacter.hasMaskItem()
+              ? battler.battleCharacter.maskItemID
               : undefined,
           ).id;
         },
         outfitID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedOutfit(
-            battleCharacter.hasOutfitItem()
-              ? battleCharacter.outfitItemID
+            battler.battleCharacter.hasOutfitItem()
+              ? battler.battleCharacter.outfitItemID
               : undefined,
           ).id;
         },
-        skinColorID: (): string => getBattleCharacter().skinColorID,
+        skinColorID: (): string => getBattler().battleCharacter.skinColorID,
       }),
     );
     buttonIDs.push(
@@ -436,7 +442,7 @@ export const createBattleUI = ({
         },
         height: 32,
         onClick: (): void => {
-          useAction(getBattleCharacter().playerID);
+          useAction(getBattler().id);
         },
         width: 32,
       }),
@@ -446,10 +452,10 @@ export const createBattleUI = ({
       createResourceBar({
         condition: partyMemberCondition,
         iconImagePath: "resource-bar-icons/hp",
-        maxValue: (): number => getBattleCharacter().resources.maxHP,
+        maxValue: (): number => getBattler().resources.maxHP,
         primaryColor: Color.BrightRed,
         secondaryColor: Color.DarkPink,
-        value: (): number => getBattleCharacter().resources.hp,
+        value: (): number => getBattler().resources.hp,
         x: 97 + i * 81,
         y: 216,
       }),
@@ -459,11 +465,11 @@ export const createBattleUI = ({
       createResourceBar({
         condition: (): boolean =>
           partyMemberCondition() &&
-          getBattleCharacter().player.character.class.resourcePool ===
+          getBattler().battleCharacter.player.character.class.resourcePool ===
             ResourcePool.MP,
         iconImagePath: "resource-bar-icons/mp",
         maxValue: (): number => {
-          const maxMP: number | null = getBattleCharacter().resources.maxMP;
+          const maxMP: number | null = getBattler().resources.maxMP;
           if (maxMP === null) {
             throw new Error("maxMP is null");
           }
@@ -472,7 +478,7 @@ export const createBattleUI = ({
         primaryColor: Color.PureBlue,
         secondaryColor: Color.StrongBlue,
         value: (): number => {
-          const mp: number | null = getBattleCharacter().resources.mp;
+          const mp: number | null = getBattler().resources.mp;
           if (mp === null) {
             throw new Error("mp is null");
           }
@@ -525,20 +531,19 @@ export const createBattleUI = ({
     });
   }
   // Enemy characters
-  for (let i: number = 0; i < enemyBattleCharacterIDs.length; i++) {
-    const getBattleCharacter = (): BattleCharacter => {
-      const enemyBattleCharacterID: string | undefined =
-        enemyBattleCharacterIDs[i];
-      if (typeof enemyBattleCharacterID === "undefined") {
-        throw new Error("enemyBattleCharacterID is undefined");
+  for (let i: number = 0; i < enemyBattlerIDs.length; i++) {
+    const getBattler = (): Battler => {
+      const enemyBattlerID: string | undefined = enemyBattlerIDs[i];
+      if (typeof enemyBattlerID === "undefined") {
+        throw new Error("enemyBattlerID is undefined");
       }
-      return getDefinable(BattleCharacter, enemyBattleCharacterID);
+      return getDefinable(Battler, enemyBattlerID);
     };
     const getX = (): number => {
       const width: number = 32;
       const leftWidths: number[] = [];
       const rightWidths: number[] = [];
-      for (let j: number = 0; j < enemyBattleCharacterIDs.length; j++) {
+      for (let j: number = 0; j < enemyBattlerIDs.length; j++) {
         if (j < i) {
           leftWidths.push(width);
         } else if (j > i) {
@@ -571,10 +576,10 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createCharacterSprite({
         clothesDyeID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedClothesDye(
-            battleCharacter.hasClothesDyeItem()
-              ? battleCharacter.clothesDyeItemID
+            battler.battleCharacter.hasClothesDyeItem()
+              ? battler.battleCharacter.clothesDyeItemID
               : undefined,
           ).id;
         },
@@ -583,33 +588,33 @@ export const createBattleUI = ({
           y: 96,
         },
         direction: Direction.Down,
-        figureID: (): string => getBattleCharacter().figureID,
+        figureID: (): string => getBattler().battleCharacter.figureID,
         hairDyeID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedHairDye(
-            battleCharacter.hasHairDyeItem()
-              ? battleCharacter.hairDyeItemID
+            battler.battleCharacter.hasHairDyeItem()
+              ? battler.battleCharacter.hairDyeItemID
               : undefined,
           ).id;
         },
         maskID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedMask(
-            battleCharacter.hasMaskItem()
-              ? battleCharacter.maskItemID
+            battler.battleCharacter.hasMaskItem()
+              ? battler.battleCharacter.maskItemID
               : undefined,
           ).id;
         },
         outfitID: (): string => {
-          const battleCharacter: BattleCharacter = getBattleCharacter();
+          const battler: Battler = getBattler();
           return getDefaultedOutfit(
-            battleCharacter.hasOutfitItem()
-              ? battleCharacter.outfitItemID
+            battler.battleCharacter.hasOutfitItem()
+              ? battler.battleCharacter.outfitItemID
               : undefined,
           ).id;
         },
         scale: 2,
-        skinColorID: (): string => getBattleCharacter().skinColorID,
+        skinColorID: (): string => getBattler().battleCharacter.skinColorID,
       }),
     );
     buttonIDs.push(
@@ -627,7 +632,7 @@ export const createBattleUI = ({
         },
         height: 32,
         onClick: (): void => {
-          useAction(getBattleCharacter().playerID);
+          useAction(getBattler().id);
         },
         width: 32,
       }),
@@ -692,7 +697,8 @@ export const createBattleUI = ({
   // Commands attack button
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting() === false,
+      condition: (): boolean =>
+        isTargeting() === false && canUseAbility("attack"),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -767,7 +773,8 @@ export const createBattleUI = ({
   // Commands pass button
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting() === false,
+      condition: (): boolean =>
+        isTargeting() === false && canUseAbility("pass"),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -782,7 +789,8 @@ export const createBattleUI = ({
   // Commands escape button
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting() === false,
+      condition: (): boolean =>
+        isTargeting() === false && canUseAbility("escape"),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -1047,11 +1055,11 @@ export const createBattleUI = ({
       condition: (): boolean => {
         if (selectedAbilityCondition()) {
           const battleState: State<BattleStateSchema> = getBattleState();
-          const battleCharacter: BattleCharacter = getDefinable(
-            BattleCharacter,
-            battleState.values.battleCharacterID,
+          const battler: Battler = getDefinable(
+            Battler,
+            battleState.values.battlerID,
           );
-          const mp: number = battleCharacter.resources.mp ?? 0;
+          const mp: number = battler.resources.mp ?? 0;
           return mp >= getSelectedAbility().mpCost;
         }
         return false;

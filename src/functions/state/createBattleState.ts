@@ -2,26 +2,26 @@ import { BattleMenuState, BattleStateSchema } from "../../state";
 import { HUDElementReferences, State } from "pixel-pigeon";
 
 export interface CreateBattleStateOptions {
-  readonly battleCharacterID: string;
-  readonly enemyBattleCharacterIDs: readonly string[];
-  readonly friendlyBattleCharacterIDs: readonly string[];
+  readonly battlerID: string;
+  readonly enemyBattlerIDs: readonly string[];
+  readonly friendlyBattlerIDs: readonly string[];
   readonly hudElementReferences: HUDElementReferences;
   readonly itemInstanceIDs: readonly string[];
   readonly reachableID: string;
 }
 export const createBattleState = ({
-  battleCharacterID,
-  enemyBattleCharacterIDs,
-  friendlyBattleCharacterIDs,
+  battlerID,
+  enemyBattlerIDs,
+  friendlyBattlerIDs,
   hudElementReferences,
   itemInstanceIDs,
   reachableID,
 }: CreateBattleStateOptions): State<BattleStateSchema> =>
   new State<BattleStateSchema>({
     abilitiesPage: 0,
-    battleCharacterID,
-    enemyBattleCharacterIDs,
-    friendlyBattleCharacterIDs,
+    battlerID,
+    enemyBattlerIDs,
+    friendlyBattlerIDs,
     hudElementReferences,
     itemInstanceIDs,
     itemsPage: 0,

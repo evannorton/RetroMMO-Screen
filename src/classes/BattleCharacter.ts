@@ -1,57 +1,46 @@
+import { Battler } from "./Battler";
 import { Definable, getDefinable } from "definables";
 import { Item } from "./Item";
 import { Player } from "./Player";
 import { SkinColor } from "./SkinColor";
 
-export interface BattleCharacterOptionsResources {
-  readonly hp: number;
-  readonly maxHP: number;
-  readonly maxMP?: number;
-  readonly mp?: number;
-}
 export interface BattleCharacterOptions {
+  readonly battlerID: string;
   readonly clothesDyeItemID?: string;
   readonly figureID: string;
   readonly hairDyeItemID?: string;
   readonly maskItemID?: string;
   readonly outfitItemID?: string;
   readonly playerID: string;
-  readonly resources?: BattleCharacterOptionsResources;
   readonly skinColorID: string;
 }
-export interface BattleCharacterResources {
-  readonly hp: number;
-  readonly maxHP: number;
-  readonly maxMP: number | null;
-  readonly mp: number | null;
-}
 export class BattleCharacter extends Definable {
+  private readonly _battlerID: string;
   private readonly _clothesDyeItemID?: string;
   private readonly _figureID: string;
   private readonly _hairDyeItemID?: string;
   private readonly _maskItemID?: string;
   private readonly _outfitItemID?: string;
   private readonly _playerID: string;
-  private readonly _resources: BattleCharacterResources | null;
   private readonly _skinColorID: string;
   public constructor(id: string, options: BattleCharacterOptions) {
     super(id);
+    this._battlerID = options.battlerID;
     this._clothesDyeItemID = options.clothesDyeItemID;
     this._figureID = options.figureID;
     this._hairDyeItemID = options.hairDyeItemID;
     this._maskItemID = options.maskItemID;
     this._outfitItemID = options.outfitItemID;
     this._playerID = options.playerID;
-    this._resources =
-      typeof options.resources !== "undefined"
-        ? {
-            hp: options.resources.hp,
-            maxHP: options.resources.maxHP,
-            maxMP: options.resources.maxMP ?? null,
-            mp: options.resources.mp ?? null,
-          }
-        : null;
     this._skinColorID = options.skinColorID;
+  }
+
+  public get battler(): Battler {
+    return getDefinable(Battler, this._battlerID);
+  }
+
+  public get battlerID(): string {
+    return this._battlerID;
   }
 
   public get clothesDyeItem(): Item {
@@ -124,13 +113,6 @@ export class BattleCharacter extends Definable {
 
   public get playerID(): string {
     return this._playerID;
-  }
-
-  public get resources(): BattleCharacterResources {
-    if (this._resources !== null) {
-      return this._resources;
-    }
-    throw new Error(this.getAccessorErrorMessage("resources"));
   }
 
   public get skinColor(): SkinColor {

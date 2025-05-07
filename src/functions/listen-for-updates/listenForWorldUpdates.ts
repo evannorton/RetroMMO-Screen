@@ -65,6 +65,7 @@ import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
+import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
@@ -706,14 +707,17 @@ export const listenForWorldUpdates = (): void => {
         battleCharacterPlayer.battleCharacterID =
           battleCharacterUpdate.characterID;
       }
+      for (const battlerUpdate of update.battlers) {
+        loadBattlerUpdate(battlerUpdate);
+      }
       state.setValues({
         battleState: createBattleState({
-          battleCharacterID: update.battleCharacterID,
-          enemyBattleCharacterIDs: update.enemyCharacterIDs,
-          friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
+          battlerID: update.battlerID,
+          enemyBattlerIDs: update.enemyBattlerIDs,
+          friendlyBattlerIDs: update.friendlyBattlerIDs,
           hudElementReferences: createBattleUI({
-            enemyBattleCharacterIDs: update.enemyCharacterIDs,
-            friendlyBattleCharacterIDs: update.friendlyCharacterIDs,
+            enemyBattlerIDs: update.enemyBattlerIDs,
+            friendlyBattlerIDs: update.friendlyBattlerIDs,
           }),
           itemInstanceIDs: update.itemInstances.map(
             (itemInstanceUpdate: ItemInstanceUpdate): string =>

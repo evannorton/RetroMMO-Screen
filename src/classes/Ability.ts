@@ -11,6 +11,7 @@ export class Ability extends Definable {
   private readonly _canBeUsedInBattle: boolean;
   private readonly _canBeUsedInWorld: boolean;
   private readonly _description: string;
+  private readonly _fleeChance?: number;
   private readonly _iconImagePath: string;
   private readonly _mpCost: number;
   private readonly _name: string;
@@ -21,6 +22,7 @@ export class Ability extends Definable {
     this._canBeUsedInBattle = options.definition.canBeUsedInBattle ?? false;
     this._canBeUsedInWorld = options.definition.canBeUsedInWorld ?? false;
     this._description = options.definition.description;
+    this._fleeChance = options.definition.fleeChance;
     this._iconImagePath = options.definition.iconImagePath;
     this._mpCost = options.definition.mpCost;
     this._name = options.definition.name;
@@ -53,6 +55,13 @@ export class Ability extends Definable {
     return this._description;
   }
 
+  public get fleeChance(): number {
+    if (typeof this._fleeChance !== "undefined") {
+      return this._fleeChance;
+    }
+    throw new Error(this.getAccessorErrorMessage("fleeChance"));
+  }
+
   public get iconImagePath(): string {
     return this._iconImagePath;
   }
@@ -71,5 +80,9 @@ export class Ability extends Definable {
 
   public hasBoost(): boolean {
     return typeof this._boostItemID !== "undefined";
+  }
+
+  public hasFleeChance(): boolean {
+    return typeof this._fleeChance !== "undefined";
   }
 }

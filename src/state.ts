@@ -74,9 +74,9 @@ export enum BattleMenuState {
 }
 export interface BattleStateSchema {
   abilitiesPage: number;
-  battleCharacterID: string;
-  enemyBattleCharacterIDs: readonly string[];
-  friendlyBattleCharacterIDs: readonly string[];
+  battlerID: string;
+  enemyBattlerIDs: readonly string[];
+  friendlyBattlerIDs: readonly string[];
   hudElementReferences: HUDElementReferences;
   itemInstanceIDs: readonly string[];
   itemsPage: number;
