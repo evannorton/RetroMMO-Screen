@@ -1,6 +1,7 @@
 import {
   BattleCancelSubmittedMoveUpdate,
   BattleSubmitAbilityUpdate,
+  BattleSubmitItemUpdate,
 } from "retrommo-types";
 import { BattleStateSchema } from "../../state";
 import { Battler } from "../../classes/Battler";
@@ -8,6 +9,7 @@ import { State, listenToSocketioEvent } from "pixel-pigeon";
 import { getBattleState } from "../state/getBattleState";
 import { getDefinable } from "definables";
 import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
+import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
 
 export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleCancelSubmittedMoveUpdate>({
@@ -24,6 +26,20 @@ export const listenForBattleUpdates = (): void => {
       loadBattleSubmittedAbilityUpdate(update.submittedAbility);
       if (
         update.submittedAbility.casterBattlerID === battleState.values.battlerID
+      ) {
+        battleState.setValues({
+          queuedAction: null,
+        });
+      }
+    },
+  });
+  listenToSocketioEvent<BattleSubmitItemUpdate>({
+    event: "battle/submit-item",
+    onMessage: (update: BattleSubmitItemUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      loadBattleSubmittedItemUpdate(update.submittedItem);
+      if (
+        update.submittedItem.casterBattlerID === battleState.values.battlerID
       ) {
         battleState.setValues({
           queuedAction: null,

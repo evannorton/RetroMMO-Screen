@@ -1487,7 +1487,8 @@ export const createBattleUI = ({
       condition: (): boolean =>
         selectedItemInstanceCondition() &&
         getSelectedItemInstance().item.hasAbility() &&
-        getSelectedItemInstance().item.ability.canBeUsedInBattle,
+        getSelectedItemInstance().item.ability.canBeUsedInBattle &&
+        canUseAbility(getSelectedItemInstance().item.ability.id),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {

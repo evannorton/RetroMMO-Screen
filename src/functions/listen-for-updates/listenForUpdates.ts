@@ -48,6 +48,7 @@ import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
 import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
+import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
 import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadPartyUpdate } from "../load-updates/loadPartyUpdate";
@@ -414,6 +415,10 @@ export const listenForUpdates = (): void => {
           for (const battleSubmittedAbilityUpdate of update.battle
             .submittedAbilities) {
             loadBattleSubmittedAbilityUpdate(battleSubmittedAbilityUpdate);
+          }
+          for (const battleSubmittedItemUpdate of update.battle
+            .submittedItems) {
+            loadBattleSubmittedItemUpdate(battleSubmittedItemUpdate);
           }
           state.setValues({
             battleState: createBattleState({
