@@ -1,9 +1,13 @@
 import { Battler } from "./Battler";
-import { Definable, getDefinable } from "definables";
+import { Definable, DefinableReference, getDefinable } from "definables";
 import { Item } from "./Item";
 import { Player } from "./Player";
 import { SkinColor } from "./SkinColor";
 
+export interface BattleCharacterMove {
+  readonly actionDefinableReference: DefinableReference;
+  readonly battlerID?: string;
+}
 export interface BattleCharacterOptions {
   readonly battlerID: string;
   readonly clothesDyeItemID?: string;
@@ -23,6 +27,7 @@ export class BattleCharacter extends Definable {
   private readonly _outfitItemID?: string;
   private readonly _playerID: string;
   private readonly _skinColorID: string;
+  private _submittedMove: BattleCharacterMove | null = null;
   public constructor(id: string, options: BattleCharacterOptions) {
     super(id);
     this._battlerID = options.battlerID;
@@ -123,6 +128,17 @@ export class BattleCharacter extends Definable {
     return this._skinColorID;
   }
 
+  public get submittedMove(): BattleCharacterMove {
+    if (this._submittedMove !== null) {
+      return this._submittedMove;
+    }
+    throw new Error(this.getAccessorErrorMessage("submittedMove"));
+  }
+
+  public set submittedMove(submittedMove: BattleCharacterMove | null) {
+    this._submittedMove = submittedMove;
+  }
+
   public hasClothesDyeItem(): boolean {
     return typeof this._clothesDyeItemID !== "undefined";
   }
@@ -137,5 +153,9 @@ export class BattleCharacter extends Definable {
 
   public hasOutfitItem(): boolean {
     return typeof this._outfitItemID !== "undefined";
+  }
+
+  public hasSubmittedMove(): boolean {
+    return this._submittedMove !== null;
   }
 }

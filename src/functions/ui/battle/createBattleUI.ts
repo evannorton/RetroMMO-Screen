@@ -1,14 +1,14 @@
 import { Ability } from "../../../classes/Ability";
-import { BattleMenuState, BattleStateSchema, state } from "../../../state";
 import {
+  BattleCancelSubmittedMoveRequest,
   BattleUseAbilityRequest,
   BattleUseItemInstanceRequest,
   Color,
-  Constants,
   Direction,
   ResourcePool,
   TargetType,
 } from "retrommo-types";
+import { BattleMenuState, BattleStateSchema } from "../../../state";
 import { Battler } from "../../../classes/Battler";
 import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
@@ -17,6 +17,7 @@ import {
   State,
   createButton,
   createEllipse,
+  createInputPressHandler,
   createLabel,
   createQuadrilateral,
   emitToSocketioServer,
@@ -25,6 +26,7 @@ import {
   getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
+import { Item } from "../../../classes/Item";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { Reachable } from "../../../classes/Reachable";
 import {
@@ -32,6 +34,26 @@ import {
   battleItemsPerPage,
   targetBlinkDuration,
 } from "../../../constants";
+import {
+  cancelBattleActionInputCollectionID,
+  targetBattleEnemyCharacter1InputCollectionID,
+  targetBattleEnemyCharacter2InputCollectionID,
+  targetBattleEnemyCharacter3InputCollectionID,
+  targetBattleEnemyCharacter4InputCollectionID,
+  targetBattleEnemyCharacter5InputCollectionID,
+  targetBattleEnemyCharacter6InputCollectionID,
+  targetBattleEnemyCharacter7InputCollectionID,
+  targetBattleEnemyCharacter8InputCollectionID,
+  targetBattleEnemyCharacter9InputCollectionID,
+  targetBattleFriendlyCharacter1InputCollectionID,
+  targetBattleFriendlyCharacter2InputCollectionID,
+  targetBattleFriendlyCharacter3InputCollectionID,
+  toggleBattleAbilitiesInputCollectionID,
+  toggleBattleItemsInputCollectionID,
+  useAttackInputCollectionID,
+  useEscapeInputCollectionID,
+  usePassInputCollectionID,
+} from "../../../input";
 import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createIconListItem } from "../components/createIconListItem";
 import { createImage } from "../components/createImage";
@@ -40,7 +62,6 @@ import { createPressableButton } from "../components/createPressableButton";
 import { createResourceBar } from "../components/createResourceBar";
 import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
-import { getConstants } from "../../getConstants";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
@@ -322,16 +343,15 @@ export const createBattleUI = ({
 }: CreateBattleUIOptions): HUDElementReferences => {
   const buttonIDs: string[] = [];
   const ellipseIDs: string[] = [];
+  const inputPressHandlerIDs: string[] = [];
   const labelIDs: string[] = [];
   const quadrilateralIDs: string[] = [];
   const hudElementReferences: HUDElementReferences[] = [];
   const gameWidth: number = getGameWidth();
   const gameHeight: number = getGameHeight();
-  const constants: Constants = getConstants();
   // Landscape BG
   hudElementReferences.push(
     createImage({
-      condition: (): boolean => state.values.battleState !== null,
       height: gameHeight,
       imagePath: (): string =>
         getDefinable(Reachable, getBattleState().values.reachableID).landscape
@@ -341,14 +361,30 @@ export const createBattleUI = ({
       y: 0,
     }),
   );
-  // Friendly characters
-  for (let i: number = 0; i < constants["maximum-party-size"]; i++) {
-    const partyMemberCondition = (): boolean => {
-      if (state.values.battleState !== null) {
-        return typeof friendlyBattlerIDs[i] !== "undefined";
-      }
-      return false;
-    };
+  // Submitted actions panel
+  hudElementReferences.push(
+    createPanel({
+      condition: (): boolean =>
+        getBattleState().values.friendlyBattlerIDs.length > 1,
+      height: 47,
+      imagePath: "panels/basic",
+      width: 304,
+      x: 0,
+      y: 0,
+    }),
+  );
+  // Friendly battlers
+  const friendlyTargetInputCollectionIDs: string[] = [
+    targetBattleFriendlyCharacter1InputCollectionID,
+    targetBattleFriendlyCharacter2InputCollectionID,
+    targetBattleFriendlyCharacter3InputCollectionID,
+  ];
+  for (let i: number = 0; i < friendlyBattlerIDs.length; i++) {
+    const inputCollectionID: string | undefined =
+      friendlyTargetInputCollectionIDs[i];
+    if (typeof inputCollectionID === "undefined") {
+      throw new Error("inputCollectionID is undefined");
+    }
     const getBattler = (): Battler => {
       const friendlyBattlerID: string | undefined = friendlyBattlerIDs[i];
       if (typeof friendlyBattlerID === "undefined") {
@@ -359,7 +395,6 @@ export const createBattleUI = ({
     // Battler panel
     hudElementReferences.push(
       createPanel({
-        condition: partyMemberCondition,
         height: 40,
         imagePath: "panels/basic",
         width: 81,
@@ -372,7 +407,6 @@ export const createBattleUI = ({
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: partyMemberCondition,
           x: 101 + i * 81,
           y: 206,
         },
@@ -397,7 +431,6 @@ export const createBattleUI = ({
           ).id;
         },
         coordinates: {
-          condition: partyMemberCondition,
           x: 73 + i * 81,
           y: 216,
         },
@@ -434,7 +467,6 @@ export const createBattleUI = ({
       createButton({
         coordinates: {
           condition: (): boolean =>
-            partyMemberCondition() &&
             isTargeting() &&
             getQueuedActionAbility().targetType === TargetType.SingleAlly,
           x: 73 + i * 81,
@@ -450,7 +482,6 @@ export const createBattleUI = ({
     // Battler HP bar
     hudElementReferences.push(
       createResourceBar({
-        condition: partyMemberCondition,
         iconImagePath: "resource-bar-icons/hp",
         maxValue: (): number => getBattler().resources.maxHP,
         primaryColor: Color.BrightRed,
@@ -464,9 +495,8 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createResourceBar({
         condition: (): boolean =>
-          partyMemberCondition() &&
           getBattler().battleCharacter.player.character.class.resourcePool ===
-            ResourcePool.MP,
+          ResourcePool.MP,
         iconImagePath: "resource-bar-icons/mp",
         maxValue: (): number => {
           const maxMP: number | null = getBattler().resources.maxMP;
@@ -490,7 +520,7 @@ export const createBattleUI = ({
     );
     // Battler ability target
     const targetCondition = (): boolean => {
-      if (partyMemberCondition() && isTargeting()) {
+      if (isTargeting()) {
         const battleState: State<BattleStateSchema> = getBattleState();
         if (battleState.values.queuedAction === null) {
           throw new Error("queuedAction is null");
@@ -529,9 +559,95 @@ export const createBattleUI = ({
         value: String(i + 1),
       },
     });
+    // Submitted actions
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            getBattleState().values.friendlyBattlerIDs.length > 1 &&
+            getBattler().battleCharacter.hasSubmittedMove(),
+          x: 8,
+          y: 8 + i * 12,
+        },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => {
+          const battler: Battler = getBattler();
+          let value: string = `${battler.battleCharacter.player.username} will use `;
+          switch (
+            battler.battleCharacter.submittedMove.actionDefinableReference
+              .className
+          ) {
+            case "Ability": {
+              const ability: Ability = getDefinable(
+                Ability,
+                battler.battleCharacter.submittedMove.actionDefinableReference
+                  .id,
+              );
+              value += ability.name;
+              break;
+            }
+            case "Item": {
+              const item: Item = getDefinable(
+                Item,
+                battler.battleCharacter.submittedMove.actionDefinableReference
+                  .id,
+              );
+              value += item.name;
+              break;
+            }
+          }
+          if (
+            typeof battler.battleCharacter.submittedMove.battlerID !==
+            "undefined"
+          ) {
+            const targetBattler: Battler = getDefinable(
+              Battler,
+              battler.battleCharacter.submittedMove.battlerID,
+            );
+            value += ` on ${targetBattler.battleCharacter.player.username}`;
+          }
+          value += ".";
+          return {
+            value,
+          };
+        },
+      }),
+    );
+    inputPressHandlerIDs.push(
+      createInputPressHandler({
+        condition: (): boolean => {
+          if (isTargeting()) {
+            const ability: Ability = getQueuedActionAbility();
+            return ability.targetType === TargetType.SingleAlly;
+          }
+          return false;
+        },
+        inputCollectionID,
+        onInput: (): void => {
+          useAction(getBattler().id);
+        },
+      }),
+    );
   }
-  // Enemy characters
+  // Enemy battlers
+  const enemyTargetInputCollectionIDs: string[] = [
+    targetBattleEnemyCharacter1InputCollectionID,
+    targetBattleEnemyCharacter2InputCollectionID,
+    targetBattleEnemyCharacter3InputCollectionID,
+    targetBattleEnemyCharacter4InputCollectionID,
+    targetBattleEnemyCharacter5InputCollectionID,
+    targetBattleEnemyCharacter6InputCollectionID,
+    targetBattleEnemyCharacter7InputCollectionID,
+    targetBattleEnemyCharacter8InputCollectionID,
+    targetBattleEnemyCharacter9InputCollectionID,
+  ];
   for (let i: number = 0; i < enemyBattlerIDs.length; i++) {
+    const inputCollectionID: string | undefined =
+      enemyTargetInputCollectionIDs[i];
+    if (typeof inputCollectionID === "undefined") {
+      throw new Error("inputCollectionID is undefined");
+    }
     const getBattler = (): Battler => {
       const enemyBattlerID: string | undefined = enemyBattlerIDs[i];
       if (typeof enemyBattlerID === "undefined") {
@@ -683,6 +799,21 @@ export const createBattleUI = ({
         }),
       }),
     );
+    inputPressHandlerIDs.push(
+      createInputPressHandler({
+        condition: (): boolean => {
+          if (isTargeting()) {
+            const ability: Ability = getQueuedActionAbility();
+            return ability.targetType === TargetType.SingleEnemy;
+          }
+          return false;
+        },
+        inputCollectionID,
+        onInput: (): void => {
+          useAction(getBattler().id);
+        },
+      }),
+    );
   }
   // Commands panel
   hudElementReferences.push(
@@ -695,10 +826,16 @@ export const createBattleUI = ({
     }),
   );
   // Commands attack button
+  const attackButtonCondition = (): boolean =>
+    isTargeting() === false &&
+    canUseAbility("attack") &&
+    getDefinable(
+      Battler,
+      getBattleState().values.battlerID,
+    ).battleCharacter.hasSubmittedMove() === false;
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean =>
-        isTargeting() === false && canUseAbility("attack"),
+      condition: attackButtonCondition,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -710,71 +847,114 @@ export const createBattleUI = ({
       y: 146,
     }),
   );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: attackButtonCondition,
+      inputCollectionID: useAttackInputCollectionID,
+      onInput: (): void => {
+        useAbility("attack");
+      },
+    }),
+  );
   // Commands ability button
+  const abilityButtonCondition = (): boolean =>
+    isTargeting() === false &&
+    getDefinable(
+      Battler,
+      getBattleState().values.battlerID,
+    ).battleCharacter.hasSubmittedMove() === false;
+  const doAbilityCommand = (): void => {
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.menuState === BattleMenuState.Abilities) {
+      battleState.setValues({
+        abilitiesPage: 0,
+        itemsPage: 0,
+        menuState: BattleMenuState.Default,
+        selectedAbilityIndex: null,
+        selectedItemInstanceIndex: null,
+      });
+    } else {
+      battleState.setValues({
+        itemsPage: 0,
+        menuState: BattleMenuState.Abilities,
+        selectedItemInstanceIndex: null,
+      });
+    }
+  };
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting() === false,
+      condition: abilityButtonCondition,
       height: 16,
       imagePath: "pressable-buttons/gray",
-      onClick: (): void => {
-        const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.menuState === BattleMenuState.Abilities) {
-          battleState.setValues({
-            abilitiesPage: 0,
-            itemsPage: 0,
-            menuState: BattleMenuState.Default,
-            selectedAbilityIndex: null,
-            selectedItemInstanceIndex: null,
-          });
-        } else {
-          battleState.setValues({
-            itemsPage: 0,
-            menuState: BattleMenuState.Abilities,
-            selectedItemInstanceIndex: null,
-          });
-        }
-      },
+      onClick: doAbilityCommand,
       text: { value: "Ability" },
       width: 49,
       x: 6,
       y: 164,
     }),
   );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: abilityButtonCondition,
+      inputCollectionID: toggleBattleAbilitiesInputCollectionID,
+      onInput: doAbilityCommand,
+    }),
+  );
   // Commands item button
+  const itemButtonCondition = (): boolean =>
+    isTargeting() === false &&
+    getDefinable(
+      Battler,
+      getBattleState().values.battlerID,
+    ).battleCharacter.hasSubmittedMove() === false;
+  const doItemCommand = (): void => {
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.menuState === BattleMenuState.Items) {
+      battleState.setValues({
+        abilitiesPage: 0,
+        itemsPage: 0,
+        menuState: BattleMenuState.Default,
+        selectedAbilityIndex: null,
+        selectedItemInstanceIndex: null,
+      });
+    } else {
+      battleState.setValues({
+        abilitiesPage: 0,
+        menuState: BattleMenuState.Items,
+        selectedAbilityIndex: null,
+      });
+    }
+  };
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting() === false,
+      condition: itemButtonCondition,
       height: 16,
       imagePath: "pressable-buttons/gray",
-      onClick: (): void => {
-        const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.menuState === BattleMenuState.Items) {
-          battleState.setValues({
-            abilitiesPage: 0,
-            itemsPage: 0,
-            menuState: BattleMenuState.Default,
-            selectedAbilityIndex: null,
-            selectedItemInstanceIndex: null,
-          });
-        } else {
-          battleState.setValues({
-            abilitiesPage: 0,
-            menuState: BattleMenuState.Items,
-            selectedAbilityIndex: null,
-          });
-        }
-      },
+      onClick: doItemCommand,
       text: { value: "Item" },
       width: 49,
       x: 6,
       y: 182,
     }),
   );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: itemButtonCondition,
+      inputCollectionID: toggleBattleItemsInputCollectionID,
+      onInput: doItemCommand,
+    }),
+  );
   // Commands pass button
+  const passButtonCondition = (): boolean =>
+    isTargeting() === false &&
+    canUseAbility("pass") &&
+    getDefinable(
+      Battler,
+      getBattleState().values.battlerID,
+    ).battleCharacter.hasSubmittedMove() === false;
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean =>
-        isTargeting() === false && canUseAbility("pass"),
+      condition: passButtonCondition,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -786,11 +966,26 @@ export const createBattleUI = ({
       y: 200,
     }),
   );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: passButtonCondition,
+      inputCollectionID: usePassInputCollectionID,
+      onInput: (): void => {
+        useAbility("pass");
+      },
+    }),
+  );
   // Commands escape button
+  const escapeButtonCondition = (): boolean =>
+    isTargeting() === false &&
+    canUseAbility("escape") &&
+    getDefinable(
+      Battler,
+      getBattleState().values.battlerID,
+    ).battleCharacter.hasSubmittedMove() === false;
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean =>
-        isTargeting() === false && canUseAbility("escape"),
+      condition: escapeButtonCondition,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -802,7 +997,16 @@ export const createBattleUI = ({
       y: 218,
     }),
   );
-  // Commands cancel button
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: escapeButtonCondition,
+      inputCollectionID: useEscapeInputCollectionID,
+      onInput: (): void => {
+        useAbility("escape");
+      },
+    }),
+  );
+  // Commands cancel targetting button
   hudElementReferences.push(
     createPressableButton({
       condition: (): boolean => isTargeting(),
@@ -817,6 +1021,55 @@ export const createBattleUI = ({
       width: 49,
       x: 6,
       y: 146,
+    }),
+  );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: (): boolean => isTargeting(),
+      inputCollectionID: cancelBattleActionInputCollectionID,
+      onInput: (): void => {
+        getBattleState().setValues({
+          queuedAction: null,
+        });
+      },
+    }),
+  );
+  // Commands cancel submitted action buttons
+  hudElementReferences.push(
+    createPressableButton({
+      condition: (): boolean =>
+        getDefinable(
+          Battler,
+          getBattleState().values.battlerID,
+        ).battleCharacter.hasSubmittedMove(),
+      height: 16,
+      imagePath: "pressable-buttons/gray",
+      onClick: (): void => {
+        emitToSocketioServer<BattleCancelSubmittedMoveRequest>({
+          data: {},
+          event: "battle/cancel-submitted-move",
+        });
+      },
+      text: { value: "Cancel" },
+      width: 49,
+      x: 6,
+      y: 146,
+    }),
+  );
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: (): boolean =>
+        getDefinable(
+          Battler,
+          getBattleState().values.battlerID,
+        ).battleCharacter.hasSubmittedMove(),
+      inputCollectionID: cancelBattleActionInputCollectionID,
+      onInput: (): void => {
+        emitToSocketioServer<BattleCancelSubmittedMoveRequest>({
+          data: {},
+          event: "battle/cancel-submitted-move",
+        });
+      },
     }),
   );
   // Instructions panel
@@ -842,6 +1095,13 @@ export const createBattleUI = ({
       maxWidth: 229,
       size: 1,
       text: (): CreateLabelOptionsText => {
+        const battler: Battler = getDefinable(
+          Battler,
+          getBattleState().values.battlerID,
+        );
+        if (battler.battleCharacter.hasSubmittedMove()) {
+          return { value: "Waiting for other players." };
+        }
         if (isTargeting()) {
           return { value: "Select a target." };
         }
@@ -1259,6 +1519,7 @@ export const createBattleUI = ({
     {
       buttonIDs,
       ellipseIDs,
+      inputPressHandlerIDs,
       labelIDs,
       quadrilateralIDs,
     },

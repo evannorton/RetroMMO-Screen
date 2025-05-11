@@ -43,9 +43,11 @@ import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
+import { listenForBattleUpdates } from "./listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./listenForWorldUpdates";
 import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
+import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadPartyUpdate } from "../load-updates/loadPartyUpdate";
@@ -61,6 +63,9 @@ import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
 
 export const listenForUpdates = (): void => {
+  listenForBattleUpdates();
+  listenForMainMenuUpdates();
+  listenForWorldUpdates();
   listenToSocketioEvent<AddPlayerUpdate>({
     event: "add-player",
     onMessage: (update: AddPlayerUpdate): void => {
@@ -406,6 +411,10 @@ export const listenForUpdates = (): void => {
           for (const itemInstanceUpdate of update.battle.itemInstances) {
             loadItemInstanceUpdate(itemInstanceUpdate);
           }
+          for (const battleSubmittedAbilityUpdate of update.battle
+            .submittedAbilities) {
+            loadBattleSubmittedAbilityUpdate(battleSubmittedAbilityUpdate);
+          }
           state.setValues({
             battleState: createBattleState({
               battlerID: update.battle.battlerID,
@@ -533,8 +542,6 @@ export const listenForUpdates = (): void => {
           break;
         }
       }
-      listenForMainMenuUpdates();
-      listenForWorldUpdates();
       listenToSocketioEvent({
         event: "legacy/open-emotes",
         onMessage: (): void => {

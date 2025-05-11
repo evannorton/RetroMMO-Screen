@@ -63,7 +63,7 @@ export interface WorldStateSchema {
   wisdom: number;
   worldCharacterID: string;
 }
-export interface BattleStateSelectedAction {
+export interface BattleStateQueuedAction {
   readonly actionDefinableReference: DefinableReference;
   readonly queuedAt: number;
 }
@@ -81,7 +81,7 @@ export interface BattleStateSchema {
   itemInstanceIDs: readonly string[];
   itemsPage: number;
   menuState: BattleMenuState;
-  queuedAction: BattleStateSelectedAction | null;
+  queuedAction: BattleStateQueuedAction | null;
   reachableID: string;
   selectedAbilityIndex: number | null;
   selectedItemInstanceIndex: number | null;
