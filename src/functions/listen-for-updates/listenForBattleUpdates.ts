@@ -36,20 +36,6 @@ export const listenForBattleUpdates = (): void => {
       }
     },
   });
-  listenToSocketioEvent<BattleSubmitItemUpdate>({
-    event: "battle/submit-item",
-    onMessage: (update: BattleSubmitItemUpdate): void => {
-      const battleState: State<BattleStateSchema> = getBattleState();
-      loadBattleSubmittedItemUpdate(update.submittedItem);
-      if (
-        update.submittedItem.casterBattlerID === battleState.values.battlerID
-      ) {
-        battleState.setValues({
-          queuedAction: null,
-        });
-      }
-    },
-  });
   listenToSocketioEvent<BattleStartRoundUpdate>({
     event: "battle/start-round",
     onMessage: (update: BattleStartRoundUpdate): void => {
@@ -65,6 +51,20 @@ export const listenForBattleUpdates = (): void => {
           serverTime: update.round.serverTime,
         },
       });
+    },
+  });
+  listenToSocketioEvent<BattleSubmitItemUpdate>({
+    event: "battle/submit-item",
+    onMessage: (update: BattleSubmitItemUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      loadBattleSubmittedItemUpdate(update.submittedItem);
+      if (
+        update.submittedItem.casterBattlerID === battleState.values.battlerID
+      ) {
+        battleState.setValues({
+          queuedAction: null,
+        });
+      }
     },
   });
 };
