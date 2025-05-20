@@ -1,6 +1,7 @@
 import { Ability } from "../../../classes/Ability";
 import {
   BattleCancelSubmittedMoveRequest,
+  BattlePhase,
   BattleUseAbilityRequest,
   BattleUseItemInstanceRequest,
   Color,
@@ -827,6 +828,7 @@ export const createBattleUI = ({
   );
   // Commands attack button
   const attackButtonCondition = (): boolean =>
+    getBattleState().values.phase === BattlePhase.Selection &&
     isTargeting() === false &&
     canUseAbility("attack") &&
     getDefinable(
@@ -858,6 +860,7 @@ export const createBattleUI = ({
   );
   // Commands ability button
   const abilityButtonCondition = (): boolean =>
+    getBattleState().values.phase === BattlePhase.Selection &&
     isTargeting() === false &&
     getDefinable(
       Battler,
@@ -902,6 +905,7 @@ export const createBattleUI = ({
   );
   // Commands item button
   const itemButtonCondition = (): boolean =>
+    getBattleState().values.phase === BattlePhase.Selection &&
     isTargeting() === false &&
     getDefinable(
       Battler,
@@ -946,6 +950,7 @@ export const createBattleUI = ({
   );
   // Commands pass button
   const passButtonCondition = (): boolean =>
+    getBattleState().values.phase === BattlePhase.Selection &&
     isTargeting() === false &&
     canUseAbility("pass") &&
     getDefinable(
@@ -977,6 +982,7 @@ export const createBattleUI = ({
   );
   // Commands escape button
   const escapeButtonCondition = (): boolean =>
+    getBattleState().values.phase === BattlePhase.Selection &&
     isTargeting() === false &&
     canUseAbility("escape") &&
     getDefinable(
@@ -1075,6 +1081,8 @@ export const createBattleUI = ({
   // Instructions panel
   hudElementReferences.push(
     createPanel({
+      condition: (): boolean =>
+        getBattleState().values.phase === BattlePhase.Selection,
       height: 34,
       imagePath: "panels/basic",
       width: 243,
@@ -1087,6 +1095,8 @@ export const createBattleUI = ({
     createLabel({
       color: Color.White,
       coordinates: {
+        condition: (): boolean =>
+          getBattleState().values.phase === BattlePhase.Selection,
         x: 69,
         y: 148,
       },

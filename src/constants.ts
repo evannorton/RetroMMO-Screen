@@ -9,5 +9,6 @@ export const markerDuration: number = 267 * 2;
 export const npcQuestsPerPage: number = 3;
 export const questLogCompletedQuestsPerPage: number = 7;
 export const questLogInProgressQuestsPerPage: number = 7;
+export const serverTimeUpdateInterval: number = 100;
 export const spellbookAbilitiesPerPage: number = 7;
 export const targetBlinkDuration: number = 1500;

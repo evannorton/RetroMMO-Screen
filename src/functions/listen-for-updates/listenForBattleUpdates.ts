@@ -1,13 +1,16 @@
 import {
   BattleCancelSubmittedMoveUpdate,
+  BattlePhase,
+  BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
   BattleSubmitItemUpdate,
 } from "retrommo-types";
+import { BattleCharacter } from "../../classes/BattleCharacter";
 import { BattleStateSchema } from "../../state";
 import { Battler } from "../../classes/Battler";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
 import { getBattleState } from "../state/getBattleState";
-import { getDefinable } from "definables";
+import { getDefinable, getDefinables } from "definables";
 import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
 
@@ -45,6 +48,23 @@ export const listenForBattleUpdates = (): void => {
           queuedAction: null,
         });
       }
+    },
+  });
+  listenToSocketioEvent<BattleStartRoundUpdate>({
+    event: "battle/start-round",
+    onMessage: (update: BattleStartRoundUpdate): void => {
+      for (const battleCharacter of getDefinables(BattleCharacter).values()) {
+        battleCharacter.submittedMove = null;
+      }
+      const battleState: State<BattleStateSchema> = getBattleState();
+      battleState.setValues({
+        phase: BattlePhase.Round,
+        queuedAction: null,
+        round: {
+          events: update.round.events,
+          serverTime: update.round.serverTime,
+        },
+      });
     },
   });
 };

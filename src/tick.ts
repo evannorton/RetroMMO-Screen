@@ -1,21 +1,24 @@
-import { Constants, Direction } from "retrommo-types";
+import { Constants, Direction, ServerTimeRequest } from "retrommo-types";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
-import { getConstants } from "./functions/getConstants";
 import {
+  emitToSocketioServer,
   getCurrentTime,
   playAudioSource,
   removeEntity,
   setEntityPosition,
 } from "pixel-pigeon";
+import { getConstants } from "./functions/getConstants";
 import { getDefinables } from "definables";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
+import { serverTimeUpdateInterval } from "./constants";
 import { sfxVolumeChannelID } from "./volumeChannels";
 import { state } from "./state";
 
 export const tick = (): void => {
   const constants: Constants = getConstants();
+  const currentTime: number = getCurrentTime();
   if (state.values.worldState !== null) {
     let clickedWorldCharacter: WorldCharacter | null = null;
     for (const worldCharacter of getDefinables(WorldCharacter).values()) {
@@ -29,8 +32,7 @@ export const tick = (): void => {
       worldCharacter.wasClicked = false;
       if (
         worldCharacter.hasEmote() &&
-        worldCharacter.emote.usedAt <
-          getCurrentTime() - constants["emote-duration"]
+        worldCharacter.emote.usedAt < currentTime - constants["emote-duration"]
       ) {
         removeEntity(worldCharacter.emote.entityID);
         worldCharacter.emote = null;
@@ -39,7 +41,7 @@ export const tick = (): void => {
       if (worldCharacter.hasMovedAt()) {
         percentMoved = Math.min(
           1,
-          (getCurrentTime() - worldCharacter.movedAt) /
+          (currentTime - worldCharacter.movedAt) /
             constants["movement-duration"],
         );
       } else {
@@ -148,7 +150,7 @@ export const tick = (): void => {
     }
     const updatedPianoNotes: PianoNote[] = [];
     for (const pianoNote of state.values.worldState.values.pianoNotes) {
-      if (pianoNote.playAt <= getCurrentTime()) {
+      if (pianoNote.playAt <= currentTime) {
         playAudioSource(getPianoKeyAudioPath(pianoNote.index, pianoNote.type), {
           volumeChannelID: sfxVolumeChannelID,
         });
@@ -158,6 +160,20 @@ export const tick = (): void => {
     }
     state.values.worldState.setValues({
       pianoNotes: updatedPianoNotes,
+    });
+  }
+  if (
+    state.values.isInitialUpdateReceived &&
+    (state.values.serverTimeRequestedAt === null ||
+      currentTime - state.values.serverTimeRequestedAt >=
+        serverTimeUpdateInterval)
+  ) {
+    state.setValues({
+      serverTimeRequestedAt: currentTime,
+    });
+    emitToSocketioServer<ServerTimeRequest>({
+      data: {},
+      event: "server-time",
     });
   }
 };

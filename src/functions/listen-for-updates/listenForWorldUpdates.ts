@@ -1,6 +1,6 @@
 import { Bank } from "../../classes/Bank";
-import { Chest } from "../../classes/Chest";
 import {
+  BattlePhase,
   Direction,
   ItemInstanceUpdate,
   MarkerType,
@@ -34,6 +34,7 @@ import {
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
+import { Chest } from "../../classes/Chest";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -723,6 +724,7 @@ export const listenForWorldUpdates = (): void => {
             (itemInstanceUpdate: ItemInstanceUpdate): string =>
               itemInstanceUpdate.itemInstanceID,
           ),
+          phase: BattlePhase.Selection,
           reachableID: update.reachableID,
         }),
         worldState: null,

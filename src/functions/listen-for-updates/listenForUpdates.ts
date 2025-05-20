@@ -10,6 +10,7 @@ import {
   PartyChangesUpdate,
   RemovePlayerUpdate,
   RenamePlayerUpdate,
+  ServerTimeUpdate,
   TurnInQuestUpdate,
   TurnInQuestWorldUpdate,
 } from "retrommo-types";
@@ -23,7 +24,12 @@ import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
 import { QuestGiverQuest } from "../../classes/QuestGiver";
-import { State, listenToSocketioEvent, removeHUDElements } from "pixel-pigeon";
+import {
+  State,
+  getCurrentTime,
+  listenToSocketioEvent,
+  removeHUDElements,
+} from "pixel-pigeon";
 import {
   WorldCharacter,
   WorldCharacterQuestInstance,
@@ -391,6 +397,7 @@ export const listenForUpdates = (): void => {
       }
       state.setValues({
         battleState: null,
+        isInitialUpdateReceived: true,
         isSubscribed: update.isSubscribed,
         mainMenuState: null,
         selectedPlayerID: null,
@@ -433,7 +440,15 @@ export const listenForUpdates = (): void => {
                 (itemInstanceUpdate: ItemInstanceUpdate): string =>
                   itemInstanceUpdate.itemInstanceID,
               ),
+              phase: update.battle.phase,
               reachableID: update.battle.reachableID,
+              round:
+                typeof update.battle.round !== "undefined"
+                  ? {
+                      events: update.battle.round.events,
+                      serverTime: update.battle.round.serverTime,
+                    }
+                  : undefined,
             }),
           });
           break;
@@ -681,6 +696,21 @@ export const listenForUpdates = (): void => {
     onMessage: (update: RenamePlayerUpdate): void => {
       const player: Player = getDefinable(Player, update.playerID);
       player.username = update.username;
+    },
+  });
+  listenToSocketioEvent<ServerTimeUpdate>({
+    event: "server-time",
+    onMessage: (update: ServerTimeUpdate): void => {
+      if (state.values.serverTimeRequestedAt === null) {
+        throw new Error(
+          "Server time update received but server time requested at is null.",
+        );
+      }
+      state.setValues({
+        serverTime:
+          (getCurrentTime() - state.values.serverTimeRequestedAt) / 2 +
+          update.serverTime,
+      });
     },
   });
   listenToSocketioEvent<TurnInQuestUpdate>({
