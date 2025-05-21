@@ -1,7 +1,10 @@
 import { Ability } from "../../../classes/Ability";
 import {
   BattleCancelSubmittedMoveRequest,
+  BattleEvent,
+  BattleEventType,
   BattlePhase,
+  BattleUseAbilityEvent,
   BattleUseAbilityRequest,
   BattleUseItemInstanceRequest,
   Color,
@@ -9,7 +12,7 @@ import {
   ResourcePool,
   TargetType,
 } from "retrommo-types";
-import { BattleMenuState, BattleStateSchema } from "../../../state";
+import { BattleMenuState, BattleStateSchema, state } from "../../../state";
 import { Battler } from "../../../classes/Battler";
 import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
@@ -1526,6 +1529,77 @@ export const createBattleUI = ({
       y: 168,
     }),
   );
+  // Events panel
+  hudElementReferences.push(
+    createPanel({
+      condition: (): boolean =>
+        getBattleState().values.phase === BattlePhase.Round,
+      height: 60,
+      imagePath: "panels/basic",
+      width: 243,
+      x: 61,
+      y: 140,
+    }),
+  );
+  // Events text
+  for (let i: number = 0; i < 2; i++) {
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            getBattleState().values.phase === BattlePhase.Round &&
+            state.values.serverTime !== null,
+          x: 69,
+          y: 148 + i * 22,
+        },
+        horizontalAlignment: "left",
+        maxLines: 2,
+        maxWidth: 229,
+        size: 1,
+        text: (): CreateLabelOptionsText => {
+          if (state.values.serverTime === null) {
+            throw new Error("serverTime is null");
+          }
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.round === null) {
+            throw new Error("round is null");
+          }
+          const elapsedServerTime: number =
+            state.values.serverTime - battleState.values.round.serverTime;
+          const battleEvent: BattleEvent | undefined =
+            battleState.values.round.events.find(
+              (roundBattleEvent: BattleEvent): boolean =>
+                roundBattleEvent.channel === i &&
+                elapsedServerTime >= roundBattleEvent.startedAt &&
+                elapsedServerTime <
+                  roundBattleEvent.startedAt + roundBattleEvent.duration,
+            );
+          if (typeof battleEvent !== "undefined") {
+            switch (battleEvent.type) {
+              case BattleEventType.UseAbility: {
+                const useAbilityBattleEvent: BattleUseAbilityEvent =
+                  battleEvent as BattleUseAbilityEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  useAbilityBattleEvent.abilityID,
+                );
+                if (typeof useAbilityBattleEvent.target !== "undefined") {
+                  return {
+                    value: `${useAbilityBattleEvent.caster.name} uses ${ability.name} on ${useAbilityBattleEvent.target.name}.`,
+                  };
+                }
+                return {
+                  value: `${useAbilityBattleEvent.caster.name} uses ${ability.name}.`,
+                };
+              }
+            }
+          }
+          return { value: "" };
+        },
+      }),
+    );
+  }
   return mergeHUDElementReferences([
     {
       buttonIDs,

@@ -1,5 +1,6 @@
 import {
   BattleCancelSubmittedMoveUpdate,
+  BattleEndRoundUpdate,
   BattlePhase,
   BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
@@ -20,6 +21,16 @@ export const listenForBattleUpdates = (): void => {
     onMessage: (update: BattleCancelSubmittedMoveUpdate): void => {
       const battler: Battler = getDefinable(Battler, update.battlerID);
       battler.battleCharacter.submittedMove = null;
+    },
+  });
+  listenToSocketioEvent<BattleEndRoundUpdate>({
+    event: "battle/end-round",
+    onMessage: (): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      battleState.setValues({
+        phase: BattlePhase.Selection,
+        round: null,
+      });
     },
   });
   listenToSocketioEvent<BattleSubmitAbilityUpdate>({
