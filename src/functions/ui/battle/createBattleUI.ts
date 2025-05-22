@@ -4,6 +4,7 @@ import {
   BattleEvent,
   BattleEventType,
   BattlePhase,
+  BattleTakeDamageEvent,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
   BattleUseItemEvent,
@@ -1578,6 +1579,13 @@ export const createBattleUI = ({
             );
           if (typeof battleEvent !== "undefined") {
             switch (battleEvent.type) {
+              case BattleEventType.TakeDamage: {
+                const takeDamageBattleEvent: BattleTakeDamageEvent =
+                  battleEvent as BattleTakeDamageEvent;
+                return {
+                  value: `${takeDamageBattleEvent.target.name} takes ${takeDamageBattleEvent.amount} damage.`,
+                };
+              }
               case BattleEventType.UseAbility: {
                 const useAbilityBattleEvent: BattleUseAbilityEvent =
                   battleEvent as BattleUseAbilityEvent;
