@@ -6,6 +6,7 @@ import {
   BattlePhase,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
+  BattleUseItemEvent,
   BattleUseItemInstanceRequest,
   Color,
   Direction,
@@ -1591,6 +1592,22 @@ export const createBattleUI = ({
                 }
                 return {
                   value: `${useAbilityBattleEvent.caster.name} uses ${ability.name}.`,
+                };
+              }
+              case BattleEventType.UseItem: {
+                const useItemBattleEvent: BattleUseItemEvent =
+                  battleEvent as BattleUseItemEvent;
+                const item: Item = getDefinable(
+                  Item,
+                  useItemBattleEvent.itemID,
+                );
+                if (typeof useItemBattleEvent.target !== "undefined") {
+                  return {
+                    value: `${useItemBattleEvent.caster.name} uses ${item.name} on ${useItemBattleEvent.target.name}.`,
+                  };
+                }
+                return {
+                  value: `${useItemBattleEvent.caster.name} uses ${item.name}.`,
                 };
               }
             }
