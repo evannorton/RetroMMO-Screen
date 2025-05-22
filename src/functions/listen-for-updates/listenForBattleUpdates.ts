@@ -5,15 +5,18 @@ import {
   BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
   BattleSubmitItemUpdate,
+  ItemInstanceUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import { BattleStateSchema } from "../../state";
 import { Battler } from "../../classes/Battler";
+import { ItemInstance } from "../../classes/ItemInstance";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
 import { getBattleState } from "../state/getBattleState";
 import { getDefinable, getDefinables } from "definables";
 import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
+import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 
 export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleCancelSubmittedMoveUpdate>({
@@ -25,9 +28,19 @@ export const listenForBattleUpdates = (): void => {
   });
   listenToSocketioEvent<BattleEndRoundUpdate>({
     event: "battle/end-round",
-    onMessage: (): void => {
+    onMessage: (update: BattleEndRoundUpdate): void => {
+      for (const itemInstance of getDefinables(ItemInstance).values()) {
+        itemInstance.remove();
+      }
+      for (const itemInstanceUpdate of update.itemInstances) {
+        loadItemInstanceUpdate(itemInstanceUpdate);
+      }
       const battleState: State<BattleStateSchema> = getBattleState();
       battleState.setValues({
+        itemInstanceIDs: update.itemInstances.map(
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
+        ),
         phase: BattlePhase.Selection,
         round: null,
       });
