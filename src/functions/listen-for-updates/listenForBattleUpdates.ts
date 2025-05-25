@@ -1,6 +1,7 @@
 import {
   BattleCancelSubmittedMoveUpdate,
   BattleEndRoundUpdate,
+  BattleEvent,
   BattlePhase,
   BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
@@ -8,7 +9,7 @@ import {
   ItemInstanceUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
-import { BattleStateSchema } from "../../state";
+import { BattleStateRoundEventInstance, BattleStateSchema } from "../../state";
 import { Battler } from "../../classes/Battler";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
@@ -44,6 +45,22 @@ export const listenForBattleUpdates = (): void => {
         phase: BattlePhase.Selection,
         round: null,
       });
+      for (const battlerUpdate of update.battlers) {
+        if (battleState.values.friendlyBattlerIDs.includes(battlerUpdate.id)) {
+          if (typeof battlerUpdate.resources === "undefined") {
+            throw new Error(
+              `BattleEndRoundUpdate: Battler ${battlerUpdate.id} resources are undefined`,
+            );
+          }
+          const battler: Battler = getDefinable(Battler, battlerUpdate.id);
+          battler.resources = {
+            hp: battlerUpdate.resources.hp,
+            maxHP: battlerUpdate.resources.maxHP,
+            maxMP: battlerUpdate.resources.maxMP ?? null,
+            mp: battlerUpdate.resources.mp ?? null,
+          };
+        }
+      }
     },
   });
   listenToSocketioEvent<BattleSubmitAbilityUpdate>({
@@ -71,7 +88,12 @@ export const listenForBattleUpdates = (): void => {
         phase: BattlePhase.Round,
         queuedAction: null,
         round: {
-          events: update.round.events,
+          eventInstances: update.round.events.map(
+            (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
+              event: battleEvent,
+              isProcessed: false,
+            }),
+          ),
           serverTime: update.round.serverTime,
         },
       });

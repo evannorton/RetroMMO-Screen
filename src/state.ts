@@ -63,8 +63,12 @@ export interface WorldStateSchema {
   readonly wisdom: number;
   readonly worldCharacterID: string;
 }
+export interface BattleStateRoundEventInstance {
+  readonly event: BattleEvent;
+  isProcessed: boolean;
+}
 export interface BattleStateRound {
-  readonly events: readonly BattleEvent[];
+  readonly eventInstances: readonly BattleStateRoundEventInstance[];
   readonly serverTime: number;
 }
 export interface BattleStateQueuedAction {

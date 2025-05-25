@@ -2,7 +2,7 @@ import { BattleCharacter } from "./BattleCharacter";
 import { Definable, getDefinable } from "definables";
 
 export interface BattlerResources {
-  readonly hp: number;
+  hp: number;
   readonly maxHP: number;
   readonly maxMP: number | null;
   readonly mp: number | null;
@@ -15,11 +15,11 @@ export interface BattlerOptionsResources {
 }
 export interface BattlerOptions {
   readonly battleCharacterID?: string;
-  readonly resources?: BattlerOptionsResources;
+  resources?: BattlerOptionsResources;
 }
 export class Battler extends Definable {
   private readonly _battleCharacterID?: string;
-  private readonly _resources: BattlerResources | null;
+  private _resources: BattlerResources | null;
   public constructor(id: string, options: BattlerOptions) {
     super(id);
     this._battleCharacterID = options.battleCharacterID;
@@ -53,5 +53,14 @@ export class Battler extends Definable {
       return this._resources;
     }
     throw new Error(this.getAccessorErrorMessage("resources"));
+  }
+
+  public set resources(resources: BattlerResources) {
+    this._resources = {
+      hp: resources.hp,
+      maxHP: resources.maxHP,
+      maxMP: resources.maxMP,
+      mp: resources.mp,
+    };
   }
 }

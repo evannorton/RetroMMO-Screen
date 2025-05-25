@@ -1,4 +1,11 @@
-import { Constants, Direction, ServerTimeRequest } from "retrommo-types";
+import {
+  BattleEventType,
+  BattleTakeDamageEvent,
+  Constants,
+  Direction,
+  ServerTimeRequest,
+} from "retrommo-types";
+import { Battler } from "./classes/Battler";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
 import {
@@ -9,7 +16,7 @@ import {
   setEntityPosition,
 } from "pixel-pigeon";
 import { getConstants } from "./functions/getConstants";
-import { getDefinables } from "definables";
+import { getDefinable, getDefinables } from "definables";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
 import { serverTimeUpdateInterval } from "./constants";
@@ -161,6 +168,47 @@ export const tick = (): void => {
     state.values.worldState.setValues({
       pianoNotes: updatedPianoNotes,
     });
+  }
+  if (state.values.battleState !== null) {
+    if (state.values.battleState.values.round !== null) {
+      if (state.values.serverTime !== null) {
+        for (const eventInstance of state.values.battleState.values.round
+          .eventInstances) {
+          const elapsedServerTime: number =
+            state.values.serverTime -
+            state.values.battleState.values.round.serverTime;
+          if (
+            elapsedServerTime >= eventInstance.event.startedAt &&
+            eventInstance.isProcessed === false
+          ) {
+            eventInstance.isProcessed = true;
+            switch (eventInstance.event.type) {
+              case BattleEventType.TakeDamage: {
+                const takeDamageEvent: BattleTakeDamageEvent =
+                  eventInstance.event as BattleTakeDamageEvent;
+                if (
+                  state.values.battleState.values.friendlyBattlerIDs.includes(
+                    takeDamageEvent.target.battlerID,
+                  )
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    takeDamageEvent.target.battlerID,
+                  );
+                  if (battler !== null) {
+                    battler.resources.hp = Math.max(
+                      0,
+                      battler.resources.hp - takeDamageEvent.amount,
+                    );
+                  }
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
   }
   if (
     state.values.isInitialUpdateReceived &&

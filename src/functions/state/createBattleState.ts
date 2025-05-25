@@ -1,5 +1,9 @@
 import { BattleEvent, BattlePhase } from "retrommo-types";
-import { BattleMenuState, BattleStateSchema } from "../../state";
+import {
+  BattleMenuState,
+  BattleStateRoundEventInstance,
+  BattleStateSchema,
+} from "../../state";
 import { HUDElementReferences, State } from "pixel-pigeon";
 
 export interface CreateBattleStateOptionsRound {
@@ -41,7 +45,12 @@ export const createBattleState = ({
     round:
       typeof round !== "undefined"
         ? {
-            events: round.events,
+            eventInstances: round.events.map(
+              (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
+                event: battleEvent,
+                isProcessed: false,
+              }),
+            ),
             serverTime: round.serverTime,
           }
         : null,

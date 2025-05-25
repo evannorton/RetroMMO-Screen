@@ -1,7 +1,6 @@
 import { Ability } from "../../../classes/Ability";
 import {
   BattleCancelSubmittedMoveRequest,
-  BattleEvent,
   BattleEventType,
   BattlePhase,
   BattleTakeDamageEvent,
@@ -14,7 +13,12 @@ import {
   ResourcePool,
   TargetType,
 } from "retrommo-types";
-import { BattleMenuState, BattleStateSchema, state } from "../../../state";
+import {
+  BattleMenuState,
+  BattleStateRoundEventInstance,
+  BattleStateSchema,
+  state,
+} from "../../../state";
 import { Battler } from "../../../classes/Battler";
 import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
@@ -1569,26 +1573,29 @@ export const createBattleUI = ({
           }
           const elapsedServerTime: number =
             state.values.serverTime - battleState.values.round.serverTime;
-          const battleEvent: BattleEvent | undefined =
-            battleState.values.round.events.find(
-              (roundBattleEvent: BattleEvent): boolean =>
-                roundBattleEvent.channel === i &&
-                elapsedServerTime >= roundBattleEvent.startedAt &&
+          const battleEventInstance: BattleStateRoundEventInstance | undefined =
+            battleState.values.round.eventInstances.find(
+              (
+                roundBattleEventInstance: BattleStateRoundEventInstance,
+              ): boolean =>
+                roundBattleEventInstance.event.channel === i &&
+                elapsedServerTime >= roundBattleEventInstance.event.startedAt &&
                 elapsedServerTime <
-                  roundBattleEvent.startedAt + roundBattleEvent.duration,
+                  roundBattleEventInstance.event.startedAt +
+                    roundBattleEventInstance.event.duration,
             );
-          if (typeof battleEvent !== "undefined") {
-            switch (battleEvent.type) {
+          if (typeof battleEventInstance !== "undefined") {
+            switch (battleEventInstance.event.type) {
               case BattleEventType.TakeDamage: {
                 const takeDamageBattleEvent: BattleTakeDamageEvent =
-                  battleEvent as BattleTakeDamageEvent;
+                  battleEventInstance.event as BattleTakeDamageEvent;
                 return {
                   value: `${takeDamageBattleEvent.target.name} takes ${takeDamageBattleEvent.amount} damage.`,
                 };
               }
               case BattleEventType.UseAbility: {
                 const useAbilityBattleEvent: BattleUseAbilityEvent =
-                  battleEvent as BattleUseAbilityEvent;
+                  battleEventInstance.event as BattleUseAbilityEvent;
                 const ability: Ability = getDefinable(
                   Ability,
                   useAbilityBattleEvent.abilityID,
@@ -1604,7 +1611,7 @@ export const createBattleUI = ({
               }
               case BattleEventType.UseItem: {
                 const useItemBattleEvent: BattleUseItemEvent =
-                  battleEvent as BattleUseItemEvent;
+                  battleEventInstance.event as BattleUseItemEvent;
                 const item: Item = getDefinable(
                   Item,
                   useItemBattleEvent.itemID,
