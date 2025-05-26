@@ -460,7 +460,7 @@ export const loadGameData = async (): Promise<void> => {
                     const tilesetTile: TilesetTileDefinition | undefined =
                       tileset.tiles[tilesetX]?.[tilesetY];
                     if (typeof tilesetTile !== "undefined") {
-                      if (tilesetTile.extendsNPC) {
+                      if (tilesetTile.extendsNPC === true) {
                         state.setValues({
                           initialNPCExtenderPositions: [
                             ...state.values.initialNPCExtenderPositions,
