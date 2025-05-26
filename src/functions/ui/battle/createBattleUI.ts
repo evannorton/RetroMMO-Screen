@@ -1,6 +1,7 @@
 import { Ability } from "../../../classes/Ability";
 import {
   BattleCancelSubmittedMoveRequest,
+  BattleDeathEvent,
   BattleEventType,
   BattlePhase,
   BattleTakeDamageEvent,
@@ -1586,6 +1587,13 @@ export const createBattleUI = ({
             );
           if (typeof battleEventInstance !== "undefined") {
             switch (battleEventInstance.event.type) {
+              case BattleEventType.Death: {
+                const deathBattleEvent: BattleDeathEvent =
+                  battleEventInstance.event as BattleDeathEvent;
+                return {
+                  value: `${deathBattleEvent.target.name} is defeated!`,
+                };
+              }
               case BattleEventType.TakeDamage: {
                 const takeDamageBattleEvent: BattleTakeDamageEvent =
                   battleEventInstance.event as BattleTakeDamageEvent;
