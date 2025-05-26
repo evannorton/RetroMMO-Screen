@@ -236,7 +236,7 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           worldCombatCharacter.characterID,
         );
-        worldCharacter.isRenewing = worldCombatCharacter.isRenewing;
+        worldCharacter.isRenewing = worldCombatCharacter.isRenewing ?? false;
         worldCharacter.resources = {
           hp: worldCombatCharacter.resources.hp,
           maxHP: worldCombatCharacter.resources.maxHP,
