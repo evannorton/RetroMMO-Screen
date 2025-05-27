@@ -15,14 +15,17 @@ export interface BattlerOptionsResources {
 }
 export interface BattlerOptions {
   readonly battleCharacterID?: string;
-  resources?: BattlerOptionsResources;
+  readonly isAlive?: boolean;
+  readonly resources?: BattlerOptionsResources;
 }
 export class Battler extends Definable {
   private readonly _battleCharacterID?: string;
+  private _isAlive: boolean;
   private _resources: BattlerResources | null;
   public constructor(id: string, options: BattlerOptions) {
     super(id);
     this._battleCharacterID = options.battleCharacterID;
+    this._isAlive = options.isAlive ?? false;
     this._resources =
       typeof options.resources !== "undefined"
         ? {
@@ -48,11 +51,19 @@ export class Battler extends Definable {
     throw new Error(this.getAccessorErrorMessage("battleCharacterID"));
   }
 
+  public get isAlive(): boolean {
+    return this._isAlive;
+  }
+
   public get resources(): BattlerResources {
     if (this._resources !== null) {
       return this._resources;
     }
     throw new Error(this.getAccessorErrorMessage("resources"));
+  }
+
+  public set isAlive(isAlive: boolean) {
+    this._isAlive = isAlive;
   }
 
   public set resources(resources: BattlerResources) {

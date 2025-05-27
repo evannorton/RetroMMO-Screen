@@ -53,6 +53,7 @@ export const listenForBattleUpdates = (): void => {
             );
           }
           const battler: Battler = getDefinable(Battler, battlerUpdate.id);
+          battler.isAlive = battlerUpdate.isAlive ?? false;
           battler.resources = {
             hp: battlerUpdate.resources.hp,
             maxHP: battlerUpdate.resources.maxHP,
