@@ -653,12 +653,12 @@ export const createBattleUI = ({
     targetBattleEnemyCharacter8InputCollectionID,
     targetBattleEnemyCharacter9InputCollectionID,
   ];
+  const getAliveBattlerIDs = (): readonly string[] =>
+    enemyBattlerIDs.filter(
+      (enemyBattlerID: string): boolean =>
+        getDefinable(Battler, enemyBattlerID).isAlive,
+    );
   for (let i: number = 0; i < enemyBattlerIDs.length; i++) {
-    const inputCollectionID: string | undefined =
-      enemyTargetInputCollectionIDs[i];
-    if (typeof inputCollectionID === "undefined") {
-      throw new Error("inputCollectionID is undefined");
-    }
     const getBattler = (): Battler => {
       const enemyBattlerID: string | undefined = enemyBattlerIDs[i];
       if (typeof enemyBattlerID === "undefined") {
@@ -666,14 +666,17 @@ export const createBattleUI = ({
       }
       return getDefinable(Battler, enemyBattlerID);
     };
+    const getAliveBattlerIndex = (): number =>
+      getAliveBattlerIDs().indexOf(getBattler().id);
     const getX = (): number => {
       const width: number = 32;
       const leftWidths: number[] = [];
       const rightWidths: number[] = [];
-      for (let j: number = 0; j < enemyBattlerIDs.length; j++) {
-        if (j < i) {
+      const aliveBattlerIndex: number = getAliveBattlerIndex();
+      for (let j: number = 0; j < getAliveBattlerIDs().length; j++) {
+        if (j < aliveBattlerIndex) {
           leftWidths.push(width);
-        } else if (j > i) {
+        } else if (j > aliveBattlerIndex) {
           rightWidths.push(width);
         }
       }
@@ -692,6 +695,7 @@ export const createBattleUI = ({
           getDefinable(Reachable, getBattleState().values.reachableID).landscape
             .shadowColor,
         coordinates: {
+          condition: (): boolean => getBattler().isAlive,
           x: (): number => getX() + 4,
           y: 122,
         },
@@ -711,6 +715,7 @@ export const createBattleUI = ({
           ).id;
         },
         coordinates: {
+          condition: (): boolean => getBattler().isAlive,
           x: (): number => getX(),
           y: 96,
         },
@@ -748,7 +753,7 @@ export const createBattleUI = ({
       createButton({
         coordinates: {
           condition: (): boolean => {
-            if (isTargeting()) {
+            if (getBattler().isAlive && isTargeting()) {
               const ability: Ability = getQueuedActionAbility();
               return ability.targetType === TargetType.SingleEnemy;
             }
@@ -766,7 +771,7 @@ export const createBattleUI = ({
     );
     // Enemy targetting number
     const targetingNumberCondition = (): boolean => {
-      if (isTargeting()) {
+      if (getBattler().isAlive && isTargeting()) {
         const battleState: State<BattleStateSchema> = getBattleState();
         if (battleState.values.queuedAction === null) {
           throw new Error("queuedAction is null");
@@ -806,20 +811,28 @@ export const createBattleUI = ({
         },
         horizontalAlignment: "center",
         text: (): CreateLabelOptionsText => ({
-          value: String(i + 1),
+          value: String(getAliveBattlerIndex() + 1),
         }),
       }),
     );
     inputPressHandlerIDs.push(
       createInputPressHandler({
         condition: (): boolean => {
-          if (isTargeting()) {
+          if (getBattler().isAlive && isTargeting()) {
             const ability: Ability = getQueuedActionAbility();
             return ability.targetType === TargetType.SingleEnemy;
           }
           return false;
         },
-        inputCollectionID,
+        inputCollectionID: (): string => {
+          const inputCollectionID: string | undefined =
+            enemyTargetInputCollectionIDs[getAliveBattlerIndex()];
+          if (typeof inputCollectionID === "undefined") {
+            console.log(getBattler().isAlive);
+            throw new Error("inputCollectionID is undefined");
+          }
+          return inputCollectionID;
+        },
         onInput: (): void => {
           useAction(getBattler().id);
         },

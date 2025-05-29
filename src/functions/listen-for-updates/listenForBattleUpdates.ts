@@ -46,14 +46,14 @@ export const listenForBattleUpdates = (): void => {
         round: null,
       });
       for (const battlerUpdate of update.battlers) {
+        const battler: Battler = getDefinable(Battler, battlerUpdate.id);
+        battler.isAlive = battlerUpdate.isAlive ?? false;
         if (battleState.values.friendlyBattlerIDs.includes(battlerUpdate.id)) {
           if (typeof battlerUpdate.resources === "undefined") {
             throw new Error(
               `BattleEndRoundUpdate: Battler ${battlerUpdate.id} resources are undefined`,
             );
           }
-          const battler: Battler = getDefinable(Battler, battlerUpdate.id);
-          battler.isAlive = battlerUpdate.isAlive ?? false;
           battler.resources = {
             hp: battlerUpdate.resources.hp,
             maxHP: battlerUpdate.resources.maxHP,
