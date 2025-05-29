@@ -658,14 +658,8 @@ export const createBattleUI = ({
       (enemyBattlerID: string): boolean =>
         getDefinable(Battler, enemyBattlerID).isAlive,
     );
-  for (let i: number = 0; i < enemyBattlerIDs.length; i++) {
-    const getBattler = (): Battler => {
-      const enemyBattlerID: string | undefined = enemyBattlerIDs[i];
-      if (typeof enemyBattlerID === "undefined") {
-        throw new Error("enemyBattlerID is undefined");
-      }
-      return getDefinable(Battler, enemyBattlerID);
-    };
+  for (const enemyBattlerID of enemyBattlerIDs) {
+    const getBattler = (): Battler => getDefinable(Battler, enemyBattlerID);
     const getAliveBattlerIndex = (): number =>
       getAliveBattlerIDs().indexOf(getBattler().id);
     const getX = (): number => {
