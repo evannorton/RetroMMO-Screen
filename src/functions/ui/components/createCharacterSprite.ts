@@ -799,6 +799,7 @@ export const createCharacterSprite = ({
       return statusIconImagePathValue;
     },
   });
+  spriteIDs.push(statusIconSpriteID);
   if (typeof entity !== "undefined") {
     addEntitySprite(entity.entityID, {
       condition: headBackSpriteCondition,
