@@ -822,7 +822,6 @@ export const createBattleUI = ({
           const inputCollectionID: string | undefined =
             enemyTargetInputCollectionIDs[getAliveBattlerIndex()];
           if (typeof inputCollectionID === "undefined") {
-            console.log(getBattler().isAlive);
             throw new Error("inputCollectionID is undefined");
           }
           return inputCollectionID;
