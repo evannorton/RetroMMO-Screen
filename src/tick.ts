@@ -1,4 +1,5 @@
 import {
+  BattleDeathEvent,
   BattleEventType,
   BattleTakeDamageEvent,
   Constants,
@@ -8,6 +9,7 @@ import {
 import { Battler } from "./classes/Battler";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
+import { definableExists, getDefinable, getDefinables } from "definables";
 import {
   emitToSocketioServer,
   getCurrentTime,
@@ -16,7 +18,6 @@ import {
   setEntityPosition,
 } from "pixel-pigeon";
 import { getConstants } from "./functions/getConstants";
-import { getDefinable, getDefinables } from "definables";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
 import { serverTimeUpdateInterval } from "./constants";
@@ -183,10 +184,23 @@ export const tick = (): void => {
           ) {
             eventInstance.isProcessed = true;
             switch (eventInstance.event.type) {
+              case BattleEventType.Death: {
+                const deathEvent: BattleDeathEvent =
+                  eventInstance.event as BattleDeathEvent;
+                if (definableExists(Battler, deathEvent.target.battlerID)) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    deathEvent.target.battlerID,
+                  );
+                  battler.isAlive = false;
+                }
+                break;
+              }
               case BattleEventType.TakeDamage: {
                 const takeDamageEvent: BattleTakeDamageEvent =
                   eventInstance.event as BattleTakeDamageEvent;
                 if (
+                  definableExists(Battler, takeDamageEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
                     takeDamageEvent.target.battlerID,
                   )
@@ -195,12 +209,10 @@ export const tick = (): void => {
                     Battler,
                     takeDamageEvent.target.battlerID,
                   );
-                  if (battler !== null) {
-                    battler.resources.hp = Math.max(
-                      0,
-                      battler.resources.hp - takeDamageEvent.amount,
-                    );
-                  }
+                  battler.resources.hp = Math.max(
+                    0,
+                    battler.resources.hp - takeDamageEvent.amount,
+                  );
                 }
                 break;
               }
