@@ -6,6 +6,7 @@ export const loadBattleCharacterUpdate = (
 ): void => {
   new BattleCharacter(battleCharacterUpdate.characterID, {
     battlerID: battleCharacterUpdate.battlerID,
+    classID: battleCharacterUpdate.classID,
     clothesDyeItemID: battleCharacterUpdate.clothesDyeItemID,
     figureID: battleCharacterUpdate.figureID,
     hairDyeItemID: battleCharacterUpdate.hairDyeItemID,

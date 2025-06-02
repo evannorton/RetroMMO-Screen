@@ -1,7 +1,9 @@
+import { Ability } from "./classes/Ability";
 import {
   BattleDeathEvent,
   BattleEventType,
   BattleTakeDamageEvent,
+  BattleUseAbilityEvent,
   Constants,
   Direction,
   ServerTimeRequest,
@@ -10,6 +12,7 @@ import { Battler } from "./classes/Battler";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
 import { definableExists, getDefinable, getDefinables } from "definables";
+import { doesBattlerHaveMP } from "./functions/battle/doesBattlerHaveMP";
 import {
   emitToSocketioServer,
   getCurrentTime,
@@ -193,6 +196,37 @@ export const tick = (): void => {
                     deathEvent.target.battlerID,
                   );
                   battler.isAlive = false;
+                }
+                break;
+              }
+              case BattleEventType.UseAbility: {
+                const useAbilityEvent: BattleUseAbilityEvent =
+                  eventInstance.event as BattleUseAbilityEvent;
+                if (
+                  definableExists(Battler, useAbilityEvent.caster.battlerID) &&
+                  state.values.battleState.values.friendlyBattlerIDs.includes(
+                    useAbilityEvent.caster.battlerID,
+                  )
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    useAbilityEvent.caster.battlerID,
+                  );
+                  const ability: Ability = getDefinable(
+                    Ability,
+                    useAbilityEvent.abilityID,
+                  );
+                  if (doesBattlerHaveMP(battler.id)) {
+                    if (battler.resources.mp === null) {
+                      throw new Error(
+                        "Battler has no MP but is trying to use an ability that costs MP.",
+                      );
+                    }
+                    battler.resources.mp = Math.max(
+                      0,
+                      battler.resources.mp - ability.mpCost,
+                    );
+                  }
                 }
                 break;
               }

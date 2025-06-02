@@ -6,5 +6,6 @@ export const loadBattlerUpdate = (battlerUpdate: BattlerUpdate): void => {
     battleCharacterID: battlerUpdate.characterID,
     isAlive: battlerUpdate.isAlive,
     resources: battlerUpdate.resources,
+    type: battlerUpdate.type,
   });
 };

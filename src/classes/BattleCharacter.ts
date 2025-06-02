@@ -1,4 +1,5 @@
 import { Battler } from "./Battler";
+import { Class } from "./Class";
 import { Definable, DefinableReference, getDefinable } from "definables";
 import { Item } from "./Item";
 import { Player } from "./Player";
@@ -10,6 +11,7 @@ export interface BattleCharacterMove {
 }
 export interface BattleCharacterOptions {
   readonly battlerID: string;
+  readonly classID: string;
   readonly clothesDyeItemID?: string;
   readonly figureID: string;
   readonly hairDyeItemID?: string;
@@ -20,6 +22,7 @@ export interface BattleCharacterOptions {
 }
 export class BattleCharacter extends Definable {
   private readonly _battlerID: string;
+  private readonly _classID: string;
   private readonly _clothesDyeItemID?: string;
   private readonly _figureID: string;
   private readonly _hairDyeItemID?: string;
@@ -31,6 +34,7 @@ export class BattleCharacter extends Definable {
   public constructor(id: string, options: BattleCharacterOptions) {
     super(id);
     this._battlerID = options.battlerID;
+    this._classID = options.classID;
     this._clothesDyeItemID = options.clothesDyeItemID;
     this._figureID = options.figureID;
     this._hairDyeItemID = options.hairDyeItemID;
@@ -46,6 +50,10 @@ export class BattleCharacter extends Definable {
 
   public get battlerID(): string {
     return this._battlerID;
+  }
+
+  public get class(): Class {
+    return getDefinable(Class, this._classID);
   }
 
   public get clothesDyeItem(): Item {
