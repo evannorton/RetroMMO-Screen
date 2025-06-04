@@ -726,6 +726,7 @@ export const listenForWorldUpdates = (): void => {
           ),
           phase: BattlePhase.Selection,
           reachableID: update.reachableID,
+          type: update.battleType,
         }),
         worldState: null,
       });

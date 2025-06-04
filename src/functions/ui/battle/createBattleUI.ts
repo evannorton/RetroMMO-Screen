@@ -45,6 +45,7 @@ import {
   battleItemsPerPage,
   targetBlinkDuration,
 } from "../../../constants";
+import { canFleeBattle } from "../../battle/canFleeBattle";
 import {
   cancelBattleActionInputCollectionID,
   targetBattleEnemyCharacter1InputCollectionID,
@@ -199,7 +200,7 @@ const canUseAbility = (abilityID: string): boolean => {
   const ability: Ability = getDefinable(Ability, abilityID);
   return (
     ability.hasFleeChance() === false ||
-    battleState.values.friendlyBattlerIDs[0] === battler.id
+    (battleState.values.friendlyBattlerIDs[0] === battler.id && canFleeBattle())
   );
 };
 const getAbilityIDs = (): readonly string[] => {

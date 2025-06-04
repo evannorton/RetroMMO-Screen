@@ -1,4 +1,4 @@
-import { BattleEvent, BattlePhase } from "retrommo-types";
+import { BattleEvent, BattlePhase, BattleType } from "retrommo-types";
 import {
   BattleMenuState,
   BattleStateRoundEventInstance,
@@ -19,6 +19,7 @@ export interface CreateBattleStateOptions {
   readonly phase: BattlePhase;
   readonly reachableID: string;
   readonly round?: CreateBattleStateOptionsRound;
+  readonly type: BattleType;
 }
 export const createBattleState = ({
   battlerID,
@@ -29,6 +30,7 @@ export const createBattleState = ({
   phase,
   reachableID,
   round,
+  type,
 }: CreateBattleStateOptions): State<BattleStateSchema> =>
   new State<BattleStateSchema>({
     abilitiesPage: 0,
@@ -56,4 +58,5 @@ export const createBattleState = ({
         : null,
     selectedAbilityIndex: null,
     selectedItemInstanceIndex: null,
+    type,
   });

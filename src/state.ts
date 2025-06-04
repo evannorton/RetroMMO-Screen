@@ -1,4 +1,10 @@
-import { BattleEvent, BattlePhase, Constants, Direction } from "retrommo-types";
+import {
+  BattleEvent,
+  BattlePhase,
+  BattleType,
+  Constants,
+  Direction,
+} from "retrommo-types";
 import { DefinableReference } from "definables";
 import { HUDElementReferences, State } from "pixel-pigeon";
 import {
@@ -95,6 +101,7 @@ export interface BattleStateSchema {
   readonly round: BattleStateRound | null;
   readonly selectedAbilityIndex: number | null;
   readonly selectedItemInstanceIndex: number | null;
+  readonly type: BattleType;
 }
 export interface StateSchema {
   readonly battleState: State<BattleStateSchema> | null;

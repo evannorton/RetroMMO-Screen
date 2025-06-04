@@ -449,6 +449,7 @@ export const listenForUpdates = (): void => {
                       serverTime: update.battle.round.serverTime,
                     }
                   : undefined,
+              type: update.battle.battleType,
             }),
           });
           break;
