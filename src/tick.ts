@@ -1,8 +1,9 @@
 import { Ability } from "./classes/Ability";
 import {
+  BattleDamageEvent,
   BattleDeathEvent,
   BattleEventType,
-  BattleTakeDamageEvent,
+  BattleHealEvent,
   BattleUseAbilityEvent,
   Constants,
   Direction,
@@ -187,6 +188,26 @@ export const tick = (): void => {
           ) {
             eventInstance.isProcessed = true;
             switch (eventInstance.event.type) {
+              case BattleEventType.Damage: {
+                const damageEvent: BattleDamageEvent =
+                  eventInstance.event as BattleDamageEvent;
+                if (
+                  definableExists(Battler, damageEvent.target.battlerID) &&
+                  state.values.battleState.values.friendlyBattlerIDs.includes(
+                    damageEvent.target.battlerID,
+                  )
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    damageEvent.target.battlerID,
+                  );
+                  battler.resources.hp = Math.max(
+                    0,
+                    battler.resources.hp - damageEvent.amount,
+                  );
+                }
+                break;
+              }
               case BattleEventType.Death: {
                 const deathEvent: BattleDeathEvent =
                   eventInstance.event as BattleDeathEvent;
@@ -196,6 +217,26 @@ export const tick = (): void => {
                     deathEvent.target.battlerID,
                   );
                   battler.isAlive = false;
+                }
+                break;
+              }
+              case BattleEventType.Heal: {
+                const healEvent: BattleHealEvent =
+                  eventInstance.event as BattleHealEvent;
+                if (
+                  definableExists(Battler, healEvent.target.battlerID) &&
+                  state.values.battleState.values.friendlyBattlerIDs.includes(
+                    healEvent.target.battlerID,
+                  )
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    healEvent.target.battlerID,
+                  );
+                  battler.resources.hp = Math.min(
+                    battler.resources.maxHP,
+                    battler.resources.hp + healEvent.amount,
+                  );
                 }
                 break;
               }
@@ -227,26 +268,6 @@ export const tick = (): void => {
                       battler.resources.mp - ability.mpCost,
                     );
                   }
-                }
-                break;
-              }
-              case BattleEventType.TakeDamage: {
-                const takeDamageEvent: BattleTakeDamageEvent =
-                  eventInstance.event as BattleTakeDamageEvent;
-                if (
-                  definableExists(Battler, takeDamageEvent.target.battlerID) &&
-                  state.values.battleState.values.friendlyBattlerIDs.includes(
-                    takeDamageEvent.target.battlerID,
-                  )
-                ) {
-                  const battler: Battler = getDefinable(
-                    Battler,
-                    takeDamageEvent.target.battlerID,
-                  );
-                  battler.resources.hp = Math.max(
-                    0,
-                    battler.resources.hp - takeDamageEvent.amount,
-                  );
                 }
                 break;
               }

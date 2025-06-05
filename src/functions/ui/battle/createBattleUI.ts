@@ -1,10 +1,10 @@
 import { Ability } from "../../../classes/Ability";
 import {
   BattleCancelSubmittedMoveRequest,
+  BattleDamageEvent,
   BattleDeathEvent,
   BattleEventType,
   BattlePhase,
-  BattleTakeDamageEvent,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
   BattleUseItemEvent,
@@ -715,7 +715,7 @@ export const createBattleUI = ({
         },
         coordinates: {
           condition: (): boolean => getEnemyBattler().isAlive,
-          x: (): number => getX(),
+          x: getX,
           y: 96,
         },
         direction: Direction.Down,
@@ -759,7 +759,7 @@ export const createBattleUI = ({
             }
             return false;
           },
-          x: getX(),
+          x: getX,
           y: 96,
         },
         height: 32,
@@ -1612,6 +1612,13 @@ export const createBattleUI = ({
             );
           if (typeof battleEventInstance !== "undefined") {
             switch (battleEventInstance.event.type) {
+              case BattleEventType.Damage: {
+                const damageBattleEvent: BattleDamageEvent =
+                  battleEventInstance.event as BattleDamageEvent;
+                return {
+                  value: `${damageBattleEvent.target.name} takes ${damageBattleEvent.amount} damage.`,
+                };
+              }
               case BattleEventType.Death: {
                 const deathBattleEvent: BattleDeathEvent =
                   battleEventInstance.event as BattleDeathEvent;
@@ -1619,11 +1626,11 @@ export const createBattleUI = ({
                   value: `${deathBattleEvent.target.name} is defeated!`,
                 };
               }
-              case BattleEventType.TakeDamage: {
-                const takeDamageBattleEvent: BattleTakeDamageEvent =
-                  battleEventInstance.event as BattleTakeDamageEvent;
+              case BattleEventType.Heal: {
+                const damageBattleEvent: BattleDamageEvent =
+                  battleEventInstance.event as BattleDamageEvent;
                 return {
-                  value: `${takeDamageBattleEvent.target.name} takes ${takeDamageBattleEvent.amount} damage.`,
+                  value: `${damageBattleEvent.target.name} recovers ${damageBattleEvent.amount} HP.`,
                 };
               }
               case BattleEventType.UseAbility: {
