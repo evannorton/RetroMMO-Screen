@@ -4,6 +4,7 @@ import {
   BattleDamageEvent,
   BattleDeathEvent,
   BattleEventType,
+  BattleFriendlyTargetFailureEvent,
   BattlePhase,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
@@ -1624,6 +1625,13 @@ export const createBattleUI = ({
                   battleEventInstance.event as BattleDeathEvent;
                 return {
                   value: `${deathBattleEvent.target.name} is defeated!`,
+                };
+              }
+              case BattleEventType.FriendlyTargetFailure: {
+                const friendlyTargetFailureBattleEvent: BattleFriendlyTargetFailureEvent =
+                  battleEventInstance.event as BattleFriendlyTargetFailureEvent;
+                return {
+                  value: `...but ${friendlyTargetFailureBattleEvent.target.name} is defeated.`,
                 };
               }
               case BattleEventType.Heal: {
