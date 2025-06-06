@@ -1613,6 +1613,11 @@ export const createBattleUI = ({
             );
           if (typeof battleEventInstance !== "undefined") {
             switch (battleEventInstance.event.type) {
+              case BattleEventType.Crit: {
+                return {
+                  value: "An excellent move!",
+                };
+              }
               case BattleEventType.Damage: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
@@ -1640,6 +1645,9 @@ export const createBattleUI = ({
                 return {
                   value: `${damageBattleEvent.target.name} recovers ${damageBattleEvent.amount} HP.`,
                 };
+              }
+              case BattleEventType.Miss: {
+                return { value: "...but it misses." };
               }
               case BattleEventType.UseAbility: {
                 const useAbilityBattleEvent: BattleUseAbilityEvent =
