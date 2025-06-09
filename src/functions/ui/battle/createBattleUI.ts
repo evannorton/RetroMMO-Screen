@@ -5,6 +5,7 @@ import {
   BattleDeathEvent,
   BattleEventType,
   BattleFriendlyTargetFailureEvent,
+  BattleInstakillEvent,
   BattlePhase,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
@@ -1644,6 +1645,13 @@ export const createBattleUI = ({
                   battleEventInstance.event as BattleDamageEvent;
                 return {
                   value: `${damageBattleEvent.target.name} recovers ${damageBattleEvent.amount} HP.`,
+                };
+              }
+              case BattleEventType.Instakill: {
+                const instakillBattleEvent: BattleInstakillEvent =
+                  battleEventInstance.event as BattleInstakillEvent;
+                return {
+                  value: `${instakillBattleEvent.target.name} is drawn into the light.`,
                 };
               }
               case BattleEventType.Miss: {
