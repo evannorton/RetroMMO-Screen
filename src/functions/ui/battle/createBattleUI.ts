@@ -1622,6 +1622,11 @@ export const createBattleUI = ({
               case BattleEventType.Damage: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
+                if (damageBattleEvent.isRedirected === true) {
+                  return {
+                    value: `${damageBattleEvent.target.name} guards for ${damageBattleEvent.amount} damage.`,
+                  };
+                }
                 return {
                   value: `${damageBattleEvent.target.name} takes ${damageBattleEvent.amount} damage.`,
                 };
