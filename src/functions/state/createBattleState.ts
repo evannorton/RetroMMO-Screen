@@ -1,19 +1,26 @@
 import { BattleEvent, BattlePhase, BattleType } from "retrommo-types";
 import {
   BattleMenuState,
+  BattleStateHotkey,
   BattleStateRoundEventInstance,
   BattleStateSchema,
 } from "../../state";
+import { DefinableReference } from "definables";
 import { HUDElementReferences, State } from "pixel-pigeon";
 
 export interface CreateBattleStateOptionsRound {
   readonly events: readonly BattleEvent[];
   readonly serverTime: number;
 }
+export interface CreateBattleStateOptionsHotkey {
+  readonly hotkeyableDefinableReference: DefinableReference;
+  readonly index: number;
+}
 export interface CreateBattleStateOptions {
   readonly battlerID: string;
   readonly enemyBattlerIDs: readonly string[];
   readonly friendlyBattlerIDs: readonly string[];
+  readonly hotkeys: readonly CreateBattleStateOptionsHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly itemInstanceIDs: readonly string[];
   readonly phase: BattlePhase;
@@ -25,6 +32,7 @@ export const createBattleState = ({
   battlerID,
   enemyBattlerIDs,
   friendlyBattlerIDs,
+  hotkeys,
   hudElementReferences,
   itemInstanceIDs,
   phase,
@@ -35,8 +43,15 @@ export const createBattleState = ({
   new State<BattleStateSchema>({
     abilitiesPage: 0,
     battlerID,
+    bindAction: null,
     enemyBattlerIDs,
     friendlyBattlerIDs,
+    hotkeys: hotkeys.map(
+      (hotkey: CreateBattleStateOptionsHotkey): BattleStateHotkey => ({
+        hotkeyableDefinableReference: hotkey.hotkeyableDefinableReference,
+        index: hotkey.index,
+      }),
+    ),
     hudElementReferences,
     itemInstanceIDs,
     itemsPage: 0,

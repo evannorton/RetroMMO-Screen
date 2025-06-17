@@ -1,4 +1,6 @@
 import {
+  BattleBindAbilityUpdate,
+  BattleBindItemUpdate,
   BattleCancelSubmittedMoveUpdate,
   BattleEndRoundUpdate,
   BattleEvent,
@@ -9,7 +11,12 @@ import {
   ItemInstanceUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
-import { BattleStateRoundEventInstance, BattleStateSchema } from "../../state";
+import {
+  BattleMenuState,
+  BattleStateHotkey,
+  BattleStateRoundEventInstance,
+  BattleStateSchema,
+} from "../../state";
 import { Battler } from "../../classes/Battler";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
@@ -20,6 +27,50 @@ import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmitt
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 
 export const listenForBattleUpdates = (): void => {
+  listenToSocketioEvent<BattleBindAbilityUpdate>({
+    event: "battle/bind-ability",
+    onMessage: (update: BattleBindAbilityUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const filteredHotkeys: readonly BattleStateHotkey[] =
+        battleState.values.hotkeys.filter(
+          (hotkey: BattleStateHotkey): boolean => hotkey.index !== update.index,
+        );
+      battleState.setValues({
+        hotkeys: [
+          ...filteredHotkeys,
+          {
+            hotkeyableDefinableReference: {
+              className: "Ability",
+              id: update.abilityID,
+            },
+            index: update.index,
+          },
+        ],
+      });
+    },
+  });
+  listenToSocketioEvent<BattleBindItemUpdate>({
+    event: "battle/bind-item",
+    onMessage: (update: BattleBindItemUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const filteredHotkeys: readonly BattleStateHotkey[] =
+        battleState.values.hotkeys.filter(
+          (hotkey: BattleStateHotkey): boolean => hotkey.index !== update.index,
+        );
+      battleState.setValues({
+        hotkeys: [
+          ...filteredHotkeys,
+          {
+            hotkeyableDefinableReference: {
+              className: "Item",
+              id: update.itemID,
+            },
+            index: update.index,
+          },
+        ],
+      });
+    },
+  });
   listenToSocketioEvent<BattleCancelSubmittedMoveUpdate>({
     event: "battle/cancel-submitted-move",
     onMessage: (update: BattleCancelSubmittedMoveUpdate): void => {
@@ -86,6 +137,7 @@ export const listenForBattleUpdates = (): void => {
       }
       const battleState: State<BattleStateSchema> = getBattleState();
       battleState.setValues({
+        menuState: BattleMenuState.Default,
         phase: BattlePhase.Round,
         queuedAction: null,
         round: {
@@ -97,6 +149,8 @@ export const listenForBattleUpdates = (): void => {
           ),
           serverTime: update.round.serverTime,
         },
+        selectedAbilityIndex: null,
+        selectedItemInstanceIndex: null,
       });
     },
   });

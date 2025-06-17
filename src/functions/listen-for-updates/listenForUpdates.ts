@@ -1,3 +1,4 @@
+import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
   EndPlayerBattleUpdate,
@@ -17,6 +18,11 @@ import {
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import { BattleStateSchema, WorldStateSchema, state } from "../../state";
 import { Battler } from "../../classes/Battler";
+import {
+  CreateBattleStateOptionsHotkey,
+  createBattleState,
+} from "../state/createBattleState";
+import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -38,7 +44,6 @@ import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
-import { createBattleState } from "../state/createBattleState";
 import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
@@ -404,7 +409,7 @@ export const listenForUpdates = (): void => {
         worldState: null,
       });
       switch (update.mainState) {
-        case MainState.Battle:
+        case MainState.Battle: {
           if (typeof update.battle === "undefined") {
             throw new Error(
               "Initial update in World MainState is missing battle.",
@@ -427,11 +432,31 @@ export const listenForUpdates = (): void => {
             .submittedItems) {
             loadBattleSubmittedItemUpdate(battleSubmittedItemUpdate);
           }
+          const hotkeys: CreateBattleStateOptionsHotkey[] = [];
+          for (const abilityHotkey of update.battle.abilityHotkeys) {
+            hotkeys.push({
+              hotkeyableDefinableReference: getDefinable(
+                Ability,
+                abilityHotkey.abilityID,
+              ).getReference(),
+              index: abilityHotkey.index,
+            });
+          }
+          for (const itemHotkey of update.battle.itemHotkeys) {
+            hotkeys.push({
+              hotkeyableDefinableReference: getDefinable(
+                Item,
+                itemHotkey.itemID,
+              ).getReference(),
+              index: itemHotkey.index,
+            });
+          }
           state.setValues({
             battleState: createBattleState({
               battlerID: update.battle.battlerID,
               enemyBattlerIDs: update.battle.enemyBattlerIDs,
               friendlyBattlerIDs: update.battle.friendlyBattlerIDs,
+              hotkeys,
               hudElementReferences: createBattleUI({
                 enemyBattlerIDs: update.battle.enemyBattlerIDs,
                 friendlyBattlerIDs: update.battle.friendlyBattlerIDs,
@@ -453,6 +478,7 @@ export const listenForUpdates = (): void => {
             }),
           });
           break;
+        }
         case MainState.MainMenu: {
           if (typeof update.mainMenu === "undefined") {
             throw new Error(

@@ -82,4 +82,8 @@ export class Battler extends Definable {
       mp: resources.mp,
     };
   }
+
+  public hasBattleCharacter(): boolean {
+    return typeof this._battleCharacterID !== "undefined";
+  }
 }

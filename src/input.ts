@@ -334,6 +334,148 @@ export const useEscapeInputCollectionID: string = createInputCollection({
   ],
   name: "Use Escape",
 });
+export const useBattleHotkey1InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit1",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad1",
+    },
+  ],
+  name: "Use battle hotkey 1",
+});
+export const useBattleHotkey2InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit2",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad2",
+    },
+  ],
+  name: "Use battle hotkey 2",
+});
+export const useBattleHotkey3InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit3",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad3",
+    },
+  ],
+  name: "Use battle hotkey 3",
+});
+export const useBattleHotkey4InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit4",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad4",
+    },
+  ],
+  name: "Use battle hotkey 4",
+});
+export const useBattleHotkey5InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit5",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad5",
+    },
+  ],
+  name: "Use battle hotkey 5",
+});
+export const useBattleHotkey6InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit6",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad6",
+    },
+  ],
+  name: "Use battle hotkey 6",
+});
+export const useBattleHotkey7InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit7",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad7",
+    },
+  ],
+  name: "Use battle hotkey 7",
+});
+export const useBattleHotkey8InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit8",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad8",
+    },
+  ],
+  name: "Use battle hotkey 8",
+});
+export const useBattleHotkey9InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit9",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad9",
+    },
+  ],
+  name: "Use battle hotkey 9",
+});
+export const useBattleHotkey10InputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "Digit0",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad0",
+      },
+    ],
+    name: "Use battle hotkey 10",
+  },
+);
+export const useBattleHotkey11InputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "Minus",
+      },
+    ],
+    name: "Use battle hotkey 11",
+  },
+);
+export const useBattleHotkey12InputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "Equal",
+      },
+    ],
+    name: "Use battle hotkey 12",
+  },
+);
 export const cancelBattleActionInputCollectionID: string =
   createInputCollection({
     keyboardButtons: [

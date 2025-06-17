@@ -11,6 +11,7 @@ export interface CreateImageOptions {
   readonly height: number;
   readonly imagePath: Scriptable<string>;
   readonly onClick?: () => void;
+  readonly palette?: Scriptable<string[]>;
   readonly recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
   readonly width: number;
   readonly x: Scriptable<number>;
@@ -21,6 +22,7 @@ export const createImage = ({
   height,
   imagePath,
   onClick,
+  palette,
   recolors,
   x,
   y,
@@ -52,6 +54,7 @@ export const createImage = ({
         y,
       },
       imagePath,
+      palette,
       recolors,
     }),
   );

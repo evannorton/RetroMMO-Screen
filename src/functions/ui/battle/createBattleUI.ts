@@ -1,5 +1,7 @@
 import { Ability } from "../../../classes/Ability";
 import {
+  BattleBindAbilityRequest,
+  BattleBindItemRequest,
   BattleCancelSubmittedMoveRequest,
   BattleDamageEvent,
   BattleDeathEvent,
@@ -18,6 +20,8 @@ import {
 } from "retrommo-types";
 import {
   BattleMenuState,
+  BattleStateBindAction,
+  BattleStateHotkey,
   BattleStateRoundEventInstance,
   BattleStateSchema,
   state,
@@ -45,6 +49,8 @@ import { Reachable } from "../../../classes/Reachable";
 import {
   battleAbilitiesPerPage,
   battleItemsPerPage,
+  grayColors,
+  hotkeyLabelBlinkDuration,
   targetBlinkDuration,
 } from "../../../constants";
 import { canFleeBattle } from "../../battle/canFleeBattle";
@@ -65,6 +71,18 @@ import {
   toggleBattleAbilitiesInputCollectionID,
   toggleBattleItemsInputCollectionID,
   useAttackInputCollectionID,
+  useBattleHotkey10InputCollectionID,
+  useBattleHotkey11InputCollectionID,
+  useBattleHotkey12InputCollectionID,
+  useBattleHotkey1InputCollectionID,
+  useBattleHotkey2InputCollectionID,
+  useBattleHotkey3InputCollectionID,
+  useBattleHotkey4InputCollectionID,
+  useBattleHotkey5InputCollectionID,
+  useBattleHotkey6InputCollectionID,
+  useBattleHotkey7InputCollectionID,
+  useBattleHotkey8InputCollectionID,
+  useBattleHotkey9InputCollectionID,
   useEscapeInputCollectionID,
   usePassInputCollectionID,
 } from "../../../input";
@@ -83,6 +101,7 @@ import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
+import { isBattleMultiplayer } from "../../battle/isBattleMultiplayer";
 
 const getBattler = (): Battler =>
   getDefinable(Battler, getBattleState().values.battlerID);
@@ -143,6 +162,7 @@ const useAbility = (battlerID: string): void => {
   const ability: Ability = getDefinable(Ability, battlerID);
   battleState.setValues({
     abilitiesPage: 0,
+    bindAction: null,
     itemsPage: 0,
     menuState: BattleMenuState.Default,
     queuedAction: {
@@ -166,6 +186,7 @@ const useItemInstance = (itemInstanceID: string): void => {
   const itemInstance: ItemInstance = getDefinable(ItemInstance, itemInstanceID);
   battleState.setValues({
     abilitiesPage: 0,
+    bindAction: null,
     itemsPage: 0,
     menuState: BattleMenuState.Default,
     queuedAction: {
@@ -348,6 +369,22 @@ const getSelectedItemInstance = (): ItemInstance => {
   }
   return getItemInstance(battleState.values.selectedItemInstanceIndex);
 };
+const isBindingHotkey = (): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  return battleState.values.bindAction !== null;
+};
+const areHotkeyLabelsVisible = (): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  const bindAction: BattleStateBindAction | null =
+    battleState.values.bindAction;
+  if (bindAction === null) {
+    throw new Error("bindAction is null");
+  }
+  const bindStartedAt: number = bindAction.bindStartedAt;
+  const diff: number = getCurrentTime() - bindStartedAt;
+  const amount: number = diff % (hotkeyLabelBlinkDuration * 2);
+  return amount < hotkeyLabelBlinkDuration;
+};
 
 export interface CreateBattleUIOptions {
   readonly enemyBattlerIDs: readonly string[];
@@ -380,8 +417,7 @@ export const createBattleUI = ({
   // Submitted actions panel
   hudElementReferences.push(
     createPanel({
-      condition: (): boolean =>
-        getBattleState().values.friendlyBattlerIDs.length > 1,
+      condition: isBattleMultiplayer,
       height: 47,
       imagePath: "panels/basic",
       width: 304,
@@ -582,7 +618,7 @@ export const createBattleUI = ({
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            getBattleState().values.friendlyBattlerIDs.length > 1 &&
+            isBattleMultiplayer() &&
             getFriendlyBattler().battleCharacter.hasSubmittedMove(),
           x: 8,
           y: 8 + i * 12,
@@ -840,6 +876,296 @@ export const createBattleUI = ({
       }),
     );
   }
+  // Hotkeys
+  const hotkeys: readonly [string, string][] = [
+    [useBattleHotkey1InputCollectionID, "1"],
+    [useBattleHotkey2InputCollectionID, "2"],
+    [useBattleHotkey3InputCollectionID, "3"],
+    [useBattleHotkey4InputCollectionID, "4"],
+    [useBattleHotkey5InputCollectionID, "5"],
+    [useBattleHotkey6InputCollectionID, "6"],
+    [useBattleHotkey7InputCollectionID, "7"],
+    [useBattleHotkey8InputCollectionID, "8"],
+    [useBattleHotkey9InputCollectionID, "9"],
+    [useBattleHotkey10InputCollectionID, "0"],
+    [useBattleHotkey11InputCollectionID, "-"],
+    [useBattleHotkey12InputCollectionID, "="],
+  ];
+  hudElementReferences.push(
+    createPanel({
+      condition: (): boolean =>
+        getBattleState().values.phase === BattlePhase.Selection,
+      height: 26,
+      imagePath: "panels/basic",
+      width: 243,
+      x: 61,
+      y: 174,
+    }),
+  );
+  for (let i: number = 0; i < hotkeys.length; i++) {
+    const hotkeyData: [string, string] | undefined = hotkeys[i];
+    if (typeof hotkeyData === "undefined") {
+      throw new Error("hotkey is undefined");
+    }
+    const [inputCollectionID, label] = hotkeyData;
+    const isSlotFilled = (): boolean => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const hotkey: BattleStateHotkey | undefined =
+        battleState.values.hotkeys.find(
+          (battleHotkey: BattleStateHotkey): boolean =>
+            battleHotkey.index === i,
+        );
+      return typeof hotkey !== "undefined";
+    };
+    const getSlotHotkey = (): BattleStateHotkey => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const hotkey: BattleStateHotkey | undefined =
+        battleState.values.hotkeys.find(
+          (battleHotkey: BattleStateHotkey): boolean =>
+            battleHotkey.index === i,
+        );
+      if (typeof hotkey === "undefined") {
+        throw new Error("hotkey is undefined");
+      }
+      return hotkey;
+    };
+    const canUseHotkey = (): boolean => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const hotkey: BattleStateHotkey = getSlotHotkey();
+      switch (hotkey.hotkeyableDefinableReference.className) {
+        case "Ability": {
+          const ability: Ability = getDefinable(
+            Ability,
+            hotkey.hotkeyableDefinableReference.id,
+          );
+          const mp: number | undefined = getBattler().resources.mp ?? 0;
+          return ability.mpCost <= mp && canUseAbility(ability.id);
+        }
+        case "Item": {
+          const item: Item = getDefinable(
+            Item,
+            hotkey.hotkeyableDefinableReference.id,
+          );
+          return (
+            battleState.values.itemInstanceIDs.some(
+              (battleItemInstanceID: string): boolean =>
+                getDefinable(ItemInstance, battleItemInstanceID).itemID ===
+                item.id,
+            ) && canUseAbility(item.ability.id)
+          );
+        }
+        default:
+          throw new Error(
+            "hotkeyableDefinableReference.className is not valid",
+          );
+      }
+    };
+    const bindHotkey = (): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.bindAction === null) {
+        throw new Error("bindAction is null");
+      }
+      switch (
+        battleState.values.bindAction.hotkeyableDefinableReference.className
+      ) {
+        case "Ability":
+          emitToSocketioServer<BattleBindAbilityRequest>({
+            data: {
+              abilityID:
+                battleState.values.bindAction.hotkeyableDefinableReference.id,
+              index: i,
+            },
+            event: "battle/bind-ability",
+          });
+          break;
+        case "Item": {
+          emitToSocketioServer<BattleBindItemRequest>({
+            data: {
+              index: i,
+              itemID:
+                battleState.values.bindAction.hotkeyableDefinableReference.id,
+            },
+            event: "battle/bind-item",
+          });
+          break;
+        }
+      }
+      battleState.setValues({
+        bindAction: null,
+      });
+    };
+    const useHotkey = (): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const hotkey: BattleStateHotkey = getSlotHotkey();
+      switch (hotkey.hotkeyableDefinableReference.className) {
+        case "Ability":
+          useAbility(hotkey.hotkeyableDefinableReference.id);
+          break;
+        case "Item": {
+          const itemInstanceID: string | undefined = [
+            ...battleState.values.itemInstanceIDs,
+          ]
+            .reverse()
+            .find(
+              (battleItemInstanceID: string): boolean =>
+                getDefinable(ItemInstance, battleItemInstanceID).itemID ===
+                hotkey.hotkeyableDefinableReference.id,
+            );
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("itemInstanceID is undefined");
+          }
+          useItemInstance(itemInstanceID);
+          break;
+        }
+      }
+    };
+    hudElementReferences.push(
+      createSlot({
+        condition: (): boolean =>
+          getBattleState().values.phase === BattlePhase.Selection,
+        icons: [
+          {
+            condition: isSlotFilled,
+            imagePath: (): string => {
+              const hotkey: BattleStateHotkey = getSlotHotkey();
+              switch (hotkey.hotkeyableDefinableReference.className) {
+                case "Ability": {
+                  const ability: Ability = getDefinable(
+                    Ability,
+                    hotkey.hotkeyableDefinableReference.id,
+                  );
+                  return ability.iconImagePath;
+                }
+                case "Item": {
+                  const item: Item = getDefinable(
+                    Item,
+                    hotkey.hotkeyableDefinableReference.id,
+                  );
+                  return item.iconImagePath;
+                }
+                default:
+                  throw new Error(
+                    "hotkeyableDefinableReference.className is not valid",
+                  );
+              }
+            },
+            palette: (): string[] => {
+              if (canUseHotkey() === false) {
+                return [...grayColors];
+              }
+              return [];
+            },
+          },
+        ],
+        imagePath: "slots/basic",
+        x: 68 + i * 18,
+        y: 179,
+      }),
+    );
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: (): boolean => {
+            const battler: Battler = getDefinable(
+              Battler,
+              getBattleState().values.battlerID,
+            );
+            return (
+              getBattleState().values.phase === BattlePhase.Selection &&
+              ((isSlotFilled() && canUseHotkey()) || isBindingHotkey()) &&
+              isTargeting() === false &&
+              battler.battleCharacter.hasSubmittedMove() === false
+            );
+          },
+          x: 68 + i * 18,
+          y: 179,
+        },
+        height: 16,
+        onClick: (): void => {
+          if (isBindingHotkey()) {
+            bindHotkey();
+          } else {
+            useHotkey();
+          }
+        },
+        width: 16,
+      }),
+    );
+    quadrilateralIDs.push(
+      createQuadrilateral({
+        color: Color.VeryDarkGray,
+        coordinates: {
+          condition: (): boolean => {
+            const battler: Battler = getDefinable(
+              Battler,
+              getBattleState().values.battlerID,
+            );
+            return (
+              getBattleState().values.phase === BattlePhase.Selection &&
+              ((isSlotFilled() && canUseHotkey() && !isBindingHotkey()) ||
+                (isBindingHotkey() && areHotkeyLabelsVisible())) &&
+              isTargeting() === false &&
+              battler.battleCharacter.hasSubmittedMove() === false
+            );
+          },
+          x: 71 + i * 18,
+          y: 190,
+        },
+        height: 9,
+        width: 9,
+      }),
+    );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => {
+            const battler: Battler = getDefinable(
+              Battler,
+              getBattleState().values.battlerID,
+            );
+            return (
+              getBattleState().values.phase === BattlePhase.Selection &&
+              ((isSlotFilled() && canUseHotkey() && !isBindingHotkey()) ||
+                (isBindingHotkey() && areHotkeyLabelsVisible())) &&
+              isTargeting() === false &&
+              battler.battleCharacter.hasSubmittedMove() === false
+            );
+          },
+          x: 76 + i * 18,
+          y: 191,
+        },
+        horizontalAlignment: "center",
+        text: {
+          value: label,
+        },
+      }),
+    );
+    inputPressHandlerIDs.push(
+      createInputPressHandler({
+        condition: (): boolean => {
+          const battler: Battler = getDefinable(
+            Battler,
+            getBattleState().values.battlerID,
+          );
+          return (
+            getBattleState().values.phase === BattlePhase.Selection &&
+            ((isSlotFilled() && canUseHotkey()) || isBindingHotkey()) &&
+            isTargeting() === false &&
+            battler.battleCharacter.hasSubmittedMove() === false
+          );
+        },
+        inputCollectionID,
+        onInput: (): void => {
+          if (isBindingHotkey()) {
+            bindHotkey();
+          } else {
+            useHotkey();
+          }
+        },
+      }),
+    );
+  }
   // Commands panel
   hudElementReferences.push(
     createPanel({
@@ -906,6 +1232,7 @@ export const createBattleUI = ({
       });
     } else {
       battleState.setValues({
+        bindAction: null,
         itemsPage: 0,
         menuState: BattleMenuState.Abilities,
         selectedItemInstanceIndex: null,
@@ -954,6 +1281,7 @@ export const createBattleUI = ({
     } else {
       battleState.setValues({
         abilitiesPage: 0,
+        bindAction: null,
         menuState: BattleMenuState.Items,
         selectedAbilityIndex: null,
       });
@@ -1139,15 +1467,19 @@ export const createBattleUI = ({
       maxWidth: 229,
       size: 1,
       text: (): CreateLabelOptionsText => {
+        const battleState: State<BattleStateSchema> = getBattleState();
         const battler: Battler = getDefinable(
           Battler,
-          getBattleState().values.battlerID,
+          battleState.values.battlerID,
         );
         if (
           battler.battleCharacter.hasSubmittedMove() ||
           battler.isAlive === false
         ) {
           return { value: "Waiting for other players." };
+        }
+        if (isBindingHotkey()) {
+          return { value: "Select a slot to bind." };
         }
         if (isTargeting()) {
           return { value: "Select a target." };
@@ -1390,7 +1722,16 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        console.log("Bind");
+        const battleState: State<BattleStateSchema> = getBattleState();
+        battleState.setValues({
+          abilitiesPage: 0,
+          bindAction: {
+            bindStartedAt: getCurrentTime(),
+            hotkeyableDefinableReference: getSelectedAbility().getReference(),
+          },
+          menuState: BattleMenuState.Default,
+          selectedAbilityIndex: null,
+        });
       },
       text: { value: "Bind" },
       width: 34,
@@ -1555,7 +1896,17 @@ export const createBattleUI = ({
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        console.log("Bind");
+        const battleState: State<BattleStateSchema> = getBattleState();
+        battleState.setValues({
+          bindAction: {
+            bindStartedAt: getCurrentTime(),
+            hotkeyableDefinableReference:
+              getSelectedItemInstance().item.getReference(),
+          },
+          itemsPage: 0,
+          menuState: BattleMenuState.Default,
+          selectedItemInstanceIndex: null,
+        });
       },
       text: { value: "Bind" },
       width: 34,

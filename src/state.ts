@@ -81,16 +81,26 @@ export interface BattleStateQueuedAction {
   readonly actionDefinableReference: DefinableReference;
   readonly queuedAt: number;
 }
+export interface BattleStateBindAction {
+  readonly bindStartedAt: number;
+  readonly hotkeyableDefinableReference: DefinableReference;
+}
 export enum BattleMenuState {
   Default = "default",
   Abilities = "abilities",
   Items = "items",
 }
+export interface BattleStateHotkey {
+  readonly hotkeyableDefinableReference: DefinableReference;
+  readonly index: number;
+}
 export interface BattleStateSchema {
   readonly abilitiesPage: number;
   readonly battlerID: string;
+  readonly bindAction: BattleStateBindAction | null;
   readonly enemyBattlerIDs: readonly string[];
   readonly friendlyBattlerIDs: readonly string[];
+  readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly itemInstanceIDs: readonly string[];
   readonly itemsPage: number;

@@ -1,3 +1,4 @@
+import { Ability } from "../../classes/Ability";
 import { Bank } from "../../classes/Bank";
 import {
   BattlePhase,
@@ -35,6 +36,11 @@ import {
   WorldVanityUpdate,
 } from "retrommo-types";
 import { Chest } from "../../classes/Chest";
+import {
+  CreateBattleStateOptionsHotkey,
+  createBattleState,
+} from "../state/createBattleState";
+import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { NPC } from "../../classes/NPC";
@@ -59,7 +65,6 @@ import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
-import { createBattleState } from "../state/createBattleState";
 import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { getDefinable, getDefinables } from "definables";
@@ -711,11 +716,31 @@ export const listenForWorldUpdates = (): void => {
       for (const battlerUpdate of update.battlers) {
         loadBattlerUpdate(battlerUpdate);
       }
+      const hotkeys: CreateBattleStateOptionsHotkey[] = [];
+      for (const abilityHotkey of update.abilityHotkeys) {
+        hotkeys.push({
+          hotkeyableDefinableReference: getDefinable(
+            Ability,
+            abilityHotkey.abilityID,
+          ).getReference(),
+          index: abilityHotkey.index,
+        });
+      }
+      for (const itemHotkey of update.itemHotkeys) {
+        hotkeys.push({
+          hotkeyableDefinableReference: getDefinable(
+            Item,
+            itemHotkey.itemID,
+          ).getReference(),
+          index: itemHotkey.index,
+        });
+      }
       state.setValues({
         battleState: createBattleState({
           battlerID: update.battlerID,
           enemyBattlerIDs: update.enemyBattlerIDs,
           friendlyBattlerIDs: update.friendlyBattlerIDs,
+          hotkeys,
           hudElementReferences: createBattleUI({
             enemyBattlerIDs: update.enemyBattlerIDs,
             friendlyBattlerIDs: update.friendlyBattlerIDs,
