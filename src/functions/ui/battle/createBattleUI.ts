@@ -1072,6 +1072,7 @@ export const createBattleUI = ({
             );
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
+              getBattleState().values.menuState === BattleMenuState.Default &&
               ((isSlotFilled() && canUseHotkey()) || isBindingHotkey()) &&
               isTargeting() === false &&
               battler.battleCharacter.hasSubmittedMove() === false
@@ -1150,6 +1151,7 @@ export const createBattleUI = ({
           );
           return (
             getBattleState().values.phase === BattlePhase.Selection &&
+            getBattleState().values.menuState === BattleMenuState.Default &&
             ((isSlotFilled() && canUseHotkey()) || isBindingHotkey()) &&
             isTargeting() === false &&
             battler.battleCharacter.hasSubmittedMove() === false
