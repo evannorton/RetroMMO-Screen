@@ -1182,6 +1182,7 @@ export const createBattleUI = ({
     return (
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
+      isBindingHotkey() === false &&
       canUseAbility("attack") &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
@@ -1216,6 +1217,7 @@ export const createBattleUI = ({
     return (
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
+      isBindingHotkey() === false &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
     );
@@ -1264,6 +1266,7 @@ export const createBattleUI = ({
     return (
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
+      isBindingHotkey() === false &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
     );
@@ -1312,6 +1315,7 @@ export const createBattleUI = ({
     return (
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
+      isBindingHotkey() === false &&
       canUseAbility("pass") &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
@@ -1346,6 +1350,7 @@ export const createBattleUI = ({
     return (
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
+      isBindingHotkey() === false &&
       canUseAbility("escape") &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
@@ -1377,11 +1382,12 @@ export const createBattleUI = ({
   // Commands cancel targetting button
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting(),
+      condition: (): boolean => isTargeting() || isBindingHotkey(),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         getBattleState().setValues({
+          bindAction: null,
           queuedAction: null,
         });
       },
