@@ -74,4 +74,5 @@ export const createBattleState = ({
     selectedAbilityIndex: null,
     selectedItemInstanceIndex: null,
     type,
+    unbindStartedAt: null,
   });

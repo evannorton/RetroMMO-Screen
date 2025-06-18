@@ -334,6 +334,24 @@ export const useEscapeInputCollectionID: string = createInputCollection({
   ],
   name: "Use Escape",
 });
+export const cancelBattleActionInputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "KeyQ",
+      },
+    ],
+    name: "Cancel battle action",
+  });
+export const unbindBattleHotkeyInputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Backspace",
+      },
+    ],
+    name: "Unbind battle hotkey",
+  });
 export const useBattleHotkey1InputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
@@ -344,7 +362,7 @@ export const useBattleHotkey1InputCollectionID: string = createInputCollection({
       value: "Numpad1",
     },
   ],
-  name: "Use battle hotkey 1",
+  name: "Battle hotkey 1",
 });
 export const useBattleHotkey2InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -356,7 +374,7 @@ export const useBattleHotkey2InputCollectionID: string = createInputCollection({
       value: "Numpad2",
     },
   ],
-  name: "Use battle hotkey 2",
+  name: "Battle hotkey 2",
 });
 export const useBattleHotkey3InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -368,7 +386,7 @@ export const useBattleHotkey3InputCollectionID: string = createInputCollection({
       value: "Numpad3",
     },
   ],
-  name: "Use battle hotkey 3",
+  name: "Battle hotkey 3",
 });
 export const useBattleHotkey4InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -380,7 +398,7 @@ export const useBattleHotkey4InputCollectionID: string = createInputCollection({
       value: "Numpad4",
     },
   ],
-  name: "Use battle hotkey 4",
+  name: "Battle hotkey 4",
 });
 export const useBattleHotkey5InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -392,7 +410,7 @@ export const useBattleHotkey5InputCollectionID: string = createInputCollection({
       value: "Numpad5",
     },
   ],
-  name: "Use battle hotkey 5",
+  name: "Battle hotkey 5",
 });
 export const useBattleHotkey6InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -404,7 +422,7 @@ export const useBattleHotkey6InputCollectionID: string = createInputCollection({
       value: "Numpad6",
     },
   ],
-  name: "Use battle hotkey 6",
+  name: "Battle hotkey 6",
 });
 export const useBattleHotkey7InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -416,7 +434,7 @@ export const useBattleHotkey7InputCollectionID: string = createInputCollection({
       value: "Numpad7",
     },
   ],
-  name: "Use battle hotkey 7",
+  name: "Battle hotkey 7",
 });
 export const useBattleHotkey8InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -428,7 +446,7 @@ export const useBattleHotkey8InputCollectionID: string = createInputCollection({
       value: "Numpad8",
     },
   ],
-  name: "Use battle hotkey 8",
+  name: "Battle hotkey 8",
 });
 export const useBattleHotkey9InputCollectionID: string = createInputCollection({
   keyboardButtons: [
@@ -440,7 +458,7 @@ export const useBattleHotkey9InputCollectionID: string = createInputCollection({
       value: "Numpad9",
     },
   ],
-  name: "Use battle hotkey 9",
+  name: "Battle hotkey 9",
 });
 export const useBattleHotkey10InputCollectionID: string = createInputCollection(
   {
@@ -453,7 +471,7 @@ export const useBattleHotkey10InputCollectionID: string = createInputCollection(
         value: "Numpad0",
       },
     ],
-    name: "Use battle hotkey 10",
+    name: "Battle hotkey 10",
   },
 );
 export const useBattleHotkey11InputCollectionID: string = createInputCollection(
@@ -463,7 +481,7 @@ export const useBattleHotkey11InputCollectionID: string = createInputCollection(
         value: "Minus",
       },
     ],
-    name: "Use battle hotkey 11",
+    name: "Battle hotkey 11",
   },
 );
 export const useBattleHotkey12InputCollectionID: string = createInputCollection(
@@ -473,18 +491,9 @@ export const useBattleHotkey12InputCollectionID: string = createInputCollection(
         value: "Equal",
       },
     ],
-    name: "Use battle hotkey 12",
+    name: "Battle hotkey 12",
   },
 );
-export const cancelBattleActionInputCollectionID: string =
-  createInputCollection({
-    keyboardButtons: [
-      {
-        value: "KeyQ",
-      },
-    ],
-    name: "Cancel battle action",
-  });
 export const targetBattleEnemyCharacter1InputCollectionID: string =
   createInputCollection({
     keyboardButtons: [

@@ -9,6 +9,7 @@ import {
   BattleFriendlyTargetFailureEvent,
   BattleInstakillEvent,
   BattlePhase,
+  BattleUnbindHotkeyRequest,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
   BattleUseItemEvent,
@@ -70,6 +71,7 @@ import {
   targetBattleFriendlyCharacter3InputCollectionID,
   toggleBattleAbilitiesInputCollectionID,
   toggleBattleItemsInputCollectionID,
+  unbindBattleHotkeyInputCollectionID,
   useAttackInputCollectionID,
   useBattleHotkey10InputCollectionID,
   useBattleHotkey11InputCollectionID,
@@ -373,7 +375,11 @@ const isBindingHotkey = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
   return battleState.values.bindAction !== null;
 };
-const areHotkeyLabelsVisible = (): boolean => {
+const isUnbindingHotkey = (): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  return battleState.values.unbindStartedAt !== null;
+};
+const areBindHotkeyLabelsVisible = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const bindAction: BattleStateBindAction | null =
     battleState.values.bindAction;
@@ -382,6 +388,15 @@ const areHotkeyLabelsVisible = (): boolean => {
   }
   const bindStartedAt: number = bindAction.bindStartedAt;
   const diff: number = getCurrentTime() - bindStartedAt;
+  const amount: number = diff % (hotkeyLabelBlinkDuration * 2);
+  return amount < hotkeyLabelBlinkDuration;
+};
+const areUnbindHotkeyLabelsVisible = (): boolean => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  if (battleState.values.unbindStartedAt === null) {
+    throw new Error("unbindStartedAt is null");
+  }
+  const diff: number = getCurrentTime() - battleState.values.unbindStartedAt;
   const amount: number = diff % (hotkeyLabelBlinkDuration * 2);
   return amount < hotkeyLabelBlinkDuration;
 };
@@ -891,6 +906,7 @@ export const createBattleUI = ({
     [useBattleHotkey11InputCollectionID, "-"],
     [useBattleHotkey12InputCollectionID, "="],
   ];
+  // Hotkeys background
   hudElementReferences.push(
     createPanel({
       condition: (): boolean =>
@@ -902,6 +918,7 @@ export const createBattleUI = ({
       y: 174,
     }),
   );
+  // Hotkeys slots
   for (let i: number = 0; i < hotkeys.length; i++) {
     const hotkeyData: [string, string] | undefined = hotkeys[i];
     if (typeof hotkeyData === "undefined") {
@@ -994,6 +1011,14 @@ export const createBattleUI = ({
         bindAction: null,
       });
     };
+    const unbindHotkey = (): void => {
+      emitToSocketioServer<BattleUnbindHotkeyRequest>({
+        data: {
+          index: i,
+        },
+        event: "battle/unbind-hotkey",
+      });
+    };
     const useHotkey = (): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
       const hotkey: BattleStateHotkey = getSlotHotkey();
@@ -1073,7 +1098,8 @@ export const createBattleUI = ({
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
               getBattleState().values.menuState === BattleMenuState.Default &&
-              ((isSlotFilled() && canUseHotkey()) || isBindingHotkey()) &&
+              ((isSlotFilled() && (canUseHotkey() || isUnbindingHotkey())) ||
+                isBindingHotkey()) &&
               isTargeting() === false &&
               battler.battleCharacter.hasSubmittedMove() === false
             );
@@ -1085,6 +1111,8 @@ export const createBattleUI = ({
         onClick: (): void => {
           if (isBindingHotkey()) {
             bindHotkey();
+          } else if (isUnbindingHotkey()) {
+            unbindHotkey();
           } else {
             useHotkey();
           }
@@ -1103,8 +1131,14 @@ export const createBattleUI = ({
             );
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
-              ((isSlotFilled() && canUseHotkey() && !isBindingHotkey()) ||
-                (isBindingHotkey() && areHotkeyLabelsVisible())) &&
+              ((isSlotFilled() &&
+                canUseHotkey() &&
+                !isBindingHotkey() &&
+                !isUnbindingHotkey()) ||
+                (isBindingHotkey() && areBindHotkeyLabelsVisible()) ||
+                (isSlotFilled() &&
+                  isUnbindingHotkey() &&
+                  areUnbindHotkeyLabelsVisible())) &&
               isTargeting() === false &&
               battler.battleCharacter.hasSubmittedMove() === false
             );
@@ -1127,8 +1161,14 @@ export const createBattleUI = ({
             );
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
-              ((isSlotFilled() && canUseHotkey() && !isBindingHotkey()) ||
-                (isBindingHotkey() && areHotkeyLabelsVisible())) &&
+              ((isSlotFilled() &&
+                canUseHotkey() &&
+                !isBindingHotkey() &&
+                !isUnbindingHotkey()) ||
+                (isBindingHotkey() && areBindHotkeyLabelsVisible()) ||
+                (isSlotFilled() &&
+                  isUnbindingHotkey() &&
+                  areUnbindHotkeyLabelsVisible())) &&
               isTargeting() === false &&
               battler.battleCharacter.hasSubmittedMove() === false
             );
@@ -1152,7 +1192,9 @@ export const createBattleUI = ({
           return (
             getBattleState().values.phase === BattlePhase.Selection &&
             getBattleState().values.menuState === BattleMenuState.Default &&
-            ((isSlotFilled() && canUseHotkey()) || isBindingHotkey()) &&
+            ((isSlotFilled() && canUseHotkey()) ||
+              isBindingHotkey() ||
+              isUnbindingHotkey()) &&
             isTargeting() === false &&
             battler.battleCharacter.hasSubmittedMove() === false
           );
@@ -1161,6 +1203,8 @@ export const createBattleUI = ({
         onInput: (): void => {
           if (isBindingHotkey()) {
             bindHotkey();
+          } else if (isUnbindingHotkey()) {
+            unbindHotkey();
           } else {
             useHotkey();
           }
@@ -1168,6 +1212,55 @@ export const createBattleUI = ({
       }),
     );
   }
+  // Hotkeys unbind button
+  createImage({
+    condition: (): boolean => {
+      const battler: Battler = getBattler();
+      return (
+        getBattleState().values.phase === BattlePhase.Selection &&
+        getBattleState().values.menuState === BattleMenuState.Default &&
+        battler.battleCharacter.hasSubmittedMove() === false
+      );
+    },
+    height: 11,
+    imagePath: "x",
+    onClick: (): void => {
+      getBattleState().setValues({
+        bindAction: null,
+        menuState: BattleMenuState.Default,
+        queuedAction: null,
+        selectedAbilityIndex: null,
+        selectedItemInstanceIndex: null,
+        unbindStartedAt: getCurrentTime(),
+      });
+    },
+    width: 10,
+    x: 286,
+    y: 182,
+  });
+  inputPressHandlerIDs.push(
+    createInputPressHandler({
+      condition: (): boolean => {
+        const battler: Battler = getBattler();
+        return (
+          getBattleState().values.phase === BattlePhase.Selection &&
+          getBattleState().values.menuState === BattleMenuState.Default &&
+          battler.battleCharacter.hasSubmittedMove() === false
+        );
+      },
+      inputCollectionID: unbindBattleHotkeyInputCollectionID,
+      onInput: (): void => {
+        getBattleState().setValues({
+          bindAction: null,
+          menuState: BattleMenuState.Default,
+          queuedAction: null,
+          selectedAbilityIndex: null,
+          selectedItemInstanceIndex: null,
+          unbindStartedAt: getCurrentTime(),
+        });
+      },
+    }),
+  );
   // Commands panel
   hudElementReferences.push(
     createPanel({
@@ -1185,6 +1278,7 @@ export const createBattleUI = ({
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
       isBindingHotkey() === false &&
+      isUnbindingHotkey() === false &&
       canUseAbility("attack") &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
@@ -1220,6 +1314,7 @@ export const createBattleUI = ({
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
       isBindingHotkey() === false &&
+      isUnbindingHotkey() === false &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
     );
@@ -1269,6 +1364,7 @@ export const createBattleUI = ({
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
       isBindingHotkey() === false &&
+      isUnbindingHotkey() === false &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
     );
@@ -1318,6 +1414,7 @@ export const createBattleUI = ({
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
       isBindingHotkey() === false &&
+      isUnbindingHotkey() === false &&
       canUseAbility("pass") &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
@@ -1353,6 +1450,7 @@ export const createBattleUI = ({
       getBattleState().values.phase === BattlePhase.Selection &&
       isTargeting() === false &&
       isBindingHotkey() === false &&
+      isUnbindingHotkey() === false &&
       canUseAbility("escape") &&
       battler.isAlive &&
       battler.battleCharacter.hasSubmittedMove() === false
@@ -1384,13 +1482,15 @@ export const createBattleUI = ({
   // Commands cancel targetting button
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean => isTargeting() || isBindingHotkey(),
+      condition: (): boolean =>
+        isTargeting() || isBindingHotkey() || isUnbindingHotkey(),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         getBattleState().setValues({
           bindAction: null,
           queuedAction: null,
+          unbindStartedAt: null,
         });
       },
       text: { value: "Cancel" },
@@ -1401,11 +1501,14 @@ export const createBattleUI = ({
   );
   inputPressHandlerIDs.push(
     createInputPressHandler({
-      condition: (): boolean => isTargeting(),
+      condition: (): boolean =>
+        isTargeting() || isBindingHotkey() || isUnbindingHotkey(),
       inputCollectionID: cancelBattleActionInputCollectionID,
       onInput: (): void => {
         getBattleState().setValues({
+          bindAction: null,
           queuedAction: null,
+          unbindStartedAt: null,
         });
       },
     }),
@@ -1488,6 +1591,9 @@ export const createBattleUI = ({
         }
         if (isBindingHotkey()) {
           return { value: "Select a slot to bind." };
+        }
+        if (isUnbindingHotkey()) {
+          return { value: "Select a slot to unbind." };
         }
         if (isTargeting()) {
           return { value: "Select a target." };

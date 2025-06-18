@@ -112,6 +112,7 @@ export interface BattleStateSchema {
   readonly selectedAbilityIndex: number | null;
   readonly selectedItemInstanceIndex: number | null;
   readonly type: BattleType;
+  readonly unbindStartedAt: number | null;
 }
 export interface StateSchema {
   readonly battleState: State<BattleStateSchema> | null;

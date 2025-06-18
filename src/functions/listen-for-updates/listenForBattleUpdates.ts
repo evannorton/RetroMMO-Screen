@@ -8,6 +8,7 @@ import {
   BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
   BattleSubmitItemUpdate,
+  BattleUnbindHotkeyUpdate,
   ItemInstanceUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
@@ -166,6 +167,18 @@ export const listenForBattleUpdates = (): void => {
           queuedAction: null,
         });
       }
+    },
+  });
+  listenToSocketioEvent<BattleUnbindHotkeyUpdate>({
+    event: "battle/unbind-hotkey",
+    onMessage: (update: BattleUnbindHotkeyUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      battleState.setValues({
+        hotkeys: battleState.values.hotkeys.filter(
+          (hotkey: BattleStateHotkey): boolean => hotkey.index !== update.index,
+        ),
+        unbindStartedAt: null,
+      });
     },
   });
 };
