@@ -102,6 +102,7 @@ export interface BattleStateSchema {
   readonly friendlyBattlerIDs: readonly string[];
   readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
+  readonly impactAnimationSpriteIDs: readonly string[];
   readonly itemInstanceIDs: readonly string[];
   readonly itemsPage: number;
   readonly menuState: BattleMenuState;

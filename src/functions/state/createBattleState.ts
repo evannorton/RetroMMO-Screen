@@ -53,6 +53,7 @@ export const createBattleState = ({
       }),
     ),
     hudElementReferences,
+    impactAnimationSpriteIDs: [],
     itemInstanceIDs,
     itemsPage: 0,
     menuState: BattleMenuState.Default,

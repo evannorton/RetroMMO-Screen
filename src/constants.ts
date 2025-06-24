@@ -3,6 +3,7 @@ import { Color } from "retrommo-types";
 export const bagItemsPerPage: number = 8;
 export const bankToggleDuration: number = 267 / 2;
 export const battleAbilitiesPerPage: number = 5;
+export const battleImpactAnimationDuration: number = 1500 / 2 / 8;
 export const battleItemsPerPage: number = 5;
 export const chestOpenDuration: number = 267 / 2;
 export const emotesPerPage: number = 25;

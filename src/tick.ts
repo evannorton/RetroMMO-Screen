@@ -177,11 +177,11 @@ export const tick = (): void => {
   if (state.values.battleState !== null) {
     if (state.values.battleState.values.round !== null) {
       if (state.values.serverTime !== null) {
+        const elapsedServerTime: number =
+          state.values.serverTime -
+          state.values.battleState.values.round.serverTime;
         for (const eventInstance of state.values.battleState.values.round
           .eventInstances) {
-          const elapsedServerTime: number =
-            state.values.serverTime -
-            state.values.battleState.values.round.serverTime;
           if (
             elapsedServerTime >= eventInstance.event.startedAt &&
             eventInstance.isProcessed === false

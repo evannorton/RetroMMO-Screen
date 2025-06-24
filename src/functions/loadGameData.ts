@@ -2,6 +2,7 @@ import { Ability } from "../classes/Ability";
 import {
   AbilityDefinition,
   BankDefinition,
+  BattleImpactAnimationDefinition,
   BodyCosmeticDefinition,
   BoostDefinition,
   ChestDefinition,
@@ -37,6 +38,7 @@ import {
   TilesetTileDefinition,
 } from "retrommo-types";
 import { Bank } from "../classes/Bank";
+import { BattleImpactAnimation } from "../classes/BattleImpactAnimation";
 import { BodyCosmetic } from "../classes/BodyCosmetic";
 import { Boost } from "../classes/Boost";
 import { Chest } from "../classes/Chest";
@@ -120,8 +122,19 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "BattleImpactAnimation":
+        case "BattleImpactAnimation": {
+          const definition: BattleImpactAnimationDefinition = (
+            gameData[className] as Record<
+              string,
+              BattleImpactAnimationDefinition
+            >
+          )[id] as BattleImpactAnimationDefinition;
+          new BattleImpactAnimation({
+            definition,
+            id,
+          });
           break;
+        }
         case "BodyCosmetic": {
           const definition: BodyCosmeticDefinition = (
             gameData[className] as Record<string, BodyCosmeticDefinition>

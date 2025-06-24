@@ -7,6 +7,8 @@ import {
   BattleDeathEvent,
   BattleEventType,
   BattleFriendlyTargetFailureEvent,
+  BattleHealEvent,
+  BattleImpactAlignment,
   BattleInstakillEvent,
   BattlePhase,
   BattleUnbindHotkeyRequest,
@@ -19,6 +21,7 @@ import {
   ResourcePool,
   TargetType,
 } from "retrommo-types";
+import { BattleImpactAnimation } from "../../../classes/BattleImpactAnimation";
 import {
   BattleMenuState,
   BattleStateBindAction,
@@ -38,6 +41,7 @@ import {
   createInputPressHandler,
   createLabel,
   createQuadrilateral,
+  createSprite,
   emitToSocketioServer,
   getCurrentTime,
   getGameHeight,
@@ -49,6 +53,7 @@ import { ItemInstance } from "../../../classes/ItemInstance";
 import { Reachable } from "../../../classes/Reachable";
 import {
   battleAbilitiesPerPage,
+  battleImpactAnimationDuration,
   battleItemsPerPage,
   grayColors,
   hotkeyLabelBlinkDuration,
@@ -96,6 +101,8 @@ import { createPressableButton } from "../components/createPressableButton";
 import { createResourceBar } from "../components/createResourceBar";
 import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
+import { getBattlerHeight } from "../../battle/getBattlerHeight";
+import { getBattlerWidth } from "../../battle/getBattlerWidth";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
@@ -740,6 +747,7 @@ export const createBattleUI = ({
       const startX: number = Math.floor(gameWidth / 2 - totalWidth / 2);
       return startX + leftWidth;
     };
+    const getY = (): number => 128 - getBattlerHeight(enemyBattlerID);
     // Enemy shadow
     ellipseIDs.push(
       createEllipse({
@@ -769,7 +777,7 @@ export const createBattleUI = ({
         coordinates: {
           condition: (): boolean => getEnemyBattler().isAlive,
           x: getX,
-          y: 96,
+          y: getY,
         },
         direction: Direction.Down,
         figureID: (): string => getEnemyBattler().battleCharacter.figureID,
@@ -822,6 +830,219 @@ export const createBattleUI = ({
         width: 32,
       }),
     );
+    // Enemy impact animation
+    const hasImpactAnimation = (): boolean => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.round === null) {
+        throw new Error("round is null");
+      }
+      if (state.values.serverTime === null) {
+        throw new Error("serverTime is null");
+      }
+      const elapsedServerTime: number =
+        state.values.serverTime - battleState.values.round.serverTime;
+      return battleState.values.round.eventInstances.some(
+        (eventInstance: BattleStateRoundEventInstance): boolean => {
+          if (
+            elapsedServerTime >= eventInstance.event.startedAt &&
+            elapsedServerTime <
+              eventInstance.event.startedAt + eventInstance.event.duration
+          ) {
+            switch (eventInstance.event.type) {
+              case BattleEventType.Damage: {
+                const damageEvent: BattleDamageEvent =
+                  eventInstance.event as BattleDamageEvent;
+                return damageEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Heal: {
+                const healEvent: BattleHealEvent =
+                  eventInstance.event as BattleHealEvent;
+                return healEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Instakill: {
+                const instakillEvent: BattleInstakillEvent =
+                  eventInstance.event as BattleInstakillEvent;
+                return instakillEvent.target.battlerID === enemyBattlerID;
+              }
+            }
+          }
+          return false;
+        },
+      );
+    };
+    const getImpactAnimation = (): BattleImpactAnimation => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.round === null) {
+        throw new Error("round is null");
+      }
+      if (state.values.serverTime === null) {
+        throw new Error("serverTime is null");
+      }
+      const elapsedServerTime: number =
+        state.values.serverTime - battleState.values.round.serverTime;
+      const matchedEventInstance: BattleStateRoundEventInstance | undefined =
+        battleState.values.round.eventInstances.find(
+          (eventInstance: BattleStateRoundEventInstance): boolean => {
+            if (
+              elapsedServerTime >= eventInstance.event.startedAt &&
+              elapsedServerTime <
+                eventInstance.event.startedAt + eventInstance.event.duration
+            ) {
+              switch (eventInstance.event.type) {
+                case BattleEventType.Damage: {
+                  const damageEvent: BattleDamageEvent =
+                    eventInstance.event as BattleDamageEvent;
+                  return damageEvent.target.battlerID === enemyBattlerID;
+                }
+                case BattleEventType.Heal: {
+                  const healEvent: BattleHealEvent =
+                    eventInstance.event as BattleHealEvent;
+                  return healEvent.target.battlerID === enemyBattlerID;
+                }
+                case BattleEventType.Instakill: {
+                  const instakillEvent: BattleInstakillEvent =
+                    eventInstance.event as BattleInstakillEvent;
+                  return instakillEvent.target.battlerID === enemyBattlerID;
+                }
+              }
+            }
+            return false;
+          },
+        );
+      if (typeof matchedEventInstance === "undefined") {
+        throw new Error("matchedEventInstance is undefined");
+      }
+      switch (matchedEventInstance.event.type) {
+        case BattleEventType.Damage: {
+          const damageEvent: BattleDamageEvent =
+            matchedEventInstance.event as BattleDamageEvent;
+          return getDefinable(Ability, damageEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case BattleEventType.Heal: {
+          const healEvent: BattleHealEvent =
+            matchedEventInstance.event as BattleHealEvent;
+          return getDefinable(Ability, healEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case BattleEventType.Instakill: {
+          const instakillEvent: BattleInstakillEvent =
+            matchedEventInstance.event as BattleInstakillEvent;
+          return getDefinable(Ability, instakillEvent.abilityID)
+            .battleImpactAnimation;
+        }
+      }
+      throw new Error("matchedEventInstance.event.type is not valid");
+    };
+    createSprite({
+      animationID: "default",
+      animations: [
+        {
+          frames: [
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 0,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 1,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 2,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 3,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 4,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 5,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              duration: battleImpactAnimationDuration,
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 6,
+              sourceY: 0,
+              width: 24,
+            },
+            {
+              height: 40,
+              sourceHeight: 40,
+              sourceWidth: 24,
+              sourceX: 24 * 7,
+              sourceY: 0,
+              width: 24,
+            },
+          ],
+          id: "default",
+        },
+      ],
+      coordinates: {
+        condition: (): boolean =>
+          getBattleState().values.phase === BattlePhase.Round &&
+          state.values.serverTime !== null &&
+          hasImpactAnimation(),
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2) - 12,
+        y: (): number => {
+          if (state.values.serverTime === null) {
+            throw new Error("serverTime is null");
+          }
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.round === null) {
+            throw new Error("round is null");
+          }
+          const battleImpactAnimation: BattleImpactAnimation =
+            getImpactAnimation();
+          switch (battleImpactAnimation.alignment) {
+            case BattleImpactAlignment.Bottom:
+              return 88;
+            case BattleImpactAlignment.Center:
+              return (
+                getY() + Math.round(getBattlerHeight(enemyBattlerID) / 2) - 20
+              );
+          }
+        },
+      },
+      imagePath: (): string => getImpactAnimation().imagePath,
+    });
     // Enemy targetting number
     const targetingNumberCondition = (): boolean => {
       if (getEnemyBattler().isAlive && isTargeting()) {

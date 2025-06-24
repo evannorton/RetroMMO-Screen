@@ -1,6 +1,7 @@
 import { BattleCharacter } from "./BattleCharacter";
 import { BattlerType } from "retrommo-types";
 import { Definable, getDefinable } from "definables";
+import { Monster } from "./Monster";
 
 export interface BattlerResources {
   hp: number;
@@ -23,6 +24,7 @@ export interface BattlerOptions {
 export class Battler extends Definable {
   private readonly _battleCharacterID?: string;
   private _isAlive: boolean;
+  private readonly _monsterID?: string;
   private _resources: BattlerResources | null;
   private readonly _type: BattlerType;
   public constructor(id: string, options: BattlerOptions) {
@@ -57,6 +59,20 @@ export class Battler extends Definable {
 
   public get isAlive(): boolean {
     return this._isAlive;
+  }
+
+  public get monster(): Monster {
+    if (typeof this._monsterID !== "undefined") {
+      return getDefinable(Monster, this._monsterID);
+    }
+    throw new Error(this.getAccessorErrorMessage("monster"));
+  }
+
+  public get monsterID(): string {
+    if (typeof this._monsterID !== "undefined") {
+      return this._monsterID;
+    }
+    throw new Error(this.getAccessorErrorMessage("monsterID"));
   }
 
   public get resources(): BattlerResources {
