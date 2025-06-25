@@ -26,6 +26,7 @@ import {
   BattleMenuState,
   BattleStateBindAction,
   BattleStateHotkey,
+  BattleStateRound,
   BattleStateRoundEventInstance,
   BattleStateSchema,
   state,
@@ -748,6 +749,166 @@ export const createBattleUI = ({
       return startX + leftWidth;
     };
     const getY = (): number => 128 - getBattlerHeight(enemyBattlerID);
+    const getMatchedEventInstance = ():
+      | BattleStateRoundEventInstance
+      | undefined => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      const round: BattleStateRound | null = battleState.values.round;
+      if (round === null) {
+        throw new Error("round is null");
+      }
+      const serverTime: number | null = state.values.serverTime;
+      if (serverTime === null) {
+        throw new Error("serverTime is null");
+      }
+      return round.eventInstances.find(
+        (eventInstance: BattleStateRoundEventInstance): boolean => {
+          const elapsedServerTime: number = serverTime - round.serverTime;
+          if (
+            elapsedServerTime >= eventInstance.event.startedAt &&
+            elapsedServerTime <
+              eventInstance.event.startedAt + eventInstance.event.duration
+          ) {
+            switch (eventInstance.event.type) {
+              case BattleEventType.Damage: {
+                const damageEvent: BattleDamageEvent =
+                  eventInstance.event as BattleDamageEvent;
+                return damageEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Heal: {
+                const healEvent: BattleHealEvent =
+                  eventInstance.event as BattleHealEvent;
+                return healEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Instakill: {
+                const instakillEvent: BattleInstakillEvent =
+                  eventInstance.event as BattleInstakillEvent;
+                return instakillEvent.target.battlerID === enemyBattlerID;
+              }
+            }
+          }
+          return false;
+        },
+      );
+    };
+    const hasImpactAnimation = (): boolean => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.round === null) {
+        throw new Error("round is null");
+      }
+      if (state.values.serverTime === null) {
+        throw new Error("serverTime is null");
+      }
+      const elapsedServerTime: number =
+        state.values.serverTime - battleState.values.round.serverTime;
+      return battleState.values.round.eventInstances.some(
+        (eventInstance: BattleStateRoundEventInstance): boolean => {
+          if (
+            elapsedServerTime >= eventInstance.event.startedAt &&
+            elapsedServerTime <
+              eventInstance.event.startedAt + eventInstance.event.duration
+          ) {
+            switch (eventInstance.event.type) {
+              case BattleEventType.Damage: {
+                const damageEvent: BattleDamageEvent =
+                  eventInstance.event as BattleDamageEvent;
+                return damageEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Heal: {
+                const healEvent: BattleHealEvent =
+                  eventInstance.event as BattleHealEvent;
+                return healEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Instakill: {
+                const instakillEvent: BattleInstakillEvent =
+                  eventInstance.event as BattleInstakillEvent;
+                return instakillEvent.target.battlerID === enemyBattlerID;
+              }
+            }
+          }
+          return false;
+        },
+      );
+    };
+    const getImpactAnimation = (): BattleImpactAnimation => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.round === null) {
+        throw new Error("round is null");
+      }
+      if (state.values.serverTime === null) {
+        throw new Error("serverTime is null");
+      }
+      const matchedEventInstance: BattleStateRoundEventInstance | undefined =
+        getMatchedEventInstance();
+      if (typeof matchedEventInstance === "undefined") {
+        throw new Error("matchedEventInstance is undefined");
+      }
+      switch (matchedEventInstance.event.type) {
+        case BattleEventType.Damage: {
+          const damageEvent: BattleDamageEvent =
+            matchedEventInstance.event as BattleDamageEvent;
+          return getDefinable(Ability, damageEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case BattleEventType.Heal: {
+          const healEvent: BattleHealEvent =
+            matchedEventInstance.event as BattleHealEvent;
+          return getDefinable(Ability, healEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case BattleEventType.Instakill: {
+          const instakillEvent: BattleInstakillEvent =
+            matchedEventInstance.event as BattleInstakillEvent;
+          return getDefinable(Ability, instakillEvent.abilityID)
+            .battleImpactAnimation;
+        }
+      }
+      throw new Error("matchedEventInstance.event.type is not valid");
+    };
+    const enemySpriteCondition = (): boolean => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (getEnemyBattler().isAlive) {
+        switch (battleState.values.phase) {
+          case BattlePhase.Round: {
+            if (battleState.values.round === null) {
+              throw new Error("round is null");
+            }
+            if (state.values.serverTime === null) {
+              throw new Error("serverTime is null");
+            }
+            if (hasImpactAnimation() === false) {
+              return true;
+            }
+            const eventInstance: BattleStateRoundEventInstance | undefined =
+              getMatchedEventInstance();
+            if (typeof eventInstance === "undefined") {
+              throw new Error("eventInstance is undefined");
+            }
+            switch (eventInstance.event.type) {
+              case BattleEventType.Damage:
+              case BattleEventType.Instakill: {
+                const elapsedServerTime: number =
+                  state.values.serverTime - battleState.values.round.serverTime;
+                const diff: number =
+                  elapsedServerTime - eventInstance.event.startedAt;
+                const frame: number = Math.floor(
+                  diff / battleImpactAnimationDuration,
+                );
+                if (frame >= 8) {
+                  return true;
+                }
+                return frame % 2 === 1;
+              }
+            }
+            return false;
+          }
+          case BattlePhase.Selection: {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
     // Enemy shadow
     ellipseIDs.push(
       createEllipse({
@@ -755,7 +916,7 @@ export const createBattleUI = ({
           getDefinable(Reachable, getBattleState().values.reachableID).landscape
             .shadowColor,
         coordinates: {
-          condition: (): boolean => getEnemyBattler().isAlive,
+          condition: enemySpriteCondition,
           x: (): number => getX() + 4,
           y: 122,
         },
@@ -775,7 +936,7 @@ export const createBattleUI = ({
           ).id;
         },
         coordinates: {
-          condition: (): boolean => getEnemyBattler().isAlive,
+          condition: enemySpriteCondition,
           x: getX,
           y: getY,
         },
@@ -831,109 +992,6 @@ export const createBattleUI = ({
       }),
     );
     // Enemy impact animation
-    const hasImpactAnimation = (): boolean => {
-      const battleState: State<BattleStateSchema> = getBattleState();
-      if (battleState.values.round === null) {
-        throw new Error("round is null");
-      }
-      if (state.values.serverTime === null) {
-        throw new Error("serverTime is null");
-      }
-      const elapsedServerTime: number =
-        state.values.serverTime - battleState.values.round.serverTime;
-      return battleState.values.round.eventInstances.some(
-        (eventInstance: BattleStateRoundEventInstance): boolean => {
-          if (
-            elapsedServerTime >= eventInstance.event.startedAt &&
-            elapsedServerTime <
-              eventInstance.event.startedAt + eventInstance.event.duration
-          ) {
-            switch (eventInstance.event.type) {
-              case BattleEventType.Damage: {
-                const damageEvent: BattleDamageEvent =
-                  eventInstance.event as BattleDamageEvent;
-                return damageEvent.target.battlerID === enemyBattlerID;
-              }
-              case BattleEventType.Heal: {
-                const healEvent: BattleHealEvent =
-                  eventInstance.event as BattleHealEvent;
-                return healEvent.target.battlerID === enemyBattlerID;
-              }
-              case BattleEventType.Instakill: {
-                const instakillEvent: BattleInstakillEvent =
-                  eventInstance.event as BattleInstakillEvent;
-                return instakillEvent.target.battlerID === enemyBattlerID;
-              }
-            }
-          }
-          return false;
-        },
-      );
-    };
-    const getImpactAnimation = (): BattleImpactAnimation => {
-      const battleState: State<BattleStateSchema> = getBattleState();
-      if (battleState.values.round === null) {
-        throw new Error("round is null");
-      }
-      if (state.values.serverTime === null) {
-        throw new Error("serverTime is null");
-      }
-      const elapsedServerTime: number =
-        state.values.serverTime - battleState.values.round.serverTime;
-      const matchedEventInstance: BattleStateRoundEventInstance | undefined =
-        battleState.values.round.eventInstances.find(
-          (eventInstance: BattleStateRoundEventInstance): boolean => {
-            if (
-              elapsedServerTime >= eventInstance.event.startedAt &&
-              elapsedServerTime <
-                eventInstance.event.startedAt + eventInstance.event.duration
-            ) {
-              switch (eventInstance.event.type) {
-                case BattleEventType.Damage: {
-                  const damageEvent: BattleDamageEvent =
-                    eventInstance.event as BattleDamageEvent;
-                  return damageEvent.target.battlerID === enemyBattlerID;
-                }
-                case BattleEventType.Heal: {
-                  const healEvent: BattleHealEvent =
-                    eventInstance.event as BattleHealEvent;
-                  return healEvent.target.battlerID === enemyBattlerID;
-                }
-                case BattleEventType.Instakill: {
-                  const instakillEvent: BattleInstakillEvent =
-                    eventInstance.event as BattleInstakillEvent;
-                  return instakillEvent.target.battlerID === enemyBattlerID;
-                }
-              }
-            }
-            return false;
-          },
-        );
-      if (typeof matchedEventInstance === "undefined") {
-        throw new Error("matchedEventInstance is undefined");
-      }
-      switch (matchedEventInstance.event.type) {
-        case BattleEventType.Damage: {
-          const damageEvent: BattleDamageEvent =
-            matchedEventInstance.event as BattleDamageEvent;
-          return getDefinable(Ability, damageEvent.abilityID)
-            .battleImpactAnimation;
-        }
-        case BattleEventType.Heal: {
-          const healEvent: BattleHealEvent =
-            matchedEventInstance.event as BattleHealEvent;
-          return getDefinable(Ability, healEvent.abilityID)
-            .battleImpactAnimation;
-        }
-        case BattleEventType.Instakill: {
-          const instakillEvent: BattleInstakillEvent =
-            matchedEventInstance.event as BattleInstakillEvent;
-          return getDefinable(Ability, instakillEvent.abilityID)
-            .battleImpactAnimation;
-        }
-      }
-      throw new Error("matchedEventInstance.event.type is not valid");
-    };
     createSprite({
       animationID: "default",
       animations: [
