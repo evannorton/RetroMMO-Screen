@@ -11,6 +11,7 @@ import {
   BattleImpactAlignment,
   BattleInstakillEvent,
   BattlePhase,
+  BattleRejuvenateEvent,
   BattleUnbindHotkeyRequest,
   BattleUseAbilityEvent,
   BattleUseAbilityRequest,
@@ -785,6 +786,11 @@ export const createBattleUI = ({
                   eventInstance.event as BattleInstakillEvent;
                 return instakillEvent.target.battlerID === enemyBattlerID;
               }
+              case BattleEventType.Rejuvenate: {
+                const rejuvenateEvent: BattleRejuvenateEvent =
+                  eventInstance.event as BattleRejuvenateEvent;
+                return rejuvenateEvent.target.battlerID === enemyBattlerID;
+              }
             }
           }
           return false;
@@ -823,6 +829,11 @@ export const createBattleUI = ({
                 const instakillEvent: BattleInstakillEvent =
                   eventInstance.event as BattleInstakillEvent;
                 return instakillEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.Rejuvenate: {
+                const rejuvenateEvent: BattleRejuvenateEvent =
+                  eventInstance.event as BattleRejuvenateEvent;
+                return rejuvenateEvent.target.battlerID === enemyBattlerID;
               }
             }
           }
@@ -869,6 +880,12 @@ export const createBattleUI = ({
             matchedEventInstance.event as BattleInstakillEvent;
           return getDefinable(Ability, instakillEvent.abilityID)
             .battleImpactInstakillAnimation;
+        }
+        case BattleEventType.Rejuvenate: {
+          const rejuvenateEvent: BattleRejuvenateEvent =
+            matchedEventInstance.event as BattleRejuvenateEvent;
+          return getDefinable(Ability, rejuvenateEvent.abilityID)
+            .battleImpactAnimation;
         }
       }
       throw new Error("matchedEventInstance.event.type is not valid");
@@ -2432,6 +2449,13 @@ export const createBattleUI = ({
               }
               case BattleEventType.Miss: {
                 return { value: "...but it misses." };
+              }
+              case BattleEventType.Rejuvenate: {
+                const rejuvenateEvent: BattleRejuvenateEvent =
+                  battleEventInstance.event as BattleRejuvenateEvent;
+                return {
+                  value: `${rejuvenateEvent.target.name} recovers ${rejuvenateEvent.amount} MP.`,
+                };
               }
               case BattleEventType.UseAbility: {
                 const useAbilityBattleEvent: BattleUseAbilityEvent =

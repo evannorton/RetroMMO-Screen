@@ -5,11 +5,13 @@ import {
   BattleEventType,
   BattleHealEvent,
   BattleInstakillEvent,
+  BattleRejuvenateEvent,
   BattleUseAbilityEvent,
   BattleUseItemEvent,
   BattlerType,
   Constants,
   Direction,
+  ResourcePool,
   ServerTimeRequest,
 } from "retrommo-types";
 import { Battler } from "./classes/Battler";
@@ -17,7 +19,6 @@ import { Item } from "./classes/Item";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
 import { definableExists, getDefinable, getDefinables } from "definables";
-import { doesBattlerHaveMP } from "./functions/battle/doesBattlerHaveMP";
 import {
   emitToSocketioServer,
   getCurrentTime,
@@ -25,6 +26,7 @@ import {
   removeEntity,
   setEntityPosition,
 } from "pixel-pigeon";
+import { getBattlerResourcePool } from "./functions/battle/getBattlerResourcePool";
 import { getConstants } from "./functions/getConstants";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
@@ -304,6 +306,43 @@ export const tick = (): void => {
                 });
                 break;
               }
+              case BattleEventType.Rejuvenate: {
+                const rejuvenateEvent: BattleRejuvenateEvent =
+                  eventInstance.event as BattleRejuvenateEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  rejuvenateEvent.abilityID,
+                );
+                if (
+                  definableExists(Battler, rejuvenateEvent.target.battlerID) &&
+                  state.values.battleState.values.friendlyBattlerIDs.includes(
+                    rejuvenateEvent.target.battlerID,
+                  )
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    rejuvenateEvent.target.battlerID,
+                  );
+                  if (battler.resources.mp === null) {
+                    throw new Error(
+                      "Battler has no MP but is trying to be rejuvenated.",
+                    );
+                  }
+                  if (battler.resources.maxMP === null) {
+                    throw new Error(
+                      "Battler has no max MP but is trying to be rejuvenated.",
+                    );
+                  }
+                  battler.resources.mp = Math.min(
+                    battler.resources.maxMP,
+                    battler.resources.mp + rejuvenateEvent.amount,
+                  );
+                }
+                playAudioSource(ability.impactAudioPath, {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              }
               case BattleEventType.UseAbility: {
                 const useAbilityEvent: BattleUseAbilityEvent =
                   eventInstance.event as BattleUseAbilityEvent;
@@ -321,7 +360,7 @@ export const tick = (): void => {
                     Battler,
                     useAbilityEvent.caster.battlerID,
                   );
-                  if (doesBattlerHaveMP(battler.id)) {
+                  if (getBattlerResourcePool(battler.id) === ResourcePool.MP) {
                     if (battler.resources.mp === null) {
                       throw new Error(
                         "Battler has no MP but is trying to use an ability that costs MP.",
