@@ -6,14 +6,16 @@ export interface MonsterOptions {
   readonly id: string;
 }
 export class Monster extends Definable {
-  public readonly _battleHeight: number;
-  public readonly _battleWidth: number;
-  public readonly _name: string;
+  private readonly _battleHeight: number;
+  private readonly _battleWidth: number;
+  private readonly _deathAudioPath: string;
+  private readonly _name: string;
   public constructor(options: MonsterOptions) {
     super(options.id);
     this._name = options.definition.name;
     this._battleHeight = options.definition.battleHeight;
     this._battleWidth = options.definition.battleWidth;
+    this._deathAudioPath = options.definition.deathAudioPath;
   }
 
   public get battleHeight(): number {
@@ -22,6 +24,10 @@ export class Monster extends Definable {
 
   public get battleWidth(): number {
     return this._battleWidth;
+  }
+
+  public get deathAudioPath(): string {
+    return this._deathAudioPath;
   }
 
   public get name(): string {

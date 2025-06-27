@@ -749,7 +749,7 @@ export const createBattleUI = ({
       return startX + leftWidth;
     };
     const getY = (): number => 128 - getBattlerHeight(enemyBattlerID);
-    const getMatchedEventInstance = ():
+    const getImpactAnimationEventInstance = ():
       | BattleStateRoundEventInstance
       | undefined => {
       const battleState: State<BattleStateSchema> = getBattleState();
@@ -839,7 +839,7 @@ export const createBattleUI = ({
         throw new Error("serverTime is null");
       }
       const matchedEventInstance: BattleStateRoundEventInstance | undefined =
-        getMatchedEventInstance();
+        getImpactAnimationEventInstance();
       if (typeof matchedEventInstance === "undefined") {
         throw new Error("matchedEventInstance is undefined");
       }
@@ -847,6 +847,14 @@ export const createBattleUI = ({
         case BattleEventType.Damage: {
           const damageEvent: BattleDamageEvent =
             matchedEventInstance.event as BattleDamageEvent;
+          if (damageEvent.isCrit === true) {
+            return getDefinable(Ability, damageEvent.abilityID)
+              .battleImpactCritAnimation;
+          }
+          if (damageEvent.isInstakill === true) {
+            return getDefinable(Ability, damageEvent.abilityID)
+              .battleImpactInstakillAnimation;
+          }
           return getDefinable(Ability, damageEvent.abilityID)
             .battleImpactAnimation;
         }
@@ -860,7 +868,7 @@ export const createBattleUI = ({
           const instakillEvent: BattleInstakillEvent =
             matchedEventInstance.event as BattleInstakillEvent;
           return getDefinable(Ability, instakillEvent.abilityID)
-            .battleImpactAnimation;
+            .battleImpactInstakillAnimation;
         }
       }
       throw new Error("matchedEventInstance.event.type is not valid");
@@ -880,7 +888,7 @@ export const createBattleUI = ({
               return true;
             }
             const eventInstance: BattleStateRoundEventInstance | undefined =
-              getMatchedEventInstance();
+              getImpactAnimationEventInstance();
             if (typeof eventInstance === "undefined") {
               throw new Error("eventInstance is undefined");
             }
@@ -899,8 +907,9 @@ export const createBattleUI = ({
                 }
                 return frame % 2 === 1;
               }
+              default:
+                return true;
             }
-            return false;
           }
           case BattlePhase.Selection: {
             return true;
@@ -994,6 +1003,24 @@ export const createBattleUI = ({
     // Enemy impact animation
     createSprite({
       animationID: "default",
+      animationStartedAt: (): number => {
+        const eventInstance: BattleStateRoundEventInstance | undefined =
+          getImpactAnimationEventInstance();
+        if (typeof eventInstance === "undefined") {
+          throw new Error("eventInstance is undefined");
+        }
+        if (state.values.serverTime === null) {
+          throw new Error("serverTime is null");
+        }
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.round === null) {
+          throw new Error("round is null");
+        }
+        const diff: number =
+          state.values.serverTime -
+          (eventInstance.event.startedAt + battleState.values.round.serverTime);
+        return getCurrentTime() - diff;
+      },
       animations: [
         {
           frames: [

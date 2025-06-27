@@ -4,12 +4,16 @@ import {
   BattleDeathEvent,
   BattleEventType,
   BattleHealEvent,
+  BattleInstakillEvent,
   BattleUseAbilityEvent,
+  BattleUseItemEvent,
+  BattlerType,
   Constants,
   Direction,
   ServerTimeRequest,
 } from "retrommo-types";
 import { Battler } from "./classes/Battler";
+import { Item } from "./classes/Item";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
 import { definableExists, getDefinable, getDefinables } from "definables";
@@ -191,6 +195,10 @@ export const tick = (): void => {
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
                   eventInstance.event as BattleDamageEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  damageEvent.abilityID,
+                );
                 if (
                   definableExists(Battler, damageEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -206,6 +214,19 @@ export const tick = (): void => {
                     battler.resources.hp - damageEvent.amount,
                   );
                 }
+                if (damageEvent.isCrit === true) {
+                  playAudioSource(ability.impactCritAudioPath, {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                } else if (damageEvent.isInstakill === true) {
+                  playAudioSource(ability.impactInstakillAudioPath, {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                } else {
+                  playAudioSource(ability.impactAudioPath, {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                }
                 break;
               }
               case BattleEventType.Death: {
@@ -217,12 +238,34 @@ export const tick = (): void => {
                     deathEvent.target.battlerID,
                   );
                   battler.isAlive = false;
+                  switch (battler.type) {
+                    case BattlerType.Monster:
+                      playAudioSource(battler.monster.deathAudioPath, {
+                        volumeChannelID: sfxVolumeChannelID,
+                      });
+                      break;
+                    case BattlerType.Player:
+                      playAudioSource("sfx/actions/death/player", {
+                        volumeChannelID: sfxVolumeChannelID,
+                      });
+                      break;
+                  }
                 }
+                break;
+              }
+              case BattleEventType.FriendlyTargetFailure: {
+                playAudioSource("sfx/fail", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
                 break;
               }
               case BattleEventType.Heal: {
                 const healEvent: BattleHealEvent =
                   eventInstance.event as BattleHealEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  healEvent.abilityID,
+                );
                 if (
                   definableExists(Battler, healEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -238,11 +281,36 @@ export const tick = (): void => {
                     battler.resources.hp + healEvent.amount,
                   );
                 }
+                playAudioSource(ability.impactAudioPath, {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              }
+              case BattleEventType.Instakill: {
+                const instakillEvent: BattleInstakillEvent =
+                  eventInstance.event as BattleInstakillEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  instakillEvent.abilityID,
+                );
+                playAudioSource(ability.impactInstakillAudioPath, {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              }
+              case BattleEventType.Miss: {
+                playAudioSource("sfx/actions/miss", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
                 break;
               }
               case BattleEventType.UseAbility: {
                 const useAbilityEvent: BattleUseAbilityEvent =
                   eventInstance.event as BattleUseAbilityEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  useAbilityEvent.abilityID,
+                );
                 if (
                   definableExists(Battler, useAbilityEvent.caster.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -252,10 +320,6 @@ export const tick = (): void => {
                   const battler: Battler = getDefinable(
                     Battler,
                     useAbilityEvent.caster.battlerID,
-                  );
-                  const ability: Ability = getDefinable(
-                    Ability,
-                    useAbilityEvent.abilityID,
                   );
                   if (doesBattlerHaveMP(battler.id)) {
                     if (battler.resources.mp === null) {
@@ -268,6 +332,22 @@ export const tick = (): void => {
                       battler.resources.mp - ability.mpCost,
                     );
                   }
+                }
+                if (ability.hasChargeAudioPath()) {
+                  playAudioSource(ability.chargeAudioPath, {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                }
+                break;
+              }
+              case BattleEventType.UseItem: {
+                const useItemEvent: BattleUseItemEvent =
+                  eventInstance.event as BattleUseItemEvent;
+                const item: Item = getDefinable(Item, useItemEvent.itemID);
+                if (item.ability.hasChargeAudioPath()) {
+                  playAudioSource(item.ability.chargeAudioPath, {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
                 }
                 break;
               }

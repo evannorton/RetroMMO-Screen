@@ -14,13 +14,13 @@ export class Ability extends Definable {
   private readonly _boostItemID?: string;
   private readonly _canBeUsedInBattle: boolean;
   private readonly _canBeUsedInWorld: boolean;
-  private readonly _chargeNoiseID?: string;
+  private readonly _chargeAudioPath?: string;
   private readonly _description: string;
   private readonly _fleeChance?: number;
   private readonly _iconImagePath: string;
-  private readonly _impactCritNoiseID?: string;
-  private readonly _impactInstakillNoiseID?: string;
-  private readonly _impactNoiseID?: string;
+  private readonly _impactAudioPath?: string;
+  private readonly _impactCritAudioPath?: string;
+  private readonly _impactInstakillAudioPath?: string;
   private readonly _mpCost: number;
   private readonly _name: string;
   private readonly _targetType: TargetType;
@@ -34,14 +34,14 @@ export class Ability extends Definable {
     this._boostItemID = options.definition.boostItemID;
     this._canBeUsedInBattle = options.definition.canBeUsedInBattle ?? false;
     this._canBeUsedInWorld = options.definition.canBeUsedInWorld ?? false;
-    this._chargeNoiseID = options.definition.chargeNoiseID;
-    this._chargeNoiseID = options.definition.chargeNoiseID;
+    this._chargeAudioPath = options.definition.chargeAudioPath;
     this._description = options.definition.description;
     this._fleeChance = options.definition.fleeChance;
     this._iconImagePath = options.definition.iconImagePath;
-    this._impactCritNoiseID = options.definition.impactCritNoiseID;
-    this._impactInstakillNoiseID = options.definition.impactInstakillNoiseID;
-    this._impactNoiseID = options.definition.impactNoiseID;
+    this._impactAudioPath = options.definition.impactAudioPath;
+    this._impactCritAudioPath = options.definition.impactCritAudioPath;
+    this._impactInstakillAudioPath =
+      options.definition.impactInstakillAudioPath;
     this._mpCost = options.definition.mpCost;
     this._name = options.definition.name;
     this._targetType = options.definition.targetType;
@@ -61,12 +61,34 @@ export class Ability extends Definable {
     throw new Error(this.getAccessorErrorMessage("battleImpactAnimationID"));
   }
 
+  public get battleImpactCritAnimation(): BattleImpactAnimation {
+    if (typeof this._battleImpactCritAnimationID !== "undefined") {
+      return getDefinable(
+        BattleImpactAnimation,
+        this._battleImpactCritAnimationID,
+      );
+    }
+    throw new Error(this.getAccessorErrorMessage("battleImpactCritAnimation"));
+  }
+
   public get battleImpactCritAnimationID(): string {
     if (typeof this._battleImpactCritAnimationID !== "undefined") {
       return this._battleImpactCritAnimationID;
     }
     throw new Error(
       this.getAccessorErrorMessage("battleImpactCritAnimationID"),
+    );
+  }
+
+  public get battleImpactInstakillAnimation(): BattleImpactAnimation {
+    if (typeof this._battleImpactInstakillAnimationID !== "undefined") {
+      return getDefinable(
+        BattleImpactAnimation,
+        this._battleImpactInstakillAnimationID,
+      );
+    }
+    throw new Error(
+      this.getAccessorErrorMessage("battleImpactInstakillAnimation"),
     );
   }
 
@@ -101,11 +123,11 @@ export class Ability extends Definable {
     return this._canBeUsedInWorld;
   }
 
-  public get chargeNoiseID(): string {
-    if (typeof this._chargeNoiseID !== "undefined") {
-      return this._chargeNoiseID;
+  public get chargeAudioPath(): string {
+    if (typeof this._chargeAudioPath !== "undefined") {
+      return this._chargeAudioPath;
     }
-    throw new Error(this.getAccessorErrorMessage("chargeNoiseID"));
+    throw new Error(this.getAccessorErrorMessage("chargeAudioPath"));
   }
 
   public get description(): string {
@@ -123,25 +145,25 @@ export class Ability extends Definable {
     return this._iconImagePath;
   }
 
-  public get impactCritNoiseID(): string {
-    if (typeof this._impactCritNoiseID !== "undefined") {
-      return this._impactCritNoiseID;
+  public get impactAudioPath(): string {
+    if (typeof this._impactAudioPath !== "undefined") {
+      return this._impactAudioPath;
     }
-    throw new Error(this.getAccessorErrorMessage("impactCritNoiseID"));
+    throw new Error(this.getAccessorErrorMessage("impactAudioPath"));
   }
 
-  public get impactInstakillNoiseID(): string {
-    if (typeof this._impactInstakillNoiseID !== "undefined") {
-      return this._impactInstakillNoiseID;
+  public get impactCritAudioPath(): string {
+    if (typeof this._impactCritAudioPath !== "undefined") {
+      return this._impactCritAudioPath;
     }
-    throw new Error(this.getAccessorErrorMessage("impactInstakillNoiseID"));
+    throw new Error(this.getAccessorErrorMessage("impactCritAudioPath"));
   }
 
-  public get impactNoiseID(): string {
-    if (typeof this._impactNoiseID !== "undefined") {
-      return this._impactNoiseID;
+  public get impactInstakillAudioPath(): string {
+    if (typeof this._impactInstakillAudioPath !== "undefined") {
+      return this._impactInstakillAudioPath;
     }
-    throw new Error(this.getAccessorErrorMessage("impactNoiseID"));
+    throw new Error(this.getAccessorErrorMessage("impactInstakillAudioPath"));
   }
 
   public get mpCost(): number {
@@ -158,6 +180,10 @@ export class Ability extends Definable {
 
   public hasBoost(): boolean {
     return typeof this._boostItemID !== "undefined";
+  }
+
+  public hasChargeAudioPath(): boolean {
+    return typeof this._chargeAudioPath !== "undefined";
   }
 
   public hasFleeChance(): boolean {
