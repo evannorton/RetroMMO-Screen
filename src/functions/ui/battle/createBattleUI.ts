@@ -1,5 +1,6 @@
 import { Ability } from "../../../classes/Ability";
 import {
+  BattleApproachEvent,
   BattleBindAbilityRequest,
   BattleBindItemRequest,
   BattleCancelSubmittedMoveRequest,
@@ -2402,6 +2403,16 @@ export const createBattleUI = ({
             );
           if (typeof battleEventInstance !== "undefined") {
             switch (battleEventInstance.event.type) {
+              case BattleEventType.Approach: {
+                const approachBattleEvent: BattleApproachEvent =
+                  battleEventInstance.event as BattleApproachEvent;
+                return {
+                  value:
+                    approachBattleEvent.enemyCount > 1
+                      ? "Enemies approach."
+                      : "An enemy approaches.",
+                };
+              }
               case BattleEventType.Crit: {
                 return {
                   value: "An excellent move!",
