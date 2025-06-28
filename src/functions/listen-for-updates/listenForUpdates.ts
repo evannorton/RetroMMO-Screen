@@ -1,6 +1,7 @@
 import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
+  BattlerType,
   EndPlayerBattleUpdate,
   EnterPlayerUpdate,
   ExitPlayerUpdate,
@@ -716,7 +717,20 @@ export const listenForUpdates = (): void => {
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
       } else if (player.hasBattleCharacter()) {
-        exitBattlers([player.battleCharacter.battlerID]);
+        const battlerID: string = player.battleCharacter.battlerID;
+        exitBattlers([battlerID]);
+        for (const battler of getDefinables(Battler).values()) {
+          switch (battler.type) {
+            case BattlerType.Player:
+              if (
+                battler.battleCharacter.hasSubmittedMove() &&
+                battler.battleCharacter.submittedMove.battlerID === battlerID
+              ) {
+                battler.battleCharacter.submittedMove = null;
+              }
+              break;
+          }
+        }
       }
       player.remove();
     },
