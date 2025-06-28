@@ -99,7 +99,9 @@ export interface BattleStateSchema {
   readonly battlerID: string;
   readonly bindAction: BattleStateBindAction | null;
   readonly enemyBattlerIDs: readonly string[];
+  readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];
+  readonly friendlyBattlersCount: number;
   readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly impactAnimationSpriteIDs: readonly string[];

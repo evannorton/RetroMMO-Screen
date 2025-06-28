@@ -456,7 +456,9 @@ export const listenForUpdates = (): void => {
             battleState: createBattleState({
               battlerID: update.battle.battlerID,
               enemyBattlerIDs: update.battle.enemyBattlerIDs,
+              enemyBattlersCount: update.battle.enemyBattlersCount,
               friendlyBattlerIDs: update.battle.friendlyBattlerIDs,
+              friendlyBattlersCount: update.battle.friendlyBattlersCount,
               hotkeys,
               hudElementReferences: createBattleUI({
                 enemyBattlerIDs: update.battle.enemyBattlerIDs,

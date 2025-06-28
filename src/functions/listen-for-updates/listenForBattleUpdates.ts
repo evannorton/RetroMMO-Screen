@@ -138,6 +138,9 @@ export const listenForBattleUpdates = (): void => {
       }
       const battleState: State<BattleStateSchema> = getBattleState();
       battleState.setValues({
+        abilitiesPage: 0,
+        bindAction: null,
+        itemsPage: 0,
         menuState: BattleMenuState.Default,
         phase: BattlePhase.Round,
         queuedAction: null,
@@ -152,6 +155,7 @@ export const listenForBattleUpdates = (): void => {
         },
         selectedAbilityIndex: null,
         selectedItemInstanceIndex: null,
+        unbindStartedAt: null,
       });
     },
   });

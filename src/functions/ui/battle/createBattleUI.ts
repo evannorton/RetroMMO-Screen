@@ -1,6 +1,5 @@
 import { Ability } from "../../../classes/Ability";
 import {
-  BattleApproachEvent,
   BattleBindAbilityRequest,
   BattleBindItemRequest,
   BattleCancelSubmittedMoveRequest,
@@ -1415,16 +1414,14 @@ export const createBattleUI = ({
       createButton({
         coordinates: {
           condition: (): boolean => {
-            const battler: Battler = getDefinable(
-              Battler,
-              getBattleState().values.battlerID,
-            );
+            const battler: Battler = getBattler();
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
               getBattleState().values.menuState === BattleMenuState.Default &&
               ((isSlotFilled() && (canUseHotkey() || isUnbindingHotkey())) ||
                 isBindingHotkey()) &&
               isTargeting() === false &&
+              battler.resources.hp > 0 &&
               battler.battleCharacter.hasSubmittedMove() === false
             );
           },
@@ -1449,10 +1446,7 @@ export const createBattleUI = ({
         color: Color.VeryDarkGray,
         coordinates: {
           condition: (): boolean => {
-            const battler: Battler = getDefinable(
-              Battler,
-              getBattleState().values.battlerID,
-            );
+            const battler: Battler = getBattler();
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
               ((isSlotFilled() &&
@@ -1464,6 +1458,7 @@ export const createBattleUI = ({
                   isUnbindingHotkey() &&
                   areUnbindHotkeyLabelsVisible())) &&
               isTargeting() === false &&
+              battler.resources.hp > 0 &&
               battler.battleCharacter.hasSubmittedMove() === false
             );
           },
@@ -1479,10 +1474,7 @@ export const createBattleUI = ({
         color: Color.White,
         coordinates: {
           condition: (): boolean => {
-            const battler: Battler = getDefinable(
-              Battler,
-              getBattleState().values.battlerID,
-            );
+            const battler: Battler = getBattler();
             return (
               getBattleState().values.phase === BattlePhase.Selection &&
               ((isSlotFilled() &&
@@ -1494,6 +1486,7 @@ export const createBattleUI = ({
                   isUnbindingHotkey() &&
                   areUnbindHotkeyLabelsVisible())) &&
               isTargeting() === false &&
+              battler.resources.hp > 0 &&
               battler.battleCharacter.hasSubmittedMove() === false
             );
           },
@@ -1509,10 +1502,7 @@ export const createBattleUI = ({
     inputPressHandlerIDs.push(
       createInputPressHandler({
         condition: (): boolean => {
-          const battler: Battler = getDefinable(
-            Battler,
-            getBattleState().values.battlerID,
-          );
+          const battler: Battler = getBattler();
           return (
             getBattleState().values.phase === BattlePhase.Selection &&
             getBattleState().values.menuState === BattleMenuState.Default &&
@@ -1520,6 +1510,7 @@ export const createBattleUI = ({
               isBindingHotkey() ||
               isUnbindingHotkey()) &&
             isTargeting() === false &&
+            battler.resources.hp > 0 &&
             battler.battleCharacter.hasSubmittedMove() === false
           );
         },
@@ -1543,6 +1534,7 @@ export const createBattleUI = ({
       return (
         getBattleState().values.phase === BattlePhase.Selection &&
         getBattleState().values.menuState === BattleMenuState.Default &&
+        battler.resources.hp > 0 &&
         battler.battleCharacter.hasSubmittedMove() === false
       );
     },
@@ -1902,11 +1894,7 @@ export const createBattleUI = ({
       maxWidth: 229,
       size: 1,
       text: (): CreateLabelOptionsText => {
-        const battleState: State<BattleStateSchema> = getBattleState();
-        const battler: Battler = getDefinable(
-          Battler,
-          battleState.values.battlerID,
-        );
+        const battler: Battler = getBattler();
         if (
           battler.battleCharacter.hasSubmittedMove() ||
           battler.isAlive === false
@@ -2131,11 +2119,7 @@ export const createBattleUI = ({
     createPressableButton({
       condition: (): boolean => {
         if (selectedAbilityCondition()) {
-          const battleState: State<BattleStateSchema> = getBattleState();
-          const battler: Battler = getDefinable(
-            Battler,
-            battleState.values.battlerID,
-          );
+          const battler: Battler = getBattler();
           const mp: number = battler.resources.mp ?? 0;
           return mp >= getSelectedAbility().mpCost;
         }
@@ -2403,16 +2387,13 @@ export const createBattleUI = ({
             );
           if (typeof battleEventInstance !== "undefined") {
             switch (battleEventInstance.event.type) {
-              case BattleEventType.Approach: {
-                const approachBattleEvent: BattleApproachEvent =
-                  battleEventInstance.event as BattleApproachEvent;
+              case BattleEventType.Approach:
                 return {
                   value:
-                    approachBattleEvent.enemyCount > 1
+                    battleState.values.enemyBattlersCount > 1
                       ? "Enemies approach."
                       : "An enemy approaches.",
                 };
-              }
               case BattleEventType.Crit: {
                 return {
                   value: "An excellent move!",

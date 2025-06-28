@@ -739,7 +739,9 @@ export const listenForWorldUpdates = (): void => {
         battleState: createBattleState({
           battlerID: update.battlerID,
           enemyBattlerIDs: update.enemyBattlerIDs,
+          enemyBattlersCount: update.enemyBattlersCount,
           friendlyBattlerIDs: update.friendlyBattlerIDs,
+          friendlyBattlersCount: update.friendlyBattlersCount,
           hotkeys,
           hudElementReferences: createBattleUI({
             enemyBattlerIDs: update.enemyBattlerIDs,
@@ -749,8 +751,12 @@ export const listenForWorldUpdates = (): void => {
             (itemInstanceUpdate: ItemInstanceUpdate): string =>
               itemInstanceUpdate.itemInstanceID,
           ),
-          phase: BattlePhase.Selection,
+          phase: BattlePhase.Round,
           reachableID: update.reachableID,
+          round: {
+            events: update.round.events,
+            serverTime: update.round.serverTime,
+          },
           type: update.battleType,
         }),
         worldState: null,
