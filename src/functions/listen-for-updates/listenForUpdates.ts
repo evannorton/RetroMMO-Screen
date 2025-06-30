@@ -68,6 +68,7 @@ import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpda
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
+import { playMusic } from "../playMusic";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
 import { resetParty } from "../resetParty";
 import { selectWorldCharacter } from "../selectWorldCharacter";
@@ -406,7 +407,10 @@ export const listenForUpdates = (): void => {
         isInitialUpdateReceived: true,
         isSubscribed: update.isSubscribed,
         mainMenuState: null,
+        pianoStartedAt: null,
         selectedPlayerID: null,
+        serverTime: null,
+        serverTimeRequestedAt: null,
         worldState: null,
       });
       switch (update.mainState) {
@@ -637,6 +641,10 @@ export const listenForUpdates = (): void => {
           }
         },
       });
+      state.setValues({
+        musicTrackID: null,
+      });
+      playMusic();
     },
   });
   listenToSocketioEvent<PartyChangesUpdate>({

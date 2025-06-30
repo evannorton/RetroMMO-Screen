@@ -22,6 +22,7 @@ import {
   LandscapeDefinition,
   MaskDefinition,
   MonsterDefinition,
+  MusicTrackDefinition,
   NPCDefinition,
   OutfitDefinition,
   PianoDefinition,
@@ -64,6 +65,7 @@ import { Item } from "../classes/Item";
 import { Landscape } from "../classes/Landscape";
 import { Mask } from "../classes/Mask";
 import { Monster } from "../classes/Monster";
+import { MusicTrack } from "../classes/MusicTrack";
 import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
@@ -311,8 +313,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "MusicTrack":
+        case "MusicTrack": {
+          const definition: MusicTrackDefinition = (
+            gameData[className] as Record<string, MusicTrackDefinition>
+          )[id] as MusicTrackDefinition;
+          new MusicTrack({
+            definition,
+            id,
+          });
           break;
+        }
         case "NPC": {
           const definition: NPCDefinition = (
             gameData[className] as Record<string, NPCDefinition>

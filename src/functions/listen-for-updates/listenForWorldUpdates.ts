@@ -76,6 +76,7 @@ import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
+import { playMusic } from "../playMusic";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
@@ -761,6 +762,7 @@ export const listenForWorldUpdates = (): void => {
         }),
         worldState: null,
       });
+      playMusic();
       exitLevel();
       if (selectedPlayerWorldMenu.isOpen()) {
         selectedPlayerWorldMenu.state.setValues({

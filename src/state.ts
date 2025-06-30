@@ -134,6 +134,7 @@ export interface StateSchema {
   readonly isInitialUpdateReceived: boolean;
   readonly isSubscribed: boolean;
   readonly mainMenuState: State<MainMenuStateSchema> | null;
+  readonly musicTrackID: string | null;
   readonly pianoStartedAt: number | null;
   readonly selectedPlayerID: string | null;
   readonly serverTime: number | null;
@@ -158,6 +159,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   isInitialUpdateReceived: false,
   isSubscribed: false,
   mainMenuState: null,
+  musicTrackID: null,
   pianoStartedAt: null,
   selectedPlayerID: null,
   serverTime: null,
