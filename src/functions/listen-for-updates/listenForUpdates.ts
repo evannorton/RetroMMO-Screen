@@ -91,7 +91,7 @@ export const listenForUpdates = (): void => {
     },
   });
   listenToSocketioEvent<EndPlayerBattleUpdate>({
-    event: "end-player-battle",
+    event: "end-player-battles",
     onMessage: (update: EndPlayerBattleUpdate): void => {
       if (typeof update.character !== "undefined") {
         const battleState: State<BattleStateSchema> = getBattleState();
@@ -139,6 +139,9 @@ export const listenForUpdates = (): void => {
         }
         for (const battler of getDefinables(Battler).values()) {
           battler.remove();
+        }
+        for (const itemInstance of getDefinables(ItemInstance).values()) {
+          itemInstance.remove();
         }
         for (const worldCharacterUpdate of update.character.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
@@ -190,6 +193,7 @@ export const listenForUpdates = (): void => {
         if (state.values.selectedPlayerID !== null) {
           selectedPlayerWorldMenu.open({});
         }
+        playMusic();
       }
       for (const playerUpdate of update.players) {
         const player: Player = getDefinable(Player, playerUpdate.playerID);

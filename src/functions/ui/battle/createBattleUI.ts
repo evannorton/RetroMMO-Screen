@@ -423,6 +423,7 @@ export const createBattleUI = ({
   const inputPressHandlerIDs: string[] = [];
   const labelIDs: string[] = [];
   const quadrilateralIDs: string[] = [];
+  const spriteIDs: string[] = [];
   const hudElementReferences: HUDElementReferences[] = [];
   const gameWidth: number = getGameWidth();
   const gameHeight: number = getGameHeight();
@@ -614,28 +615,32 @@ export const createBattleUI = ({
       }
       return false;
     };
-    createQuadrilateral({
-      color: Color.VeryDarkGray,
-      coordinates: {
-        condition: targetCondition,
-        x: i * 81 + 76,
-        y: 227,
-      },
-      height: 9,
-      width: 9,
-    });
-    createLabel({
-      color: Color.White,
-      coordinates: {
-        condition: targetCondition,
-        x: i * 81 + 81,
-        y: 228,
-      },
-      horizontalAlignment: "center",
-      text: {
-        value: String(i + 1),
-      },
-    });
+    quadrilateralIDs.push(
+      createQuadrilateral({
+        color: Color.VeryDarkGray,
+        coordinates: {
+          condition: targetCondition,
+          x: i * 81 + 76,
+          y: 227,
+        },
+        height: 9,
+        width: 9,
+      }),
+    );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: targetCondition,
+          x: i * 81 + 81,
+          y: 228,
+        },
+        horizontalAlignment: "center",
+        text: {
+          value: String(i + 1),
+        },
+      }),
+    );
     // Submitted actions
     labelIDs.push(
       createLabel({
@@ -812,7 +817,7 @@ export const createBattleUI = ({
           if (
             elapsedServerTime >= eventInstance.event.startedAt &&
             elapsedServerTime <
-              eventInstance.event.startedAt + eventInstance.event.duration
+              eventInstance.event.startedAt + battleImpactAnimationDuration * 8
           ) {
             switch (eventInstance.event.type) {
               case BattleEventType.Damage: {
@@ -1018,112 +1023,15 @@ export const createBattleUI = ({
       }),
     );
     // Enemy impact animation
-    createSprite({
-      animationID: "default",
-      animationStartedAt: (): number => {
-        const eventInstance: BattleStateRoundEventInstance | undefined =
-          getImpactAnimationEventInstance();
-        if (typeof eventInstance === "undefined") {
-          throw new Error("eventInstance is undefined");
-        }
-        if (state.values.serverTime === null) {
-          throw new Error("serverTime is null");
-        }
-        const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.round === null) {
-          throw new Error("round is null");
-        }
-        const diff: number =
-          state.values.serverTime -
-          (eventInstance.event.startedAt + battleState.values.round.serverTime);
-        return getCurrentTime() - diff;
-      },
-      animations: [
-        {
-          frames: [
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 0,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 1,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 2,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 3,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 4,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 5,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              duration: battleImpactAnimationDuration,
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 6,
-              sourceY: 0,
-              width: 24,
-            },
-            {
-              height: 40,
-              sourceHeight: 40,
-              sourceWidth: 24,
-              sourceX: 24 * 7,
-              sourceY: 0,
-              width: 24,
-            },
-          ],
-          id: "default",
-        },
-      ],
-      coordinates: {
-        condition: (): boolean =>
-          getBattleState().values.phase === BattlePhase.Round &&
-          state.values.serverTime !== null &&
-          hasImpactAnimation(),
-        x: (): number =>
-          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2) - 12,
-        y: (): number => {
+    spriteIDs.push(
+      createSprite({
+        animationID: "default",
+        animationStartedAt: (): number => {
+          const eventInstance: BattleStateRoundEventInstance | undefined =
+            getImpactAnimationEventInstance();
+          if (typeof eventInstance === "undefined") {
+            throw new Error("eventInstance is undefined");
+          }
           if (state.values.serverTime === null) {
             throw new Error("serverTime is null");
           }
@@ -1131,20 +1039,120 @@ export const createBattleUI = ({
           if (battleState.values.round === null) {
             throw new Error("round is null");
           }
-          const battleImpactAnimation: BattleImpactAnimation =
-            getImpactAnimation();
-          switch (battleImpactAnimation.alignment) {
-            case BattleImpactAlignment.Bottom:
-              return 88;
-            case BattleImpactAlignment.Center:
-              return (
-                getY() + Math.round(getBattlerHeight(enemyBattlerID) / 2) - 20
-              );
-          }
+          const diff: number =
+            state.values.serverTime -
+            (eventInstance.event.startedAt +
+              battleState.values.round.serverTime);
+          return getCurrentTime() - diff;
         },
-      },
-      imagePath: (): string => getImpactAnimation().imagePath,
-    });
+        animations: [
+          {
+            frames: [
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 0,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 1,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 2,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 3,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 4,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 5,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                duration: battleImpactAnimationDuration,
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 6,
+                sourceY: 0,
+                width: 24,
+              },
+              {
+                height: 40,
+                sourceHeight: 40,
+                sourceWidth: 24,
+                sourceX: 24 * 7,
+                sourceY: 0,
+                width: 24,
+              },
+            ],
+            id: "default",
+          },
+        ],
+        coordinates: {
+          condition: (): boolean =>
+            getBattleState().values.phase === BattlePhase.Round &&
+            state.values.serverTime !== null &&
+            hasImpactAnimation(),
+          x: (): number =>
+            getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2) - 12,
+          y: (): number => {
+            if (state.values.serverTime === null) {
+              throw new Error("serverTime is null");
+            }
+            const battleState: State<BattleStateSchema> = getBattleState();
+            if (battleState.values.round === null) {
+              throw new Error("round is null");
+            }
+            const battleImpactAnimation: BattleImpactAnimation =
+              getImpactAnimation();
+            switch (battleImpactAnimation.alignment) {
+              case BattleImpactAlignment.Bottom:
+                return 88;
+              case BattleImpactAlignment.Center:
+                return (
+                  getY() + Math.round(getBattlerHeight(enemyBattlerID) / 2) - 20
+                );
+            }
+          },
+        },
+        imagePath: (): string => getImpactAnimation().imagePath,
+      }),
+    );
     // Enemy targetting number
     const targetingNumberCondition = (): boolean => {
       if (getEnemyBattler().isAlive && isTargeting()) {
@@ -1528,32 +1536,34 @@ export const createBattleUI = ({
     );
   }
   // Hotkeys unbind button
-  createImage({
-    condition: (): boolean => {
-      const battler: Battler = getBattler();
-      return (
-        getBattleState().values.phase === BattlePhase.Selection &&
-        getBattleState().values.menuState === BattleMenuState.Default &&
-        battler.resources.hp > 0 &&
-        battler.battleCharacter.hasSubmittedMove() === false
-      );
-    },
-    height: 11,
-    imagePath: "x",
-    onClick: (): void => {
-      getBattleState().setValues({
-        bindAction: null,
-        menuState: BattleMenuState.Default,
-        queuedAction: null,
-        selectedAbilityIndex: null,
-        selectedItemInstanceIndex: null,
-        unbindStartedAt: getCurrentTime(),
-      });
-    },
-    width: 10,
-    x: 286,
-    y: 182,
-  });
+  hudElementReferences.push(
+    createImage({
+      condition: (): boolean => {
+        const battler: Battler = getBattler();
+        return (
+          getBattleState().values.phase === BattlePhase.Selection &&
+          getBattleState().values.menuState === BattleMenuState.Default &&
+          battler.resources.hp > 0 &&
+          battler.battleCharacter.hasSubmittedMove() === false
+        );
+      },
+      height: 11,
+      imagePath: "x",
+      onClick: (): void => {
+        getBattleState().setValues({
+          bindAction: null,
+          menuState: BattleMenuState.Default,
+          queuedAction: null,
+          selectedAbilityIndex: null,
+          selectedItemInstanceIndex: null,
+          unbindStartedAt: getCurrentTime(),
+        });
+      },
+      width: 10,
+      x: 286,
+      y: 182,
+    }),
+  );
   inputPressHandlerIDs.push(
     createInputPressHandler({
       condition: (): boolean => {
@@ -2495,6 +2505,7 @@ export const createBattleUI = ({
       inputPressHandlerIDs,
       labelIDs,
       quadrilateralIDs,
+      spriteIDs,
     },
     ...hudElementReferences,
   ]);

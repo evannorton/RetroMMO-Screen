@@ -295,6 +295,18 @@ export const tick = (): void => {
                   Ability,
                   instakillEvent.abilityID,
                 );
+                if (
+                  definableExists(Battler, instakillEvent.target.battlerID) &&
+                  state.values.battleState.values.friendlyBattlerIDs.includes(
+                    instakillEvent.target.battlerID,
+                  )
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    instakillEvent.target.battlerID,
+                  );
+                  battler.resources.hp = 0;
+                }
                 playAudioSource(ability.impactInstakillAudioPath, {
                   volumeChannelID: sfxVolumeChannelID,
                 });
