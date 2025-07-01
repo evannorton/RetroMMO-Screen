@@ -192,6 +192,11 @@ export const listenForUpdates = (): void => {
         selectWorldCharacter(update.character.characterID);
         if (state.values.selectedPlayerID !== null) {
           selectedPlayerWorldMenu.open({});
+          addWorldCharacterMarker(
+            getDefinable(Player, state.values.selectedPlayerID)
+              .worldCharacterID,
+            MarkerType.Selected,
+          );
         }
         playMusic();
       }
