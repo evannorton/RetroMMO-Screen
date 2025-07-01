@@ -28,6 +28,7 @@ export interface CreateBattleStateOptions {
   readonly phase: BattlePhase;
   readonly reachableID: string;
   readonly round?: CreateBattleStateOptionsRound;
+  readonly teamIndex: 0 | 1;
   readonly type: BattleType;
 }
 export const createBattleState = ({
@@ -42,6 +43,7 @@ export const createBattleState = ({
   phase,
   reachableID,
   round,
+  teamIndex,
   type,
 }: CreateBattleStateOptions): State<BattleStateSchema> =>
   new State<BattleStateSchema>({
@@ -80,6 +82,7 @@ export const createBattleState = ({
         : null,
     selectedAbilityIndex: null,
     selectedItemInstanceIndex: null,
+    teamIndex,
     type,
     unbindStartedAt: null,
   });

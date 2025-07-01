@@ -758,6 +758,7 @@ export const listenForWorldUpdates = (): void => {
             events: update.round.events,
             serverTime: update.round.serverTime,
           },
+          teamIndex: update.teamIndex,
           type: update.battleType,
         }),
         worldState: null,

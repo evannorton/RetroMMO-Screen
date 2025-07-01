@@ -485,6 +485,7 @@ export const listenForUpdates = (): void => {
                       serverTime: update.battle.round.serverTime,
                     }
                   : undefined,
+              teamIndex: update.battle.teamIndex,
               type: update.battle.battleType,
             }),
           });

@@ -5,6 +5,7 @@ import {
   BattleCancelSubmittedMoveRequest,
   BattleDamageEvent,
   BattleDeathEvent,
+  BattleDefeatEvent,
   BattleEventType,
   BattleFriendlyTargetFailureEvent,
   BattleHealEvent,
@@ -2426,6 +2427,22 @@ export const createBattleUI = ({
                   battleEventInstance.event as BattleDeathEvent;
                 return {
                   value: `${deathBattleEvent.target.name} is defeated!`,
+                };
+              }
+              case BattleEventType.Defeat: {
+                const defeatBattleEvent: BattleDefeatEvent =
+                  battleEventInstance.event as BattleDefeatEvent;
+                if (
+                  defeatBattleEvent.winningTeamIndex ===
+                  battleState.values.teamIndex
+                ) {
+                  if (battleState.values.enemyBattlersCount > 1) {
+                    return { value: "The enemies are defeated..." };
+                  }
+                  return { value: "The enemy is defeated..." };
+                }
+                return {
+                  value: "You are defeated...",
                 };
               }
               case BattleEventType.FriendlyTargetFailure: {

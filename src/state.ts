@@ -114,6 +114,7 @@ export interface BattleStateSchema {
   readonly round: BattleStateRound | null;
   readonly selectedAbilityIndex: number | null;
   readonly selectedItemInstanceIndex: number | null;
+  readonly teamIndex: 0 | 1;
   readonly type: BattleType;
   readonly unbindStartedAt: number | null;
 }

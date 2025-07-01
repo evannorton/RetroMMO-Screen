@@ -1,10 +1,55 @@
-import { BattleType } from "retrommo-types";
+import { BattleDefeatEvent, BattleEventType, BattleType } from "retrommo-types";
+import { BattleStateRoundEventInstance, state } from "../state";
 import { MusicTrack } from "../classes/MusicTrack";
 import { Reachable } from "../classes/Reachable";
 import { getDefinable } from "definables";
 import { musicVolumeChannelID } from "../volumeChannels";
 import { playAudioSource, stopAudioSource } from "pixel-pigeon";
-import { state } from "../state";
+
+const getMusicTrackID = (): string | null => {
+  if (state.values.battleState !== null) {
+    if (
+      state.values.serverTime !== null &&
+      state.values.battleState.values.round !== null
+    ) {
+      const elapsedServerTime: number =
+        state.values.serverTime -
+        state.values.battleState.values.round.serverTime;
+      const eventInstance: BattleStateRoundEventInstance | undefined =
+        state.values.battleState.values.round.eventInstances.find(
+          (battleEventInstance: BattleStateRoundEventInstance): boolean =>
+            elapsedServerTime >= battleEventInstance.event.startedAt &&
+            battleEventInstance.isProcessed === false,
+        );
+      if (
+        typeof eventInstance !== "undefined" &&
+        eventInstance.event.type === BattleEventType.Defeat
+      ) {
+        const defeatEvent: BattleDefeatEvent =
+          eventInstance.event as BattleDefeatEvent;
+        if (
+          defeatEvent.winningTeamIndex ===
+          state.values.battleState.values.teamIndex
+        ) {
+          return "victory";
+        }
+        return "defeat";
+      }
+    }
+    const reachable: Reachable = getDefinable(
+      Reachable,
+      state.values.battleState.values.reachableID,
+    );
+    switch (state.values.battleState.values.type) {
+      case BattleType.Boss:
+      case BattleType.Encounter:
+        return reachable.pveMusicTrackID;
+      case BattleType.Duel:
+        return "square-up-adventurer-showdown";
+    }
+  }
+  return null;
+};
 
 export const playMusic = (): void => {
   if (state.values.musicTrackID !== null) {
@@ -14,31 +59,15 @@ export const playMusic = (): void => {
     );
     stopAudioSource(musicTrack.audioPath);
   }
-  if (state.values.battleState !== null) {
-    const reachable: Reachable = getDefinable(
-      Reachable,
-      state.values.battleState.values.reachableID,
-    );
-    let musicTrackID: string | null = null;
-    switch (state.values.battleState.values.type) {
-      case BattleType.Boss:
-      case BattleType.Encounter:
-        musicTrackID = reachable.pveMusicTrackID;
-        break;
-      case BattleType.Duel:
-        musicTrackID = "square-up-adventurer-showdown";
-        break;
-    }
+  const musicTrackID: string | null = getMusicTrackID();
+  if (musicTrackID !== null) {
     const musicTrack: MusicTrack = getDefinable(MusicTrack, musicTrackID);
-    if (musicTrack.hasLoopPoint() === false) {
-      throw new Error("Battle music must have a loop point");
-    }
     playAudioSource(musicTrack.audioPath, {
-      loopPoint: musicTrack.loopPoint,
+      loopPoint: musicTrack.hasLoopPoint() ? musicTrack.loopPoint : undefined,
       volumeChannelID: musicVolumeChannelID,
     });
-    state.setValues({
-      musicTrackID,
-    });
   }
+  state.setValues({
+    musicTrackID,
+  });
 };

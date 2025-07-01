@@ -30,6 +30,7 @@ import { getBattlerResourcePool } from "./functions/battle/getBattlerResourcePoo
 import { getConstants } from "./functions/getConstants";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
+import { playMusic } from "./functions/playMusic";
 import { serverTimeUpdateInterval } from "./constants";
 import { sfxVolumeChannelID } from "./volumeChannels";
 import { state } from "./state";
@@ -192,7 +193,6 @@ export const tick = (): void => {
             elapsedServerTime >= eventInstance.event.startedAt &&
             eventInstance.isProcessed === false
           ) {
-            eventInstance.isProcessed = true;
             switch (eventInstance.event.type) {
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
@@ -253,6 +253,10 @@ export const tick = (): void => {
                       break;
                   }
                 }
+                break;
+              }
+              case BattleEventType.Defeat: {
+                playMusic();
                 break;
               }
               case BattleEventType.FriendlyTargetFailure: {
@@ -403,6 +407,7 @@ export const tick = (): void => {
                 break;
               }
             }
+            eventInstance.isProcessed = true;
           }
         }
       }
