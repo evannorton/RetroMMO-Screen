@@ -8,6 +8,7 @@ import {
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { createImage } from "./createImage";
+import { getFormattedInteger } from "../../getFormattedInteger";
 
 export interface CreateResourceBarOptions {
   readonly condition?: () => boolean;
@@ -102,7 +103,7 @@ export const createResourceBar = ({
       },
       horizontalAlignment: "right",
       text: (): CreateLabelOptionsText => ({
-        value: String(typeof value === "number" ? value : value()),
+        value: getFormattedInteger(typeof value === "number" ? value : value()),
       }),
     }),
   );

@@ -7,7 +7,9 @@ import {
   BattleDeathEvent,
   BattleDefeatEvent,
   BattleEventType,
+  BattleExperienceEvent,
   BattleFriendlyTargetFailureEvent,
+  BattleGoldEvent,
   BattleHealEvent,
   BattleImpactAlignment,
   BattleInstakillEvent,
@@ -112,6 +114,7 @@ import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairD
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
+import { getFormattedInteger } from "../../getFormattedInteger";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
 import { isBattleMultiplayer } from "../../battle/isBattleMultiplayer";
 
@@ -2120,7 +2123,7 @@ export const createBattleUI = ({
       text: (): CreateLabelOptionsText => {
         const ability: Ability = getSelectedAbility();
         return {
-          value: `${ability.mpCost} MP`,
+          value: `${getFormattedInteger(ability.mpCost)} MP`,
         };
       },
     }),
@@ -2397,6 +2400,7 @@ export const createBattleUI = ({
                     roundBattleEventInstance.event.duration,
             );
           if (typeof battleEventInstance !== "undefined") {
+            const battler: Battler = getBattler();
             switch (battleEventInstance.event.type) {
               case BattleEventType.Approach:
                 return {
@@ -2445,6 +2449,32 @@ export const createBattleUI = ({
                   value: "You are defeated...",
                 };
               }
+              case BattleEventType.Experience: {
+                const experienceBattleEvent: BattleExperienceEvent =
+                  battleEventInstance.event as BattleExperienceEvent;
+                return {
+                  value: `You gain ${getFormattedInteger(
+                    experienceBattleEvent.amount,
+                  )} experience.`,
+                };
+              }
+              case BattleEventType.Gold: {
+                const goldBattleEvent: BattleGoldEvent =
+                  battleEventInstance.event as BattleGoldEvent;
+                return {
+                  value: `You ${
+                    goldBattleEvent.winningTeamIndex ===
+                    battleState.values.teamIndex
+                      ? "find"
+                      : "lose"
+                  } ${
+                    goldBattleEvent.winningTeamIndex ===
+                    battleState.values.teamIndex
+                      ? getFormattedInteger(goldBattleEvent.amount)
+                      : battler.gold
+                  } gold.`,
+                };
+              }
               case BattleEventType.FriendlyTargetFailure: {
                 const friendlyTargetFailureBattleEvent: BattleFriendlyTargetFailureEvent =
                   battleEventInstance.event as BattleFriendlyTargetFailureEvent;
@@ -2456,7 +2486,11 @@ export const createBattleUI = ({
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
                 return {
-                  value: `${damageBattleEvent.target.name} recovers ${damageBattleEvent.amount} HP.`,
+                  value: `${
+                    damageBattleEvent.target.name
+                  } recovers ${getFormattedInteger(
+                    damageBattleEvent.amount,
+                  )} HP.`,
                 };
               }
               case BattleEventType.Instakill: {
@@ -2473,7 +2507,11 @@ export const createBattleUI = ({
                 const rejuvenateEvent: BattleRejuvenateEvent =
                   battleEventInstance.event as BattleRejuvenateEvent;
                 return {
-                  value: `${rejuvenateEvent.target.name} recovers ${rejuvenateEvent.amount} MP.`,
+                  value: `${
+                    rejuvenateEvent.target.name
+                  } recovers ${getFormattedInteger(
+                    rejuvenateEvent.amount,
+                  )} MP.`,
                 };
               }
               case BattleEventType.UseAbility: {
