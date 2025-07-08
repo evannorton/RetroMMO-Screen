@@ -8,6 +8,9 @@ import {
 import { DefinableReference } from "definables";
 import { HUDElementReferences, State } from "pixel-pigeon";
 
+export interface CreateBattleStateOptionsSelection {
+  readonly serverTime: number;
+}
 export interface CreateBattleStateOptionsRound {
   readonly events: readonly BattleEvent[];
   readonly serverTime: number;
@@ -28,6 +31,7 @@ export interface CreateBattleStateOptions {
   readonly phase: BattlePhase;
   readonly reachableID: string;
   readonly round?: CreateBattleStateOptionsRound;
+  readonly selection?: CreateBattleStateOptionsSelection;
   readonly teamIndex: 0 | 1;
   readonly type: BattleType;
 }
@@ -43,13 +47,12 @@ export const createBattleState = ({
   phase,
   reachableID,
   round,
+  selection,
   teamIndex,
   type,
 }: CreateBattleStateOptions): State<BattleStateSchema> =>
   new State<BattleStateSchema>({
-    abilitiesPage: 0,
     battlerID,
-    bindAction: null,
     enemyBattlerIDs,
     enemyBattlersCount,
     friendlyBattlerIDs,
@@ -62,11 +65,7 @@ export const createBattleState = ({
     ),
     hudElementReferences,
     impactAnimationSpriteIDs: [],
-    itemInstanceIDs,
-    itemsPage: 0,
-    menuState: BattleMenuState.Default,
     phase,
-    queuedAction: null,
     reachableID,
     round:
       typeof round !== "undefined"
@@ -80,9 +79,21 @@ export const createBattleState = ({
             serverTime: round.serverTime,
           }
         : null,
-    selectedAbilityIndex: null,
-    selectedItemInstanceIndex: null,
+    selection:
+      typeof selection !== "undefined"
+        ? {
+            abilitiesPage: 0,
+            bindAction: null,
+            itemInstanceIDs,
+            itemsPage: 0,
+            menuState: BattleMenuState.Default,
+            queuedAction: null,
+            selectedAbilityIndex: null,
+            selectedItemInstanceIndex: null,
+            serverTime: selection.serverTime,
+            unbindStartedAt: null,
+          }
+        : null,
     teamIndex,
     type,
-    unbindStartedAt: null,
   });

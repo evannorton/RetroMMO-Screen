@@ -32,6 +32,11 @@ export const listenForBattleUpdates = (): void => {
     event: "battle/bind-ability",
     onMessage: (update: BattleBindAbilityUpdate): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error(
+          "BattleBindAbilityUpdate: Selection is null, but should not be",
+        );
+      }
       const filteredHotkeys: readonly BattleStateHotkey[] =
         battleState.values.hotkeys.filter(
           (hotkey: BattleStateHotkey): boolean => hotkey.index !== update.index,
@@ -54,6 +59,11 @@ export const listenForBattleUpdates = (): void => {
     event: "battle/bind-item",
     onMessage: (update: BattleBindItemUpdate): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error(
+          "BattleBindItemUpdate: Selection is null, but should not be",
+        );
+      }
       const filteredHotkeys: readonly BattleStateHotkey[] =
         battleState.values.hotkeys.filter(
           (hotkey: BattleStateHotkey): boolean => hotkey.index !== update.index,
@@ -90,12 +100,23 @@ export const listenForBattleUpdates = (): void => {
       }
       const battleState: State<BattleStateSchema> = getBattleState();
       battleState.setValues({
-        itemInstanceIDs: update.itemInstances.map(
-          (itemInstanceUpdate: ItemInstanceUpdate): string =>
-            itemInstanceUpdate.itemInstanceID,
-        ),
         phase: BattlePhase.Selection,
         round: null,
+        selection: {
+          abilitiesPage: 0,
+          bindAction: null,
+          itemInstanceIDs: update.itemInstances.map(
+            (itemInstanceUpdate: ItemInstanceUpdate): string =>
+              itemInstanceUpdate.itemInstanceID,
+          ),
+          itemsPage: 0,
+          menuState: BattleMenuState.Default,
+          queuedAction: null,
+          selectedAbilityIndex: null,
+          selectedItemInstanceIndex: null,
+          serverTime: update.selection.serverTime,
+          unbindStartedAt: null,
+        },
       });
       for (const battlerUpdate of update.battlers) {
         const battler: Battler = getDefinable(Battler, battlerUpdate.id);
@@ -120,13 +141,16 @@ export const listenForBattleUpdates = (): void => {
     event: "battle/submit-ability",
     onMessage: (update: BattleSubmitAbilityUpdate): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error(
+          "BattleSubmitAbilityUpdate: Selection is null, but should not be",
+        );
+      }
       loadBattleSubmittedAbilityUpdate(update.submittedAbility);
       if (
         update.submittedAbility.casterBattlerID === battleState.values.battlerID
       ) {
-        battleState.setValues({
-          queuedAction: null,
-        });
+        battleState.values.selection.queuedAction = null;
       }
     },
   });
@@ -138,12 +162,7 @@ export const listenForBattleUpdates = (): void => {
       }
       const battleState: State<BattleStateSchema> = getBattleState();
       battleState.setValues({
-        abilitiesPage: 0,
-        bindAction: null,
-        itemsPage: 0,
-        menuState: BattleMenuState.Default,
         phase: BattlePhase.Round,
-        queuedAction: null,
         round: {
           eventInstances: update.round.events.map(
             (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
@@ -153,9 +172,7 @@ export const listenForBattleUpdates = (): void => {
           ),
           serverTime: update.round.serverTime,
         },
-        selectedAbilityIndex: null,
-        selectedItemInstanceIndex: null,
-        unbindStartedAt: null,
+        selection: null,
       });
     },
   });
@@ -163,13 +180,16 @@ export const listenForBattleUpdates = (): void => {
     event: "battle/submit-item",
     onMessage: (update: BattleSubmitItemUpdate): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error(
+          "BattleSubmitItemUpdate: Selection is null, but should not be",
+        );
+      }
       loadBattleSubmittedItemUpdate(update.submittedItem);
       if (
         update.submittedItem.casterBattlerID === battleState.values.battlerID
       ) {
-        battleState.setValues({
-          queuedAction: null,
-        });
+        battleState.values.selection.queuedAction = null;
       }
     },
   });
@@ -177,12 +197,17 @@ export const listenForBattleUpdates = (): void => {
     event: "battle/unbind-hotkey",
     onMessage: (update: BattleUnbindHotkeyUpdate): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error(
+          "BattleUnbindHotkeyUpdate: Selection is null, but should not be",
+        );
+      }
       battleState.setValues({
         hotkeys: battleState.values.hotkeys.filter(
           (hotkey: BattleStateHotkey): boolean => hotkey.index !== update.index,
         ),
-        unbindStartedAt: null,
       });
+      battleState.values.selection.unbindStartedAt = null;
     },
   });
 };

@@ -490,6 +490,12 @@ export const listenForUpdates = (): void => {
                       serverTime: update.battle.round.serverTime,
                     }
                   : undefined,
+              selection:
+                typeof update.battle.selection !== "undefined"
+                  ? {
+                      serverTime: update.battle.selection.serverTime,
+                    }
+                  : undefined,
               teamIndex: update.battle.teamIndex,
               type: update.battle.battleType,
             }),

@@ -77,6 +77,18 @@ export interface BattleStateRound {
   readonly eventInstances: readonly BattleStateRoundEventInstance[];
   readonly serverTime: number;
 }
+export interface BattleStateSelection {
+  abilitiesPage: number;
+  bindAction: BattleStateBindAction | null;
+  itemInstanceIDs: readonly string[];
+  itemsPage: number;
+  menuState: BattleMenuState;
+  queuedAction: BattleStateQueuedAction | null;
+  selectedAbilityIndex: number | null;
+  selectedItemInstanceIndex: number | null;
+  readonly serverTime: number;
+  unbindStartedAt: number | null;
+}
 export interface BattleStateQueuedAction {
   readonly actionDefinableReference: DefinableReference;
   readonly queuedAt: number;
@@ -95,9 +107,7 @@ export interface BattleStateHotkey {
   readonly index: number;
 }
 export interface BattleStateSchema {
-  readonly abilitiesPage: number;
   readonly battlerID: string;
-  readonly bindAction: BattleStateBindAction | null;
   readonly enemyBattlerIDs: readonly string[];
   readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];
@@ -105,18 +115,12 @@ export interface BattleStateSchema {
   readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly impactAnimationSpriteIDs: readonly string[];
-  readonly itemInstanceIDs: readonly string[];
-  readonly itemsPage: number;
-  readonly menuState: BattleMenuState;
   readonly phase: BattlePhase;
-  readonly queuedAction: BattleStateQueuedAction | null;
   readonly reachableID: string;
   readonly round: BattleStateRound | null;
-  readonly selectedAbilityIndex: number | null;
-  readonly selectedItemInstanceIndex: number | null;
+  readonly selection: BattleStateSelection | null;
   readonly teamIndex: 0 | 1;
   readonly type: BattleType;
-  readonly unbindStartedAt: number | null;
 }
 export interface StateSchema {
   readonly battleState: State<BattleStateSchema> | null;

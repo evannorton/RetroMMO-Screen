@@ -122,23 +122,28 @@ const getBattler = (): Battler =>
   getDefinable(Battler, getBattleState().values.battlerID);
 const getQueuedAction = (): Ability | ItemInstance => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.queuedAction === null) {
+  if (battleState.values.selection === null) {
     throw new Error("queuedAction is null");
   }
-  switch (battleState.values.queuedAction.actionDefinableReference.className) {
+  if (battleState.values.selection.queuedAction === null) {
+    throw new Error("queuedAction is null");
+  }
+  switch (
+    battleState.values.selection.queuedAction.actionDefinableReference.className
+  ) {
     case "Ability":
       return getDefinable(
         Ability,
-        battleState.values.queuedAction.actionDefinableReference.id,
+        battleState.values.selection.queuedAction.actionDefinableReference.id,
       );
     case "ItemInstance":
       return getDefinable(
         ItemInstance,
-        battleState.values.queuedAction.actionDefinableReference.id,
+        battleState.values.selection.queuedAction.actionDefinableReference.id,
       );
     default:
       throw new Error(
-        `queuedAction.actionDefinableReference.className is not a valid class name: ${battleState.values.queuedAction.actionDefinableReference.className}`,
+        `queuedAction.actionDefinableReference.className is not a valid class name: ${battleState.values.selection.queuedAction.actionDefinableReference.className}`,
       );
   }
 };
@@ -175,18 +180,19 @@ const useAction = (battlerID?: string): void => {
 const useAbility = (battlerID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const ability: Ability = getDefinable(Ability, battlerID);
-  battleState.setValues({
-    abilitiesPage: 0,
-    bindAction: null,
-    itemsPage: 0,
-    menuState: BattleMenuState.Default,
-    queuedAction: {
-      actionDefinableReference: ability.getReference(),
-      queuedAt: getCurrentTime(),
-    },
-    selectedAbilityIndex: null,
-    selectedItemInstanceIndex: null,
-  });
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  battleState.values.selection.abilitiesPage = 0;
+  battleState.values.selection.bindAction = null;
+  battleState.values.selection.itemsPage = 0;
+  battleState.values.selection.menuState = BattleMenuState.Default;
+  battleState.values.selection.queuedAction = {
+    actionDefinableReference: ability.getReference(),
+    queuedAt: getCurrentTime(),
+  };
+  battleState.values.selection.selectedAbilityIndex = null;
+  battleState.values.selection.selectedItemInstanceIndex = null;
   switch (ability.targetType) {
     case TargetType.AllAllies:
     case TargetType.AllEnemies:
@@ -199,18 +205,19 @@ const useAbility = (battlerID: string): void => {
 const useItemInstance = (itemInstanceID: string): void => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const itemInstance: ItemInstance = getDefinable(ItemInstance, itemInstanceID);
-  battleState.setValues({
-    abilitiesPage: 0,
-    bindAction: null,
-    itemsPage: 0,
-    menuState: BattleMenuState.Default,
-    queuedAction: {
-      actionDefinableReference: itemInstance.getReference(),
-      queuedAt: getCurrentTime(),
-    },
-    selectedAbilityIndex: null,
-    selectedItemInstanceIndex: null,
-  });
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  battleState.values.selection.abilitiesPage = 0;
+  battleState.values.selection.bindAction = null;
+  battleState.values.selection.itemsPage = 0;
+  battleState.values.selection.menuState = BattleMenuState.Default;
+  battleState.values.selection.queuedAction = {
+    actionDefinableReference: itemInstance.getReference(),
+    queuedAt: getCurrentTime(),
+  };
+  battleState.values.selection.selectedAbilityIndex = null;
+  battleState.values.selection.selectedItemInstanceIndex = null;
   switch (itemInstance.item.ability.targetType) {
     case TargetType.AllAllies:
     case TargetType.AllEnemies:
@@ -222,7 +229,10 @@ const useItemInstance = (itemInstanceID: string): void => {
 };
 const isTargeting = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.queuedAction !== null) {
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  if (battleState.values.selection.queuedAction !== null) {
     const ability: Ability = getQueuedActionAbility();
     switch (ability.targetType) {
       case TargetType.SingleAlly:
@@ -266,12 +276,13 @@ const pageAbilities = (offset: number): void => {
     pages.push(i);
   }
   const battleState: State<BattleStateSchema> = getBattleState();
-  battleState.setValues({
-    abilitiesPage: getCyclicIndex(
-      pages.indexOf(battleState.values.abilitiesPage) + offset,
-      pages,
-    ),
-  });
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  battleState.values.selection.abilitiesPage = getCyclicIndex(
+    pages.indexOf(battleState.values.selection.abilitiesPage) + offset,
+    pages,
+  );
 };
 const getAbility = (i: number): Ability => {
   const abilityIDs: readonly string[] = getAbilityIDs();
@@ -284,8 +295,11 @@ const getAbility = (i: number): Ability => {
 const getPaginatedAbilityIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const abilityIDs: readonly string[] = getAbilityIDs();
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
   const startIndex: number =
-    battleState.values.abilitiesPage * battleAbilitiesPerPage;
+    battleState.values.selection.abilitiesPage * battleAbilitiesPerPage;
   const endIndex: number =
     startIndex + battleAbilitiesPerPage > abilityIDs.length
       ? abilityIDs.length
@@ -306,21 +320,33 @@ const hasPaginatedAbility = (i: number): boolean => {
 };
 const selectedAbilityCondition = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  return (
-    battleState.values.menuState === BattleMenuState.Abilities &&
-    battleState.values.selectedAbilityIndex !== null
-  );
+  if (battleState.values.phase === BattlePhase.Selection) {
+    if (battleState.values.selection === null) {
+      throw new Error("selection is null");
+    }
+    return (
+      battleState.values.selection.menuState === BattleMenuState.Abilities &&
+      battleState.values.selection.selectedAbilityIndex !== null
+    );
+  }
+  return false;
 };
 const getSelectedAbility = (): Ability => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.selectedAbilityIndex === null) {
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  if (battleState.values.selection.selectedAbilityIndex === null) {
     throw new Error("selectedAbilityIndex is null");
   }
-  return getAbility(battleState.values.selectedAbilityIndex);
+  return getAbility(battleState.values.selection.selectedAbilityIndex);
 };
 const getItemInstanceIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  return battleState.values.itemInstanceIDs;
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  return battleState.values.selection.itemInstanceIDs;
 };
 const getLastItemsPage = (): number =>
   Math.max(
@@ -333,12 +359,13 @@ const pageItems = (offset: number): void => {
     pages.push(i);
   }
   const battleState: State<BattleStateSchema> = getBattleState();
-  battleState.setValues({
-    itemsPage: getCyclicIndex(
-      pages.indexOf(battleState.values.itemsPage) + offset,
-      pages,
-    ),
-  });
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  battleState.values.selection.itemsPage = getCyclicIndex(
+    pages.indexOf(battleState.values.selection.itemsPage) + offset,
+    pages,
+  );
 };
 const getItemInstance = (i: number): ItemInstance => {
   const itemInstanceIDs: readonly string[] = getItemInstanceIDs();
@@ -351,7 +378,11 @@ const getItemInstance = (i: number): ItemInstance => {
 const getPaginatedItemInstanceIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const itemInstanceIDs: readonly string[] = getItemInstanceIDs();
-  const startIndex: number = battleState.values.itemsPage * battleItemsPerPage;
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  const startIndex: number =
+    battleState.values.selection.itemsPage * battleItemsPerPage;
   const endIndex: number =
     startIndex + battleItemsPerPage > itemInstanceIDs.length
       ? itemInstanceIDs.length
@@ -372,30 +403,50 @@ const hasPaginatedItemInstance = (i: number): boolean => {
 };
 const selectedItemInstanceCondition = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  return (
-    battleState.values.menuState === BattleMenuState.Items &&
-    battleState.values.selectedItemInstanceIndex !== null
-  );
+  if (battleState.values.phase === BattlePhase.Selection) {
+    if (battleState.values.selection === null) {
+      throw new Error("selection is null");
+    }
+    return (
+      battleState.values.selection.menuState === BattleMenuState.Items &&
+      battleState.values.selection.selectedItemInstanceIndex !== null
+    );
+  }
+  return false;
 };
 const getSelectedItemInstance = (): ItemInstance => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.selectedItemInstanceIndex === null) {
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  if (battleState.values.selection.selectedItemInstanceIndex === null) {
     throw new Error("selectedItemInstanceIndex is null");
   }
-  return getItemInstance(battleState.values.selectedItemInstanceIndex);
+  return getItemInstance(
+    battleState.values.selection.selectedItemInstanceIndex,
+  );
 };
 const isBindingHotkey = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  return battleState.values.bindAction !== null;
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  return battleState.values.selection.bindAction !== null;
 };
 const isUnbindingHotkey = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  return battleState.values.unbindStartedAt !== null;
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  return battleState.values.selection.unbindStartedAt !== null;
 };
 const areBindHotkeyLabelsVisible = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
   const bindAction: BattleStateBindAction | null =
-    battleState.values.bindAction;
+    battleState.values.selection.bindAction;
   if (bindAction === null) {
     throw new Error("bindAction is null");
   }
@@ -406,10 +457,14 @@ const areBindHotkeyLabelsVisible = (): boolean => {
 };
 const areUnbindHotkeyLabelsVisible = (): boolean => {
   const battleState: State<BattleStateSchema> = getBattleState();
-  if (battleState.values.unbindStartedAt === null) {
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  if (battleState.values.selection.unbindStartedAt === null) {
     throw new Error("unbindStartedAt is null");
   }
-  const diff: number = getCurrentTime() - battleState.values.unbindStartedAt;
+  const diff: number =
+    getCurrentTime() - battleState.values.selection.unbindStartedAt;
   const amount: number = diff % (hotkeyLabelBlinkDuration * 2);
   return amount < hotkeyLabelBlinkDuration;
 };
@@ -549,6 +604,7 @@ export const createBattleUI = ({
       createButton({
         coordinates: {
           condition: (): boolean =>
+            getBattleState().values.phase === BattlePhase.Selection &&
             isTargeting() &&
             getQueuedActionAbility().targetType === TargetType.SingleAlly,
           x: 73 + i * 81,
@@ -602,15 +658,22 @@ export const createBattleUI = ({
     );
     // Battler ability target
     const targetCondition = (): boolean => {
-      if (isTargeting()) {
+      if (
+        getBattleState().values.phase === BattlePhase.Selection &&
+        isTargeting()
+      ) {
         const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.queuedAction === null) {
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        if (battleState.values.selection.queuedAction === null) {
           throw new Error("queuedAction is null");
         }
         const ability: Ability = getQueuedActionAbility();
         if (ability.targetType === TargetType.SingleAlly) {
           return (
-            ((getCurrentTime() - battleState.values.queuedAction.queuedAt) %
+            ((getCurrentTime() -
+              battleState.values.selection.queuedAction.queuedAt) %
               targetBlinkDuration) *
               2 <
             targetBlinkDuration
@@ -703,7 +766,10 @@ export const createBattleUI = ({
     inputPressHandlerIDs.push(
       createInputPressHandler({
         condition: (): boolean => {
-          if (isTargeting()) {
+          if (
+            getBattleState().values.phase === BattlePhase.Selection &&
+            isTargeting()
+          ) {
             const ability: Ability = getQueuedActionAbility();
             return ability.targetType === TargetType.SingleAlly;
           }
@@ -1010,7 +1076,11 @@ export const createBattleUI = ({
       createButton({
         coordinates: {
           condition: (): boolean => {
-            if (getEnemyBattler().isAlive && isTargeting()) {
+            if (
+              getBattleState().values.phase === BattlePhase.Selection &&
+              getEnemyBattler().isAlive &&
+              isTargeting()
+            ) {
               const ability: Ability = getQueuedActionAbility();
               return ability.targetType === TargetType.SingleEnemy;
             }
@@ -1159,15 +1229,23 @@ export const createBattleUI = ({
     );
     // Enemy targetting number
     const targetingNumberCondition = (): boolean => {
-      if (getEnemyBattler().isAlive && isTargeting()) {
+      if (
+        getBattleState().values.phase === BattlePhase.Selection &&
+        getEnemyBattler().isAlive &&
+        isTargeting()
+      ) {
         const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.queuedAction === null) {
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        if (battleState.values.selection.queuedAction === null) {
           throw new Error("queuedAction is null");
         }
         const ability: Ability = getQueuedActionAbility();
         if (ability.targetType === TargetType.SingleEnemy) {
           return (
-            ((getCurrentTime() - battleState.values.queuedAction.queuedAt) %
+            ((getCurrentTime() -
+              battleState.values.selection.queuedAction.queuedAt) %
               targetBlinkDuration) *
               2 <
             targetBlinkDuration
@@ -1206,7 +1284,11 @@ export const createBattleUI = ({
     inputPressHandlerIDs.push(
       createInputPressHandler({
         condition: (): boolean => {
-          if (getEnemyBattler().isAlive && isTargeting()) {
+          if (
+            getBattleState().values.phase === BattlePhase.Selection &&
+            getEnemyBattler().isAlive &&
+            isTargeting()
+          ) {
             const ability: Ability = getQueuedActionAbility();
             return ability.targetType === TargetType.SingleEnemy;
           }
@@ -1262,6 +1344,9 @@ export const createBattleUI = ({
     const [inputCollectionID, label] = hotkeyData;
     const isSlotFilled = (): boolean => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
       const hotkey: BattleStateHotkey | undefined =
         battleState.values.hotkeys.find(
           (battleHotkey: BattleStateHotkey): boolean =>
@@ -1271,6 +1356,9 @@ export const createBattleUI = ({
     };
     const getSlotHotkey = (): BattleStateHotkey => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
       const hotkey: BattleStateHotkey | undefined =
         battleState.values.hotkeys.find(
           (battleHotkey: BattleStateHotkey): boolean =>
@@ -1283,6 +1371,9 @@ export const createBattleUI = ({
     };
     const canUseHotkey = (): boolean => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
       const hotkey: BattleStateHotkey = getSlotHotkey();
       switch (hotkey.hotkeyableDefinableReference.className) {
         case "Ability": {
@@ -1299,7 +1390,7 @@ export const createBattleUI = ({
             hotkey.hotkeyableDefinableReference.id,
           );
           return (
-            battleState.values.itemInstanceIDs.some(
+            battleState.values.selection.itemInstanceIDs.some(
               (battleItemInstanceID: string): boolean =>
                 getDefinable(ItemInstance, battleItemInstanceID).itemID ===
                 item.id,
@@ -1314,17 +1405,22 @@ export const createBattleUI = ({
     };
     const bindHotkey = (): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
-      if (battleState.values.bindAction === null) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      if (battleState.values.selection.bindAction === null) {
         throw new Error("bindAction is null");
       }
       switch (
-        battleState.values.bindAction.hotkeyableDefinableReference.className
+        battleState.values.selection.bindAction.hotkeyableDefinableReference
+          .className
       ) {
         case "Ability":
           emitToSocketioServer<BattleBindAbilityRequest>({
             data: {
               abilityID:
-                battleState.values.bindAction.hotkeyableDefinableReference.id,
+                battleState.values.selection.bindAction
+                  .hotkeyableDefinableReference.id,
               index: i,
             },
             event: "battle/bind-ability",
@@ -1335,16 +1431,15 @@ export const createBattleUI = ({
             data: {
               index: i,
               itemID:
-                battleState.values.bindAction.hotkeyableDefinableReference.id,
+                battleState.values.selection.bindAction
+                  .hotkeyableDefinableReference.id,
             },
             event: "battle/bind-item",
           });
           break;
         }
       }
-      battleState.setValues({
-        bindAction: null,
-      });
+      battleState.values.selection.bindAction = null;
     };
     const unbindHotkey = (): void => {
       emitToSocketioServer<BattleUnbindHotkeyRequest>({
@@ -1356,6 +1451,9 @@ export const createBattleUI = ({
     };
     const useHotkey = (): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
       const hotkey: BattleStateHotkey = getSlotHotkey();
       switch (hotkey.hotkeyableDefinableReference.className) {
         case "Ability":
@@ -1363,7 +1461,7 @@ export const createBattleUI = ({
           break;
         case "Item": {
           const itemInstanceID: string | undefined = [
-            ...battleState.values.itemInstanceIDs,
+            ...battleState.values.selection.itemInstanceIDs,
           ]
             .reverse()
             .find(
@@ -1426,16 +1524,23 @@ export const createBattleUI = ({
       createButton({
         coordinates: {
           condition: (): boolean => {
-            const battler: Battler = getBattler();
-            return (
-              getBattleState().values.phase === BattlePhase.Selection &&
-              getBattleState().values.menuState === BattleMenuState.Default &&
-              ((isSlotFilled() && (canUseHotkey() || isUnbindingHotkey())) ||
-                isBindingHotkey()) &&
-              isTargeting() === false &&
-              battler.resources.hp > 0 &&
-              battler.battleCharacter.hasSubmittedMove() === false
-            );
+            const battleState: State<BattleStateSchema> = getBattleState();
+            if (battleState.values.phase === BattlePhase.Selection) {
+              const battler: Battler = getBattler();
+              if (battleState.values.selection === null) {
+                throw new Error("selection is null");
+              }
+              return (
+                battleState.values.selection.menuState ===
+                  BattleMenuState.Default &&
+                ((isSlotFilled() && (canUseHotkey() || isUnbindingHotkey())) ||
+                  isBindingHotkey()) &&
+                isTargeting() === false &&
+                battler.resources.hp > 0 &&
+                battler.battleCharacter.hasSubmittedMove() === false
+              );
+            }
+            return false;
           },
           x: 68 + i * 18,
           y: 179,
@@ -1514,17 +1619,23 @@ export const createBattleUI = ({
     inputPressHandlerIDs.push(
       createInputPressHandler({
         condition: (): boolean => {
-          const battler: Battler = getBattler();
-          return (
-            getBattleState().values.phase === BattlePhase.Selection &&
-            getBattleState().values.menuState === BattleMenuState.Default &&
-            ((isSlotFilled() && canUseHotkey()) ||
-              isBindingHotkey() ||
-              isUnbindingHotkey()) &&
-            isTargeting() === false &&
-            battler.resources.hp > 0 &&
-            battler.battleCharacter.hasSubmittedMove() === false
-          );
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            const battler: Battler = getBattler();
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return (
+              battleState.values.selection.menuState ===
+                BattleMenuState.Default &&
+              ((isSlotFilled() && (canUseHotkey() || isUnbindingHotkey())) ||
+                isBindingHotkey()) &&
+              isTargeting() === false &&
+              battler.resources.hp > 0 &&
+              battler.battleCharacter.hasSubmittedMove() === false
+            );
+          }
+          return false;
         },
         inputCollectionID,
         onInput: (): void => {
@@ -1543,25 +1654,34 @@ export const createBattleUI = ({
   hudElementReferences.push(
     createImage({
       condition: (): boolean => {
-        const battler: Battler = getBattler();
-        return (
-          getBattleState().values.phase === BattlePhase.Selection &&
-          getBattleState().values.menuState === BattleMenuState.Default &&
-          battler.resources.hp > 0 &&
-          battler.battleCharacter.hasSubmittedMove() === false
-        );
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          const battler: Battler = getBattler();
+          return (
+            battleState.values.selection.menuState ===
+              BattleMenuState.Default &&
+            battler.resources.hp > 0 &&
+            battler.battleCharacter.hasSubmittedMove() === false
+          );
+        }
+        return false;
       },
       height: 11,
       imagePath: "x",
       onClick: (): void => {
-        getBattleState().setValues({
-          bindAction: null,
-          menuState: BattleMenuState.Default,
-          queuedAction: null,
-          selectedAbilityIndex: null,
-          selectedItemInstanceIndex: null,
-          unbindStartedAt: getCurrentTime(),
-        });
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        battleState.values.selection.bindAction = null;
+        battleState.values.selection.menuState = BattleMenuState.Default;
+        battleState.values.selection.queuedAction = null;
+        battleState.values.selection.selectedAbilityIndex = null;
+        battleState.values.selection.selectedItemInstanceIndex = null;
+        battleState.values.selection.unbindStartedAt = getCurrentTime();
       },
       width: 10,
       x: 286,
@@ -1571,23 +1691,32 @@ export const createBattleUI = ({
   inputPressHandlerIDs.push(
     createInputPressHandler({
       condition: (): boolean => {
-        const battler: Battler = getBattler();
-        return (
-          getBattleState().values.phase === BattlePhase.Selection &&
-          getBattleState().values.menuState === BattleMenuState.Default &&
-          battler.battleCharacter.hasSubmittedMove() === false
-        );
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          const battler: Battler = getBattler();
+          return (
+            battleState.values.selection.menuState ===
+              BattleMenuState.Default &&
+            battler.battleCharacter.hasSubmittedMove() === false
+          );
+        }
+        return false;
       },
       inputCollectionID: unbindBattleHotkeyInputCollectionID,
       onInput: (): void => {
-        getBattleState().setValues({
-          bindAction: null,
-          menuState: BattleMenuState.Default,
-          queuedAction: null,
-          selectedAbilityIndex: null,
-          selectedItemInstanceIndex: null,
-          unbindStartedAt: getCurrentTime(),
-        });
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        battleState.values.selection.bindAction = null;
+        battleState.values.selection.menuState = BattleMenuState.Default;
+        battleState.values.selection.queuedAction = null;
+        battleState.values.selection.selectedAbilityIndex = null;
+        battleState.values.selection.selectedItemInstanceIndex = null;
+        battleState.values.selection.unbindStartedAt = getCurrentTime();
       },
     }),
   );
@@ -1651,21 +1780,20 @@ export const createBattleUI = ({
   };
   const doAbilityCommand = (): void => {
     const battleState: State<BattleStateSchema> = getBattleState();
-    if (battleState.values.menuState === BattleMenuState.Abilities) {
-      battleState.setValues({
-        abilitiesPage: 0,
-        itemsPage: 0,
-        menuState: BattleMenuState.Default,
-        selectedAbilityIndex: null,
-        selectedItemInstanceIndex: null,
-      });
+    if (battleState.values.selection === null) {
+      throw new Error("selection is null");
+    }
+    if (battleState.values.selection.menuState === BattleMenuState.Abilities) {
+      battleState.values.selection.abilitiesPage = 0;
+      battleState.values.selection.itemsPage = 0;
+      battleState.values.selection.menuState = BattleMenuState.Default;
+      battleState.values.selection.selectedAbilityIndex = null;
+      battleState.values.selection.selectedItemInstanceIndex = null;
     } else {
-      battleState.setValues({
-        bindAction: null,
-        itemsPage: 0,
-        menuState: BattleMenuState.Abilities,
-        selectedItemInstanceIndex: null,
-      });
+      battleState.values.selection.bindAction = null;
+      battleState.values.selection.itemsPage = 0;
+      battleState.values.selection.menuState = BattleMenuState.Abilities;
+      battleState.values.selection.selectedItemInstanceIndex = null;
     }
   };
   hudElementReferences.push(
@@ -1701,21 +1829,20 @@ export const createBattleUI = ({
   };
   const doItemCommand = (): void => {
     const battleState: State<BattleStateSchema> = getBattleState();
-    if (battleState.values.menuState === BattleMenuState.Items) {
-      battleState.setValues({
-        abilitiesPage: 0,
-        itemsPage: 0,
-        menuState: BattleMenuState.Default,
-        selectedAbilityIndex: null,
-        selectedItemInstanceIndex: null,
-      });
+    if (battleState.values.selection === null) {
+      throw new Error("selection is null");
+    }
+    if (battleState.values.selection.menuState === BattleMenuState.Items) {
+      battleState.values.selection.abilitiesPage = 0;
+      battleState.values.selection.itemsPage = 0;
+      battleState.values.selection.menuState = BattleMenuState.Default;
+      battleState.values.selection.selectedAbilityIndex = null;
+      battleState.values.selection.selectedItemInstanceIndex = null;
     } else {
-      battleState.setValues({
-        abilitiesPage: 0,
-        bindAction: null,
-        menuState: BattleMenuState.Items,
-        selectedAbilityIndex: null,
-      });
+      battleState.values.selection.bindAction = null;
+      battleState.values.selection.itemsPage = 0;
+      battleState.values.selection.menuState = BattleMenuState.Items;
+      battleState.values.selection.selectedItemInstanceIndex = null;
     }
   };
   hudElementReferences.push(
@@ -1813,15 +1940,18 @@ export const createBattleUI = ({
   hudElementReferences.push(
     createPressableButton({
       condition: (): boolean =>
-        isTargeting() || isBindingHotkey() || isUnbindingHotkey(),
+        getBattleState().values.phase === BattlePhase.Selection &&
+        (isTargeting() || isBindingHotkey() || isUnbindingHotkey()),
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
-        getBattleState().setValues({
-          bindAction: null,
-          queuedAction: null,
-          unbindStartedAt: null,
-        });
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        battleState.values.selection.bindAction = null;
+        battleState.values.selection.queuedAction = null;
+        battleState.values.selection.unbindStartedAt = null;
       },
       text: { value: "Cancel" },
       width: 49,
@@ -1832,14 +1962,17 @@ export const createBattleUI = ({
   inputPressHandlerIDs.push(
     createInputPressHandler({
       condition: (): boolean =>
-        isTargeting() || isBindingHotkey() || isUnbindingHotkey(),
+        getBattleState().values.phase === BattlePhase.Selection &&
+        (isTargeting() || isBindingHotkey() || isUnbindingHotkey()),
       inputCollectionID: cancelBattleActionInputCollectionID,
       onInput: (): void => {
-        getBattleState().setValues({
-          bindAction: null,
-          queuedAction: null,
-          unbindStartedAt: null,
-        });
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        battleState.values.selection.bindAction = null;
+        battleState.values.selection.queuedAction = null;
+        battleState.values.selection.unbindStartedAt = null;
       },
     }),
   );
@@ -1935,7 +2068,9 @@ export const createBattleUI = ({
     createLabel({
       color: Color.White,
       coordinates: {
-        condition: (): boolean => isTargeting(),
+        condition: (): boolean =>
+          getBattleState().values.phase === BattlePhase.Selection &&
+          isTargeting(),
         x: 276,
         y: 154,
       },
@@ -1960,7 +2095,9 @@ export const createBattleUI = ({
   // Queued action Slot
   hudElementReferences.push(
     createSlot({
-      condition: (): boolean => isTargeting(),
+      condition: (): boolean =>
+        getBattleState().values.phase === BattlePhase.Selection &&
+        isTargeting(),
       icons: [
         {
           imagePath: (): string => {
@@ -1983,8 +2120,18 @@ export const createBattleUI = ({
   // Abilities panel
   hudElementReferences.push(
     createPanel({
-      condition: (): boolean =>
-        getBattleState().values.menuState === BattleMenuState.Abilities,
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.menuState === BattleMenuState.Abilities
+          );
+        }
+        return false;
+      },
       height: 110,
       imagePath: "panels/basic",
       width: 243,
@@ -1997,31 +2144,53 @@ export const createBattleUI = ({
     // Icon list item
     hudElementReferences.push(
       createIconListItem({
-        condition: (): boolean =>
-          getBattleState().values.menuState === BattleMenuState.Abilities &&
-          hasPaginatedAbility(i),
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return (
+              battleState.values.selection.menuState ===
+                BattleMenuState.Abilities && hasPaginatedAbility(i)
+            );
+          }
+          return false;
+        },
         icons: [
           {
             imagePath: (): string => getPaginatedAbility(i).iconImagePath,
           },
         ],
-        isSelected: (): boolean =>
-          getBattleState().values.selectedAbilityIndex ===
-          i + getBattleState().values.abilitiesPage * battleAbilitiesPerPage,
+        isSelected: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.selectedAbilityIndex ===
+            i +
+              battleState.values.selection.abilitiesPage *
+                battleAbilitiesPerPage
+          );
+        },
         onClick: (): void => {
           const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
           if (
-            battleState.values.selectedAbilityIndex ===
-            i + battleState.values.abilitiesPage * battleAbilitiesPerPage
+            battleState.values.selection.selectedAbilityIndex ===
+            i +
+              battleState.values.selection.abilitiesPage *
+                battleAbilitiesPerPage
           ) {
-            battleState.setValues({
-              selectedAbilityIndex: null,
-            });
+            battleState.values.selection.selectedAbilityIndex = null;
           } else {
-            battleState.setValues({
-              selectedAbilityIndex:
-                i + battleState.values.abilitiesPage * battleAbilitiesPerPage,
-            });
+            battleState.values.selection.selectedAbilityIndex =
+              i +
+              battleState.values.selection.abilitiesPage *
+                battleAbilitiesPerPage;
           }
         },
         slotImagePath: "slots/basic",
@@ -2037,9 +2206,20 @@ export const createBattleUI = ({
   // Abilities page up arrow
   hudElementReferences.push(
     createImage({
-      condition: (): boolean =>
-        getBattleState().values.menuState === BattleMenuState.Abilities &&
-        getAbilityIDs().length > battleAbilitiesPerPage,
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.menuState ===
+              BattleMenuState.Abilities &&
+            getAbilityIDs().length > battleAbilitiesPerPage
+          );
+        }
+        return false;
+      },
       height: 16,
       imagePath: "arrows/up",
       onClick: (): void => {
@@ -2055,24 +2235,52 @@ export const createBattleUI = ({
     createLabel({
       color: Color.White,
       coordinates: {
-        condition: (): boolean =>
-          getBattleState().values.menuState === BattleMenuState.Abilities &&
-          getAbilityIDs().length > battleAbilitiesPerPage,
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return (
+              battleState.values.selection.menuState ===
+                BattleMenuState.Abilities &&
+              getAbilityIDs().length > battleAbilitiesPerPage
+            );
+          }
+          return false;
+        },
         x: 194,
         y: 141,
       },
       horizontalAlignment: "center",
-      text: (): CreateLabelOptionsText => ({
-        value: String(getBattleState().values.abilitiesPage + 1),
-      }),
+      text: (): CreateLabelOptionsText => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        return {
+          value: String(battleState.values.selection.abilitiesPage + 1),
+        };
+      },
     }),
   );
   // Abilities page down arrow
   hudElementReferences.push(
     createImage({
-      condition: (): boolean =>
-        getBattleState().values.menuState === BattleMenuState.Abilities &&
-        getAbilityIDs().length > battleAbilitiesPerPage,
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.menuState ===
+              BattleMenuState.Abilities &&
+            getAbilityIDs().length > battleAbilitiesPerPage
+          );
+        }
+        return false;
+      },
       height: 16,
       imagePath: "arrows/down",
       onClick: (): void => {
@@ -2159,15 +2367,16 @@ export const createBattleUI = ({
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         const battleState: State<BattleStateSchema> = getBattleState();
-        battleState.setValues({
-          abilitiesPage: 0,
-          bindAction: {
-            bindStartedAt: getCurrentTime(),
-            hotkeyableDefinableReference: getSelectedAbility().getReference(),
-          },
-          menuState: BattleMenuState.Default,
-          selectedAbilityIndex: null,
-        });
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        battleState.values.selection.abilitiesPage = 0;
+        battleState.values.selection.bindAction = {
+          bindStartedAt: getCurrentTime(),
+          hotkeyableDefinableReference: getSelectedAbility().getReference(),
+        };
+        battleState.values.selection.menuState = BattleMenuState.Default;
+        battleState.values.selection.selectedAbilityIndex = null;
       },
       text: { value: "Bind" },
       width: 34,
@@ -2178,8 +2387,18 @@ export const createBattleUI = ({
   // Items panel
   hudElementReferences.push(
     createPanel({
-      condition: (): boolean =>
-        getBattleState().values.menuState === BattleMenuState.Items,
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.menuState === BattleMenuState.Items
+          );
+        }
+        return false;
+      },
       height: 110,
       imagePath: "panels/basic",
       width: 243,
@@ -2192,32 +2411,48 @@ export const createBattleUI = ({
     // Icon list item
     hudElementReferences.push(
       createIconListItem({
-        condition: (): boolean =>
-          getBattleState().values.menuState === BattleMenuState.Items &&
-          hasPaginatedItemInstance(i),
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return (
+              battleState.values.selection.menuState ===
+                BattleMenuState.Items && hasPaginatedItemInstance(i)
+            );
+          }
+          return false;
+        },
         icons: [
           {
             imagePath: (): string =>
               getPaginatedItemInstance(i).item.iconImagePath,
           },
         ],
-        isSelected: (): boolean =>
-          getBattleState().values.selectedItemInstanceIndex ===
-          i + getBattleState().values.itemsPage * battleItemsPerPage,
+        isSelected: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.selectedItemInstanceIndex ===
+            i + battleState.values.selection.itemsPage * battleItemsPerPage
+          );
+        },
         onClick: (): void => {
           const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
           if (
-            battleState.values.selectedItemInstanceIndex ===
-            i + battleState.values.itemsPage * battleItemsPerPage
+            battleState.values.selection.selectedItemInstanceIndex ===
+            i + battleState.values.selection.itemsPage * battleItemsPerPage
           ) {
-            battleState.setValues({
-              selectedItemInstanceIndex: null,
-            });
+            battleState.values.selection.selectedItemInstanceIndex = null;
           } else {
-            battleState.setValues({
-              selectedItemInstanceIndex:
-                i + battleState.values.itemsPage * battleItemsPerPage,
-            });
+            battleState.values.selection.selectedItemInstanceIndex =
+              i + battleState.values.selection.itemsPage * battleItemsPerPage;
           }
         },
         slotImagePath: "slots/basic",
@@ -2233,9 +2468,19 @@ export const createBattleUI = ({
   // Items page up arrow
   hudElementReferences.push(
     createImage({
-      condition: (): boolean =>
-        getBattleState().values.menuState === BattleMenuState.Items &&
-        getItemInstanceIDs().length > battleItemsPerPage,
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.menuState === BattleMenuState.Items &&
+            getItemInstanceIDs().length > battleItemsPerPage
+          );
+        }
+        return false;
+      },
       height: 16,
       imagePath: "arrows/up",
       onClick: (): void => {
@@ -2251,24 +2496,51 @@ export const createBattleUI = ({
     createLabel({
       color: Color.White,
       coordinates: {
-        condition: (): boolean =>
-          getBattleState().values.menuState === BattleMenuState.Items &&
-          getItemInstanceIDs().length > battleItemsPerPage,
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return (
+              battleState.values.selection.menuState ===
+                BattleMenuState.Items &&
+              getItemInstanceIDs().length > battleItemsPerPage
+            );
+          }
+          return false;
+        },
         x: 194,
         y: 141,
       },
       horizontalAlignment: "center",
-      text: (): CreateLabelOptionsText => ({
-        value: String(getBattleState().values.itemsPage + 1),
-      }),
+      text: (): CreateLabelOptionsText => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        return {
+          value: String(battleState.values.selection.itemsPage + 1),
+        };
+      },
     }),
   );
   // Items page down arrow
   hudElementReferences.push(
     createImage({
-      condition: (): boolean =>
-        getBattleState().values.menuState === BattleMenuState.Items &&
-        getItemInstanceIDs().length > battleItemsPerPage,
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            battleState.values.selection.menuState === BattleMenuState.Items &&
+            getItemInstanceIDs().length > battleItemsPerPage
+          );
+        }
+        return false;
+      },
       height: 16,
       imagePath: "arrows/down",
       onClick: (): void => {
@@ -2333,16 +2605,17 @@ export const createBattleUI = ({
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
         const battleState: State<BattleStateSchema> = getBattleState();
-        battleState.setValues({
-          bindAction: {
-            bindStartedAt: getCurrentTime(),
-            hotkeyableDefinableReference:
-              getSelectedItemInstance().item.getReference(),
-          },
-          itemsPage: 0,
-          menuState: BattleMenuState.Default,
-          selectedItemInstanceIndex: null,
-        });
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        battleState.values.selection.itemsPage = 0;
+        battleState.values.selection.bindAction = {
+          bindStartedAt: getCurrentTime(),
+          hotkeyableDefinableReference:
+            getSelectedItemInstance().item.getReference(),
+        };
+        battleState.values.selection.menuState = BattleMenuState.Default;
+        battleState.values.selection.selectedItemInstanceIndex = null;
       },
       text: { value: "Bind" },
       width: 34,
