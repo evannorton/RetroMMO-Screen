@@ -504,7 +504,9 @@ export const createBattleUI = ({
   // Submitted actions panel
   hudElementReferences.push(
     createPanel({
-      condition: isBattleMultiplayer,
+      condition: (): boolean =>
+        isBattleMultiplayer() &&
+        getBattleState().values.phase === BattlePhase.Selection,
       height: 47,
       imagePath: "panels/basic",
       width: 304,
