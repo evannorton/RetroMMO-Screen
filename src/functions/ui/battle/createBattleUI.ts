@@ -21,6 +21,7 @@ import {
   BattleUseItemEvent,
   BattleUseItemInstanceRequest,
   Color,
+  Constants,
   Direction,
   ResourcePool,
   TargetType,
@@ -108,6 +109,7 @@ import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
 import { getBattlerHeight } from "../../battle/getBattlerHeight";
 import { getBattlerWidth } from "../../battle/getBattlerWidth";
+import { getConstants } from "../../getConstants";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
@@ -486,6 +488,7 @@ export const createBattleUI = ({
   const hudElementReferences: HUDElementReferences[] = [];
   const gameWidth: number = getGameWidth();
   const gameHeight: number = getGameHeight();
+  const constants: Constants = getConstants();
   // Landscape BG
   hudElementReferences.push(
     createImage({
@@ -2826,6 +2829,56 @@ export const createBattleUI = ({
       }),
     );
   }
+  // Timer panel
+  hudElementReferences.push(
+    createPanel({
+      condition: (): boolean =>
+        getBattleState().values.phase === BattlePhase.Selection &&
+        isBattleMultiplayer(),
+      height: 24,
+      imagePath: "panels/basic",
+      width: 98,
+      x: 206,
+      y: 47,
+    }),
+  );
+  // Timer text
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: (): boolean =>
+          state.values.serverTime !== null &&
+          getBattleState().values.phase === BattlePhase.Selection &&
+          isBattleMultiplayer(),
+        x: 255,
+        y: 55,
+      },
+      horizontalAlignment: "center",
+      maxLines: 1,
+      maxWidth: 304,
+      size: 1,
+      text: (): CreateLabelOptionsText => {
+        if (state.values.serverTime === null) {
+          throw new Error("serverTime is null");
+        }
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        const elapsedServerTime: number =
+          state.values.serverTime - battleState.values.selection.serverTime;
+        const milliseconds: number = Math.max(
+          constants["battle-selection-duration"] - elapsedServerTime,
+          0,
+        );
+        const seconds: number = Math.floor(milliseconds / 1000);
+        return {
+          value: `Round time: ${getFormattedInteger(seconds)}`,
+        };
+      },
+    }),
+  );
   return mergeHUDElementReferences([
     {
       buttonIDs,
