@@ -997,10 +997,7 @@ export const createBattleUI = ({
                 const frame: number = Math.floor(
                   diff / battleImpactAnimationDuration,
                 );
-                if (frame >= 8) {
-                  return true;
-                }
-                return frame % 2 === 1;
+                return frame !== 5 && frame !== 7;
               }
               default:
                 return true;
