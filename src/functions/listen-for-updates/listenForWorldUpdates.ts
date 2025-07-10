@@ -446,6 +446,7 @@ export const listenForWorldUpdates = (): void => {
         selectedPlayerID: null,
         worldState: null,
       });
+      playMusic();
       exitLevel();
     },
   });
@@ -471,6 +472,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
     event: "world/move-characters",
     onMessage: (update: WorldMoveCharactersUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldMoveCharacterUpdate of update.characters) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
@@ -529,6 +531,10 @@ export const listenForWorldUpdates = (): void => {
           clearWorldCharacterMarker(clearedMarkerWorldCharacterID);
         }
       }
+      worldState.setValues({
+        reachableID: update.reachableID,
+      });
+      playMusic();
     },
   });
   listenToSocketioEvent<WorldOpenBankUpdate>({
@@ -635,7 +641,9 @@ export const listenForWorldUpdates = (): void => {
           (itemInstanceUpdate: ItemInstanceUpdate): string =>
             itemInstanceUpdate.itemInstanceID,
         ),
+        reachableID: update.reachableID,
       });
+      playMusic();
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
           .entityID,

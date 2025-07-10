@@ -124,6 +124,7 @@ export const listenForUpdates = (): void => {
             update.character.offHandItemInstance?.itemInstanceID,
           outfitItemInstanceID:
             update.character.outfitItemInstance?.itemInstanceID,
+          reachableID: update.character.reachableID,
           strength: update.character.strength,
           timePlayed: update.character.timePlayed,
           wisdom: update.character.wisdom,
@@ -133,6 +134,7 @@ export const listenForUpdates = (): void => {
           battleState: null,
           worldState,
         });
+        playMusic();
         for (const battleCharacter of getDefinables(BattleCharacter).values()) {
           battleCharacter.player.battleCharacterID = null;
           battleCharacter.remove();
@@ -198,7 +200,6 @@ export const listenForUpdates = (): void => {
             MarkerType.Selected,
           );
         }
-        playMusic();
       }
       for (const playerUpdate of update.players) {
         const player: Player = getDefinable(Player, playerUpdate.playerID);
@@ -285,12 +286,14 @@ export const listenForUpdates = (): void => {
               update.character.offHandItemInstance?.itemInstanceID,
             outfitItemInstanceID:
               update.character.outfitItemInstance?.itemInstanceID,
+            reachableID: update.character.reachableID,
             strength: update.character.strength,
             timePlayed: update.character.timePlayed,
             wisdom: update.character.wisdom,
             worldCharacterID: update.character.characterID,
           }),
         });
+        playMusic();
         for (const worldCharacterUpdate of update.character.characters) {
           loadWorldCharacterUpdate(worldCharacterUpdate);
           const worldCharacterUpdatePlayer: Player = getDefinable(
@@ -563,6 +566,7 @@ export const listenForUpdates = (): void => {
               update.world.offHandItemInstance?.itemInstanceID,
             outfitItemInstanceID:
               update.world.outfitItemInstance?.itemInstanceID,
+            reachableID: update.world.reachableID,
             strength: update.world.strength,
             timePlayed: update.world.timePlayed,
             wisdom: update.world.wisdom,
@@ -612,6 +616,7 @@ export const listenForUpdates = (): void => {
           break;
         }
       }
+      playMusic();
       listenToSocketioEvent({
         event: "legacy/open-emotes",
         onMessage: (): void => {

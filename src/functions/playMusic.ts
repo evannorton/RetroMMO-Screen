@@ -7,6 +7,13 @@ import { musicVolumeChannelID } from "../volumeChannels";
 import { playAudioSource, stopAudioSource } from "pixel-pigeon";
 
 const getMusicTrackID = (): string | null => {
+  if (state.values.worldState !== null) {
+    const reachable: Reachable = getDefinable(
+      Reachable,
+      state.values.worldState.values.reachableID,
+    );
+    return reachable.mapMusicTrackID;
+  }
   if (state.values.battleState !== null) {
     if (
       state.values.serverTime !== null &&
@@ -52,22 +59,24 @@ const getMusicTrackID = (): string | null => {
 };
 
 export const playMusic = (): void => {
-  if (state.values.musicTrackID !== null) {
-    const musicTrack: MusicTrack = getDefinable(
-      MusicTrack,
-      state.values.musicTrackID,
-    );
-    stopAudioSource(musicTrack.audioPath);
-  }
   const musicTrackID: string | null = getMusicTrackID();
-  if (musicTrackID !== null) {
-    const musicTrack: MusicTrack = getDefinable(MusicTrack, musicTrackID);
-    playAudioSource(musicTrack.audioPath, {
-      loopPoint: musicTrack.hasLoopPoint() ? musicTrack.loopPoint : undefined,
-      volumeChannelID: musicVolumeChannelID,
+  if (state.values.musicTrackID !== musicTrackID) {
+    if (state.values.musicTrackID !== null) {
+      const musicTrack: MusicTrack = getDefinable(
+        MusicTrack,
+        state.values.musicTrackID,
+      );
+      stopAudioSource(musicTrack.audioPath);
+    }
+    if (musicTrackID !== null) {
+      const musicTrack: MusicTrack = getDefinable(MusicTrack, musicTrackID);
+      playAudioSource(musicTrack.audioPath, {
+        loopPoint: musicTrack.hasLoopPoint() ? musicTrack.loopPoint : undefined,
+        volumeChannelID: musicVolumeChannelID,
+      });
+    }
+    state.setValues({
+      musicTrackID,
     });
   }
-  state.setValues({
-    musicTrackID,
-  });
 };

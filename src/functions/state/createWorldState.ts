@@ -18,6 +18,7 @@ export interface CreateWorldStateOptions {
   readonly maskItemInstanceID?: string;
   readonly offHandItemInstanceID?: string;
   readonly outfitItemInstanceID?: string;
+  readonly reachableID: string;
   readonly strength: number;
   readonly timePlayed: number;
   readonly wisdom: number;
@@ -40,6 +41,7 @@ export const createWorldState = ({
   maskItemInstanceID,
   offHandItemInstanceID,
   outfitItemInstanceID,
+  reachableID,
   strength,
   timePlayed,
   wisdom,
@@ -66,6 +68,7 @@ export const createWorldState = ({
     outfitItemInstanceID: outfitItemInstanceID ?? null,
     pianoNotes: [],
     pianoSessionID: null,
+    reachableID,
     strength,
     timePlayed: {
       amount: timePlayed,

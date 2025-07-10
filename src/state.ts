@@ -64,6 +64,7 @@ export interface WorldStateSchema {
   readonly outfitItemInstanceID: string | null;
   readonly pianoNotes: readonly PianoNote[];
   readonly pianoSessionID: string | null;
+  readonly reachableID: string;
   readonly strength: number;
   readonly timePlayed: TimePlayed;
   readonly wisdom: number;
