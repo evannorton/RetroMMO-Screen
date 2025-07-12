@@ -16,6 +16,7 @@ import {
   InitialNPCTilePosition,
   InitialPianoTilePosition,
 } from "./types/TilePosition";
+import { MapMusicPause } from "./types/MapMusicPause";
 import { PianoNote } from "./types/PianoNote";
 import { TimePlayed } from "./types/TimePlayed";
 
@@ -140,6 +141,7 @@ export interface StateSchema {
   readonly isInitialUpdateReceived: boolean;
   readonly isSubscribed: boolean;
   readonly mainMenuState: State<MainMenuStateSchema> | null;
+  readonly mapMusicPause: MapMusicPause | null;
   readonly musicTrackID: string | null;
   readonly pianoStartedAt: number | null;
   readonly selectedPlayerID: string | null;
@@ -165,6 +167,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   isInitialUpdateReceived: false,
   isSubscribed: false,
   mainMenuState: null,
+  mapMusicPause: null,
   musicTrackID: null,
   pianoStartedAt: null,
   selectedPlayerID: null,

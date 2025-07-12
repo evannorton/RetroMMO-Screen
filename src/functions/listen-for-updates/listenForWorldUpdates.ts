@@ -43,6 +43,7 @@ import {
 import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
+import { MusicTrack } from "../../classes/MusicTrack";
 import { NPC } from "../../classes/NPC";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
@@ -67,6 +68,7 @@ import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
+import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSource";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
@@ -703,6 +705,13 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
     onMessage: (update: WorldStartBattleUpdate): void => {
+      if (state.values.musicTrackID === null) {
+        throw new Error("musicTrackID is null");
+      }
+      const musicTrack: MusicTrack = getDefinable(
+        MusicTrack,
+        state.values.musicTrackID,
+      );
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
@@ -769,6 +778,10 @@ export const listenForWorldUpdates = (): void => {
           teamIndex: update.teamIndex,
           type: update.battleType,
         }),
+        mapMusicPause: {
+          musicTrackID: state.values.musicTrackID,
+          resumePoint: getAudioSourceCurrentPosition(musicTrack.audioPath),
+        },
         worldState: null,
       });
       playMusic();

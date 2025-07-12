@@ -6,13 +6,25 @@ import { getDefinable } from "definables";
 import { musicVolumeChannelID } from "../volumeChannels";
 import { playAudioSource, stopAudioSource } from "pixel-pigeon";
 
-const getMusicTrackID = (): string | null => {
+interface MusicPlayData {
+  musicTrackID: string;
+  resumePoint: number;
+}
+const getMusicPlayData = (): MusicPlayData | null => {
   if (state.values.worldState !== null) {
     const reachable: Reachable = getDefinable(
       Reachable,
       state.values.worldState.values.reachableID,
     );
-    return reachable.mapMusicTrackID;
+    const resumePoint: number =
+      state.values.mapMusicPause !== null &&
+      state.values.mapMusicPause.musicTrackID === reachable.mapMusicTrackID
+        ? state.values.mapMusicPause.resumePoint
+        : 0;
+    return {
+      musicTrackID: reachable.mapMusicTrackID,
+      resumePoint,
+    };
   }
   if (state.values.battleState !== null) {
     if (
@@ -38,9 +50,15 @@ const getMusicTrackID = (): string | null => {
           defeatEvent.winningTeamIndex ===
           state.values.battleState.values.teamIndex
         ) {
-          return "victory";
+          return {
+            musicTrackID: "victory",
+            resumePoint: 0,
+          };
         }
-        return "defeat";
+        return {
+          musicTrackID: "defeat",
+          resumePoint: 0,
+        };
       }
     }
     const reachable: Reachable = getDefinable(
@@ -50,17 +68,23 @@ const getMusicTrackID = (): string | null => {
     switch (state.values.battleState.values.type) {
       case BattleType.Boss:
       case BattleType.Encounter:
-        return reachable.pveMusicTrackID;
+        return {
+          musicTrackID: reachable.pveMusicTrackID,
+          resumePoint: 0,
+        };
       case BattleType.Duel:
-        return "square-up-adventurer-showdown";
+        return {
+          musicTrackID: "square-up-adventurer-showdown",
+          resumePoint: 0,
+        };
     }
   }
   return null;
 };
 
 export const playMusic = (): void => {
-  const musicTrackID: string | null = getMusicTrackID();
-  if (state.values.musicTrackID !== musicTrackID) {
+  const musicPlayData: MusicPlayData | null = getMusicPlayData();
+  if (state.values.musicTrackID !== musicPlayData?.musicTrackID) {
     if (state.values.musicTrackID !== null) {
       const musicTrack: MusicTrack = getDefinable(
         MusicTrack,
@@ -68,15 +92,19 @@ export const playMusic = (): void => {
       );
       stopAudioSource(musicTrack.audioPath);
     }
-    if (musicTrackID !== null) {
-      const musicTrack: MusicTrack = getDefinable(MusicTrack, musicTrackID);
+    if (musicPlayData !== null) {
+      const musicTrack: MusicTrack = getDefinable(
+        MusicTrack,
+        musicPlayData.musicTrackID,
+      );
       playAudioSource(musicTrack.audioPath, {
         loopPoint: musicTrack.hasLoopPoint() ? musicTrack.loopPoint : undefined,
+        startPoint: musicPlayData.resumePoint,
         volumeChannelID: musicVolumeChannelID,
       });
     }
     state.setValues({
-      musicTrackID,
+      musicTrackID: musicPlayData !== null ? musicPlayData.musicTrackID : null,
     });
   }
 };

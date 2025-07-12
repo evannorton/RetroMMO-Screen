@@ -130,11 +130,22 @@ export const listenForUpdates = (): void => {
           wisdom: update.character.wisdom,
           worldCharacterID: update.character.characterID,
         });
+        // Start music back at the beginning if you lost the battle
+        if (
+          battleState.values.teamIndex !== update.character.winningTeamIndex
+        ) {
+          state.setValues({
+            mapMusicPause: null,
+          });
+        }
         state.setValues({
           battleState: null,
           worldState,
         });
         playMusic();
+        state.setValues({
+          mapMusicPause: null,
+        });
         for (const battleCharacter of getDefinables(BattleCharacter).values()) {
           battleCharacter.player.battleCharacterID = null;
           battleCharacter.remove();
@@ -419,6 +430,8 @@ export const listenForUpdates = (): void => {
         isInitialUpdateReceived: true,
         isSubscribed: update.isSubscribed,
         mainMenuState: null,
+        mapMusicPause: null,
+        musicTrackID: null,
         pianoStartedAt: null,
         selectedPlayerID: null,
         serverTime: null,
