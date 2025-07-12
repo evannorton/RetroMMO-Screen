@@ -76,6 +76,8 @@ export interface BattleStateRoundEventInstance {
   isProcessed: boolean;
 }
 export interface BattleStateRound {
+  readonly duration: number;
+  readonly isFinal: boolean;
   readonly eventInstances: readonly BattleStateRoundEventInstance[];
   readonly serverTime: number;
 }
@@ -117,6 +119,7 @@ export interface BattleStateSchema {
   readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly impactAnimationSpriteIDs: readonly string[];
+  readonly isFadingOutMusic: boolean;
   readonly phase: BattlePhase;
   readonly reachableID: string;
   readonly round: BattleStateRound | null;

@@ -26,6 +26,7 @@ import {
 import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
+import { MusicTrack } from "../../classes/MusicTrack";
 import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
@@ -33,6 +34,7 @@ import { Quest } from "../../classes/Quest";
 import { QuestGiverQuest } from "../../classes/QuestGiver";
 import {
   State,
+  fadeInAudioSourceVolume,
   getCurrentTime,
   listenToSocketioEvent,
   removeHUDElements,
@@ -67,6 +69,7 @@ import { loadPartyUpdate } from "../load-updates/loadPartyUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
+import { musicFadeDuration } from "../../constants";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { playMusic } from "../playMusic";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
@@ -143,6 +146,16 @@ export const listenForUpdates = (): void => {
           worldState,
         });
         playMusic();
+        if (state.values.musicTrackID === null) {
+          throw new Error("Music track ID is null.");
+        }
+        const musicTrack: MusicTrack = getDefinable(
+          MusicTrack,
+          state.values.musicTrackID,
+        );
+        fadeInAudioSourceVolume(musicTrack.audioPath, {
+          duration: musicFadeDuration,
+        });
         state.setValues({
           mapMusicPause: null,
         });
@@ -502,7 +515,9 @@ export const listenForUpdates = (): void => {
               round:
                 typeof update.battle.round !== "undefined"
                   ? {
+                      duration: update.battle.round.duration,
                       events: update.battle.round.events,
+                      isFinal: update.battle.round.isFinal ?? false,
                       serverTime: update.battle.round.serverTime,
                     }
                   : undefined,

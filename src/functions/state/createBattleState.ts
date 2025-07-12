@@ -12,7 +12,9 @@ export interface CreateBattleStateOptionsSelection {
   readonly serverTime: number;
 }
 export interface CreateBattleStateOptionsRound {
+  readonly duration: number;
   readonly events: readonly BattleEvent[];
+  readonly isFinal: boolean;
   readonly serverTime: number;
 }
 export interface CreateBattleStateOptionsHotkey {
@@ -65,17 +67,20 @@ export const createBattleState = ({
     ),
     hudElementReferences,
     impactAnimationSpriteIDs: [],
+    isFadingOutMusic: false,
     phase,
     reachableID,
     round:
       typeof round !== "undefined"
         ? {
+            duration: round.duration,
             eventInstances: round.events.map(
               (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
                 event: battleEvent,
                 isProcessed: false,
               }),
             ),
+            isFinal: round.isFinal,
             serverTime: round.serverTime,
           }
         : null,

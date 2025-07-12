@@ -19,6 +19,7 @@ export const grayColors: readonly Color[] = [
 export const hotkeyLabelBlinkDuration: number = 750;
 export const mainMenuCharactersPerPage: number = 7;
 export const markerDuration: number = 267 * 2;
+export const musicFadeDuration: number = 750;
 export const npcQuestsPerPage: number = 3;
 export const questLogCompletedQuestsPerPage: number = 7;
 export const questLogInProgressQuestsPerPage: number = 7;

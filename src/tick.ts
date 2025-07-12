@@ -16,11 +16,13 @@ import {
 } from "retrommo-types";
 import { Battler } from "./classes/Battler";
 import { Item } from "./classes/Item";
+import { MusicTrack } from "./classes/MusicTrack";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import {
   emitToSocketioServer,
+  fadeOutAudioSourceVolume,
   getCurrentTime,
   playAudioSource,
   removeEntity,
@@ -30,8 +32,8 @@ import { getBattlerResourcePool } from "./functions/battle/getBattlerResourcePoo
 import { getConstants } from "./functions/getConstants";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
+import { musicFadeDuration, serverTimeUpdateInterval } from "./constants";
 import { playMusic } from "./functions/playMusic";
-import { serverTimeUpdateInterval } from "./constants";
 import { sfxVolumeChannelID } from "./volumeChannels";
 import { state } from "./state";
 
@@ -408,6 +410,26 @@ export const tick = (): void => {
               }
             }
             eventInstance.isProcessed = true;
+          }
+          if (
+            state.values.battleState.values.round.isFinal &&
+            state.values.battleState.values.isFadingOutMusic === false &&
+            elapsedServerTime >=
+              state.values.battleState.values.round.duration - musicFadeDuration
+          ) {
+            if (state.values.musicTrackID === null) {
+              throw new Error("Music track ID is null.");
+            }
+            const musicTrack: MusicTrack = getDefinable(
+              MusicTrack,
+              state.values.musicTrackID,
+            );
+            fadeOutAudioSourceVolume(musicTrack.audioPath, {
+              duration: musicFadeDuration,
+            });
+            state.values.battleState.setValues({
+              isFadingOutMusic: true,
+            });
           }
         }
       }

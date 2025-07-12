@@ -972,14 +972,11 @@ export const createBattleUI = ({
     };
     const enemySpriteCondition = (): boolean => {
       const battleState: State<BattleStateSchema> = getBattleState();
-      if (getEnemyBattler().isAlive) {
+      if (getEnemyBattler().isAlive && state.values.serverTime !== null) {
         switch (battleState.values.phase) {
           case BattlePhase.Round: {
             if (battleState.values.round === null) {
               throw new Error("round is null");
-            }
-            if (state.values.serverTime === null) {
-              throw new Error("serverTime is null");
             }
             if (hasImpactAnimation() === false) {
               return true;

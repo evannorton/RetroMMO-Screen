@@ -772,7 +772,9 @@ export const listenForWorldUpdates = (): void => {
           phase: BattlePhase.Round,
           reachableID: update.reachableID,
           round: {
+            duration: update.round.duration,
             events: update.round.events,
+            isFinal: update.round.isFinal ?? false,
             serverTime: update.round.serverTime,
           },
           teamIndex: update.teamIndex,

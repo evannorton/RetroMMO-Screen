@@ -164,12 +164,14 @@ export const listenForBattleUpdates = (): void => {
       battleState.setValues({
         phase: BattlePhase.Round,
         round: {
+          duration: update.round.duration,
           eventInstances: update.round.events.map(
             (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
               event: battleEvent,
               isProcessed: false,
             }),
           ),
+          isFinal: update.round.isFinal ?? false,
           serverTime: update.round.serverTime,
         },
         selection: null,
