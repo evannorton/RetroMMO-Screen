@@ -40,6 +40,7 @@ import { Battler } from "../../../classes/Battler";
 import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
   CreateLabelOptionsText,
+  CreateLabelOptionsTextTrim,
   HUDElementReferences,
   State,
   createButton,
@@ -555,9 +556,19 @@ export const createBattleUI = ({
         maxLines: 1,
         maxWidth: 64,
         size: 1,
-        text: (): CreateLabelOptionsText => ({
-          value: getFriendlyBattler().battleCharacter.player.username,
-        }),
+        text: (): CreateLabelOptionsText => {
+          const battlerName: string =
+            getFriendlyBattler().battleCharacter.player.username;
+          return {
+            trims: [
+              {
+                index: 0,
+                length: battlerName.length,
+              },
+            ],
+            value: battlerName,
+          };
+        },
       }),
     );
     // Battler player sprite
@@ -725,9 +736,18 @@ export const createBattleUI = ({
           y: 8 + i * 12,
         },
         horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 288,
         text: (): CreateLabelOptionsText => {
           const battler: Battler = getFriendlyBattler();
-          let value: string = `${battler.battleCharacter.player.username} will use `;
+          const battlerName: string = battler.battleCharacter.player.username;
+          const trims: CreateLabelOptionsTextTrim[] = [
+            {
+              index: 0,
+              length: battlerName.length,
+            },
+          ];
+          let value: string = `${battlerName} will use `;
           switch (
             battler.battleCharacter.submittedMove.actionDefinableReference
               .className
@@ -759,10 +779,18 @@ export const createBattleUI = ({
               Battler,
               battler.battleCharacter.submittedMove.battlerID,
             );
-            value += ` on ${targetBattler.battleCharacter.player.username}`;
+            value += " on ";
+            const targetBattlerName: string =
+              targetBattler.battleCharacter.player.username;
+            trims.push({
+              index: value.length,
+              length: targetBattlerName.length,
+            });
+            value += targetBattlerName;
           }
           value += ".";
           return {
+            trims,
             value,
           };
         },
@@ -2691,17 +2719,43 @@ export const createBattleUI = ({
                   battleEventInstance.event as BattleDamageEvent;
                 if (damageBattleEvent.isRedirected === true) {
                   return {
-                    value: `${damageBattleEvent.target.name} guards for ${damageBattleEvent.amount} damage.`,
+                    trims: [
+                      {
+                        index: 0,
+                        length: damageBattleEvent.target.name.length,
+                      },
+                    ],
+                    value: `${
+                      damageBattleEvent.target.name
+                    } guards for ${getFormattedInteger(
+                      damageBattleEvent.amount,
+                    )} damage.`,
                   };
                 }
                 return {
-                  value: `${damageBattleEvent.target.name} takes ${damageBattleEvent.amount} damage.`,
+                  trims: [
+                    {
+                      index: 0,
+                      length: damageBattleEvent.target.name.length,
+                    },
+                  ],
+                  value: `${
+                    damageBattleEvent.target.name
+                  } takes ${getFormattedInteger(
+                    damageBattleEvent.amount,
+                  )} damage.`,
                 };
               }
               case BattleEventType.Death: {
                 const deathBattleEvent: BattleDeathEvent =
                   battleEventInstance.event as BattleDeathEvent;
                 return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: deathBattleEvent.target.name.length,
+                    },
+                  ],
                   value: `${deathBattleEvent.target.name} is defeated!`,
                 };
               }
@@ -2750,14 +2804,29 @@ export const createBattleUI = ({
               case BattleEventType.FriendlyTargetFailure: {
                 const friendlyTargetFailureBattleEvent: BattleFriendlyTargetFailureEvent =
                   battleEventInstance.event as BattleFriendlyTargetFailureEvent;
+                let value: string = "...but ";
+                const trims: CreateLabelOptionsTextTrim[] = [
+                  {
+                    index: value.length,
+                    length: friendlyTargetFailureBattleEvent.target.name.length,
+                  },
+                ];
+                value += `${friendlyTargetFailureBattleEvent.target.name} is defeated.`;
                 return {
-                  value: `...but ${friendlyTargetFailureBattleEvent.target.name} is defeated.`,
+                  trims,
+                  value,
                 };
               }
               case BattleEventType.Heal: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
                 return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: damageBattleEvent.target.name.length,
+                    },
+                  ],
                   value: `${
                     damageBattleEvent.target.name
                   } recovers ${getFormattedInteger(
@@ -2769,6 +2838,12 @@ export const createBattleUI = ({
                 const instakillBattleEvent: BattleInstakillEvent =
                   battleEventInstance.event as BattleInstakillEvent;
                 return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: instakillBattleEvent.target.name.length,
+                    },
+                  ],
                   value: `${instakillBattleEvent.target.name} is drawn into the light.`,
                 };
               }
@@ -2779,6 +2854,12 @@ export const createBattleUI = ({
                 const rejuvenateEvent: BattleRejuvenateEvent =
                   battleEventInstance.event as BattleRejuvenateEvent;
                 return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: rejuvenateEvent.target.name.length,
+                    },
+                  ],
                   value: `${
                     rejuvenateEvent.target.name
                   } recovers ${getFormattedInteger(
@@ -2793,13 +2874,25 @@ export const createBattleUI = ({
                   Ability,
                   useAbilityBattleEvent.abilityID,
                 );
+                let value: string = `${useAbilityBattleEvent.caster.name} uses ${ability.name}`;
+                const trims: CreateLabelOptionsTextTrim[] = [
+                  {
+                    index: 0,
+                    length: useAbilityBattleEvent.caster.name.length,
+                  },
+                ];
                 if (typeof useAbilityBattleEvent.target !== "undefined") {
-                  return {
-                    value: `${useAbilityBattleEvent.caster.name} uses ${ability.name} on ${useAbilityBattleEvent.target.name}.`,
-                  };
+                  value += " on ";
+                  trims.push({
+                    index: value.length,
+                    length: useAbilityBattleEvent.target.name.length,
+                  });
+                  value += useAbilityBattleEvent.target.name;
                 }
+                value += ".";
                 return {
-                  value: `${useAbilityBattleEvent.caster.name} uses ${ability.name}.`,
+                  trims,
+                  value,
                 };
               }
               case BattleEventType.UseItem: {
@@ -2809,13 +2902,25 @@ export const createBattleUI = ({
                   Item,
                   useItemBattleEvent.itemID,
                 );
+                let value: string = `${useItemBattleEvent.caster.name} uses ${item.name}`;
+                const trims: CreateLabelOptionsTextTrim[] = [
+                  {
+                    index: 0,
+                    length: useItemBattleEvent.caster.name.length,
+                  },
+                ];
                 if (typeof useItemBattleEvent.target !== "undefined") {
-                  return {
-                    value: `${useItemBattleEvent.caster.name} uses ${item.name} on ${useItemBattleEvent.target.name}.`,
-                  };
+                  value += " on ";
+                  trims.push({
+                    index: value.length,
+                    length: useItemBattleEvent.target.name.length,
+                  });
+                  value += useItemBattleEvent.target.name;
                 }
+                value += ".";
                 return {
-                  value: `${useItemBattleEvent.caster.name} uses ${item.name}.`,
+                  trims,
+                  value,
                 };
               }
             }
