@@ -84,6 +84,7 @@ export interface BattleStateRound {
 export interface BattleStateSelection {
   abilitiesPage: number;
   bindAction: BattleStateBindAction | null;
+  isUsingAction: boolean;
   itemInstanceIDs: readonly string[];
   itemsPage: number;
   menuState: BattleMenuState;

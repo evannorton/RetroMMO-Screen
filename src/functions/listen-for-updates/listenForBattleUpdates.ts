@@ -85,8 +85,15 @@ export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleCancelSubmittedMoveUpdate>({
     event: "battle/cancel-submitted-move",
     onMessage: (update: BattleCancelSubmittedMoveUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.selection === null) {
+        throw new Error("BattleCancelSubmittedMoveUpdate: Selection is null");
+      }
       const battler: Battler = getDefinable(Battler, update.battlerID);
       battler.battleCharacter.submittedMove = null;
+      if (battleState.values.battlerID === update.battlerID) {
+        battleState.values.selection.isUsingAction = false;
+      }
     },
   });
   listenToSocketioEvent<BattleEndRoundUpdate>({
@@ -105,6 +112,7 @@ export const listenForBattleUpdates = (): void => {
         selection: {
           abilitiesPage: 0,
           bindAction: null,
+          isUsingAction: false,
           itemInstanceIDs: update.itemInstances.map(
             (itemInstanceUpdate: ItemInstanceUpdate): string =>
               itemInstanceUpdate.itemInstanceID,
@@ -151,6 +159,7 @@ export const listenForBattleUpdates = (): void => {
         update.submittedAbility.casterBattlerID === battleState.values.battlerID
       ) {
         battleState.values.selection.queuedAction = null;
+        battleState.values.selection.isUsingAction = false;
       }
     },
   });
@@ -192,6 +201,7 @@ export const listenForBattleUpdates = (): void => {
         update.submittedItem.casterBattlerID === battleState.values.battlerID
       ) {
         battleState.values.selection.queuedAction = null;
+        battleState.values.selection.isUsingAction = false;
       }
     },
   });

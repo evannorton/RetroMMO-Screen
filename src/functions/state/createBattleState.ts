@@ -89,6 +89,7 @@ export const createBattleState = ({
         ? {
             abilitiesPage: 0,
             bindAction: null,
+            isUsingAction: false,
             itemInstanceIDs,
             itemsPage: 0,
             menuState: BattleMenuState.Default,

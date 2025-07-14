@@ -161,6 +161,11 @@ const getQueuedActionAbility = (): Ability => {
   throw new Error("queuedAction is not an Ability or ItemInstance");
 };
 const useAction = (battlerID?: string): void => {
+  const battleState: State<BattleStateSchema> = getBattleState();
+  if (battleState.values.selection === null) {
+    throw new Error("selection is null");
+  }
+  battleState.values.selection.isUsingAction = true;
   const action: Ability | ItemInstance = getQueuedAction();
   if (action instanceof Ability) {
     emitToSocketioServer<BattleUseAbilityRequest>({
@@ -178,6 +183,8 @@ const useAction = (battlerID?: string): void => {
       },
       event: "battle/use-item-instance",
     });
+  } else {
+    throw new Error("action is not an Ability or ItemInstance");
   }
 };
 const useAbility = (battlerID: string): void => {
@@ -619,18 +626,28 @@ export const createBattleUI = ({
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: (): boolean =>
-            getBattleState().values.phase === BattlePhase.Selection &&
-            isTargeting() &&
-            getQueuedActionAbility().targetType === TargetType.SingleAlly,
+          condition: (): boolean => {
+            const battleState: State<BattleStateSchema> = getBattleState();
+            if (battleState.values.phase === BattlePhase.Selection) {
+              if (battleState.values.selection === null) {
+                throw new Error("selection is null");
+              }
+              return (
+                isTargeting() &&
+                getQueuedActionAbility().targetType === TargetType.SingleAlly &&
+                battleState.values.selection.isUsingAction === false
+              );
+            }
+            return false;
+          },
           x: 73 + i * 81,
           y: 216,
         },
-        height: 32,
+        height: 16,
         onClick: (): void => {
           useAction(getFriendlyBattler().id);
         },
-        width: 32,
+        width: 16,
       }),
     );
     // Battler HP bar
@@ -685,15 +702,17 @@ export const createBattleUI = ({
         if (battleState.values.selection.queuedAction === null) {
           throw new Error("queuedAction is null");
         }
-        const ability: Ability = getQueuedActionAbility();
-        if (ability.targetType === TargetType.SingleAlly) {
-          return (
-            ((getCurrentTime() -
-              battleState.values.selection.queuedAction.queuedAt) %
-              targetBlinkDuration) *
-              2 <
-            targetBlinkDuration
-          );
+        if (battleState.values.selection.isUsingAction === false) {
+          const ability: Ability = getQueuedActionAbility();
+          if (ability.targetType === TargetType.SingleAlly) {
+            return (
+              ((getCurrentTime() -
+                battleState.values.selection.queuedAction.queuedAt) %
+                targetBlinkDuration) *
+                2 <
+              targetBlinkDuration
+            );
+          }
         }
       }
       return false;
@@ -799,12 +818,16 @@ export const createBattleUI = ({
     inputPressHandlerIDs.push(
       createInputPressHandler({
         condition: (): boolean => {
-          if (
-            getBattleState().values.phase === BattlePhase.Selection &&
-            isTargeting()
-          ) {
-            const ability: Ability = getQueuedActionAbility();
-            return ability.targetType === TargetType.SingleAlly;
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return (
+              isTargeting() &&
+              getQueuedActionAbility().targetType === TargetType.SingleAlly &&
+              battleState.values.selection.isUsingAction === false
+            );
           }
           return false;
         },
@@ -1562,9 +1585,9 @@ export const createBattleUI = ({
                   BattleMenuState.Default &&
                 ((isSlotFilled() && (canUseHotkey() || isUnbindingHotkey())) ||
                   isBindingHotkey()) &&
-                isTargeting() === false &&
                 battler.resources.hp > 0 &&
-                battler.battleCharacter.hasSubmittedMove() === false
+                battler.battleCharacter.hasSubmittedMove() === false &&
+                battleState.values.selection.isUsingAction === false
               );
             }
             return false;
@@ -1585,27 +1608,35 @@ export const createBattleUI = ({
         width: 16,
       }),
     );
+    const hotkeyLabelCondition = (): boolean => {
+      const battler: Battler = getBattler();
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (battleState.values.phase === BattlePhase.Selection) {
+        if (battleState.values.selection === null) {
+          throw new Error("selection is null");
+        }
+        return (
+          ((isSlotFilled() &&
+            canUseHotkey() &&
+            !isBindingHotkey() &&
+            !isUnbindingHotkey()) ||
+            (isBindingHotkey() && areBindHotkeyLabelsVisible()) ||
+            (isSlotFilled() &&
+              isUnbindingHotkey() &&
+              areUnbindHotkeyLabelsVisible())) &&
+          isTargeting() === false &&
+          battler.resources.hp > 0 &&
+          battler.battleCharacter.hasSubmittedMove() === false &&
+          battleState.values.selection.isUsingAction === false
+        );
+      }
+      return false;
+    };
     quadrilateralIDs.push(
       createQuadrilateral({
         color: Color.VeryDarkGray,
         coordinates: {
-          condition: (): boolean => {
-            const battler: Battler = getBattler();
-            return (
-              getBattleState().values.phase === BattlePhase.Selection &&
-              ((isSlotFilled() &&
-                canUseHotkey() &&
-                !isBindingHotkey() &&
-                !isUnbindingHotkey()) ||
-                (isBindingHotkey() && areBindHotkeyLabelsVisible()) ||
-                (isSlotFilled() &&
-                  isUnbindingHotkey() &&
-                  areUnbindHotkeyLabelsVisible())) &&
-              isTargeting() === false &&
-              battler.resources.hp > 0 &&
-              battler.battleCharacter.hasSubmittedMove() === false
-            );
-          },
+          condition: hotkeyLabelCondition,
           x: 71 + i * 18,
           y: 190,
         },
@@ -1617,23 +1648,7 @@ export const createBattleUI = ({
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => {
-            const battler: Battler = getBattler();
-            return (
-              getBattleState().values.phase === BattlePhase.Selection &&
-              ((isSlotFilled() &&
-                canUseHotkey() &&
-                !isBindingHotkey() &&
-                !isUnbindingHotkey()) ||
-                (isBindingHotkey() && areBindHotkeyLabelsVisible()) ||
-                (isSlotFilled() &&
-                  isUnbindingHotkey() &&
-                  areUnbindHotkeyLabelsVisible())) &&
-              isTargeting() === false &&
-              battler.resources.hp > 0 &&
-              battler.battleCharacter.hasSubmittedMove() === false
-            );
-          },
+          condition: hotkeyLabelCondition,
           x: 76 + i * 18,
           y: 191,
         },
@@ -1659,7 +1674,8 @@ export const createBattleUI = ({
                 isBindingHotkey()) &&
               isTargeting() === false &&
               battler.resources.hp > 0 &&
-              battler.battleCharacter.hasSubmittedMove() === false
+              battler.battleCharacter.hasSubmittedMove() === false &&
+              battleState.values.selection.isUsingAction === false
             );
           }
           return false;
@@ -1678,24 +1694,24 @@ export const createBattleUI = ({
     );
   }
   // Hotkeys unbind button
+  const hotkeyUnbindButtonCondition = (): boolean => {
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.phase === BattlePhase.Selection) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      const battler: Battler = getBattler();
+      return (
+        battleState.values.selection.menuState === BattleMenuState.Default &&
+        battler.battleCharacter.hasSubmittedMove() === false &&
+        battleState.values.selection.isUsingAction === false
+      );
+    }
+    return false;
+  };
   hudElementReferences.push(
     createImage({
-      condition: (): boolean => {
-        const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.phase === BattlePhase.Selection) {
-          if (battleState.values.selection === null) {
-            throw new Error("selection is null");
-          }
-          const battler: Battler = getBattler();
-          return (
-            battleState.values.selection.menuState ===
-              BattleMenuState.Default &&
-            battler.resources.hp > 0 &&
-            battler.battleCharacter.hasSubmittedMove() === false
-          );
-        }
-        return false;
-      },
+      condition: hotkeyUnbindButtonCondition,
       height: 11,
       imagePath: "x",
       onClick: (): void => {
@@ -1717,21 +1733,7 @@ export const createBattleUI = ({
   );
   inputPressHandlerIDs.push(
     createInputPressHandler({
-      condition: (): boolean => {
-        const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.phase === BattlePhase.Selection) {
-          if (battleState.values.selection === null) {
-            throw new Error("selection is null");
-          }
-          const battler: Battler = getBattler();
-          return (
-            battleState.values.selection.menuState ===
-              BattleMenuState.Default &&
-            battler.battleCharacter.hasSubmittedMove() === false
-          );
-        }
-        return false;
-      },
+      condition: hotkeyUnbindButtonCondition,
       inputCollectionID: unbindBattleHotkeyInputCollectionID,
       onInput: (): void => {
         const battleState: State<BattleStateSchema> = getBattleState();
@@ -1760,15 +1762,22 @@ export const createBattleUI = ({
   // Commands attack button
   const attackButtonCondition = (): boolean => {
     const battler: Battler = getBattler();
-    return (
-      getBattleState().values.phase === BattlePhase.Selection &&
-      isTargeting() === false &&
-      isBindingHotkey() === false &&
-      isUnbindingHotkey() === false &&
-      canUseAbility("attack") &&
-      battler.isAlive &&
-      battler.battleCharacter.hasSubmittedMove() === false
-    );
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.phase === BattlePhase.Selection) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      return (
+        isTargeting() === false &&
+        isBindingHotkey() === false &&
+        isUnbindingHotkey() === false &&
+        canUseAbility("attack") &&
+        battler.isAlive &&
+        battler.battleCharacter.hasSubmittedMove() === false &&
+        battleState.values.selection.isUsingAction === false
+      );
+    }
+    return false;
   };
   hudElementReferences.push(
     createPressableButton({
@@ -1796,14 +1805,21 @@ export const createBattleUI = ({
   // Commands ability button
   const abilityButtonCondition = (): boolean => {
     const battler: Battler = getBattler();
-    return (
-      getBattleState().values.phase === BattlePhase.Selection &&
-      isTargeting() === false &&
-      isBindingHotkey() === false &&
-      isUnbindingHotkey() === false &&
-      battler.isAlive &&
-      battler.battleCharacter.hasSubmittedMove() === false
-    );
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.phase === BattlePhase.Selection) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      return (
+        isTargeting() === false &&
+        isBindingHotkey() === false &&
+        isUnbindingHotkey() === false &&
+        battler.isAlive &&
+        battler.battleCharacter.hasSubmittedMove() === false &&
+        battleState.values.selection.isUsingAction === false
+      );
+    }
+    return false;
   };
   const doAbilityCommand = (): void => {
     const battleState: State<BattleStateSchema> = getBattleState();
@@ -1845,14 +1861,21 @@ export const createBattleUI = ({
   // Commands item button
   const itemButtonCondition = (): boolean => {
     const battler: Battler = getBattler();
-    return (
-      getBattleState().values.phase === BattlePhase.Selection &&
-      isTargeting() === false &&
-      isBindingHotkey() === false &&
-      isUnbindingHotkey() === false &&
-      battler.isAlive &&
-      battler.battleCharacter.hasSubmittedMove() === false
-    );
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.phase === BattlePhase.Selection) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      return (
+        isTargeting() === false &&
+        isBindingHotkey() === false &&
+        isUnbindingHotkey() === false &&
+        battler.isAlive &&
+        battler.battleCharacter.hasSubmittedMove() === false &&
+        battleState.values.selection.isUsingAction === false
+      );
+    }
+    return false;
   };
   const doItemCommand = (): void => {
     const battleState: State<BattleStateSchema> = getBattleState();
@@ -1894,15 +1917,22 @@ export const createBattleUI = ({
   // Commands pass button
   const passButtonCondition = (): boolean => {
     const battler: Battler = getBattler();
-    return (
-      getBattleState().values.phase === BattlePhase.Selection &&
-      isTargeting() === false &&
-      isBindingHotkey() === false &&
-      isUnbindingHotkey() === false &&
-      canUseAbility("pass") &&
-      battler.isAlive &&
-      battler.battleCharacter.hasSubmittedMove() === false
-    );
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.phase === BattlePhase.Selection) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      return (
+        isTargeting() === false &&
+        isBindingHotkey() === false &&
+        isUnbindingHotkey() === false &&
+        canUseAbility("pass") &&
+        battler.isAlive &&
+        battler.battleCharacter.hasSubmittedMove() === false &&
+        battleState.values.selection.isUsingAction === false
+      );
+    }
+    return false;
   };
   hudElementReferences.push(
     createPressableButton({
@@ -1930,15 +1960,22 @@ export const createBattleUI = ({
   // Commands escape button
   const escapeButtonCondition = (): boolean => {
     const battler: Battler = getBattler();
-    return (
-      getBattleState().values.phase === BattlePhase.Selection &&
-      isTargeting() === false &&
-      isBindingHotkey() === false &&
-      isUnbindingHotkey() === false &&
-      canUseAbility("escape") &&
-      battler.isAlive &&
-      battler.battleCharacter.hasSubmittedMove() === false
-    );
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (battleState.values.phase === BattlePhase.Selection) {
+      if (battleState.values.selection === null) {
+        throw new Error("selection is null");
+      }
+      return (
+        isTargeting() === false &&
+        isBindingHotkey() === false &&
+        isUnbindingHotkey() === false &&
+        canUseAbility("escape") &&
+        battler.isAlive &&
+        battler.battleCharacter.hasSubmittedMove() === false &&
+        battleState.values.selection.isUsingAction === false
+      );
+    }
+    return false;
   };
   hudElementReferences.push(
     createPressableButton({
@@ -1966,9 +2003,19 @@ export const createBattleUI = ({
   // Commands cancel targetting button
   hudElementReferences.push(
     createPressableButton({
-      condition: (): boolean =>
-        getBattleState().values.phase === BattlePhase.Selection &&
-        (isTargeting() || isBindingHotkey() || isUnbindingHotkey()),
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            (isTargeting() || isBindingHotkey() || isUnbindingHotkey()) &&
+            battleState.values.selection.isUsingAction === false
+          );
+        }
+        return false;
+      },
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
@@ -1988,9 +2035,19 @@ export const createBattleUI = ({
   );
   inputPressHandlerIDs.push(
     createInputPressHandler({
-      condition: (): boolean =>
-        getBattleState().values.phase === BattlePhase.Selection &&
-        (isTargeting() || isBindingHotkey() || isUnbindingHotkey()),
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.phase === BattlePhase.Selection) {
+          if (battleState.values.selection === null) {
+            throw new Error("selection is null");
+          }
+          return (
+            (isTargeting() || isBindingHotkey() || isUnbindingHotkey()) &&
+            battleState.values.selection.isUsingAction === false
+          );
+        }
+        return false;
+      },
       inputCollectionID: cancelBattleActionInputCollectionID,
       onInput: (): void => {
         const battleState: State<BattleStateSchema> = getBattleState();
@@ -2058,8 +2115,16 @@ export const createBattleUI = ({
     createLabel({
       color: Color.White,
       coordinates: {
-        condition: (): boolean =>
-          getBattleState().values.phase === BattlePhase.Selection,
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          if (battleState.values.phase === BattlePhase.Selection) {
+            if (battleState.values.selection === null) {
+              throw new Error("selection is null");
+            }
+            return battleState.values.selection.isUsingAction === false;
+          }
+          return false;
+        },
         x: 69,
         y: 148,
       },
