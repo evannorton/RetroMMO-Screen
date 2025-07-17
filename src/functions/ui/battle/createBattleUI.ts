@@ -20,6 +20,7 @@ import {
   BattleUseAbilityRequest,
   BattleUseItemEvent,
   BattleUseItemInstanceRequest,
+  BattlerType,
   Color,
   Constants,
   Direction,
@@ -57,6 +58,7 @@ import {
 } from "pixel-pigeon";
 import { Item } from "../../../classes/Item";
 import { ItemInstance } from "../../../classes/ItemInstance";
+import { Monster } from "../../../classes/Monster";
 import { Reachable } from "../../../classes/Reachable";
 import {
   battleAbilitiesPerPage,
@@ -109,6 +111,11 @@ import { createResourceBar } from "../components/createResourceBar";
 import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
 import { getBattlerHeight } from "../../battle/getBattlerHeight";
+import { getBattlerMonsterNameData } from "../../battle/getBattlerMonsterNameData";
+import { getBattlerName } from "../../battle/getBattlerName";
+import { getBattlerOffset } from "../../battle/getBattlerOffset";
+import { getBattlerShadowXOffset } from "../../battle/getBattlerShadowXOffset";
+import { getBattlerShadowYOffset } from "../../battle/getBattlerShadowYOffset";
 import { getBattlerWidth } from "../../battle/getBattlerWidth";
 import { getConstants } from "../../getConstants";
 import { getCyclicIndex } from "../../getCyclicIndex";
@@ -534,13 +541,11 @@ export const createBattleUI = ({
     if (typeof inputCollectionID === "undefined") {
       throw new Error("inputCollectionID is undefined");
     }
-    const getFriendlyBattler = (): Battler => {
-      const friendlyBattlerID: string | undefined = friendlyBattlerIDs[i];
-      if (typeof friendlyBattlerID === "undefined") {
-        throw new Error("friendlyBattlerID is undefined");
-      }
-      return getDefinable(Battler, friendlyBattlerID);
-    };
+    const friendlyBattlerID: string | undefined = friendlyBattlerIDs[i];
+    if (typeof friendlyBattlerID === "undefined") {
+      throw new Error("friendlyBattlerID is undefined");
+    }
+    const friendlyBattler: Battler = getDefinable(Battler, friendlyBattlerID);
     // Battler panel
     hudElementReferences.push(
       createPanel({
@@ -565,7 +570,7 @@ export const createBattleUI = ({
         size: 1,
         text: (): CreateLabelOptionsText => {
           const battlerName: string =
-            getFriendlyBattler().battleCharacter.player.username;
+            friendlyBattler.battleCharacter.player.username;
           return {
             trims: [
               {
@@ -582,7 +587,7 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createCharacterSprite({
         clothesDyeID: (): string => {
-          const battler: Battler = getFriendlyBattler();
+          const battler: Battler = friendlyBattler;
           return getDefaultedClothesDye(
             battler.battleCharacter.hasClothesDyeItem()
               ? battler.battleCharacter.clothesDyeItemID
@@ -594,9 +599,9 @@ export const createBattleUI = ({
           y: 216,
         },
         direction: Direction.Down,
-        figureID: (): string => getFriendlyBattler().battleCharacter.figureID,
+        figureID: (): string => friendlyBattler.battleCharacter.figureID,
         hairDyeID: (): string => {
-          const battler: Battler = getFriendlyBattler();
+          const battler: Battler = friendlyBattler;
           return getDefaultedHairDye(
             battler.battleCharacter.hasHairDyeItem()
               ? battler.battleCharacter.hairDyeItemID
@@ -604,7 +609,7 @@ export const createBattleUI = ({
           ).id;
         },
         maskID: (): string => {
-          const battler: Battler = getFriendlyBattler();
+          const battler: Battler = friendlyBattler;
           return getDefaultedMask(
             battler.battleCharacter.hasMaskItem()
               ? battler.battleCharacter.maskItemID
@@ -612,15 +617,14 @@ export const createBattleUI = ({
           ).id;
         },
         outfitID: (): string => {
-          const battler: Battler = getFriendlyBattler();
+          const battler: Battler = friendlyBattler;
           return getDefaultedOutfit(
             battler.battleCharacter.hasOutfitItem()
               ? battler.battleCharacter.outfitItemID
               : undefined,
           ).id;
         },
-        skinColorID: (): string =>
-          getFriendlyBattler().battleCharacter.skinColorID,
+        skinColorID: (): string => friendlyBattler.battleCharacter.skinColorID,
       }),
     );
     buttonIDs.push(
@@ -645,7 +649,7 @@ export const createBattleUI = ({
         },
         height: 16,
         onClick: (): void => {
-          useAction(getFriendlyBattler().id);
+          useAction(friendlyBattler.id);
         },
         width: 16,
       }),
@@ -654,10 +658,10 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createResourceBar({
         iconImagePath: "resource-bar-icons/hp",
-        maxValue: (): number => getFriendlyBattler().resources.maxHP,
+        maxValue: (): number => friendlyBattler.resources.maxHP,
         primaryColor: Color.BrightRed,
         secondaryColor: Color.DarkPink,
-        value: (): number => getFriendlyBattler().resources.hp,
+        value: (): number => friendlyBattler.resources.hp,
         x: 97 + i * 81,
         y: 216,
       }),
@@ -666,11 +670,11 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createResourceBar({
         condition: (): boolean =>
-          getFriendlyBattler().battleCharacter.player.character.class
+          friendlyBattler.battleCharacter.player.character.class
             .resourcePool === ResourcePool.MP,
         iconImagePath: "resource-bar-icons/mp",
         maxValue: (): number => {
-          const maxMP: number | null = getFriendlyBattler().resources.maxMP;
+          const maxMP: number | null = friendlyBattler.resources.maxMP;
           if (maxMP === null) {
             throw new Error("maxMP is null");
           }
@@ -679,7 +683,7 @@ export const createBattleUI = ({
         primaryColor: Color.PureBlue,
         secondaryColor: Color.StrongBlue,
         value: (): number => {
-          const mp: number | null = getFriendlyBattler().resources.mp;
+          const mp: number | null = friendlyBattler.resources.mp;
           if (mp === null) {
             throw new Error("mp is null");
           }
@@ -750,7 +754,7 @@ export const createBattleUI = ({
         coordinates: {
           condition: (): boolean =>
             isBattleMultiplayer() &&
-            getFriendlyBattler().battleCharacter.hasSubmittedMove(),
+            friendlyBattler.battleCharacter.hasSubmittedMove(),
           x: 8,
           y: 8 + i * 12,
         },
@@ -758,14 +762,15 @@ export const createBattleUI = ({
         maxLines: 1,
         maxWidth: 288,
         text: (): CreateLabelOptionsText => {
-          const battler: Battler = getFriendlyBattler();
+          const battler: Battler = friendlyBattler;
           const battlerName: string = battler.battleCharacter.player.username;
-          const trims: CreateLabelOptionsTextTrim[] = [
-            {
+          const trims: CreateLabelOptionsTextTrim[] = [];
+          if (typeof battlerName !== "undefined") {
+            trims.push({
               index: 0,
               length: battlerName.length,
-            },
-          ];
+            });
+          }
           let value: string = `${battlerName} will use `;
           switch (
             battler.battleCharacter.submittedMove.actionDefinableReference
@@ -799,12 +804,22 @@ export const createBattleUI = ({
               battler.battleCharacter.submittedMove.battlerID,
             );
             value += " on ";
-            const targetBattlerName: string =
-              targetBattler.battleCharacter.player.username;
-            trims.push({
-              index: value.length,
-              length: targetBattlerName.length,
+            const targetBattlerName: string = getBattlerName({
+              monsterName:
+                targetBattler.type === BattlerType.Monster
+                  ? getBattlerMonsterNameData(targetBattler.id, enemyBattlerIDs)
+                  : undefined,
+              username:
+                targetBattler.type === BattlerType.Player
+                  ? targetBattler.battleCharacter.player.username
+                  : undefined,
             });
+            if (targetBattler.type === BattlerType.Player) {
+              trims.push({
+                index: value.length,
+                length: targetBattlerName.length,
+              });
+            }
             value += targetBattlerName;
           }
           value += ".";
@@ -833,7 +848,7 @@ export const createBattleUI = ({
         },
         inputCollectionID,
         onInput: (): void => {
-          useAction(getFriendlyBattler().id);
+          useAction(friendlyBattler.id);
         },
       }),
     );
@@ -856,10 +871,9 @@ export const createBattleUI = ({
         getDefinable(Battler, enemyBattlerID).isAlive,
     );
   for (const enemyBattlerID of enemyBattlerIDs) {
-    const getEnemyBattler = (): Battler =>
-      getDefinable(Battler, enemyBattlerID);
+    const enemyBattler: Battler = getDefinable(Battler, enemyBattlerID);
     const getAliveBattlerIndex = (): number =>
-      getAliveBattlerIDs().indexOf(getEnemyBattler().id);
+      getAliveBattlerIDs().indexOf(enemyBattler.id);
     const getX = (): number => {
       const width: number = 32;
       const leftWidths: number[] = [];
@@ -880,7 +894,8 @@ export const createBattleUI = ({
       const startX: number = Math.floor(gameWidth / 2 - totalWidth / 2);
       return startX + leftWidth;
     };
-    const getY = (): number => 128 - getBattlerHeight(enemyBattlerID);
+    const getY = (): number =>
+      128 - getBattlerHeight(enemyBattlerID) - getBattlerOffset(enemyBattlerID);
     const getImpactAnimationEventInstance = ():
       | BattleStateRoundEventInstance
       | undefined => {
@@ -1023,7 +1038,7 @@ export const createBattleUI = ({
     };
     const enemySpriteCondition = (): boolean => {
       const battleState: State<BattleStateSchema> = getBattleState();
-      if (getEnemyBattler().isAlive && state.values.serverTime !== null) {
+      if (enemyBattler.isAlive && state.values.serverTime !== null) {
         switch (battleState.values.phase) {
           case BattlePhase.Round: {
             if (battleState.values.round === null) {
@@ -1061,6 +1076,40 @@ export const createBattleUI = ({
       return false;
     };
     // Enemy shadow
+    const getWidth = (): number => {
+      switch (enemyBattler.type) {
+        case BattlerType.Player:
+          return 32;
+        case BattlerType.Monster:
+          return enemyBattler.monster.battleWidth;
+      }
+    };
+    const getHeight = (): number => {
+      switch (enemyBattler.type) {
+        case BattlerType.Player:
+          return 32;
+        case BattlerType.Monster:
+          return enemyBattler.monster.battleHeight;
+      }
+    };
+    const enemyWidth: number = getWidth();
+    const enemyHeight: number = getHeight();
+    const getShadowWidth = (): number => {
+      switch (enemyBattler.type) {
+        case BattlerType.Player:
+          return 23;
+        case BattlerType.Monster:
+          return enemyBattler.monster.shadowXRadius * 2;
+      }
+    };
+    const getShadowHeight = (): number => {
+      switch (enemyBattler.type) {
+        case BattlerType.Player:
+          return 8;
+        case BattlerType.Monster:
+          return enemyBattler.monster.shadowYRadius * 2;
+      }
+    };
     ellipseIDs.push(
       createEllipse({
         color: (): string =>
@@ -1068,18 +1117,38 @@ export const createBattleUI = ({
             .shadowColor,
         coordinates: {
           condition: enemySpriteCondition,
-          x: (): number => getX() + 4,
-          y: 122,
+          x: (): number =>
+            Math.floor(getX() + getWidth() / 2 - getShadowWidth() / 2) +
+            getBattlerShadowXOffset(enemyBattlerID),
+          y: 132 - getShadowHeight() + getBattlerShadowYOffset(enemyBattlerID),
         },
-        height: 8,
-        width: 23,
+        height: getShadowHeight,
+        width: getShadowWidth,
+      }),
+    );
+    // Enemy monster sprite
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && enemyBattler.type === BattlerType.Monster,
+        height: enemyHeight,
+        imagePath: (): string => {
+          const monster: Monster = getDefinable(
+            Monster,
+            enemyBattler.monsterID,
+          );
+          return monster.imagePath;
+        },
+        width: enemyWidth,
+        x: getX,
+        y: getY,
       }),
     );
     // Enemy character sprite
     hudElementReferences.push(
       createCharacterSprite({
         clothesDyeID: (): string => {
-          const battler: Battler = getEnemyBattler();
+          const battler: Battler = enemyBattler;
           return getDefaultedClothesDye(
             battler.battleCharacter.hasClothesDyeItem()
               ? battler.battleCharacter.clothesDyeItemID
@@ -1087,14 +1156,15 @@ export const createBattleUI = ({
           ).id;
         },
         coordinates: {
-          condition: enemySpriteCondition,
+          condition: (): boolean =>
+            enemySpriteCondition() && enemyBattler.type === BattlerType.Player,
           x: getX,
           y: getY,
         },
         direction: Direction.Down,
-        figureID: (): string => getEnemyBattler().battleCharacter.figureID,
+        figureID: (): string => enemyBattler.battleCharacter.figureID,
         hairDyeID: (): string => {
-          const battler: Battler = getEnemyBattler();
+          const battler: Battler = enemyBattler;
           return getDefaultedHairDye(
             battler.battleCharacter.hasHairDyeItem()
               ? battler.battleCharacter.hairDyeItemID
@@ -1102,7 +1172,7 @@ export const createBattleUI = ({
           ).id;
         },
         maskID: (): string => {
-          const battler: Battler = getEnemyBattler();
+          const battler: Battler = enemyBattler;
           return getDefaultedMask(
             battler.battleCharacter.hasMaskItem()
               ? battler.battleCharacter.maskItemID
@@ -1110,7 +1180,7 @@ export const createBattleUI = ({
           ).id;
         },
         outfitID: (): string => {
-          const battler: Battler = getEnemyBattler();
+          const battler: Battler = enemyBattler;
           return getDefaultedOutfit(
             battler.battleCharacter.hasOutfitItem()
               ? battler.battleCharacter.outfitItemID
@@ -1118,8 +1188,7 @@ export const createBattleUI = ({
           ).id;
         },
         scale: 2,
-        skinColorID: (): string =>
-          getEnemyBattler().battleCharacter.skinColorID,
+        skinColorID: (): string => enemyBattler.battleCharacter.skinColorID,
       }),
     );
     buttonIDs.push(
@@ -1128,7 +1197,7 @@ export const createBattleUI = ({
           condition: (): boolean => {
             if (
               getBattleState().values.phase === BattlePhase.Selection &&
-              getEnemyBattler().isAlive &&
+              enemyBattler.isAlive &&
               isTargeting()
             ) {
               const ability: Ability = getQueuedActionAbility();
@@ -1141,7 +1210,7 @@ export const createBattleUI = ({
         },
         height: 32,
         onClick: (): void => {
-          useAction(getEnemyBattler().id);
+          useAction(enemyBattler.id);
         },
         width: 32,
       }),
@@ -1281,7 +1350,7 @@ export const createBattleUI = ({
     const targetingNumberCondition = (): boolean => {
       if (
         getBattleState().values.phase === BattlePhase.Selection &&
-        getEnemyBattler().isAlive &&
+        enemyBattler.isAlive &&
         isTargeting()
       ) {
         const battleState: State<BattleStateSchema> = getBattleState();
@@ -1336,7 +1405,7 @@ export const createBattleUI = ({
         condition: (): boolean => {
           if (
             getBattleState().values.phase === BattlePhase.Selection &&
-            getEnemyBattler().isAlive &&
+            enemyBattler.isAlive &&
             isTargeting()
           ) {
             const ability: Ability = getQueuedActionAbility();
@@ -1353,7 +1422,7 @@ export const createBattleUI = ({
           return inputCollectionID;
         },
         onInput: (): void => {
-          useAction(getEnemyBattler().id);
+          useAction(enemyBattler.id);
         },
       }),
     );
@@ -2741,7 +2810,7 @@ export const createBattleUI = ({
         },
         horizontalAlignment: "left",
         maxLines: 2,
-        maxWidth: 229,
+        maxWidth: 227,
         size: 1,
         text: (): CreateLabelOptionsText => {
           if (state.values.serverTime === null) {
@@ -2783,30 +2852,40 @@ export const createBattleUI = ({
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
                 if (damageBattleEvent.isRedirected === true) {
+                  const battlerName: string = getBattlerName({
+                    monsterName: damageBattleEvent.target.monsterName,
+                    username: damageBattleEvent.target.username,
+                  });
+                  const trims: CreateLabelOptionsTextTrim[] = [];
+                  if (
+                    typeof damageBattleEvent.target.username !== "undefined"
+                  ) {
+                    trims.push({
+                      index: 0,
+                      length: battlerName.length,
+                    });
+                  }
                   return {
-                    trims: [
-                      {
-                        index: 0,
-                        length: damageBattleEvent.target.name.length,
-                      },
-                    ],
-                    value: `${
-                      damageBattleEvent.target.name
-                    } guards for ${getFormattedInteger(
+                    trims,
+                    value: `${battlerName} guards for ${getFormattedInteger(
                       damageBattleEvent.amount,
                     )} damage.`,
                   };
                 }
+                const battlerName: string = getBattlerName({
+                  monsterName: damageBattleEvent.target.monsterName,
+                  username: damageBattleEvent.target.username,
+                });
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (typeof damageBattleEvent.target.username !== "undefined") {
+                  trims.push({
+                    index: 0,
+                    length: battlerName.length,
+                  });
+                }
                 return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: damageBattleEvent.target.name.length,
-                    },
-                  ],
-                  value: `${
-                    damageBattleEvent.target.name
-                  } takes ${getFormattedInteger(
+                  trims,
+                  value: `${battlerName} takes ${getFormattedInteger(
                     damageBattleEvent.amount,
                   )} damage.`,
                 };
@@ -2814,14 +2893,20 @@ export const createBattleUI = ({
               case BattleEventType.Death: {
                 const deathBattleEvent: BattleDeathEvent =
                   battleEventInstance.event as BattleDeathEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: deathBattleEvent.target.monsterName,
+                  username: deathBattleEvent.target.username,
+                });
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (typeof deathBattleEvent.target.username !== "undefined") {
+                  trims.push({
+                    index: 0,
+                    length: battlerName.length,
+                  });
+                }
                 return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: deathBattleEvent.target.name.length,
-                    },
-                  ],
-                  value: `${deathBattleEvent.target.name} is defeated!`,
+                  trims,
+                  value: `${battlerName} is defeated!`,
                 };
               }
               case BattleEventType.Defeat: {
@@ -2869,14 +2954,23 @@ export const createBattleUI = ({
               case BattleEventType.FriendlyTargetFailure: {
                 const friendlyTargetFailureBattleEvent: BattleFriendlyTargetFailureEvent =
                   battleEventInstance.event as BattleFriendlyTargetFailureEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName:
+                    friendlyTargetFailureBattleEvent.target.monsterName,
+                  username: friendlyTargetFailureBattleEvent.target.username,
+                });
                 let value: string = "...but ";
-                const trims: CreateLabelOptionsTextTrim[] = [
-                  {
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (
+                  typeof friendlyTargetFailureBattleEvent.target.username !==
+                  "undefined"
+                ) {
+                  trims.push({
                     index: value.length,
-                    length: friendlyTargetFailureBattleEvent.target.name.length,
-                  },
-                ];
-                value += `${friendlyTargetFailureBattleEvent.target.name} is defeated.`;
+                    length: battlerName.length,
+                  });
+                }
+                value += `${battlerName} is defeated.`;
                 return {
                   trims,
                   value,
@@ -2885,16 +2979,20 @@ export const createBattleUI = ({
               case BattleEventType.Heal: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: damageBattleEvent.target.monsterName,
+                  username: damageBattleEvent.target.username,
+                });
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (typeof damageBattleEvent.target.username !== "undefined") {
+                  trims.push({
+                    index: 0,
+                    length: battlerName.length,
+                  });
+                }
                 return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: damageBattleEvent.target.name.length,
-                    },
-                  ],
-                  value: `${
-                    damageBattleEvent.target.name
-                  } recovers ${getFormattedInteger(
+                  trims,
+                  value: `${battlerName} recovers ${getFormattedInteger(
                     damageBattleEvent.amount,
                   )} HP.`,
                 };
@@ -2902,14 +3000,22 @@ export const createBattleUI = ({
               case BattleEventType.Instakill: {
                 const instakillBattleEvent: BattleInstakillEvent =
                   battleEventInstance.event as BattleInstakillEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: instakillBattleEvent.target.monsterName,
+                  username: instakillBattleEvent.target.username,
+                });
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (
+                  typeof instakillBattleEvent.target.username !== "undefined"
+                ) {
+                  trims.push({
+                    index: 0,
+                    length: battlerName.length,
+                  });
+                }
                 return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: instakillBattleEvent.target.name.length,
-                    },
-                  ],
-                  value: `${instakillBattleEvent.target.name} is drawn into the light.`,
+                  trims,
+                  value: `${battlerName} is drawn into the light.`,
                 };
               }
               case BattleEventType.Miss: {
@@ -2918,16 +3024,20 @@ export const createBattleUI = ({
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
                   battleEventInstance.event as BattleRejuvenateEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: rejuvenateEvent.target.monsterName,
+                  username: rejuvenateEvent.target.username,
+                });
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (typeof rejuvenateEvent.target.username !== "undefined") {
+                  trims.push({
+                    index: 0,
+                    length: battlerName.length,
+                  });
+                }
                 return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: rejuvenateEvent.target.name.length,
-                    },
-                  ],
-                  value: `${
-                    rejuvenateEvent.target.name
-                  } recovers ${getFormattedInteger(
+                  trims,
+                  value: `${battlerName} recovers ${getFormattedInteger(
                     rejuvenateEvent.amount,
                   )} MP.`,
                 };
@@ -2939,20 +3049,35 @@ export const createBattleUI = ({
                   Ability,
                   useAbilityBattleEvent.abilityID,
                 );
-                let value: string = `${useAbilityBattleEvent.caster.name} uses ${ability.name}`;
-                const trims: CreateLabelOptionsTextTrim[] = [
-                  {
-                    index: 0,
-                    length: useAbilityBattleEvent.caster.name.length,
-                  },
-                ];
-                if (typeof useAbilityBattleEvent.target !== "undefined") {
-                  value += " on ";
+                const casterName: string = getBattlerName({
+                  monsterName: useAbilityBattleEvent.caster.monsterName,
+                  username: useAbilityBattleEvent.caster.username,
+                });
+                let value: string = `${casterName} uses ${ability.name}`;
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (
+                  typeof useAbilityBattleEvent.caster.username !== "undefined"
+                ) {
                   trims.push({
-                    index: value.length,
-                    length: useAbilityBattleEvent.target.name.length,
+                    index: 0,
+                    length: casterName.length,
                   });
-                  value += useAbilityBattleEvent.target.name;
+                }
+                if (typeof useAbilityBattleEvent.target !== "undefined") {
+                  const targetName: string = getBattlerName({
+                    monsterName: useAbilityBattleEvent.target.monsterName,
+                    username: useAbilityBattleEvent.target.username,
+                  });
+                  value += " on ";
+                  if (
+                    typeof useAbilityBattleEvent.target.username !== "undefined"
+                  ) {
+                    trims.push({
+                      index: value.length,
+                      length: targetName.length,
+                    });
+                  }
+                  value += targetName;
                 }
                 value += ".";
                 return {
@@ -2967,20 +3092,33 @@ export const createBattleUI = ({
                   Item,
                   useItemBattleEvent.itemID,
                 );
-                let value: string = `${useItemBattleEvent.caster.name} uses ${item.name}`;
-                const trims: CreateLabelOptionsTextTrim[] = [
-                  {
-                    index: 0,
-                    length: useItemBattleEvent.caster.name.length,
-                  },
-                ];
-                if (typeof useItemBattleEvent.target !== "undefined") {
-                  value += " on ";
+                const casterName: string = getBattlerName({
+                  monsterName: useItemBattleEvent.caster.monsterName,
+                  username: useItemBattleEvent.caster.username,
+                });
+                let value: string = `${casterName} uses ${item.name}`;
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (typeof useItemBattleEvent.caster.username !== "undefined") {
                   trims.push({
-                    index: value.length,
-                    length: useItemBattleEvent.target.name.length,
+                    index: 0,
+                    length: casterName.length,
                   });
-                  value += useItemBattleEvent.target.name;
+                }
+                if (typeof useItemBattleEvent.target !== "undefined") {
+                  const targetName: string = getBattlerName({
+                    monsterName: useItemBattleEvent.target.monsterName,
+                    username: useItemBattleEvent.target.username,
+                  });
+                  value += " on ";
+                  if (
+                    typeof useItemBattleEvent.target.username !== "undefined"
+                  ) {
+                    trims.push({
+                      index: value.length,
+                      length: targetName.length,
+                    });
+                  }
+                  value += targetName;
                 }
                 value += ".";
                 return {

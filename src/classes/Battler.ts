@@ -19,6 +19,7 @@ export interface BattlerOptions {
   readonly battleCharacterID?: string;
   readonly gold: number;
   readonly isAlive?: boolean;
+  readonly monsterID?: string;
   readonly resources?: BattlerOptionsResources;
   readonly type: BattlerType;
 }
@@ -43,7 +44,20 @@ export class Battler extends Definable {
             mp: options.resources.mp ?? null,
           }
         : null;
+    this._monsterID = options.monsterID;
     this._type = options.type;
+    switch (options.type) {
+      case BattlerType.Player:
+        if (typeof this._battleCharacterID === "undefined") {
+          throw new Error("Player must have a battleCharacterID");
+        }
+        break;
+      case BattlerType.Monster:
+        if (typeof this._monsterID === "undefined") {
+          throw new Error("Monster must have a monsterID");
+        }
+        break;
+    }
   }
 
   public get battleCharacter(): BattleCharacter {
