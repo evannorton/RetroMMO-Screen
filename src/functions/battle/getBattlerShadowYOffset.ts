@@ -8,6 +8,6 @@ export const getBattlerShadowYOffset = (battlerID: string): number => {
     case BattlerType.Monster:
       return battler.monster.shadowYOffset;
     case BattlerType.Player:
-      return 0;
+      return -2;
   }
 };
