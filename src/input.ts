@@ -684,16 +684,17 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: spinInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "ShiftLeft",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "ShiftLeft",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -703,7 +704,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -724,7 +724,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -745,7 +744,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -766,7 +764,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -787,7 +784,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -808,7 +804,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -829,7 +824,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -850,7 +844,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -871,7 +864,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -892,7 +884,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -913,7 +904,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -934,7 +924,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
