@@ -9,10 +9,13 @@ import {
   BattleEventType,
   BattleExperienceEvent,
   BattleFriendlyTargetFailureEvent,
+  BattleGainStatEvent,
   BattleGoldEvent,
   BattleHealEvent,
   BattleImpactAlignment,
   BattleInstakillEvent,
+  BattleLevelUpEvent,
+  BattleNewLevelEvent,
   BattlePhase,
   BattleRejuvenateEvent,
   BattleUnbindHotkeyRequest,
@@ -125,6 +128,7 @@ import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../../getFormattedInteger";
+import { getStatName } from "../../stats/getStatName";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
 import { isBattleMultiplayer } from "../../battle/isBattleMultiplayer";
 
@@ -2976,6 +2980,21 @@ export const createBattleUI = ({
                   value,
                 };
               }
+              case BattleEventType.GainStat: {
+                const gainStatEvent: BattleGainStatEvent =
+                  battleEventInstance.event as BattleGainStatEvent;
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: gainStatEvent.username.length,
+                    },
+                  ],
+                  value: `${gainStatEvent.username} gains ${getFormattedInteger(
+                    gainStatEvent.amount,
+                  )} ${getStatName(gainStatEvent.stat)}.`,
+                };
+              }
               case BattleEventType.Heal: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
@@ -3018,8 +3037,51 @@ export const createBattleUI = ({
                   value: `${battlerName} is drawn into the light.`,
                 };
               }
+              case BattleEventType.LevelUp: {
+                const levelUpEvent: BattleLevelUpEvent =
+                  battleEventInstance.event as BattleLevelUpEvent;
+                if (levelUpEvent.amount > 1) {
+                  return {
+                    trims: [
+                      {
+                        index: 0,
+                        length: levelUpEvent.username.length,
+                      },
+                    ],
+                    value: `${
+                      levelUpEvent.username
+                    } levels up ${getFormattedInteger(
+                      levelUpEvent.amount,
+                    )} times!`,
+                  };
+                }
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: levelUpEvent.username.length,
+                    },
+                  ],
+                  value: `${levelUpEvent.username} levels up!`,
+                };
+              }
               case BattleEventType.Miss: {
                 return { value: "...but it misses." };
+              }
+              case BattleEventType.NewLevel: {
+                const newLevelEvent: BattleNewLevelEvent =
+                  battleEventInstance.event as BattleNewLevelEvent;
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: newLevelEvent.username.length,
+                    },
+                  ],
+                  value: `${
+                    newLevelEvent.username
+                  } is now level ${getFormattedInteger(newLevelEvent.level)}.`,
+                };
               }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
