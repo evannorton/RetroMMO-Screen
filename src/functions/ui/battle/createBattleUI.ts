@@ -6,6 +6,7 @@ import {
   BattleDamageEvent,
   BattleDeathEvent,
   BattleDefeatEvent,
+  BattleDropEvent,
   BattleEventType,
   BattleExperienceEvent,
   BattleFriendlyTargetFailureEvent,
@@ -14,8 +15,10 @@ import {
   BattleHealEvent,
   BattleImpactAlignment,
   BattleInstakillEvent,
+  BattleInventoryFullEvent,
   BattleLevelUpEvent,
   BattleNewLevelEvent,
+  BattleObtainEvent,
   BattlePhase,
   BattleRejuvenateEvent,
   BattleUnbindHotkeyRequest,
@@ -2929,6 +2932,19 @@ export const createBattleUI = ({
                   value: "You are defeated...",
                 };
               }
+              case BattleEventType.Drop: {
+                const dropBattleEvent: BattleDropEvent =
+                  battleEventInstance.event as BattleDropEvent;
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: dropBattleEvent.username.length,
+                    },
+                  ],
+                  value: `${dropBattleEvent.username} finds an item on the ground.`,
+                };
+              }
               case BattleEventType.Experience: {
                 const experienceBattleEvent: BattleExperienceEvent =
                   battleEventInstance.event as BattleExperienceEvent;
@@ -3037,6 +3053,24 @@ export const createBattleUI = ({
                   value: `${battlerName} is drawn into the light.`,
                 };
               }
+              case BattleEventType.InventoryFull: {
+                const inventoryFullEvent: BattleInventoryFullEvent =
+                  battleEventInstance.event as BattleInventoryFullEvent;
+                let value: string = "...but ";
+                const nameIndex: number = value.length;
+                value += `${inventoryFullEvent.username} has no space for ${
+                  getDefinable(Item, inventoryFullEvent.itemID).name
+                }.`;
+                return {
+                  trims: [
+                    {
+                      index: nameIndex,
+                      length: inventoryFullEvent.username.length,
+                    },
+                  ],
+                  value,
+                };
+              }
               case BattleEventType.LevelUp: {
                 const levelUpEvent: BattleLevelUpEvent =
                   battleEventInstance.event as BattleLevelUpEvent;
@@ -3081,6 +3115,21 @@ export const createBattleUI = ({
                   value: `${
                     newLevelEvent.username
                   } is now level ${getFormattedInteger(newLevelEvent.level)}.`,
+                };
+              }
+              case BattleEventType.Obtain: {
+                const obtainBattleEvent: BattleObtainEvent =
+                  battleEventInstance.event as BattleObtainEvent;
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: obtainBattleEvent.username.length,
+                    },
+                  ],
+                  value: `${obtainBattleEvent.username} gets ${
+                    getDefinable(Item, obtainBattleEvent.itemID).name
+                  }!`,
                 };
               }
               case BattleEventType.Rejuvenate: {
