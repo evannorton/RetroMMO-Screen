@@ -85,7 +85,9 @@ export const createSlot = ({
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: button.condition,
+          condition: (): boolean =>
+            (typeof condition === "undefined" || condition()) &&
+            (typeof button.condition === "undefined" || button.condition()),
           x,
           y,
         },
