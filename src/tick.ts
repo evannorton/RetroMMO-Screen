@@ -261,6 +261,16 @@ export const tick = (): void => {
                 playMusic();
                 break;
               }
+              case BattleEventType.FleeFailure:
+                playAudioSource("sfx/fail", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              case BattleEventType.FleeSuccess:
+                playAudioSource("sfx/actions/flee", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
               case BattleEventType.FriendlyTargetFailure: {
                 playAudioSource("sfx/fail", {
                   volumeChannelID: sfxVolumeChannelID,

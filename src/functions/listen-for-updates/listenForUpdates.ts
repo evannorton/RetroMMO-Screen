@@ -2,7 +2,7 @@ import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
   BattlerType,
-  EndPlayerBattleUpdate,
+  EndPlayerBattlesUpdate,
   EnterPlayerUpdate,
   ExitPlayerUpdate,
   InitialUpdate,
@@ -93,9 +93,9 @@ export const listenForUpdates = (): void => {
       });
     },
   });
-  listenToSocketioEvent<EndPlayerBattleUpdate>({
+  listenToSocketioEvent<EndPlayerBattlesUpdate>({
     event: "end-player-battles",
-    onMessage: (update: EndPlayerBattleUpdate): void => {
+    onMessage: (update: EndPlayerBattlesUpdate): void => {
       if (typeof update.character !== "undefined") {
         const battleState: State<BattleStateSchema> = getBattleState();
         removeHUDElements(battleState.values.hudElementReferences);

@@ -2919,17 +2919,20 @@ export const createBattleUI = ({
               case BattleEventType.Defeat: {
                 const defeatBattleEvent: BattleDefeatEvent =
                   battleEventInstance.event as BattleDefeatEvent;
+                const verb: string = defeatBattleEvent.wasFled
+                  ? "evaded"
+                  : "defeated";
                 if (
                   defeatBattleEvent.winningTeamIndex ===
                   battleState.values.teamIndex
                 ) {
                   if (battleState.values.enemyBattlersCount > 1) {
-                    return { value: "The enemies are defeated..." };
+                    return { value: `The enemies are ${verb}...` };
                   }
-                  return { value: "The enemy is defeated..." };
+                  return { value: `The enemy is ${verb}...` };
                 }
                 return {
-                  value: "You are defeated...",
+                  value: `You are ${verb}...`,
                 };
               }
               case BattleEventType.Drop: {
@@ -2954,21 +2957,14 @@ export const createBattleUI = ({
                   )} experience.`,
                 };
               }
-              case BattleEventType.Gold: {
-                const goldBattleEvent: BattleGoldEvent =
-                  battleEventInstance.event as BattleGoldEvent;
+              case BattleEventType.FleeFailure: {
                 return {
-                  value: `You ${
-                    goldBattleEvent.winningTeamIndex ===
-                    battleState.values.teamIndex
-                      ? "find"
-                      : "lose"
-                  } ${
-                    goldBattleEvent.winningTeamIndex ===
-                    battleState.values.teamIndex
-                      ? getFormattedInteger(goldBattleEvent.amount)
-                      : battler.gold
-                  } gold.`,
+                  value: "...but fails to flee the battle.",
+                };
+              }
+              case BattleEventType.FleeSuccess: {
+                return {
+                  value: "...and successfully flees the battle!",
                 };
               }
               case BattleEventType.FriendlyTargetFailure: {
@@ -2994,6 +2990,23 @@ export const createBattleUI = ({
                 return {
                   trims,
                   value,
+                };
+              }
+              case BattleEventType.Gold: {
+                const goldBattleEvent: BattleGoldEvent =
+                  battleEventInstance.event as BattleGoldEvent;
+                return {
+                  value: `You ${
+                    goldBattleEvent.winningTeamIndex ===
+                    battleState.values.teamIndex
+                      ? "find"
+                      : "lose"
+                  } ${
+                    goldBattleEvent.winningTeamIndex ===
+                    battleState.values.teamIndex
+                      ? getFormattedInteger(goldBattleEvent.amount)
+                      : battler.gold
+                  } gold.`,
                 };
               }
               case BattleEventType.GainStat: {
