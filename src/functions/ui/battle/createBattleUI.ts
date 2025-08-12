@@ -1,5 +1,6 @@
 import { Ability } from "../../../classes/Ability";
 import {
+  BattleAmbushEvent,
   BattleBindAbilityRequest,
   BattleBindItemRequest,
   BattleCancelSubmittedMoveRequest,
@@ -2843,6 +2844,16 @@ export const createBattleUI = ({
           if (typeof battleEventInstance !== "undefined") {
             const battler: Battler = getBattler();
             switch (battleEventInstance.event.type) {
+              case BattleEventType.Ambush: {
+                const battleAmbushEvent: BattleAmbushEvent =
+                  battleEventInstance.event as BattleAmbushEvent;
+                return {
+                  value:
+                    battleState.values.teamIndex === battleAmbushEvent.teamIndex
+                      ? "...but they don't notice you."
+                      : "They ambush you!",
+                };
+              }
               case BattleEventType.Approach:
                 return {
                   value:
