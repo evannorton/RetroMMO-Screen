@@ -883,7 +883,7 @@ export const createBattleUI = ({
     const getAliveBattlerIndex = (): number =>
       getAliveBattlerIDs().indexOf(enemyBattler.id);
     const getX = (): number => {
-      const width: number = 32;
+      const width: number = getBattlerWidth(enemyBattlerID);
       const leftWidths: number[] = [];
       const rightWidths: number[] = [];
       const aliveBattlerIndex: number = getAliveBattlerIndex();
