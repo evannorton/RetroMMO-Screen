@@ -497,6 +497,7 @@ export const listenForUpdates = (): void => {
           state.setValues({
             battleState: createBattleState({
               battlerID: update.battle.battlerID,
+              encounterID: update.battle.encounterID,
               enemyBattlerIDs: update.battle.enemyBattlerIDs,
               enemyBattlersCount: update.battle.enemyBattlersCount,
               friendlyBattlerIDs: update.battle.friendlyBattlerIDs,

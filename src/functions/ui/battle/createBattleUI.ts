@@ -1084,24 +1084,8 @@ export const createBattleUI = ({
       return false;
     };
     // Enemy shadow
-    const getWidth = (): number => {
-      switch (enemyBattler.type) {
-        case BattlerType.Player:
-          return 32;
-        case BattlerType.Monster:
-          return enemyBattler.monster.battleWidth;
-      }
-    };
-    const getHeight = (): number => {
-      switch (enemyBattler.type) {
-        case BattlerType.Player:
-          return 32;
-        case BattlerType.Monster:
-          return enemyBattler.monster.battleHeight;
-      }
-    };
-    const enemyWidth: number = getWidth();
-    const enemyHeight: number = getHeight();
+    const enemyWidth: number = getBattlerWidth(enemyBattlerID);
+    const enemyHeight: number = getBattlerHeight(enemyBattlerID);
     const getShadowWidth = (): number => {
       switch (enemyBattler.type) {
         case BattlerType.Player:
@@ -1126,8 +1110,11 @@ export const createBattleUI = ({
         coordinates: {
           condition: enemySpriteCondition,
           x: (): number =>
-            Math.floor(getX() + getWidth() / 2 - getShadowWidth() / 2) +
-            getBattlerShadowXOffset(enemyBattlerID),
+            Math.floor(
+              getX() +
+                getBattlerWidth(enemyBattlerID) / 2 -
+                getShadowWidth() / 2,
+            ) + getBattlerShadowXOffset(enemyBattlerID),
           y: 132 - getShadowHeight() + getBattlerShadowYOffset(enemyBattlerID),
         },
         height: getShadowHeight,
@@ -1214,13 +1201,13 @@ export const createBattleUI = ({
             return false;
           },
           x: getX,
-          y: 96,
+          y: getY,
         },
-        height: 32,
+        height: getBattlerHeight(enemyBattlerID),
         onClick: (): void => {
           useAction(enemyBattler.id);
         },
-        width: 32,
+        width: getBattlerWidth(enemyBattlerID),
       }),
     );
     // Enemy impact animation
@@ -1387,7 +1374,13 @@ export const createBattleUI = ({
         color: Color.VeryDarkGray,
         coordinates: {
           condition: targetingNumberCondition,
-          x: (): number => getX() + 11,
+          x: (): number =>
+            getX() +
+            Math.floor(
+              getBattlerWidth(enemyBattlerID) / 2 +
+                getBattlerShadowXOffset(enemyBattlerID) -
+                5,
+            ),
           y: 123,
         },
         height: 9,
@@ -1399,7 +1392,12 @@ export const createBattleUI = ({
         color: Color.White,
         coordinates: {
           condition: targetingNumberCondition,
-          x: (): number => getX() + 16,
+          x: (): number =>
+            getX() +
+            Math.floor(
+              getBattlerWidth(enemyBattlerID) / 2 +
+                getBattlerShadowXOffset(enemyBattlerID),
+            ),
           y: 124,
         },
         horizontalAlignment: "center",

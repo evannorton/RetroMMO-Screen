@@ -1,5 +1,6 @@
 import { BattleDefeatEvent, BattleEventType, BattleType } from "retrommo-types";
 import { BattleStateRoundEventInstance, state } from "../state";
+import { Encounter } from "../classes/Encounter";
 import { MusicTrack } from "../classes/MusicTrack";
 import { Reachable } from "../classes/Reachable";
 import { getDefinable } from "definables";
@@ -50,8 +51,19 @@ const getMusicPlayData = (): MusicPlayData | null => {
           defeatEvent.winningTeamIndex ===
           state.values.battleState.values.teamIndex
         ) {
+          const encounter: Encounter | undefined =
+            state.values.battleState.values.encounterID !== null
+              ? getDefinable(
+                  Encounter,
+                  state.values.battleState.values.encounterID,
+                )
+              : undefined;
           return {
-            musicTrackID: "victory",
+            musicTrackID:
+              typeof encounter !== "undefined" &&
+              encounter.hasVictoryMusicTrack()
+                ? encounter.victoryMusicTrackID
+                : "victory",
             resumePoint: 0,
           };
         }

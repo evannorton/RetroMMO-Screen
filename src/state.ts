@@ -113,6 +113,7 @@ export interface BattleStateHotkey {
 }
 export interface BattleStateSchema {
   readonly battlerID: string;
+  readonly encounterID: string | null;
   readonly enemyBattlerIDs: readonly string[];
   readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];

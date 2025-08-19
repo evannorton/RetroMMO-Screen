@@ -13,6 +13,7 @@ import {
   Constants,
   Definition,
   EmoteDefinition,
+  EncounterDefinition,
   EquipmentPieceDefinition,
   FigureDefinition,
   HairColorDefinition,
@@ -56,6 +57,7 @@ import {
   makeHTTPRequest,
 } from "pixel-pigeon";
 import { Emote } from "../classes/Emote";
+import { Encounter } from "../classes/Encounter";
 import { EquipmentPiece } from "../classes/EquipmentPiece";
 import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
@@ -212,6 +214,16 @@ export const loadGameData = async (): Promise<void> => {
             gameData[className] as Record<string, EmoteDefinition>
           )[id] as EmoteDefinition;
           new Emote({
+            definition,
+            id,
+          });
+          break;
+        }
+        case "Encounter": {
+          const definition: EncounterDefinition = (
+            gameData[className] as Record<string, EncounterDefinition>
+          )[id] as EncounterDefinition;
+          new Encounter({
             definition,
             id,
           });

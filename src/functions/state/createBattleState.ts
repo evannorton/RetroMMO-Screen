@@ -23,6 +23,7 @@ export interface CreateBattleStateOptionsHotkey {
 }
 export interface CreateBattleStateOptions {
   readonly battlerID: string;
+  readonly encounterID?: string;
   readonly enemyBattlerIDs: readonly string[];
   readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];
@@ -39,6 +40,7 @@ export interface CreateBattleStateOptions {
 }
 export const createBattleState = ({
   battlerID,
+  encounterID,
   enemyBattlerIDs,
   enemyBattlersCount,
   friendlyBattlerIDs,
@@ -55,6 +57,7 @@ export const createBattleState = ({
 }: CreateBattleStateOptions): State<BattleStateSchema> =>
   new State<BattleStateSchema>({
     battlerID,
+    encounterID: encounterID ?? null,
     enemyBattlerIDs,
     enemyBattlersCount,
     friendlyBattlerIDs,
