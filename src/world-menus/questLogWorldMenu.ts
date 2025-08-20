@@ -428,7 +428,7 @@ export const questLogWorldMenu: WorldMenu<
               getQuestIconRecolors(getSelectedQuest().id, false),
           },
         ],
-        imagePath: (): string => "slots/basic",
+        imagePath: "slots/basic",
         x: 7,
         y: selectedQuestY + 7,
       }),

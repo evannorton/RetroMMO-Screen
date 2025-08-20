@@ -1,6 +1,7 @@
+import { Ability } from "../../classes/Ability";
 import { Bank } from "../../classes/Bank";
-import { Chest } from "../../classes/Chest";
 import {
+  BattlePhase,
   Direction,
   ItemInstanceUpdate,
   MarkerType,
@@ -34,8 +35,15 @@ import {
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
+import { Chest } from "../../classes/Chest";
+import {
+  CreateBattleStateOptionsHotkey,
+  createBattleState,
+} from "../state/createBattleState";
+import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
+import { MusicTrack } from "../../classes/MusicTrack";
 import { NPC } from "../../classes/NPC";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
@@ -58,15 +66,19 @@ import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
-import { createBattleState } from "../state/createBattleState";
+import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
+import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSource";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
+import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
+import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
+import { playMusic } from "../playMusic";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../volumeChannels";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
@@ -232,7 +244,7 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           worldCombatCharacter.characterID,
         );
-        worldCharacter.isRenewing = worldCombatCharacter.isRenewing;
+        worldCharacter.isRenewing = worldCombatCharacter.isRenewing ?? false;
         worldCharacter.resources = {
           hp: worldCombatCharacter.resources.hp,
           maxHP: worldCombatCharacter.resources.maxHP,
@@ -392,6 +404,7 @@ export const listenForWorldUpdates = (): void => {
           WorldCharacter,
           worldCharacterID,
         );
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
     },
@@ -406,14 +419,16 @@ export const listenForWorldUpdates = (): void => {
         worldState.values.worldCharacterID,
       );
       selfWorldCharacter.player.character = null;
+      selfWorldCharacter.player.worldCharacterID = null;
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
       }
       const mainMenuCharacterIDs: string[] = [];
-      for (const mainMenuCharacterUpdate of update.mainMenuCharacters) {
+      for (const mainMenuCharacterUpdate of update.characters) {
         mainMenuCharacterIDs.push(
           new MainMenuCharacter({
             classID: mainMenuCharacterUpdate.classID,
@@ -433,6 +448,7 @@ export const listenForWorldUpdates = (): void => {
         selectedPlayerID: null,
         worldState: null,
       });
+      playMusic();
       exitLevel();
     },
   });
@@ -458,6 +474,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
     event: "world/move-characters",
     onMessage: (update: WorldMoveCharactersUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldMoveCharacterUpdate of update.characters) {
         const worldCharacter: WorldCharacter = getDefinable(
           WorldCharacter,
@@ -516,6 +533,10 @@ export const listenForWorldUpdates = (): void => {
           clearWorldCharacterMarker(clearedMarkerWorldCharacterID);
         }
       }
+      worldState.setValues({
+        reachableID: update.reachableID,
+      });
+      playMusic();
     },
   });
   listenToSocketioEvent<WorldOpenBankUpdate>({
@@ -585,6 +606,7 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (update: WorldPositionUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
       for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
@@ -621,7 +643,9 @@ export const listenForWorldUpdates = (): void => {
           (itemInstanceUpdate: ItemInstanceUpdate): string =>
             itemInstanceUpdate.itemInstanceID,
         ),
+        reachableID: update.reachableID,
       });
+      playMusic();
       lockCameraToEntity(
         getDefinable(WorldCharacter, getWorldState().values.worldCharacterID)
           .entityID,
@@ -680,17 +704,90 @@ export const listenForWorldUpdates = (): void => {
   });
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
-    onMessage: (): void => {
+    onMessage: (update: WorldStartBattleUpdate): void => {
+      if (state.values.musicTrackID === null) {
+        throw new Error("musicTrackID is null");
+      }
+      const musicTrack: MusicTrack = getDefinable(
+        MusicTrack,
+        state.values.musicTrackID,
+      );
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        worldCharacter.player.worldCharacterID = null;
         worldCharacter.remove();
       }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
       }
+      for (const itemInstanceUpdate of update.itemInstances) {
+        loadItemInstanceUpdate(itemInstanceUpdate);
+      }
+      for (const battleCharacterUpdate of update.characters) {
+        loadBattleCharacterUpdate(battleCharacterUpdate);
+        const battleCharacterPlayer: Player = getDefinable(
+          Player,
+          battleCharacterUpdate.playerID,
+        );
+        battleCharacterPlayer.battleCharacterID =
+          battleCharacterUpdate.characterID;
+      }
+      for (const battlerUpdate of update.battlers) {
+        loadBattlerUpdate(battlerUpdate);
+      }
+      const hotkeys: CreateBattleStateOptionsHotkey[] = [];
+      for (const abilityHotkey of update.abilityHotkeys) {
+        hotkeys.push({
+          hotkeyableDefinableReference: getDefinable(
+            Ability,
+            abilityHotkey.abilityID,
+          ).getReference(),
+          index: abilityHotkey.index,
+        });
+      }
+      for (const itemHotkey of update.itemHotkeys) {
+        hotkeys.push({
+          hotkeyableDefinableReference: getDefinable(
+            Item,
+            itemHotkey.itemID,
+          ).getReference(),
+          index: itemHotkey.index,
+        });
+      }
       state.setValues({
-        battleState: createBattleState(),
+        battleState: createBattleState({
+          battlerID: update.battlerID,
+          encounterID: update.encounterID,
+          enemyBattlerIDs: update.enemyBattlerIDs,
+          enemyBattlersCount: update.enemyBattlersCount,
+          friendlyBattlerIDs: update.friendlyBattlerIDs,
+          friendlyBattlersCount: update.friendlyBattlersCount,
+          hotkeys,
+          hudElementReferences: createBattleUI({
+            enemyBattlerIDs: update.enemyBattlerIDs,
+            friendlyBattlerIDs: update.friendlyBattlerIDs,
+          }),
+          itemInstanceIDs: update.itemInstances.map(
+            (itemInstanceUpdate: ItemInstanceUpdate): string =>
+              itemInstanceUpdate.itemInstanceID,
+          ),
+          phase: BattlePhase.Round,
+          reachableID: update.reachableID,
+          round: {
+            duration: update.round.duration,
+            events: update.round.events,
+            isFinal: update.round.isFinal ?? false,
+            serverTime: update.round.serverTime,
+          },
+          teamIndex: update.teamIndex,
+          type: update.battleType,
+        }),
+        mapMusicPause: {
+          musicTrackID: state.values.musicTrackID,
+          resumePoint: getAudioSourceCurrentPosition(musicTrack.audioPath),
+        },
         worldState: null,
       });
+      playMusic();
       exitLevel();
       if (selectedPlayerWorldMenu.isOpen()) {
         selectedPlayerWorldMenu.state.setValues({

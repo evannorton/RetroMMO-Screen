@@ -50,6 +50,7 @@ import {
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
+import { targetBlinkDuration } from "../../../constants";
 
 export const createWorldBottomBarUI = (): void => {
   const tileSize: number = getConstants()["tile-size"];
@@ -236,8 +237,8 @@ export const createWorldBottomBarUI = (): void => {
       spellbookWorldMenu.isOpen() &&
       spellbookWorldMenu.state.values.startedTargetingAt !== null &&
       (getCurrentTime() - spellbookWorldMenu.state.values.startedTargetingAt) %
-        1500 <
-        750 &&
+        (targetBlinkDuration * 2) <
+        targetBlinkDuration &&
       isWorldCombatInProgress() === false;
     createQuadrilateral({
       color: Color.VeryDarkGray,

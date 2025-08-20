@@ -13,10 +13,10 @@ export interface WorldCharacterOptionsQuestInstance {
   readonly isStarted: boolean;
 }
 export interface WorldCharacterOptionsResources {
-  hp: number;
-  maxHP: number;
-  maxMP?: number;
-  mp?: number;
+  readonly hp: number;
+  readonly maxHP: number;
+  readonly maxMP?: number;
+  readonly mp?: number;
 }
 export interface WorldCharacterOptions {
   readonly clothesDyeItemID?: string;
@@ -388,9 +388,6 @@ export class WorldCharacter extends Definable {
     }
     if (this._markerEntityID !== null) {
       removeEntity(this._markerEntityID);
-    }
-    if (this._playerID !== null) {
-      this.player.worldCharacterID = null;
     }
     super.remove();
   }

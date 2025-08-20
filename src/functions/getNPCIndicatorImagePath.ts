@@ -7,7 +7,7 @@ import { getQuestPartyState } from "./getQuestPartyState";
 
 export const getNPCIndicatorImagePath = (npcID: string): string => {
   const npc: NPC = getDefinable(NPC, npcID);
-  if (npc.hasEncounterID()) {
+  if (npc.hasEncounter()) {
     return "indicators/boss";
   }
   if (npc.hasInnCost()) {

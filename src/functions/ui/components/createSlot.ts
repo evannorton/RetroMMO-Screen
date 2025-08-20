@@ -11,6 +11,7 @@ import { createImage } from "./createImage";
 export interface CreateSlotOptionsIcon {
   readonly condition?: () => boolean;
   readonly imagePath: Scriptable<string>;
+  readonly palette?: Scriptable<string[]>;
   readonly recolors?: Scriptable<CreateSpriteOptionsRecolor[]>;
 }
 export interface CreateSlotOptions {
@@ -26,11 +27,11 @@ export interface CreateSlotOptions {
   readonly y: number;
 }
 export const createSlot = ({
+  button,
   condition,
   icons,
   imagePath,
   isSelected,
-  button,
   x,
   y,
 }: CreateSlotOptions): HUDElementReferences => {
@@ -84,7 +85,9 @@ export const createSlot = ({
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: button.condition,
+          condition: (): boolean =>
+            (typeof condition === "undefined" || condition()) &&
+            (typeof button.condition === "undefined" || button.condition()),
           x,
           y,
         },
@@ -103,6 +106,7 @@ export const createSlot = ({
             (typeof icon.condition === "undefined" || icon.condition()),
           height: 16,
           imagePath: icon.imagePath,
+          palette: icon.palette,
           recolors: icon.recolors,
           width: 16,
           x,

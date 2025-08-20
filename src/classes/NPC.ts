@@ -118,7 +118,7 @@ export class NPC extends Definable {
     return typeof this._shopID !== "undefined";
   }
 
-  public hasEncounterID(): boolean {
+  public hasEncounter(): boolean {
     return typeof this._encounterID !== "undefined";
   }
 }

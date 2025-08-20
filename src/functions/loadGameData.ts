@@ -2,6 +2,7 @@ import { Ability } from "../classes/Ability";
 import {
   AbilityDefinition,
   BankDefinition,
+  BattleImpactAnimationDefinition,
   BodyCosmeticDefinition,
   BoostDefinition,
   ChestDefinition,
@@ -12,19 +13,23 @@ import {
   Constants,
   Definition,
   EmoteDefinition,
+  EncounterDefinition,
   EquipmentPieceDefinition,
   FigureDefinition,
   HairColorDefinition,
   HairDyeDefinition,
   HeadCosmeticDefinition,
   ItemDefinition,
+  LandscapeDefinition,
   MaskDefinition,
   MonsterDefinition,
+  MusicTrackDefinition,
   NPCDefinition,
   OutfitDefinition,
   PianoDefinition,
   QuestDefinition,
   QuestGiverDefinition,
+  ReachableDefinition,
   ShopDefinition,
   SkinColorDefinition,
   TilemapDefinition,
@@ -35,6 +40,7 @@ import {
   TilesetTileDefinition,
 } from "retrommo-types";
 import { Bank } from "../classes/Bank";
+import { BattleImpactAnimation } from "../classes/BattleImpactAnimation";
 import { BodyCosmetic } from "../classes/BodyCosmetic";
 import { Boost } from "../classes/Boost";
 import { Chest } from "../classes/Chest";
@@ -51,19 +57,23 @@ import {
   makeHTTPRequest,
 } from "pixel-pigeon";
 import { Emote } from "../classes/Emote";
+import { Encounter } from "../classes/Encounter";
 import { EquipmentPiece } from "../classes/EquipmentPiece";
 import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
 import { HairDye } from "../classes/HairDye";
 import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Item";
+import { Landscape } from "../classes/Landscape";
 import { Mask } from "../classes/Mask";
 import { Monster } from "../classes/Monster";
+import { MusicTrack } from "../classes/MusicTrack";
 import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
 import { Quest } from "../classes/Quest";
 import { QuestGiver } from "../classes/QuestGiver";
+import { Reachable } from "../classes/Reachable";
 import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
 import { getDefinables } from "definables";
@@ -116,8 +126,19 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "BattleImpactAnimation":
+        case "BattleImpactAnimation": {
+          const definition: BattleImpactAnimationDefinition = (
+            gameData[className] as Record<
+              string,
+              BattleImpactAnimationDefinition
+            >
+          )[id] as BattleImpactAnimationDefinition;
+          new BattleImpactAnimation({
+            definition,
+            id,
+          });
           break;
+        }
         case "BodyCosmetic": {
           const definition: BodyCosmeticDefinition = (
             gameData[className] as Record<string, BodyCosmeticDefinition>
@@ -198,6 +219,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
+        case "Encounter": {
+          const definition: EncounterDefinition = (
+            gameData[className] as Record<string, EncounterDefinition>
+          )[id] as EncounterDefinition;
+          new Encounter({
+            definition,
+            id,
+          });
+          break;
+        }
         case "Enterable":
           break;
         case "EquipmentPiece": {
@@ -264,8 +295,16 @@ export const loadGameData = async (): Promise<void> => {
         }
         case "Label":
           break;
-        case "Landscape":
+        case "Landscape": {
+          const definition: LandscapeDefinition = (
+            gameData[className] as Record<string, LandscapeDefinition>
+          )[id] as LandscapeDefinition;
+          new Landscape({
+            definition,
+            id,
+          });
           break;
+        }
         case "Mask": {
           const definition: MaskDefinition = (
             gameData[className] as Record<string, MaskDefinition>
@@ -286,8 +325,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "MusicTrack":
+        case "MusicTrack": {
+          const definition: MusicTrackDefinition = (
+            gameData[className] as Record<string, MusicTrackDefinition>
+          )[id] as MusicTrackDefinition;
+          new MusicTrack({
+            definition,
+            id,
+          });
           break;
+        }
         case "NPC": {
           const definition: NPCDefinition = (
             gameData[className] as Record<string, NPCDefinition>
@@ -344,8 +391,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Reachable":
+        case "Reachable": {
+          const definition: ReachableDefinition = (
+            gameData[className] as Record<string, ReachableDefinition>
+          )[id] as ReachableDefinition;
+          new Reachable({
+            definition,
+            id,
+          });
           break;
+        }
         case "Rectangle":
           break;
         case "ResourceBar":
@@ -440,7 +495,7 @@ export const loadGameData = async (): Promise<void> => {
                     const tilesetTile: TilesetTileDefinition | undefined =
                       tileset.tiles[tilesetX]?.[tilesetY];
                     if (typeof tilesetTile !== "undefined") {
-                      if (tilesetTile.extendsNPC) {
+                      if (tilesetTile.extendsNPC === true) {
                         state.setValues({
                           initialNPCExtenderPositions: [
                             ...state.values.initialNPCExtenderPositions,

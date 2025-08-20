@@ -95,7 +95,7 @@ export const createWorldInteractUI = (): void => {
           if (npc.hasShopID()) {
             value = "Shop";
           }
-          if (npc.hasEncounterID()) {
+          if (npc.hasEncounter()) {
             value = "Fight";
           }
           break;

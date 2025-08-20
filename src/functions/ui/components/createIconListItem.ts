@@ -12,7 +12,7 @@ import { CreateSlotOptionsIcon, createSlot } from "./createSlot";
 interface CreateIconListItemOptions {
   readonly condition?: () => boolean;
   readonly icons: CreateSlotOptionsIcon[];
-  readonly isSelected: Scriptable<boolean>;
+  readonly isSelected?: Scriptable<boolean>;
   readonly onClick: () => void;
   readonly slotImagePath: string;
   readonly text: Scriptable<CreateLabelOptionsText>;

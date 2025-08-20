@@ -21,101 +21,101 @@ import { useEmote } from "./functions/useEmote";
 export const whitePianoKeyInputCollectionIDs: readonly string[] = [
   createInputCollection({
     keyboardButtons: [{ value: "KeyZ" }],
-    name: "White Piano Key 1",
+    name: "White piano key 1",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyX" }],
-    name: "White Piano Key 2",
+    name: "White piano key 2",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyC" }],
-    name: "White Piano Key 3",
+    name: "White piano key 3",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyV" }],
-    name: "White Piano Key 4",
+    name: "White piano key 4",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyB" }],
-    name: "White Piano Key 5",
+    name: "White piano key 5",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyN" }],
-    name: "White Piano Key 6",
+    name: "White piano key 6",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyM" }],
-    name: "White Piano Key 7",
+    name: "White piano key 7",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyQ" }],
-    name: "White Piano Key 8",
+    name: "White piano key 8",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyW" }],
-    name: "White Piano Key 9",
+    name: "White piano key 9",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyE" }],
-    name: "White Piano Key 10",
+    name: "White piano key 10",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyR" }],
-    name: "White Piano Key 11",
+    name: "White piano key 11",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyT" }],
-    name: "White Piano Key 12",
+    name: "White piano key 12",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyY" }],
-    name: "White Piano Key 13",
+    name: "White piano key 13",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyU" }],
-    name: "White Piano Key 14",
+    name: "White piano key 14",
   }),
 ];
 export const blackPianoKeyInputCollectionIDs: readonly string[] = [
   createInputCollection({
     keyboardButtons: [{ value: "KeyS" }],
-    name: "Black Piano Key 1",
+    name: "Black piano key 1",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyD" }],
-    name: "Black Piano Key 2",
+    name: "Black piano key 2",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyG" }],
-    name: "Black Piano Key 3",
+    name: "Black piano key 3",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyH" }],
-    name: "Black Piano Key 4",
+    name: "Black piano key 4",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "KeyJ" }],
-    name: "Black Piano Key 5",
+    name: "Black piano key 5",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "Digit2" }],
-    name: "Black Piano Key 6",
+    name: "Black piano key 6",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "Digit3" }],
-    name: "Black Piano Key 7",
+    name: "Black piano key 7",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "Digit5" }],
-    name: "Black Piano Key 8",
+    name: "Black piano key 8",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "Digit6" }],
-    name: "Black Piano Key 9",
+    name: "Black piano key 9",
   }),
   createInputCollection({
     keyboardButtons: [{ value: "Digit7" }],
-    name: "Black Piano Key 10",
+    name: "Black piano key 10",
   }),
 ];
 export const targetWorldPartyCharacter1InputCollectionID: string =
@@ -129,7 +129,7 @@ export const targetWorldPartyCharacter1InputCollectionID: string =
         value: "Numpad1",
       },
     ],
-    name: "Target World Party Character 1",
+    name: "Target world party character 1",
   });
 export const targetWorldPartyCharacter2InputCollectionID: string =
   createInputCollection({
@@ -142,7 +142,7 @@ export const targetWorldPartyCharacter2InputCollectionID: string =
         value: "Numpad2",
       },
     ],
-    name: "Target World Party Character 2",
+    name: "Target world party character 2",
   });
 export const targetWorldPartyCharacter3InputCollectionID: string =
   createInputCollection({
@@ -155,7 +155,7 @@ export const targetWorldPartyCharacter3InputCollectionID: string =
         value: "Numpad3",
       },
     ],
-    name: "Target World Party Character 3",
+    name: "Target world party character 3",
   });
 const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
@@ -290,6 +290,366 @@ const modChatInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyG" }],
   name: "Mod chat",
 });
+
+export const useAttackInputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "KeyE",
+    },
+  ],
+  name: "Use Attack",
+});
+export const toggleBattleAbilitiesInputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "KeyC",
+      },
+    ],
+    name: "Toggle battle abilities",
+  });
+export const toggleBattleItemsInputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "KeyV",
+      },
+    ],
+    name: "Toggle battle items",
+  },
+);
+export const usePassInputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "KeyZ",
+    },
+  ],
+  name: "Use Pass",
+});
+export const useEscapeInputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "KeyX",
+    },
+  ],
+  name: "Use Escape",
+});
+export const cancelBattleActionInputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "KeyQ",
+      },
+    ],
+    name: "Cancel battle action",
+  });
+export const unbindBattleHotkeyInputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Backspace",
+      },
+    ],
+    name: "Unbind battle hotkey",
+  });
+export const useBattleHotkey1InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit1",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad1",
+    },
+  ],
+  name: "Battle hotkey 1",
+});
+export const useBattleHotkey2InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit2",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad2",
+    },
+  ],
+  name: "Battle hotkey 2",
+});
+export const useBattleHotkey3InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit3",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad3",
+    },
+  ],
+  name: "Battle hotkey 3",
+});
+export const useBattleHotkey4InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit4",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad4",
+    },
+  ],
+  name: "Battle hotkey 4",
+});
+export const useBattleHotkey5InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit5",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad5",
+    },
+  ],
+  name: "Battle hotkey 5",
+});
+export const useBattleHotkey6InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit6",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad6",
+    },
+  ],
+  name: "Battle hotkey 6",
+});
+export const useBattleHotkey7InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit7",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad7",
+    },
+  ],
+  name: "Battle hotkey 7",
+});
+export const useBattleHotkey8InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit8",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad8",
+    },
+  ],
+  name: "Battle hotkey 8",
+});
+export const useBattleHotkey9InputCollectionID: string = createInputCollection({
+  keyboardButtons: [
+    {
+      value: "Digit9",
+    },
+    {
+      numLock: NumLock.With,
+      value: "Numpad9",
+    },
+  ],
+  name: "Battle hotkey 9",
+});
+export const useBattleHotkey10InputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "Digit0",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad0",
+      },
+    ],
+    name: "Battle hotkey 10",
+  },
+);
+export const useBattleHotkey11InputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "Minus",
+      },
+    ],
+    name: "Battle hotkey 11",
+  },
+);
+export const useBattleHotkey12InputCollectionID: string = createInputCollection(
+  {
+    keyboardButtons: [
+      {
+        value: "Equal",
+      },
+    ],
+    name: "Battle hotkey 12",
+  },
+);
+export const targetBattleEnemyCharacter1InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit1",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad1",
+      },
+    ],
+    name: "Target battle enemy character 1",
+  });
+export const targetBattleEnemyCharacter2InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit2",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad2",
+      },
+    ],
+    name: "Target battle enemy character 2",
+  });
+export const targetBattleEnemyCharacter3InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit3",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad3",
+      },
+    ],
+    name: "Target battle enemy character 3",
+  });
+export const targetBattleEnemyCharacter4InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit4",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad4",
+      },
+    ],
+    name: "Target battle enemy character 4",
+  });
+export const targetBattleEnemyCharacter5InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit5",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad5",
+      },
+    ],
+    name: "Target battle enemy character 5",
+  });
+export const targetBattleEnemyCharacter6InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit6",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad6",
+      },
+    ],
+    name: "Target battle enemy character 6",
+  });
+export const targetBattleEnemyCharacter7InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit7",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad7",
+      },
+    ],
+    name: "Target battle enemy character 7",
+  });
+export const targetBattleEnemyCharacter8InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit8",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad8",
+      },
+    ],
+    name: "Target battle enemy character 8",
+  });
+export const targetBattleEnemyCharacter9InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit9",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad9",
+      },
+    ],
+    name: "Target battle enemy character 9",
+  });
+export const targetBattleFriendlyCharacter1InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit1",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad1",
+      },
+    ],
+    name: "Target battle friendly character 1",
+  });
+export const targetBattleFriendlyCharacter2InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit2",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad2",
+      },
+    ],
+    name: "Target battle friendly character 2",
+  });
+export const targetBattleFriendlyCharacter3InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit3",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad3",
+      },
+    ],
+    name: "Target battle friendly character 3",
+  });
 createInputPressHandler({
   condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: screenshotInputCollectionID,
@@ -324,16 +684,17 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: spinInputCollectionID,
   onInput: (): void => {
-    emitToSocketioServer({
-      data: {
-        key: "ShiftLeft",
-        numlock: false,
-      },
-      event: "keydown",
-    });
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "ShiftLeft",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
   },
   onRelease: (): void => {
     emitToSocketioServer({
@@ -343,7 +704,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -364,7 +724,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -385,7 +744,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveLeftNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -406,7 +764,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -427,7 +784,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -448,7 +804,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveRightNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -469,7 +824,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -490,7 +844,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -511,7 +864,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveUpNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -532,7 +884,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -553,7 +904,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownArrowInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -574,7 +924,6 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: moveDownNumpadInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {

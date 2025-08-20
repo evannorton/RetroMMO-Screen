@@ -3,6 +3,7 @@ import { Constants, Direction, Step } from "retrommo-types";
 import {
   CreateSpriteOptionsAnimation,
   CreateSpriteOptionsRecolor,
+  HUDElementReferences,
   Scriptable,
   addEntitySprite,
   createSprite,
@@ -35,6 +36,7 @@ export interface CreatePlayerSpriteOptions {
   readonly hairDyeID: Scriptable<string>;
   readonly maskID: Scriptable<string>;
   readonly outfitID: Scriptable<string>;
+  readonly scale?: number;
   readonly skinColorID: Scriptable<string>;
   readonly statusIconImagePath?: Scriptable<string | undefined>;
 }
@@ -47,9 +49,10 @@ export const createCharacterSprite = ({
   hairDyeID,
   maskID,
   outfitID,
+  scale = 1,
   skinColorID,
   statusIconImagePath,
-}: CreatePlayerSpriteOptions): void => {
+}: CreatePlayerSpriteOptions): HUDElementReferences => {
   if (
     (typeof entity === "undefined") ===
     (typeof coordinates === "undefined")
@@ -58,6 +61,7 @@ export const createCharacterSprite = ({
       "Either both entity and coordinates must be defined or both must be undefined.",
     );
   }
+  const spriteIDs: string[] = [];
   const constants: Constants = getConstants();
   const getClothesDye = (): ClothesDye =>
     getDefinable(
@@ -249,19 +253,19 @@ export const createCharacterSprite = ({
   const animationStartedAt: number = 0;
   const duration: number = constants["movement-duration"];
   const tileSize: number = constants["tile-size"];
-  const width: number = tileSize;
-  const height: number = tileSize;
+  const size: number = tileSize;
+  const scaledSize: number = size * scale;
   const animations: CreateSpriteOptionsAnimation[] = [
     {
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 32,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleDownLeft",
@@ -270,12 +274,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleDownRight",
@@ -284,12 +288,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 32,
           sourceY: 16,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleLeftLeft",
@@ -298,12 +302,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: 16,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleLeftRight",
@@ -312,12 +316,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 32,
           sourceY: 32,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleRightLeft",
@@ -326,12 +330,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: 32,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleRightRight",
@@ -340,12 +344,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 32,
           sourceY: 48,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleUpLeft",
@@ -354,12 +358,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: 48,
-          width,
+          width: scaledSize,
         },
       ],
       id: "IdleUpRight",
@@ -368,12 +372,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 48,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepDownLeft",
@@ -382,12 +386,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 16,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepDownRight",
@@ -396,12 +400,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 48,
           sourceY: 16,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepLeftLeft",
@@ -410,12 +414,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 16,
           sourceY: 16,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepLeftRight",
@@ -424,12 +428,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 48,
           sourceY: 32,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepRightLeft",
@@ -438,12 +442,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 16,
           sourceY: 32,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepRightRight",
@@ -452,12 +456,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 48,
           sourceY: 48,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepUpLeft",
@@ -466,12 +470,12 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 16,
           sourceY: 48,
-          width,
+          width: scaledSize,
         },
       ],
       id: "StepUpRight",
@@ -480,39 +484,39 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 2,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 3,
           sourceY: 0,
-          width,
+          width: scaledSize,
         },
       ],
       id: "WalkDown",
@@ -521,39 +525,39 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: tileSize,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize,
           sourceY: tileSize,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 2,
           sourceY: tileSize,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 3,
           sourceY: tileSize,
-          width,
+          width: scaledSize,
         },
       ],
       id: "WalkLeft",
@@ -562,39 +566,39 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: tileSize * 2,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize,
           sourceY: tileSize * 2,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 2,
           sourceY: tileSize * 2,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 3,
           sourceY: tileSize * 2,
-          width,
+          width: scaledSize,
         },
       ],
       id: "WalkRight",
@@ -603,39 +607,39 @@ export const createCharacterSprite = ({
       frames: [
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: 0,
           sourceY: tileSize * 3,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize,
           sourceY: tileSize * 3,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 2,
           sourceY: tileSize * 3,
-          width,
+          width: scaledSize,
         },
         {
           duration,
-          height,
-          sourceHeight: height,
-          sourceWidth: width,
+          height: scaledSize,
+          sourceHeight: size,
+          sourceWidth: size,
           sourceX: tileSize * 3,
           sourceY: tileSize * 3,
-          width,
+          width: scaledSize,
         },
       ],
       id: "WalkUp",
@@ -672,6 +676,7 @@ export const createCharacterSprite = ({
       ] as string,
     recolors,
   });
+  spriteIDs.push(headBackSpriteID);
   // Body sprite
   const bodySpriteCondition = (): boolean =>
     typeof getOutfit().bodyCosmetic.imagePaths[
@@ -703,6 +708,7 @@ export const createCharacterSprite = ({
       ] as string,
     recolors,
   });
+  spriteIDs.push(bodySpriteID);
   // Head front sprite
   const headFrontSpriteCondition = (): boolean =>
     typeof getMask().headCosmetic.frontImagePaths[
@@ -734,6 +740,7 @@ export const createCharacterSprite = ({
       ] as string,
     recolors,
   });
+  spriteIDs.push(headFrontSpriteID);
   // Status icon sprite
   const statusIconSpriteCondition = (): boolean => {
     const statusIconImagePathValue: string | undefined =
@@ -792,6 +799,7 @@ export const createCharacterSprite = ({
       return statusIconImagePathValue;
     },
   });
+  spriteIDs.push(statusIconSpriteID);
   if (typeof entity !== "undefined") {
     addEntitySprite(entity.entityID, {
       condition: headBackSpriteCondition,
@@ -810,4 +818,5 @@ export const createCharacterSprite = ({
       spriteID: statusIconSpriteID,
     });
   }
+  return { spriteIDs };
 };
