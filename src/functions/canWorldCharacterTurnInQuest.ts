@@ -1,4 +1,6 @@
+import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import {
   WorldCharacter,
   WorldCharacterQuestInstance,
@@ -8,6 +10,7 @@ import { getDefinable } from "definables";
 export const canWorldCharacterTurnInQuest = (
   worldCharacterID: string,
   questID: string,
+  npcID?: string,
 ): boolean => {
   const worldCharacter: WorldCharacter = getDefinable(
     WorldCharacter,
@@ -24,5 +27,17 @@ export const canWorldCharacterTurnInQuest = (
       return false;
     }
   }
-  return true;
+  if (typeof npcID === "undefined") {
+    return false;
+  }
+  const npc: NPC = getDefinable(NPC, npcID);
+  const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
+    npc.questExchanger.quests.find(
+      (questExchangerQuest: QuestExchangerQuest): boolean =>
+        questExchangerQuest.questID === questID,
+    );
+  if (typeof matchedQuestExchangerQuest === "undefined") {
+    throw new Error("Quest exchanger quest not found");
+  }
+  return matchedQuestExchangerQuest.isReceiver;
 };

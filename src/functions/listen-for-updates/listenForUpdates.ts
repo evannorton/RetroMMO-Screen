@@ -880,6 +880,7 @@ export const listenForUpdates = (): void => {
               canWorldCharacterTurnInQuest(
                 partyPlayer.worldCharacterID,
                 quest.id,
+                npc.id,
               )
             ) {
               if (questInstance.isCompleted === false) {

@@ -20,7 +20,7 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
     const questStates: readonly (QuestState | null)[] = getQuestExchangerQuests(
       npc.id,
     ).map((questExchangerQuest: QuestExchangerQuest): QuestState | null =>
-      getQuestPartyState(questExchangerQuest.questID),
+      getQuestPartyState(questExchangerQuest.questID, npcID),
     );
     if (questStates.includes(QuestState.TurnIn)) {
       return "indicators/quest/turn-in";

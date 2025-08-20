@@ -9,7 +9,11 @@ import { canWorldCharacterTurnInQuest } from "./canWorldCharacterTurnInQuest";
 import { getDefinable } from "definables";
 import { getWorldState } from "./state/getWorldState";
 
-export const getQuestState = (questID: string): QuestState | null => {
+export const getQuestState = (
+  questID: string,
+  npcID?: string,
+): QuestState | null => {
+  console.log(npcID);
   const worldState: State<WorldStateSchema> = getWorldState();
   const worldCharacter: WorldCharacter = getDefinable(
     WorldCharacter,
@@ -22,7 +26,7 @@ export const getQuestState = (questID: string): QuestState | null => {
   if (
     typeof questInstance !== "undefined" &&
     questInstance.isCompleted === false &&
-    canWorldCharacterTurnInQuest(worldCharacter.id, questID)
+    canWorldCharacterTurnInQuest(worldCharacter.id, questID, npcID)
   ) {
     return QuestState.TurnIn;
   }

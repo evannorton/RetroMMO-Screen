@@ -3,9 +3,12 @@ import { QuestState } from "../types/QuestState";
 import { getDefinable } from "definables";
 import { getQuestPartyState } from "./getQuestPartyState";
 
-export const getQuestIconImagePath = (questID: string): string => {
+export const getQuestIconImagePath = (
+  questID: string,
+  npcID?: string,
+): string => {
   const quest: Quest = getDefinable(Quest, questID);
-  const state: QuestState | null = getQuestPartyState(questID);
+  const state: QuestState | null = getQuestPartyState(questID, npcID);
   if (state === QuestState.Complete) {
     return "quest-icons/complete";
   }

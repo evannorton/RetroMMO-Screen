@@ -177,7 +177,7 @@ export const npcDialogueWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const quest: Quest | null = getSelectedQuest();
           if (quest !== null) {
-            switch (getQuestPartyState(quest.id)) {
+            switch (getQuestPartyState(quest.id, npc.id)) {
               case QuestState.Accept:
                 return {
                   value: quest.availableText,
@@ -275,12 +275,14 @@ export const npcDialogueWorldMenu: WorldMenu<
                 isWorldCombatInProgress() === false,
               icons: [
                 {
-                  imagePath: (): string => getQuestIconImagePath(getQuest().id),
+                  imagePath: (): string =>
+                    getQuestIconImagePath(getQuest().id, npc.id),
                 },
                 {
                   condition: (): boolean => {
                     const questState: QuestState | null = getQuestPartyState(
                       getQuest().id,
+                      npc.id,
                     );
                     return (
                       (questState === QuestState.InProgress ||
@@ -290,7 +292,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                   },
                   imagePath: "quest-banners/default",
                   recolors: (): CreateSpriteOptionsRecolor[] =>
-                    getQuestIconRecolors(getQuest().id, true),
+                    getQuestIconRecolors(getQuest().id, true, npc.id),
                 },
               ],
               isSelected: (): boolean =>
@@ -335,7 +337,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               const quest: Quest | null = getSelectedQuest();
               if (quest !== null) {
                 return (
-                  getQuestPartyState(quest.id) === QuestState.Accept &&
+                  getQuestPartyState(quest.id, npc.id) === QuestState.Accept &&
                   isWorldCombatInProgress() === false
                 );
               }
@@ -371,7 +373,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               const quest: Quest | null = getSelectedQuest();
               if (quest !== null) {
                 return (
-                  getQuestPartyState(quest.id) === QuestState.TurnIn &&
+                  getQuestPartyState(quest.id, npc.id) === QuestState.TurnIn &&
                   isWorldCombatInProgress() === false
                 );
               }
