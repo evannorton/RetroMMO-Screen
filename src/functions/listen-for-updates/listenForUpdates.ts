@@ -31,7 +31,7 @@ import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
-import { QuestGiverQuest } from "../../classes/QuestGiver";
+import { QuestExchangerQuest } from "../../classes/QuestExchanger";
 import {
   State,
   fadeInAudioSourceVolume,
@@ -864,9 +864,9 @@ export const listenForUpdates = (): void => {
         npcDialogueWorldMenu.state.setValues({
           selectedQuestIndex:
             typeof worldUpdate.questID !== "undefined"
-              ? npc.questGiver.quests.findIndex(
-                  (questGiverQuest: QuestGiverQuest): boolean =>
-                    questGiverQuest.questID === worldUpdate.questID,
+              ? npc.questExchanger.quests.findIndex(
+                  (questExchangerQuest: QuestExchangerQuest): boolean =>
+                    questExchangerQuest.questID === worldUpdate.questID,
                 )
               : null,
         });

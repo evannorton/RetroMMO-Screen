@@ -47,7 +47,7 @@ import { MusicTrack } from "../../classes/MusicTrack";
 import { NPC } from "../../classes/NPC";
 import { Player } from "../../classes/Player";
 import { Quest } from "../../classes/Quest";
-import { QuestGiverQuest } from "../../classes/QuestGiver";
+import { QuestExchangerQuest } from "../../classes/QuestExchanger";
 import {
   State,
   exitLevel,
@@ -107,9 +107,9 @@ export const listenForWorldUpdates = (): void => {
       const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
         questCompletion: null,
-        selectedQuestIndex: npc.questGiver.quests.findIndex(
-          (questGiverQuest: QuestGiverQuest): boolean =>
-            questGiverQuest.questID === update.questID,
+        selectedQuestIndex: npc.questExchanger.quests.findIndex(
+          (questExchangerQuest: QuestExchangerQuest): boolean =>
+            questExchangerQuest.questID === update.questID,
         ),
       });
       const quest: Quest = getDefinable(Quest, update.questID);
@@ -680,9 +680,9 @@ export const listenForWorldUpdates = (): void => {
         questCompletion: null,
         selectedQuestIndex:
           typeof update.questID !== "undefined"
-            ? npc.questGiver.quests.findIndex(
-                (questGiverQuest: QuestGiverQuest): boolean =>
-                  questGiverQuest.questID === update.questID,
+            ? npc.questExchanger.quests.findIndex(
+                (questExchangerQuest: QuestExchangerQuest): boolean =>
+                  questExchangerQuest.questID === update.questID,
               )
             : null,
       });
@@ -856,7 +856,7 @@ export const listenForWorldUpdates = (): void => {
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
       if (update.wasInteracted === true) {
-        if (npc.hasDialogue() || npc.hasQuestGiver()) {
+        if (npc.hasDialogue() || npc.hasQuestExchanger()) {
           closeWorldMenus();
           npcDialogueWorldMenu.open({
             isLeader,

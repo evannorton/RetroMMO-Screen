@@ -1,17 +1,17 @@
 import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
-import { QuestGiverQuest } from "../classes/QuestGiver";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import { getDefinable } from "definables";
 import { getQuestState } from "./getQuestState";
 
-export const getQuestGiverQuests = (
+export const getQuestExchangerQuests = (
   npcID: string,
-): readonly QuestGiverQuest[] => {
+): readonly QuestExchangerQuest[] => {
   const npc: NPC = getDefinable(NPC, npcID);
-  return npc.questGiver.quests.filter(
-    (questGiverQuest: QuestGiverQuest): boolean => {
-      const quest: Quest = getDefinable(Quest, questGiverQuest.questID);
+  return npc.questExchanger.quests.filter(
+    (questExchangerQuest: QuestExchangerQuest): boolean => {
+      const quest: Quest = getDefinable(Quest, questExchangerQuest.questID);
       if (quest.hasPrerequisiteQuest()) {
         if (getQuestState(quest.prerequisiteQuestID) !== QuestState.Complete) {
           return false;

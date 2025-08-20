@@ -16,7 +16,7 @@ import {
 } from "pixel-pigeon";
 import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
-import { QuestGiverQuest } from "../classes/QuestGiver";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
@@ -28,7 +28,7 @@ import { createPressableButton } from "../functions/ui/components/createPressabl
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
-import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
+import { getQuestExchangerQuests } from "../functions/getQuestExchangerQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
@@ -73,14 +73,14 @@ export const npcDialogueWorldMenu: WorldMenu<
       if (npcDialogueWorldMenu.state.values.selectedQuestIndex === null) {
         return null;
       }
-      const questGiverQuest: QuestGiverQuest | undefined =
-        npc.questGiver.quests[
+      const questExchangerQuest: QuestExchangerQuest | undefined =
+        npc.questExchanger.quests[
           npcDialogueWorldMenu.state.values.selectedQuestIndex
         ];
-      if (typeof questGiverQuest === "undefined") {
+      if (typeof questExchangerQuest === "undefined") {
         throw new Error("No quest giver quest.");
       }
-      return getDefinable(Quest, questGiverQuest.questID);
+      return getDefinable(Quest, questExchangerQuest.questID);
     };
     // Background panel
     hudElementReferences.push(
@@ -203,7 +203,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     const questsY: number = 49;
     const questsWidth: number = x + width - questsX;
     const questsHeight: number = y - questsY;
-    if (npc.hasQuestGiver()) {
+    if (npc.hasQuestExchanger()) {
       if (options.isLeader) {
         // Quest panel
         hudElementReferences.push(
@@ -261,17 +261,17 @@ export const npcDialogueWorldMenu: WorldMenu<
         for (let i: number = 0; i < npcQuestsPerPage; i++) {
           const index: number = i;
           const getQuest = (): Quest => {
-            const questGiverQuest: QuestGiverQuest | undefined =
-              getQuestGiverQuests(npc.id)[i];
-            if (typeof questGiverQuest === "undefined") {
+            const questExchangerQuest: QuestExchangerQuest | undefined =
+              getQuestExchangerQuests(npc.id)[i];
+            if (typeof questExchangerQuest === "undefined") {
               throw new Error("No quest giver quest.");
             }
-            return getDefinable(Quest, questGiverQuest.questID);
+            return getDefinable(Quest, questExchangerQuest.questID);
           };
           hudElementReferences.push(
             createIconListItem({
               condition: (): boolean =>
-                getQuestGiverQuests(npc.id).length > i &&
+                getQuestExchangerQuests(npc.id).length > i &&
                 isWorldCombatInProgress() === false,
               icons: [
                 {

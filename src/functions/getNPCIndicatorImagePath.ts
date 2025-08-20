@@ -1,8 +1,8 @@
 import { NPC } from "../classes/NPC";
-import { QuestGiverQuest } from "../classes/QuestGiver";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import { getDefinable } from "definables";
-import { getQuestGiverQuests } from "./getQuestGiverQuests";
+import { getQuestExchangerQuests } from "./getQuestExchangerQuests";
 import { getQuestPartyState } from "./getQuestPartyState";
 
 export const getNPCIndicatorImagePath = (npcID: string): string => {
@@ -16,11 +16,11 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
   if (npc.hasShopID()) {
     return npc.shop.indicatorImagePath;
   }
-  if (npc.hasQuestGiver()) {
-    const questStates: readonly (QuestState | null)[] = getQuestGiverQuests(
+  if (npc.hasQuestExchanger()) {
+    const questStates: readonly (QuestState | null)[] = getQuestExchangerQuests(
       npc.id,
-    ).map((questGiverQuest: QuestGiverQuest): QuestState | null =>
-      getQuestPartyState(questGiverQuest.questID),
+    ).map((questExchangerQuest: QuestExchangerQuest): QuestState | null =>
+      getQuestPartyState(questExchangerQuest.questID),
     );
     if (questStates.includes(QuestState.TurnIn)) {
       return "indicators/quest/turn-in";
@@ -32,7 +32,7 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
       return "indicators/quest/in-progress";
     }
   }
-  if (npc.hasDialogue() || npc.hasQuestGiver()) {
+  if (npc.hasDialogue() || npc.hasQuestExchanger()) {
     return "indicators/dialogue";
   }
   throw new Error("No indicator image path found for NPC.");

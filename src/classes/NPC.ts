@@ -1,6 +1,6 @@
 import { Definable, getDefinable } from "definables";
 import { Direction, NPCDefinition } from "retrommo-types";
-import { QuestGiver } from "./QuestGiver";
+import { QuestExchanger } from "./QuestExchanger";
 import { Shop } from "./Shop";
 import { TilePosition } from "../types/TilePosition";
 
@@ -18,7 +18,7 @@ export class NPC extends Definable {
   private readonly _innCost?: number;
   private readonly _name: string;
   private _position: TilePosition | null = null;
-  private readonly _questGiverID?: string;
+  private readonly _questExchangerID?: string;
   private readonly _shopID?: string;
   public constructor(options: NPCOptions) {
     super(options.id);
@@ -28,7 +28,7 @@ export class NPC extends Definable {
     this._encounterID = options.definition.encounterID;
     this._innCost = options.definition.innCost;
     this._name = options.definition.name;
-    this._questGiverID = options.definition.questGiverID;
+    this._questExchangerID = options.definition.questExchangerID;
     this._shopID = options.definition.shopID;
   }
 
@@ -72,11 +72,11 @@ export class NPC extends Definable {
     throw new Error(this.getAccessorErrorMessage("position"));
   }
 
-  public get questGiver(): QuestGiver {
-    if (typeof this._questGiverID !== "undefined") {
-      return getDefinable(QuestGiver, this._questGiverID);
+  public get questExchanger(): QuestExchanger {
+    if (typeof this._questExchangerID !== "undefined") {
+      return getDefinable(QuestExchanger, this._questExchangerID);
     }
-    throw new Error(this.getAccessorErrorMessage("questGiver"));
+    throw new Error(this.getAccessorErrorMessage("questExchanger"));
   }
 
   public get shop(): Shop {
@@ -110,8 +110,8 @@ export class NPC extends Definable {
     return typeof this._innCost !== "undefined";
   }
 
-  public hasQuestGiver(): boolean {
-    return typeof this._questGiverID !== "undefined";
+  public hasQuestExchanger(): boolean {
+    return typeof this._questExchangerID !== "undefined";
   }
 
   public hasShopID(): boolean {
