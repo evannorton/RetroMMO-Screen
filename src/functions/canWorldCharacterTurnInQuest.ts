@@ -28,7 +28,7 @@ export const canWorldCharacterTurnInQuest = (
     }
   }
   if (typeof npcID === "undefined") {
-    return false;
+    return true;
   }
   const npc: NPC = getDefinable(NPC, npcID);
   const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
