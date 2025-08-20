@@ -13,7 +13,6 @@ export const getQuestPartyState = (
   questID: string,
   npcID?: string,
 ): QuestState | null => {
-  console.log(npcID);
   const worldState: State<WorldStateSchema> = getWorldState();
   const worldCharacter: WorldCharacter = getDefinable(
     WorldCharacter,
