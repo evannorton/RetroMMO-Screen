@@ -208,7 +208,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         // Quest panel
         hudElementReferences.push(
           createPanel({
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean =>
+              getQuestExchangerQuests(npc.id).length > 0 &&
+              isWorldCombatInProgress() === false,
             height: questsHeight,
             imagePath: "panels/basic",
             width: questsWidth,
@@ -219,7 +221,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         // Close quests button
         hudElementReferences.push(
           createImage({
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean =>
+              getQuestExchangerQuests(npc.id).length > 0 &&
+              isWorldCombatInProgress() === false,
             height: 11,
             imagePath: "x",
             onClick: (): void => {
@@ -235,7 +239,9 @@ export const npcDialogueWorldMenu: WorldMenu<
           createLabel({
             color: Color.White,
             coordinates: {
-              condition: (): boolean => isWorldCombatInProgress() === false,
+              condition: (): boolean =>
+                getQuestExchangerQuests(npc.id).length > 0 &&
+                isWorldCombatInProgress() === false,
               x: questsX + Math.round(questsWidth / 2),
               y: questsY + 9,
             },
@@ -251,7 +257,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         // Quests understrike
         hudElementReferences.push(
           createUnderstrike({
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean =>
+              getQuestExchangerQuests(npc.id).length > 0 &&
+              isWorldCombatInProgress() === false,
             width: questsWidth - 16,
             x: questsX + 8,
             y: questsY + 20,

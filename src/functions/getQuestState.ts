@@ -1,3 +1,5 @@
+import { NPC } from "../classes/NPC";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import { State } from "pixel-pigeon";
 import {
@@ -30,7 +32,21 @@ export const getQuestState = (
     return QuestState.TurnIn;
   }
   if (typeof questInstance === "undefined") {
-    return QuestState.Accept;
+    if (typeof npcID === "undefined") {
+      return QuestState.Accept;
+    }
+    const npc: NPC = getDefinable(NPC, npcID);
+    const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
+      npc.questExchanger.quests.find(
+        (questExchangerQuest: QuestExchangerQuest): boolean =>
+          questExchangerQuest.questID === questID,
+      );
+    if (typeof matchedQuestExchangerQuest === "undefined") {
+      throw new Error("Quest exchanger quest not found");
+    }
+    if (matchedQuestExchangerQuest.isGiver) {
+      return QuestState.Accept;
+    }
   }
   if (
     typeof questInstance !== "undefined" &&

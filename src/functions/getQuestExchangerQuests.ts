@@ -12,6 +12,12 @@ export const getQuestExchangerQuests = (
   return npc.questExchanger.quests.filter(
     (questExchangerQuest: QuestExchangerQuest): boolean => {
       const quest: Quest = getDefinable(Quest, questExchangerQuest.questID);
+      if (
+        questExchangerQuest.isGiver === false &&
+        getQuestState(questExchangerQuest.questID, npcID) === null
+      ) {
+        return false;
+      }
       if (quest.hasPrerequisiteQuest()) {
         if (getQuestState(quest.prerequisiteQuestID) !== QuestState.Complete) {
           return false;
