@@ -16,6 +16,7 @@ import {
   BattleHealEvent,
   BattleImpactAlignment,
   BattleInstakillEvent,
+  BattleInstakillFinishEvent,
   BattleInventoryFullEvent,
   BattleLevelUpEvent,
   BattleNewLevelEvent,
@@ -935,10 +936,10 @@ export const createBattleUI = ({
                   eventInstance.event as BattleHealEvent;
                 return healEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Instakill: {
-                const instakillEvent: BattleInstakillEvent =
-                  eventInstance.event as BattleInstakillEvent;
-                return instakillEvent.target.battlerID === enemyBattlerID;
+              case BattleEventType.InstakillFinish: {
+                const instakillFinishEvent: BattleInstakillFinishEvent =
+                  eventInstance.event as BattleInstakillFinishEvent;
+                return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
@@ -979,10 +980,10 @@ export const createBattleUI = ({
                   eventInstance.event as BattleHealEvent;
                 return healEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Instakill: {
-                const instakillEvent: BattleInstakillEvent =
+              case BattleEventType.InstakillFinish: {
+                const instakillFinishEvent: BattleInstakillEvent =
                   eventInstance.event as BattleInstakillEvent;
-                return instakillEvent.target.battlerID === enemyBattlerID;
+                return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
@@ -1029,10 +1030,10 @@ export const createBattleUI = ({
           return getDefinable(Ability, healEvent.abilityID)
             .battleImpactAnimation;
         }
-        case BattleEventType.Instakill: {
-          const instakillEvent: BattleInstakillEvent =
-            matchedEventInstance.event as BattleInstakillEvent;
-          return getDefinable(Ability, instakillEvent.abilityID)
+        case BattleEventType.InstakillFinish: {
+          const instakillFinishEvent: BattleInstakillFinishEvent =
+            matchedEventInstance.event as BattleInstakillFinishEvent;
+          return getDefinable(Ability, instakillFinishEvent.abilityID)
             .battleImpactInstakillAnimation;
         }
         case BattleEventType.Rejuvenate: {
@@ -1062,7 +1063,7 @@ export const createBattleUI = ({
             }
             switch (eventInstance.event.type) {
               case BattleEventType.Damage:
-              case BattleEventType.Instakill: {
+              case BattleEventType.InstakillFinish: {
                 const elapsedServerTime: number =
                   state.values.serverTime - battleState.values.round.serverTime;
                 const diff: number =
@@ -3064,6 +3065,28 @@ export const createBattleUI = ({
                 const trims: CreateLabelOptionsTextTrim[] = [];
                 if (
                   typeof instakillBattleEvent.target.username !== "undefined"
+                ) {
+                  trims.push({
+                    index: 0,
+                    length: battlerName.length,
+                  });
+                }
+                return {
+                  trims,
+                  value: `${battlerName} is drawn into the light.`,
+                };
+              }
+              case BattleEventType.InstakillFinish: {
+                const instakillFinishBattleEvent: BattleInstakillFinishEvent =
+                  battleEventInstance.event as BattleInstakillFinishEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: instakillFinishBattleEvent.target.monsterName,
+                  username: instakillFinishBattleEvent.target.username,
+                });
+                const trims: CreateLabelOptionsTextTrim[] = [];
+                if (
+                  typeof instakillFinishBattleEvent.target.username !==
+                  "undefined"
                 ) {
                   trims.push({
                     index: 0,

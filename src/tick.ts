@@ -4,7 +4,7 @@ import {
   BattleDeathEvent,
   BattleEventType,
   BattleHealEvent,
-  BattleInstakillEvent,
+  BattleInstakillFinishEvent,
   BattleRejuvenateEvent,
   BattleUseAbilityEvent,
   BattleUseItemEvent,
@@ -304,22 +304,25 @@ export const tick = (): void => {
                 });
                 break;
               }
-              case BattleEventType.Instakill: {
-                const instakillEvent: BattleInstakillEvent =
-                  eventInstance.event as BattleInstakillEvent;
+              case BattleEventType.InstakillFinish: {
+                const instakillFinishEvent: BattleInstakillFinishEvent =
+                  eventInstance.event as BattleInstakillFinishEvent;
                 const ability: Ability = getDefinable(
                   Ability,
-                  instakillEvent.abilityID,
+                  instakillFinishEvent.abilityID,
                 );
                 if (
-                  definableExists(Battler, instakillEvent.target.battlerID) &&
+                  definableExists(
+                    Battler,
+                    instakillFinishEvent.target.battlerID,
+                  ) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
-                    instakillEvent.target.battlerID,
+                    instakillFinishEvent.target.battlerID,
                   )
                 ) {
                   const battler: Battler = getDefinable(
                     Battler,
-                    instakillEvent.target.battlerID,
+                    instakillFinishEvent.target.battlerID,
                   );
                   battler.resources.hp = 0;
                 }
