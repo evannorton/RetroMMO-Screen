@@ -15,5 +15,5 @@ export const getQuestIconImagePath = (
   if (quest.hasMonster()) {
     return "quest-icons/monsters";
   }
-  throw new Error("Quest does not have an icon");
+  return "quest-icons/dialogue";
 };
