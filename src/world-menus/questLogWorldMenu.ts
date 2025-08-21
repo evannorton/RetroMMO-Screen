@@ -10,7 +10,9 @@ import {
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Monster } from "../classes/Monster";
+import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import {
   WorldCharacter,
@@ -381,13 +383,30 @@ export const questLogWorldMenu: WorldMenu<
     const isQuestSelected = (): boolean =>
       questLogWorldMenu.state.values.selectedInProgressQuestIndex !== null ||
       questLogWorldMenu.state.values.selectedCompletedQuestIndex !== null;
-    const getSelectedQuestDialoguePage = (): number => {
+    const getSelectedQuestDialogueLastPage = (): number => {
       const selectedQuestInstance: WorldCharacterQuestInstance =
         getSelectedQuestInstance();
-      const page: number =
-        questLogWorldMenu.state.values.selectedQuestDialoguePage ??
-        (selectedQuestInstance.isCompleted ? 2 : 1);
+      const quest: Quest = getSelectedQuest();
+      let page: number = selectedQuestInstance.isCompleted ? 2 : 1;
+      if (
+        quest.receiverNPCID !== quest.giverNPCID &&
+        selectedQuestInstance.isCompleted
+      ) {
+        page++;
+      }
       return page;
+    };
+    const getSelectedQuestDialoguePage = (): number =>
+      questLogWorldMenu.state.values.selectedQuestDialoguePage ??
+      getSelectedQuestDialogueLastPage();
+    const getSelectedQuestDialoguePageNPC = (): NPC => {
+      const page: number = getSelectedQuestDialoguePage();
+      const lastPage: number = getSelectedQuestDialogueLastPage();
+      const quest: Quest = getSelectedQuest();
+      if (lastPage === 3 && page === 2) {
+        return quest.receiverNPC;
+      }
+      return quest.giverNPC;
     };
     const selectedQuestY: number = 24;
     const selectedQuestWidth: number = 176;
@@ -482,7 +501,11 @@ export const questLogWorldMenu: WorldMenu<
               )}/${getFormattedInteger(quest.monster.kills)}`,
             };
           }
-          throw new Error("No objective found");
+          return {
+            value: `Talk to ${quest.receiverNPC.name} - ${getFormattedInteger(
+              questInstance.isCompleted ? 1 : 0,
+            )}/${getFormattedInteger(1)}`,
+          };
         },
       }),
     );
@@ -502,7 +525,8 @@ export const questLogWorldMenu: WorldMenu<
         condition: (): boolean =>
           isQuestSelected() && isWorldCombatInProgress() === false,
         height: 16,
-        imagePath: (): string => getSelectedQuest().npc.actorImagePath,
+        imagePath: (): string =>
+          getSelectedQuestDialoguePageNPC().actorImagePath,
         width: 16,
         x: 7,
         y: selectedQuestY + 45,
@@ -522,7 +546,7 @@ export const questLogWorldMenu: WorldMenu<
         maxLines: 1,
         maxWidth: 97,
         text: (): CreateLabelOptionsText => ({
-          value: getSelectedQuest().npc.name,
+          value: getSelectedQuestDialoguePageNPC().name,
         }),
       }),
     );
@@ -562,12 +586,29 @@ export const questLogWorldMenu: WorldMenu<
           const selectedQuest: Quest = getSelectedQuest();
           const questInstance: WorldCharacterQuestInstance =
             getSelectedQuestInstance();
+          const giverQuestExchangerQuest: QuestExchangerQuest | undefined =
+            selectedQuest.giverNPC.questExchanger.quests.find(
+              (questExchangerQuest: QuestExchangerQuest): boolean =>
+                questExchangerQuest.questID === selectedQuest.id,
+            );
+          if (typeof giverQuestExchangerQuest === "undefined") {
+            throw new Error("No quest giver quest.");
+          }
+          const receiverQuestExchangerQuest: QuestExchangerQuest | undefined =
+            selectedQuest.receiverNPC.questExchanger.quests.find(
+              (questExchangerQuest: QuestExchangerQuest): boolean =>
+                questExchangerQuest.questID === selectedQuest.id,
+            );
+          if (typeof receiverQuestExchangerQuest === "undefined") {
+            throw new Error("No quest receiver quest.");
+          }
           const values: string[] = [
             selectedQuest.availableText,
             selectedQuest.inProgressText,
           ];
           if (questInstance.isCompleted) {
-            values.push(selectedQuest.completedText);
+            values.push(receiverQuestExchangerQuest.completedText);
+            values.push(giverQuestExchangerQuest.completedText);
           }
           const page: number = getSelectedQuestDialoguePage();
           const value: string | undefined = values[page];
@@ -603,8 +644,7 @@ export const questLogWorldMenu: WorldMenu<
       createImage({
         condition: (): boolean =>
           isQuestSelected() &&
-          getSelectedQuestDialoguePage() <
-            (getSelectedQuestInstance().isCompleted ? 2 : 1) &&
+          getSelectedQuestDialoguePage() < getSelectedQuestDialogueLastPage() &&
           isWorldCombatInProgress() === false,
         height: 14,
         imagePath: "arrows/right",

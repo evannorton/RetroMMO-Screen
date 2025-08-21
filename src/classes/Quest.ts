@@ -12,19 +12,19 @@ export interface QuestOptions {
 }
 export class Quest extends Definable {
   private readonly _availableText: string;
-  private readonly _completedText: string;
   private readonly _experience: number;
+  private readonly _giverNPCID: string;
   private readonly _gold: number;
   private readonly _inProgressText: string;
   private readonly _monster?: QuestMonster;
   private readonly _name: string;
-  private readonly _npcID: string;
   private readonly _prerequisiteQuestID?: string;
+  private readonly _receiverNPCID: string;
   public constructor(options: QuestOptions) {
     super(options.id);
     this._availableText = options.definition.availableText;
-    this._completedText = options.definition.completedText;
     this._experience = options.definition.experience;
+    this._giverNPCID = options.definition.giverNPCID;
     this._gold = options.definition.gold;
     this._inProgressText = options.definition.inProgressText;
     this._monster =
@@ -35,20 +35,24 @@ export class Quest extends Definable {
           }
         : undefined;
     this._name = options.definition.name;
-    this._npcID = options.definition.npcID;
     this._prerequisiteQuestID = options.definition.prerequisiteQuestID;
+    this._receiverNPCID = options.definition.receiverNPCID;
   }
 
   public get availableText(): string {
     return this._availableText;
   }
 
-  public get completedText(): string {
-    return this._completedText;
-  }
-
   public get experience(): number {
     return this._experience;
+  }
+
+  public get giverNPC(): NPC {
+    return getDefinable(NPC, this._giverNPCID);
+  }
+
+  public get giverNPCID(): string {
+    return this._giverNPCID;
   }
 
   public get gold(): number {
@@ -70,19 +74,19 @@ export class Quest extends Definable {
     return this._name;
   }
 
-  public get npcID(): string {
-    return this._npcID;
-  }
-
-  public get npc(): NPC {
-    return getDefinable(NPC, this._npcID);
-  }
-
   public get prerequisiteQuestID(): string {
     if (typeof this._prerequisiteQuestID !== "undefined") {
       return this._prerequisiteQuestID;
     }
     throw new Error(this.getAccessorErrorMessage("prerequisiteQuestID"));
+  }
+
+  public get receiverNPC(): NPC {
+    return getDefinable(NPC, this._receiverNPCID);
+  }
+
+  public get receiverNPCID(): string {
+    return this._receiverNPCID;
   }
 
   public hasMonster(): boolean {

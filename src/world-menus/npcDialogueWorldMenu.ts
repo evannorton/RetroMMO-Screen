@@ -177,6 +177,14 @@ export const npcDialogueWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const quest: Quest | null = getSelectedQuest();
           if (quest !== null) {
+            const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
+              npc.questExchanger.quests.find(
+                (questExchangerQuest: QuestExchangerQuest): boolean =>
+                  questExchangerQuest.questID === quest.id,
+              );
+            if (typeof matchedQuestExchangerQuest === "undefined") {
+              throw new Error("No quest giver quest.");
+            }
             switch (getQuestPartyState(quest.id, npc.id)) {
               case QuestState.Accept:
                 return {
@@ -185,7 +193,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               case QuestState.Complete:
               case QuestState.TurnIn:
                 return {
-                  value: quest.completedText,
+                  value: matchedQuestExchangerQuest.completedText,
                 };
               case QuestState.InProgress:
                 return {

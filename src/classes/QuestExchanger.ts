@@ -6,6 +6,7 @@ export interface QuestExchangerOptions {
   readonly id: string;
 }
 export interface QuestExchangerQuest {
+  readonly completedText: string;
   readonly isGiver: boolean;
   readonly isReceiver: boolean;
   readonly questID: string;
@@ -18,6 +19,7 @@ export class QuestExchanger extends Definable {
       (
         questExchangerQuest: QuestExchangerDefinition["questExchangerQuests"][0],
       ): QuestExchangerQuest => ({
+        completedText: questExchangerQuest.completedText,
         isGiver: questExchangerQuest.isGiver ?? false,
         isReceiver: questExchangerQuest.isReceiver ?? false,
         questID: questExchangerQuest.questID,
