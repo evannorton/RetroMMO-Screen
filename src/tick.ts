@@ -391,16 +391,29 @@ export const tick = (): void => {
                     Battler,
                     useAbilityEvent.caster.battlerID,
                   );
-                  if (getBattlerResourcePool(battler.id) === ResourcePool.MP) {
-                    if (battler.resources.mp === null) {
-                      throw new Error(
-                        "Battler has no MP but is trying to use an ability that costs MP.",
-                      );
+                  switch (getBattlerResourcePool(battler.id)) {
+                    case ResourcePool.MP: {
+                      if (battler.resources.mp === null) {
+                        throw new Error(
+                          "Battler has no MP but is trying to use an ability that costs MP.",
+                        );
+                      }
+                      battler.resources.mp -=
+                        battler.resources.mp - ability.mpCost;
+                      break;
                     }
-                    battler.resources.mp = Math.max(
-                      0,
-                      battler.resources.mp - ability.mpCost,
-                    );
+                    case ResourcePool.Will: {
+                      if (battler.resources.will === null) {
+                        throw new Error(
+                          "Battler has no Will but is trying to use an ability that costs Will.",
+                        );
+                      }
+                      battler.resources.will -= ability.willCost;
+                      break;
+                    }
+                    default: {
+                      throw new Error("resourcePool is not valid");
+                    }
                   }
                 }
                 if (ability.hasChargeAudioPath()) {

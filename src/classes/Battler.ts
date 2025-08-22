@@ -8,12 +8,14 @@ export interface BattlerResources {
   readonly maxHP: number;
   readonly maxMP: number | null;
   mp: number | null;
+  will: number | null;
 }
 export interface BattlerOptionsResources {
   readonly hp: number;
   readonly maxHP: number;
   readonly maxMP?: number;
   readonly mp?: number;
+  readonly will?: number;
 }
 export interface BattlerOptions {
   readonly battleCharacterID?: string;
@@ -42,6 +44,7 @@ export class Battler extends Definable {
             maxHP: options.resources.maxHP,
             maxMP: options.resources.maxMP ?? null,
             mp: options.resources.mp ?? null,
+            will: options.resources.will ?? null,
           }
         : null;
     this._monsterID = options.monsterID;
@@ -117,6 +120,7 @@ export class Battler extends Definable {
       maxHP: resources.maxHP,
       maxMP: resources.maxMP,
       mp: resources.mp,
+      will: resources.will,
     };
   }
 

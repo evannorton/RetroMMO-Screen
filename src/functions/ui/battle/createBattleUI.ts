@@ -76,6 +76,7 @@ import {
   hotkeyLabelBlinkDuration,
   targetBlinkDuration,
 } from "../../../constants";
+import { canBattlerAffordAbility } from "../../battle/canBattlerAffordAbilitity";
 import { canFleeBattle } from "../../battle/canFleeBattle";
 import {
   cancelBattleActionInputCollectionID,
@@ -122,6 +123,7 @@ import { getBattlerHeight } from "../../battle/getBattlerHeight";
 import { getBattlerMonsterNameData } from "../../battle/getBattlerMonsterNameData";
 import { getBattlerName } from "../../battle/getBattlerName";
 import { getBattlerOffset } from "../../battle/getBattlerOffset";
+import { getBattlerResourcePool } from "../../battle/getBattlerResourcePool";
 import { getBattlerShadowXOffset } from "../../battle/getBattlerShadowXOffset";
 import { getBattlerShadowYOffset } from "../../battle/getBattlerShadowYOffset";
 import { getBattlerWidth } from "../../battle/getBattlerWidth";
@@ -702,6 +704,48 @@ export const createBattleUI = ({
         y: 226,
       }),
     );
+    for (
+      let willIndex: number = 0;
+      willIndex < constants["maximum-will"];
+      willIndex++
+    ) {
+      // Battler will background
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            friendlyBattler.battleCharacter.player.character.class
+              .resourcePool === ResourcePool.Will,
+          height: 7,
+          imagePath: "will-background",
+          width: 7,
+          x: 98 + i * 81 + willIndex * 8,
+          y: 227,
+        }),
+      );
+      // Battler will orb
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean => {
+            if (
+              friendlyBattler.battleCharacter.player.character.class
+                .resourcePool === ResourcePool.Will
+            ) {
+              const will: number | null = friendlyBattler.resources.will;
+              if (will === null) {
+                throw new Error("will is null");
+              }
+              return will > willIndex;
+            }
+            return false;
+          },
+          height: 7,
+          imagePath: "will-orb",
+          width: 7,
+          x: 98 + i * 81 + willIndex * 8,
+          y: 227,
+        }),
+      );
+    }
     // Battler ability target
     const targetCondition = (): boolean => {
       if (
@@ -1507,8 +1551,10 @@ export const createBattleUI = ({
             Ability,
             hotkey.hotkeyableDefinableReference.id,
           );
-          const mp: number | undefined = getBattler().resources.mp ?? 0;
-          return ability.mpCost <= mp && canUseAbility(ability.id);
+          return (
+            canBattlerAffordAbility(getBattler().id, ability.id) &&
+            canUseAbility(ability.id)
+          );
         }
         case "Item": {
           const item: Item = getDefinable(
@@ -2491,7 +2537,9 @@ export const createBattleUI = ({
       color: Color.White,
       coordinates: {
         condition: (): boolean =>
-          selectedAbilityCondition() && getSelectedAbility().mpCost > 0,
+          selectedAbilityCondition() &&
+          getSelectedAbility().mpCost > 0 &&
+          getBattlerResourcePool(getBattler().id) === ResourcePool.MP,
         x: 252,
         y: 150,
       },
@@ -2504,14 +2552,34 @@ export const createBattleUI = ({
       },
     }),
   );
+  // Selected ability will cost
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: (): boolean =>
+          selectedAbilityCondition() &&
+          getSelectedAbility().willCost > 0 &&
+          getBattlerResourcePool(getBattler().id) === ResourcePool.Will,
+        x: 252,
+        y: 150,
+      },
+      horizontalAlignment: "center",
+      text: (): CreateLabelOptionsText => {
+        const ability: Ability = getSelectedAbility();
+        return {
+          value: `${getFormattedInteger(ability.willCost)} FP`,
+        };
+      },
+    }),
+  );
   // Selected ability use button
   hudElementReferences.push(
     createPressableButton({
       condition: (): boolean => {
         if (selectedAbilityCondition()) {
           const battler: Battler = getBattler();
-          const mp: number = battler.resources.mp ?? 0;
-          return mp >= getSelectedAbility().mpCost;
+          return canBattlerAffordAbility(battler.id, getSelectedAbility().id);
         }
         return false;
       },

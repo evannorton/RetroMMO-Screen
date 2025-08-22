@@ -140,6 +140,7 @@ export const listenForBattleUpdates = (): void => {
             maxHP: battlerUpdate.resources.maxHP,
             maxMP: battlerUpdate.resources.maxMP ?? null,
             mp: battlerUpdate.resources.mp ?? null,
+            will: battlerUpdate.resources.will ?? null,
           };
         }
       }
