@@ -398,8 +398,7 @@ export const tick = (): void => {
                           "Battler has no MP but is trying to use an ability that costs MP.",
                         );
                       }
-                      battler.resources.mp -=
-                        battler.resources.mp - ability.mpCost;
+                      battler.resources.mp -= ability.mpCost;
                       break;
                     }
                     case ResourcePool.Will: {
