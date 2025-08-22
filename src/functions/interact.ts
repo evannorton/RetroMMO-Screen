@@ -4,7 +4,10 @@ import {
   getEntityFieldValue,
 } from "pixel-pigeon";
 import { NPC } from "../classes/NPC";
-import { WorldNPCInteractRequest } from "retrommo-types";
+import {
+  WorldChestInteractRequest,
+  WorldNPCInteractRequest,
+} from "retrommo-types";
 import { getDefinable } from "definables";
 import { getInteractableEntityCollidable } from "./getInteractableEntityCollidable";
 import { pianoWorldMenu } from "../world-menus/pianoWorldMenu";
@@ -14,6 +17,22 @@ export const interact = (): void => {
     getInteractableEntityCollidable();
   if (entityCollidable !== null) {
     switch (entityCollidable.type) {
+      case "chest": {
+        const chestID: unknown = getEntityFieldValue(
+          entityCollidable.entityID,
+          "chestID",
+        );
+        if (typeof chestID !== "string") {
+          throw new Error("No chest ID.");
+        }
+        emitToSocketioServer<WorldChestInteractRequest>({
+          data: {
+            chestID,
+          },
+          event: "world/chest-interact",
+        });
+        return;
+      }
       case "npc": {
         const npcID: unknown = getEntityFieldValue(
           entityCollidable.entityID,

@@ -550,21 +550,43 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldOpenChestUpdate>({
     event: "world/open-chest",
     onMessage: (update: WorldOpenChestUpdate): void => {
-      getDefinable(
+      const worldState: State<WorldStateSchema> = getWorldState();
+      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
+        const bagItemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          bagItemInstanceID,
+        );
+        bagItemInstance.remove();
+      }
+      const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
-        getWorldState().values.worldCharacterID,
-      ).player.character.party.players.forEach((partyPlayer: Player): void => {
-        if (
-          partyPlayer.worldCharacter.openedChestIDs.includes(update.chestID) ===
-          false
-        ) {
-          partyPlayer.worldCharacter.openedChestIDs = [
-            ...partyPlayer.worldCharacter.openedChestIDs,
-            update.chestID,
-          ];
-        }
-      });
+        worldState.values.worldCharacterID,
+      );
+      worldCharacter.player.character.party.players.forEach(
+        (partyPlayer: Player): void => {
+          if (
+            partyPlayer.worldCharacter.openedChestIDs.includes(
+              update.chestID,
+            ) === false
+          ) {
+            partyPlayer.worldCharacter.openedChestIDs = [
+              ...partyPlayer.worldCharacter.openedChestIDs,
+              update.chestID,
+            ];
+          }
+        },
+      );
       getDefinable(Chest, update.chestID).openedAt = getCurrentTime();
+      for (const worldBagItemInstanceUpdate of update.bagItemInstances) {
+        loadItemInstanceUpdate(worldBagItemInstanceUpdate);
+      }
+      worldState.setValues({
+        bagItemInstanceIDs: update.bagItemInstances.map(
+          (itemInstanceUpdate: ItemInstanceUpdate): string =>
+            itemInstanceUpdate.itemInstanceID,
+        ),
+        inventoryGold: update.inventoryGold,
+      });
     },
   });
   listenToSocketioEvent<WorldMarkerUpdate>({
