@@ -755,12 +755,12 @@ export const createCharacterSprite = ({
       {
         frames: [
           {
-            height: 8,
-            sourceHeight: 8,
-            sourceWidth: 8,
+            height: 9,
+            sourceHeight: 9,
+            sourceWidth: 9,
             sourceX: 0,
             sourceY: 0,
-            width: 8,
+            width: 9,
           },
         ],
         id: "default",
@@ -781,11 +781,11 @@ export const createCharacterSprite = ({
             x: (): number =>
               (typeof coordinates.x === "function"
                 ? coordinates.x()
-                : coordinates.x) + 4,
+                : coordinates.x) + 3,
             y: (): number =>
               (typeof coordinates.y === "function"
                 ? coordinates.y()
-                : coordinates.y) + 12,
+                : coordinates.y) + 11,
           }
         : undefined,
     imagePath: (): string => {

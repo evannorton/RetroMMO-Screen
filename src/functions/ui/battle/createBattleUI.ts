@@ -3,6 +3,7 @@ import {
   BattleAmbushEvent,
   BattleBindAbilityRequest,
   BattleBindItemRequest,
+  BattleBleedStartEvent,
   BattleCancelSubmittedMoveRequest,
   BattleDamageEvent,
   BattleDeathEvent,
@@ -970,6 +971,11 @@ export const createBattleUI = ({
               eventInstance.event.startedAt + eventInstance.event.duration
           ) {
             switch (eventInstance.event.type) {
+              case BattleEventType.BleedStart: {
+                const bleedStartEvent: BattleBleedStartEvent =
+                  eventInstance.event as BattleBleedStartEvent;
+                return bleedStartEvent.target.battlerID === enemyBattlerID;
+              }
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
                   eventInstance.event as BattleDamageEvent;
@@ -1014,6 +1020,11 @@ export const createBattleUI = ({
               eventInstance.event.startedAt + battleImpactAnimationDuration * 8
           ) {
             switch (eventInstance.event.type) {
+              case BattleEventType.BleedStart: {
+                const bleedStartEvent: BattleBleedStartEvent =
+                  eventInstance.event as BattleBleedStartEvent;
+                return bleedStartEvent.target.battlerID === enemyBattlerID;
+              }
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
                   eventInstance.event as BattleDamageEvent;
@@ -1054,16 +1065,31 @@ export const createBattleUI = ({
         throw new Error("matchedEventInstance is undefined");
       }
       switch (matchedEventInstance.event.type) {
+        case BattleEventType.BleedStart: {
+          return getDefinable(BattleImpactAnimation, "bleed-tick");
+        }
         case BattleEventType.Damage: {
           const damageEvent: BattleDamageEvent =
             matchedEventInstance.event as BattleDamageEvent;
+          if (damageEvent.isBleed === true) {
+            return getDefinable(BattleImpactAnimation, "bleed-tick");
+          }
           if (damageEvent.isCrit === true) {
+            if (typeof damageEvent.abilityID === "undefined") {
+              throw new Error("No damage event ability ID");
+            }
             return getDefinable(Ability, damageEvent.abilityID)
               .battleImpactCritAnimation;
           }
           if (damageEvent.isInstakill === true) {
+            if (typeof damageEvent.abilityID === "undefined") {
+              throw new Error("No damage event ability ID");
+            }
             return getDefinable(Ability, damageEvent.abilityID)
               .battleImpactInstakillAnimation;
+          }
+          if (typeof damageEvent.abilityID === "undefined") {
+            throw new Error("No damage event ability ID");
           }
           return getDefinable(Ability, damageEvent.abilityID)
             .battleImpactAnimation;
@@ -1384,6 +1410,19 @@ export const createBattleUI = ({
           },
         },
         imagePath: (): string => getImpactAnimation().imagePath,
+      }),
+    );
+    // Enemy status icons
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && enemyBattler.isBleeding,
+        height: 9,
+        imagePath: "status-icons/bleed",
+        width: 9,
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5),
+        y: 131,
       }),
     );
     // Enemy targetting number
@@ -2933,34 +2972,39 @@ export const createBattleUI = ({
                   value: "An excellent move!",
                 };
               }
+              case BattleEventType.BleedStart: {
+                const bleedStartBattleEvent: BattleBleedStartEvent =
+                  battleEventInstance.event as BattleBleedStartEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: bleedStartBattleEvent.target.monsterName,
+                  username: bleedStartBattleEvent.target.username,
+                });
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: battlerName.length,
+                    },
+                  ],
+                  value: `${battlerName} begins to bleed.`,
+                };
+              }
               case BattleEventType.Damage: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
-                if (damageBattleEvent.isRedirected === true) {
-                  const battlerName: string = getBattlerName({
-                    monsterName: damageBattleEvent.target.monsterName,
-                    username: damageBattleEvent.target.username,
-                  });
-                  const trims: CreateLabelOptionsTextTrim[] = [];
-                  if (
-                    typeof damageBattleEvent.target.username !== "undefined"
-                  ) {
-                    trims.push({
-                      index: 0,
-                      length: battlerName.length,
-                    });
-                  }
-                  return {
-                    trims,
-                    value: `${battlerName} guards for ${getFormattedInteger(
-                      damageBattleEvent.amount,
-                    )} damage.`,
-                  };
-                }
+                const damageAmount: string = getFormattedInteger(
+                  damageBattleEvent.amount,
+                );
                 const battlerName: string = getBattlerName({
                   monsterName: damageBattleEvent.target.monsterName,
                   username: damageBattleEvent.target.username,
                 });
+                const verb: string =
+                  damageBattleEvent.isBleed === true
+                    ? "bleeds for"
+                    : damageBattleEvent.isRedirected === true
+                      ? "guards for"
+                      : "takes";
                 const trims: CreateLabelOptionsTextTrim[] = [];
                 if (typeof damageBattleEvent.target.username !== "undefined") {
                   trims.push({
@@ -2970,9 +3014,7 @@ export const createBattleUI = ({
                 }
                 return {
                   trims,
-                  value: `${battlerName} takes ${getFormattedInteger(
-                    damageBattleEvent.amount,
-                  )} damage.`,
+                  value: `${battlerName} ${verb} ${damageAmount} damage.`,
                 };
               }
               case BattleEventType.Death: {
