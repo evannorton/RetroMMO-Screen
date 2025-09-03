@@ -23,6 +23,7 @@ import {
   BattleNewLevelEvent,
   BattleObtainEvent,
   BattlePhase,
+  BattlePoisonStartEvent,
   BattleRejuvenateEvent,
   BattleUnbindHotkeyRequest,
   BattleUseAbilityEvent,
@@ -991,6 +992,11 @@ export const createBattleUI = ({
                   eventInstance.event as BattleInstakillFinishEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
+              case BattleEventType.PoisonStart: {
+                const poisonStartEvent: BattlePoisonStartEvent =
+                  eventInstance.event as BattlePoisonStartEvent;
+                return poisonStartEvent.target.battlerID === enemyBattlerID;
+              }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
                   eventInstance.event as BattleRejuvenateEvent;
@@ -1040,6 +1046,11 @@ export const createBattleUI = ({
                   eventInstance.event as BattleInstakillEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
+              case BattleEventType.PoisonStart: {
+                const poisonStartEvent: BattlePoisonStartEvent =
+                  eventInstance.event as BattlePoisonStartEvent;
+                return poisonStartEvent.target.battlerID === enemyBattlerID;
+              }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
                   eventInstance.event as BattleRejuvenateEvent;
@@ -1071,6 +1082,9 @@ export const createBattleUI = ({
         case BattleEventType.Damage: {
           const damageEvent: BattleDamageEvent =
             matchedEventInstance.event as BattleDamageEvent;
+          if (damageEvent.isPoison === true) {
+            return getDefinable(BattleImpactAnimation, "poison-tick");
+          }
           if (damageEvent.isBleed === true) {
             return getDefinable(BattleImpactAnimation, "bleed-tick");
           }
@@ -1105,6 +1119,9 @@ export const createBattleUI = ({
             matchedEventInstance.event as BattleInstakillFinishEvent;
           return getDefinable(Ability, instakillFinishEvent.abilityID)
             .battleImpactInstakillAnimation;
+        }
+        case BattleEventType.PoisonStart: {
+          return getDefinable(BattleImpactAnimation, "poison-tick");
         }
         case BattleEventType.Rejuvenate: {
           const rejuvenateEvent: BattleRejuvenateEvent =
@@ -1421,7 +1438,19 @@ export const createBattleUI = ({
         imagePath: "status-icons/bleed",
         width: 9,
         x: (): number =>
-          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5),
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) - 5,
+        y: 131,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && enemyBattler.isPoisoned,
+        height: 9,
+        imagePath: "status-icons/poison",
+        width: 9,
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) + 5,
         y: 131,
       }),
     );
@@ -3000,11 +3029,13 @@ export const createBattleUI = ({
                   username: damageBattleEvent.target.username,
                 });
                 const verb: string =
-                  damageBattleEvent.isBleed === true
-                    ? "bleeds for"
-                    : damageBattleEvent.isRedirected === true
-                      ? "guards for"
-                      : "takes";
+                  damageBattleEvent.isPoison === true
+                    ? "sickens for"
+                    : damageBattleEvent.isBleed === true
+                      ? "bleeds for"
+                      : damageBattleEvent.isRedirected === true
+                        ? "guards for"
+                        : "takes";
                 const trims: CreateLabelOptionsTextTrim[] = [];
                 if (typeof damageBattleEvent.target.username !== "undefined") {
                   trims.push({
@@ -3012,9 +3043,10 @@ export const createBattleUI = ({
                     length: battlerName.length,
                   });
                 }
+                const value: string = `${battlerName} ${verb} ${damageAmount} damage.`;
                 return {
                   trims,
-                  value: `${battlerName} ${verb} ${damageAmount} damage.`,
+                  value,
                 };
               }
               case BattleEventType.Death: {
@@ -3285,6 +3317,23 @@ export const createBattleUI = ({
                   value: `${obtainBattleEvent.username} gets ${
                     getDefinable(Item, obtainBattleEvent.itemID).name
                   }!`,
+                };
+              }
+              case BattleEventType.PoisonStart: {
+                const poisonStartBattleEvent: BattlePoisonStartEvent =
+                  battleEventInstance.event as BattlePoisonStartEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: poisonStartBattleEvent.target.monsterName,
+                  username: poisonStartBattleEvent.target.username,
+                });
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: battlerName.length,
+                    },
+                  ],
+                  value: `${battlerName} begins to sicken.`,
                 };
               }
               case BattleEventType.Rejuvenate: {

@@ -7,6 +7,7 @@ export const loadBattlerUpdate = (battlerUpdate: BattlerUpdate): void => {
     gold: battlerUpdate.gold,
     isAlive: battlerUpdate.isAlive,
     isBleeding: battlerUpdate.isBleeding,
+    isPoisoned: battlerUpdate.isPoisoned,
     monsterID: battlerUpdate.monsterID,
     resources: battlerUpdate.resources,
     type: battlerUpdate.type,

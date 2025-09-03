@@ -22,6 +22,7 @@ export interface BattlerOptions {
   readonly gold: number;
   readonly isAlive?: boolean;
   readonly isBleeding?: boolean;
+  readonly isPoisoned?: boolean;
   readonly monsterID?: string;
   readonly resources?: BattlerOptionsResources;
   readonly type: BattlerType;
@@ -31,6 +32,7 @@ export class Battler extends Definable {
   private readonly _gold: number;
   private _isAlive: boolean;
   private _isBleeding: boolean;
+  private _isPoisoned: boolean;
   private readonly _monsterID?: string;
   private _resources: BattlerResources | null;
   private readonly _type: BattlerType;
@@ -40,6 +42,7 @@ export class Battler extends Definable {
     this._gold = options.gold;
     this._isAlive = options.isAlive ?? false;
     this._isBleeding = options.isBleeding ?? false;
+    this._isPoisoned = options.isPoisoned ?? false;
     this._resources =
       typeof options.resources !== "undefined"
         ? {
@@ -92,6 +95,10 @@ export class Battler extends Definable {
     return this._isBleeding;
   }
 
+  public get isPoisoned(): boolean {
+    return this._isPoisoned;
+  }
+
   public get monster(): Monster {
     if (typeof this._monsterID !== "undefined") {
       return getDefinable(Monster, this._monsterID);
@@ -123,6 +130,10 @@ export class Battler extends Definable {
 
   public set isBleeding(isBleeding: boolean) {
     this._isBleeding = isBleeding;
+  }
+
+  public set isPoisoned(isPoisoned: boolean) {
+    this._isPoisoned = isPoisoned;
   }
 
   public set resources(resources: BattlerResources) {

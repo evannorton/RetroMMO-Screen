@@ -130,6 +130,7 @@ export const listenForBattleUpdates = (): void => {
         const battler: Battler = getDefinable(Battler, battlerUpdate.id);
         battler.isAlive = battlerUpdate.isAlive ?? false;
         battler.isBleeding = battlerUpdate.isBleeding ?? false;
+        battler.isPoisoned = battlerUpdate.isPoisoned ?? false;
         if (battleState.values.friendlyBattlerIDs.includes(battlerUpdate.id)) {
           if (typeof battlerUpdate.resources === "undefined") {
             throw new Error(

@@ -6,6 +6,7 @@ import {
   BattleEventType,
   BattleHealEvent,
   BattleInstakillFinishEvent,
+  BattlePoisonStartEvent,
   BattleRejuvenateEvent,
   BattleUseAbilityEvent,
   BattleUseItemEvent,
@@ -232,7 +233,11 @@ export const tick = (): void => {
                     battler.resources.hp - damageEvent.amount,
                   );
                 }
-                if (damageEvent.isBleed === true) {
+                if (damageEvent.isPoison === true) {
+                  playAudioSource("sfx/actions/impact/poison-tick", {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                } else if (damageEvent.isBleed === true) {
                   playAudioSource("sfx/actions/impact/bleed-tick", {
                     volumeChannelID: sfxVolumeChannelID,
                   });
@@ -372,6 +377,23 @@ export const tick = (): void => {
               }
               case BattleEventType.Miss: {
                 playAudioSource("sfx/actions/miss", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              }
+              case BattleEventType.PoisonStart: {
+                const poisonStartEvent: BattlePoisonStartEvent =
+                  eventInstance.event as BattlePoisonStartEvent;
+                if (
+                  definableExists(Battler, poisonStartEvent.target.battlerID)
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    poisonStartEvent.target.battlerID,
+                  );
+                  battler.isPoisoned = true;
+                }
+                playAudioSource("sfx/actions/impact/poison-tick", {
                   volumeChannelID: sfxVolumeChannelID,
                 });
                 break;
