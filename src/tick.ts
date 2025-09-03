@@ -208,7 +208,7 @@ export const tick = (): void => {
                     Battler,
                     bleedStartEvent.target.battlerID,
                   );
-                  battler.isBleeding = true;
+                  battler.bleed = { order: bleedStartEvent.target.order };
                 }
                 playAudioSource("sfx/actions/impact/bleed-tick", {
                   volumeChannelID: sfxVolumeChannelID,
@@ -391,7 +391,7 @@ export const tick = (): void => {
                     Battler,
                     poisonStartEvent.target.battlerID,
                   );
-                  battler.isPoisoned = true;
+                  battler.poison = { order: poisonStartEvent.target.order };
                 }
                 playAudioSource("sfx/actions/impact/poison-tick", {
                   volumeChannelID: sfxVolumeChannelID,

@@ -1433,7 +1433,7 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          enemySpriteCondition() && enemyBattler.isBleeding,
+          enemySpriteCondition() && enemyBattler.hasBleed(),
         height: 9,
         imagePath: "status-icons/bleed",
         width: 9,
@@ -1445,7 +1445,7 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          enemySpriteCondition() && enemyBattler.isPoisoned,
+          enemySpriteCondition() && enemyBattler.hasPoison(),
         height: 9,
         imagePath: "status-icons/poison",
         width: 9,
