@@ -1453,7 +1453,10 @@ export const createBattleUI = ({
             state.values.serverTime !== null &&
             hasImpactAnimation(),
           x: (): number =>
-            getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2) - 12,
+            getX() +
+            Math.floor(getBattlerWidth(enemyBattlerID) / 2) +
+            getBattlerShadowXOffset(enemyBattlerID) -
+            12,
           y: (): number => {
             if (state.values.serverTime === null) {
               throw new Error("serverTime is null");
@@ -1486,7 +1489,9 @@ export const createBattleUI = ({
         imagePath: (): string => getStatusIconImagePath(0),
         width: 9,
         x: (): number =>
-          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5),
+          getX() +
+          Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) +
+          getBattlerShadowXOffset(enemyBattlerID),
         y: 131,
       }),
     );
@@ -1498,7 +1503,10 @@ export const createBattleUI = ({
         imagePath: (): string => getStatusIconImagePath(0),
         width: 9,
         x: (): number =>
-          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) - 5,
+          getX() +
+          Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) +
+          getBattlerShadowXOffset(enemyBattlerID) -
+          5,
         y: 131,
       }),
     );
@@ -1510,7 +1518,10 @@ export const createBattleUI = ({
         imagePath: (): string => getStatusIconImagePath(1),
         width: 9,
         x: (): number =>
-          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) + 5,
+          getX() +
+          Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) +
+          getBattlerShadowXOffset(enemyBattlerID) +
+          5,
         y: 131,
       }),
     );
