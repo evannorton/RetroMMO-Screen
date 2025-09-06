@@ -129,6 +129,18 @@ export const listenForBattleUpdates = (): void => {
       for (const battlerUpdate of update.battlers) {
         const battler: Battler = getDefinable(Battler, battlerUpdate.id);
         battler.isAlive = battlerUpdate.isAlive ?? false;
+        battler.bleed =
+          typeof battlerUpdate.bleed !== "undefined"
+            ? {
+                order: battlerUpdate.bleed.order,
+              }
+            : null;
+        battler.poison =
+          typeof battlerUpdate.poison !== "undefined"
+            ? {
+                order: battlerUpdate.poison.order,
+              }
+            : null;
         if (battleState.values.friendlyBattlerIDs.includes(battlerUpdate.id)) {
           if (typeof battlerUpdate.resources === "undefined") {
             throw new Error(
@@ -140,6 +152,7 @@ export const listenForBattleUpdates = (): void => {
             maxHP: battlerUpdate.resources.maxHP,
             maxMP: battlerUpdate.resources.maxMP ?? null,
             mp: battlerUpdate.resources.mp ?? null,
+            will: battlerUpdate.resources.will ?? null,
           };
         }
       }

@@ -16,7 +16,7 @@ import {
 } from "pixel-pigeon";
 import { NPC } from "../classes/NPC";
 import { Quest } from "../classes/Quest";
-import { QuestGiverQuest } from "../classes/QuestGiver";
+import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
@@ -28,7 +28,7 @@ import { createPressableButton } from "../functions/ui/components/createPressabl
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
-import { getQuestGiverQuests } from "../functions/getQuestGiverQuests";
+import { getQuestExchangerQuests } from "../functions/getQuestExchangerQuests";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
@@ -73,14 +73,14 @@ export const npcDialogueWorldMenu: WorldMenu<
       if (npcDialogueWorldMenu.state.values.selectedQuestIndex === null) {
         return null;
       }
-      const questGiverQuest: QuestGiverQuest | undefined =
-        npc.questGiver.quests[
+      const questExchangerQuest: QuestExchangerQuest | undefined =
+        npc.questExchanger.quests[
           npcDialogueWorldMenu.state.values.selectedQuestIndex
         ];
-      if (typeof questGiverQuest === "undefined") {
+      if (typeof questExchangerQuest === "undefined") {
         throw new Error("No quest giver quest.");
       }
-      return getDefinable(Quest, questGiverQuest.questID);
+      return getDefinable(Quest, questExchangerQuest.questID);
     };
     // Background panel
     hudElementReferences.push(
@@ -177,7 +177,15 @@ export const npcDialogueWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const quest: Quest | null = getSelectedQuest();
           if (quest !== null) {
-            switch (getQuestPartyState(quest.id)) {
+            const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
+              npc.questExchanger.quests.find(
+                (questExchangerQuest: QuestExchangerQuest): boolean =>
+                  questExchangerQuest.questID === quest.id,
+              );
+            if (typeof matchedQuestExchangerQuest === "undefined") {
+              throw new Error("No quest giver quest.");
+            }
+            switch (getQuestPartyState(quest.id, npc.id)) {
               case QuestState.Accept:
                 return {
                   value: quest.availableText,
@@ -185,7 +193,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               case QuestState.Complete:
               case QuestState.TurnIn:
                 return {
-                  value: quest.completedText,
+                  value: matchedQuestExchangerQuest.completedText,
                 };
               case QuestState.InProgress:
                 return {
@@ -203,12 +211,14 @@ export const npcDialogueWorldMenu: WorldMenu<
     const questsY: number = 49;
     const questsWidth: number = x + width - questsX;
     const questsHeight: number = y - questsY;
-    if (npc.hasQuestGiver()) {
+    if (npc.hasQuestExchanger()) {
       if (options.isLeader) {
         // Quest panel
         hudElementReferences.push(
           createPanel({
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean =>
+              getQuestExchangerQuests(npc.id).length > 0 &&
+              isWorldCombatInProgress() === false,
             height: questsHeight,
             imagePath: "panels/basic",
             width: questsWidth,
@@ -219,7 +229,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         // Close quests button
         hudElementReferences.push(
           createImage({
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean =>
+              getQuestExchangerQuests(npc.id).length > 0 &&
+              isWorldCombatInProgress() === false,
             height: 11,
             imagePath: "x",
             onClick: (): void => {
@@ -235,7 +247,9 @@ export const npcDialogueWorldMenu: WorldMenu<
           createLabel({
             color: Color.White,
             coordinates: {
-              condition: (): boolean => isWorldCombatInProgress() === false,
+              condition: (): boolean =>
+                getQuestExchangerQuests(npc.id).length > 0 &&
+                isWorldCombatInProgress() === false,
               x: questsX + Math.round(questsWidth / 2),
               y: questsY + 9,
             },
@@ -251,7 +265,9 @@ export const npcDialogueWorldMenu: WorldMenu<
         // Quests understrike
         hudElementReferences.push(
           createUnderstrike({
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean =>
+              getQuestExchangerQuests(npc.id).length > 0 &&
+              isWorldCombatInProgress() === false,
             width: questsWidth - 16,
             x: questsX + 8,
             y: questsY + 20,
@@ -261,26 +277,28 @@ export const npcDialogueWorldMenu: WorldMenu<
         for (let i: number = 0; i < npcQuestsPerPage; i++) {
           const index: number = i;
           const getQuest = (): Quest => {
-            const questGiverQuest: QuestGiverQuest | undefined =
-              getQuestGiverQuests(npc.id)[i];
-            if (typeof questGiverQuest === "undefined") {
+            const questExchangerQuest: QuestExchangerQuest | undefined =
+              getQuestExchangerQuests(npc.id)[i];
+            if (typeof questExchangerQuest === "undefined") {
               throw new Error("No quest giver quest.");
             }
-            return getDefinable(Quest, questGiverQuest.questID);
+            return getDefinable(Quest, questExchangerQuest.questID);
           };
           hudElementReferences.push(
             createIconListItem({
               condition: (): boolean =>
-                getQuestGiverQuests(npc.id).length > i &&
+                getQuestExchangerQuests(npc.id).length > i &&
                 isWorldCombatInProgress() === false,
               icons: [
                 {
-                  imagePath: (): string => getQuestIconImagePath(getQuest().id),
+                  imagePath: (): string =>
+                    getQuestIconImagePath(getQuest().id, npc.id),
                 },
                 {
                   condition: (): boolean => {
                     const questState: QuestState | null = getQuestPartyState(
                       getQuest().id,
+                      npc.id,
                     );
                     return (
                       (questState === QuestState.InProgress ||
@@ -290,7 +308,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                   },
                   imagePath: "quest-banners/default",
                   recolors: (): CreateSpriteOptionsRecolor[] =>
-                    getQuestIconRecolors(getQuest().id, true),
+                    getQuestIconRecolors(getQuest().id, true, npc.id),
                 },
               ],
               isSelected: (): boolean =>
@@ -335,7 +353,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               const quest: Quest | null = getSelectedQuest();
               if (quest !== null) {
                 return (
-                  getQuestPartyState(quest.id) === QuestState.Accept &&
+                  getQuestPartyState(quest.id, npc.id) === QuestState.Accept &&
                   isWorldCombatInProgress() === false
                 );
               }
@@ -371,7 +389,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               const quest: Quest | null = getSelectedQuest();
               if (quest !== null) {
                 return (
-                  getQuestPartyState(quest.id) === QuestState.TurnIn &&
+                  getQuestPartyState(quest.id, npc.id) === QuestState.TurnIn &&
                   isWorldCombatInProgress() === false
                 );
               }

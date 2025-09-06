@@ -7,10 +7,13 @@ import { getQuestState } from "./getQuestState";
 export const getQuestIconRecolors = (
   questID: string,
   usePartyState: boolean,
+  npcID?: string,
 ): CreateSpriteOptionsRecolor[] => {
   let toColor: Color | undefined;
   switch (
-    usePartyState ? getQuestPartyState(questID) : getQuestState(questID)
+    usePartyState
+      ? getQuestPartyState(questID, npcID)
+      : getQuestState(questID, npcID)
   ) {
     case QuestState.InProgress:
       toColor = Color.DarkGray;

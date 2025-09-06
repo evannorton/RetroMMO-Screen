@@ -105,6 +105,12 @@ export const getInteractableEntityCollidable = (): EntityCollidable | null => {
         return null;
       }
     }
+    if (entityCollidable.type === "piano") {
+      // If the entity is not up from the character, we don't want to interact with it.
+      if (worldCharacter.direction !== Direction.Up) {
+        return null;
+      }
+    }
     return entityCollidable;
   }
   return getNPCEntityCollidable(worldCharacter.direction, x, y);

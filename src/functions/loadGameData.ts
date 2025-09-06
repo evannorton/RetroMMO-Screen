@@ -28,7 +28,7 @@ import {
   OutfitDefinition,
   PianoDefinition,
   QuestDefinition,
-  QuestGiverDefinition,
+  QuestExchangerDefinition,
   ReachableDefinition,
   ShopDefinition,
   SkinColorDefinition,
@@ -72,7 +72,7 @@ import { NPC } from "../classes/NPC";
 import { Outfit } from "../classes/Outfit";
 import { Piano } from "../classes/Piano";
 import { Quest } from "../classes/Quest";
-import { QuestGiver } from "../classes/QuestGiver";
+import { QuestExchanger } from "../classes/QuestExchanger";
 import { Reachable } from "../classes/Reachable";
 import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
@@ -381,11 +381,11 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "QuestGiver": {
-          const definition: QuestGiverDefinition = (
-            gameData[className] as Record<string, QuestGiverDefinition>
-          )[id] as QuestGiverDefinition;
-          new QuestGiver({
+        case "QuestExchanger": {
+          const definition: QuestExchangerDefinition = (
+            gameData[className] as Record<string, QuestExchangerDefinition>
+          )[id] as QuestExchangerDefinition;
+          new QuestExchanger({
             definition,
             id,
           });

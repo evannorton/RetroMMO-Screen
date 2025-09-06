@@ -3,6 +3,7 @@ import {
   BattleAmbushEvent,
   BattleBindAbilityRequest,
   BattleBindItemRequest,
+  BattleBleedStartEvent,
   BattleCancelSubmittedMoveRequest,
   BattleDamageEvent,
   BattleDeathEvent,
@@ -22,6 +23,7 @@ import {
   BattleNewLevelEvent,
   BattleObtainEvent,
   BattlePhase,
+  BattlePoisonStartEvent,
   BattleRejuvenateEvent,
   BattleUnbindHotkeyRequest,
   BattleUseAbilityEvent,
@@ -76,6 +78,7 @@ import {
   hotkeyLabelBlinkDuration,
   targetBlinkDuration,
 } from "../../../constants";
+import { canBattlerAffordAbility } from "../../battle/canBattlerAffordAbilitity";
 import { canFleeBattle } from "../../battle/canFleeBattle";
 import {
   cancelBattleActionInputCollectionID,
@@ -122,6 +125,7 @@ import { getBattlerHeight } from "../../battle/getBattlerHeight";
 import { getBattlerMonsterNameData } from "../../battle/getBattlerMonsterNameData";
 import { getBattlerName } from "../../battle/getBattlerName";
 import { getBattlerOffset } from "../../battle/getBattlerOffset";
+import { getBattlerResourcePool } from "../../battle/getBattlerResourcePool";
 import { getBattlerShadowXOffset } from "../../battle/getBattlerShadowXOffset";
 import { getBattlerShadowYOffset } from "../../battle/getBattlerShadowYOffset";
 import { getBattlerWidth } from "../../battle/getBattlerWidth";
@@ -634,6 +638,28 @@ export const createBattleUI = ({
           ).id;
         },
         skinColorID: (): string => friendlyBattler.battleCharacter.skinColorID,
+        statusIconImagePaths: (): string[] => {
+          const statusIconImagePaths: [string, number][] = [];
+          if (friendlyBattler.hasPoison()) {
+            statusIconImagePaths.push([
+              "status-icons/poison",
+              friendlyBattler.poison.order,
+            ]);
+          }
+          if (friendlyBattler.hasBleed()) {
+            statusIconImagePaths.push([
+              "status-icons/bleed",
+              friendlyBattler.bleed.order,
+            ]);
+          }
+          statusIconImagePaths.sort(
+            (a: [string, number], b: [string, number]): number => a[1] - b[1],
+          );
+          return statusIconImagePaths.map(
+            (statusIconImagePath: [string, number]): string =>
+              statusIconImagePath[0],
+          );
+        },
       }),
     );
     buttonIDs.push(
@@ -702,6 +728,48 @@ export const createBattleUI = ({
         y: 226,
       }),
     );
+    for (
+      let willIndex: number = 0;
+      willIndex < constants["maximum-will"];
+      willIndex++
+    ) {
+      // Battler will background
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            friendlyBattler.battleCharacter.player.character.class
+              .resourcePool === ResourcePool.Will,
+          height: 7,
+          imagePath: "will-background",
+          width: 7,
+          x: 98 + i * 81 + willIndex * 8,
+          y: 227,
+        }),
+      );
+      // Battler will orb
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean => {
+            if (
+              friendlyBattler.battleCharacter.player.character.class
+                .resourcePool === ResourcePool.Will
+            ) {
+              const will: number | null = friendlyBattler.resources.will;
+              if (will === null) {
+                throw new Error("will is null");
+              }
+              return will > willIndex;
+            }
+            return false;
+          },
+          height: 7,
+          imagePath: "will-orb",
+          width: 7,
+          x: 98 + i * 81 + willIndex * 8,
+          y: 227,
+        }),
+      );
+    }
     // Battler ability target
     const targetCondition = (): boolean => {
       if (
@@ -905,6 +973,32 @@ export const createBattleUI = ({
     };
     const getY = (): number =>
       128 - getBattlerHeight(enemyBattlerID) - getBattlerOffset(enemyBattlerID);
+    const getEnemyBattlerStatusesCount = (): number => {
+      let count: number = 0;
+      if (enemyBattler.hasPoison()) {
+        count++;
+      }
+      if (enemyBattler.hasBleed()) {
+        count++;
+      }
+      return count;
+    };
+    const getStatusIconImagePath = (index: number): string => {
+      const icons: [string, number][] = [];
+      if (enemyBattler.hasPoison()) {
+        icons.push(["status-icons/poison", enemyBattler.poison.order]);
+      }
+      if (enemyBattler.hasBleed()) {
+        icons.push(["status-icons/bleed", enemyBattler.bleed.order]);
+      }
+      icons.sort(
+        (a: [string, number], b: [string, number]): number => a[1] - b[1],
+      );
+      if (typeof icons[index] === "undefined") {
+        throw new Error(`icons[${index}] is undefined`);
+      }
+      return icons[index][0];
+    };
     const getImpactAnimationEventInstance = ():
       | BattleStateRoundEventInstance
       | undefined => {
@@ -926,6 +1020,11 @@ export const createBattleUI = ({
               eventInstance.event.startedAt + eventInstance.event.duration
           ) {
             switch (eventInstance.event.type) {
+              case BattleEventType.BleedStart: {
+                const bleedStartEvent: BattleBleedStartEvent =
+                  eventInstance.event as BattleBleedStartEvent;
+                return bleedStartEvent.target.battlerID === enemyBattlerID;
+              }
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
                   eventInstance.event as BattleDamageEvent;
@@ -940,6 +1039,11 @@ export const createBattleUI = ({
                 const instakillFinishEvent: BattleInstakillFinishEvent =
                   eventInstance.event as BattleInstakillFinishEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.PoisonStart: {
+                const poisonStartEvent: BattlePoisonStartEvent =
+                  eventInstance.event as BattlePoisonStartEvent;
+                return poisonStartEvent.target.battlerID === enemyBattlerID;
               }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
@@ -970,6 +1074,11 @@ export const createBattleUI = ({
               eventInstance.event.startedAt + battleImpactAnimationDuration * 8
           ) {
             switch (eventInstance.event.type) {
+              case BattleEventType.BleedStart: {
+                const bleedStartEvent: BattleBleedStartEvent =
+                  eventInstance.event as BattleBleedStartEvent;
+                return bleedStartEvent.target.battlerID === enemyBattlerID;
+              }
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
                   eventInstance.event as BattleDamageEvent;
@@ -984,6 +1093,11 @@ export const createBattleUI = ({
                 const instakillFinishEvent: BattleInstakillEvent =
                   eventInstance.event as BattleInstakillEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
+              }
+              case BattleEventType.PoisonStart: {
+                const poisonStartEvent: BattlePoisonStartEvent =
+                  eventInstance.event as BattlePoisonStartEvent;
+                return poisonStartEvent.target.battlerID === enemyBattlerID;
               }
               case BattleEventType.Rejuvenate: {
                 const rejuvenateEvent: BattleRejuvenateEvent =
@@ -1010,16 +1124,34 @@ export const createBattleUI = ({
         throw new Error("matchedEventInstance is undefined");
       }
       switch (matchedEventInstance.event.type) {
+        case BattleEventType.BleedStart: {
+          return getDefinable(BattleImpactAnimation, "bleed-tick");
+        }
         case BattleEventType.Damage: {
           const damageEvent: BattleDamageEvent =
             matchedEventInstance.event as BattleDamageEvent;
+          if (damageEvent.isPoison === true) {
+            return getDefinable(BattleImpactAnimation, "poison-tick");
+          }
+          if (damageEvent.isBleed === true) {
+            return getDefinable(BattleImpactAnimation, "bleed-tick");
+          }
           if (damageEvent.isCrit === true) {
+            if (typeof damageEvent.abilityID === "undefined") {
+              throw new Error("No damage event ability ID");
+            }
             return getDefinable(Ability, damageEvent.abilityID)
               .battleImpactCritAnimation;
           }
           if (damageEvent.isInstakill === true) {
+            if (typeof damageEvent.abilityID === "undefined") {
+              throw new Error("No damage event ability ID");
+            }
             return getDefinable(Ability, damageEvent.abilityID)
               .battleImpactInstakillAnimation;
+          }
+          if (typeof damageEvent.abilityID === "undefined") {
+            throw new Error("No damage event ability ID");
           }
           return getDefinable(Ability, damageEvent.abilityID)
             .battleImpactAnimation;
@@ -1035,6 +1167,9 @@ export const createBattleUI = ({
             matchedEventInstance.event as BattleInstakillFinishEvent;
           return getDefinable(Ability, instakillFinishEvent.abilityID)
             .battleImpactInstakillAnimation;
+        }
+        case BattleEventType.PoisonStart: {
+          return getDefinable(BattleImpactAnimation, "poison-tick");
         }
         case BattleEventType.Rejuvenate: {
           const rejuvenateEvent: BattleRejuvenateEvent =
@@ -1342,6 +1477,43 @@ export const createBattleUI = ({
         imagePath: (): string => getImpactAnimation().imagePath,
       }),
     );
+    // Enemy status icons
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 1,
+        height: 9,
+        imagePath: (): string => getStatusIconImagePath(0),
+        width: 9,
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5),
+        y: 131,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 2,
+        height: 9,
+        imagePath: (): string => getStatusIconImagePath(0),
+        width: 9,
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) - 5,
+        y: 131,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 2,
+        height: 9,
+        imagePath: (): string => getStatusIconImagePath(1),
+        width: 9,
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) + 5,
+        y: 131,
+      }),
+    );
     // Enemy targetting number
     const targetingNumberCondition = (): boolean => {
       if (
@@ -1507,8 +1679,10 @@ export const createBattleUI = ({
             Ability,
             hotkey.hotkeyableDefinableReference.id,
           );
-          const mp: number | undefined = getBattler().resources.mp ?? 0;
-          return ability.mpCost <= mp && canUseAbility(ability.id);
+          return (
+            canBattlerAffordAbility(getBattler().id, ability.id) &&
+            canUseAbility(ability.id)
+          );
         }
         case "Item": {
           const item: Item = getDefinable(
@@ -2491,7 +2665,9 @@ export const createBattleUI = ({
       color: Color.White,
       coordinates: {
         condition: (): boolean =>
-          selectedAbilityCondition() && getSelectedAbility().mpCost > 0,
+          selectedAbilityCondition() &&
+          getSelectedAbility().mpCost > 0 &&
+          getBattlerResourcePool(getBattler().id) === ResourcePool.MP,
         x: 252,
         y: 150,
       },
@@ -2504,14 +2680,34 @@ export const createBattleUI = ({
       },
     }),
   );
+  // Selected ability will cost
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: (): boolean =>
+          selectedAbilityCondition() &&
+          getSelectedAbility().willCost > 0 &&
+          getBattlerResourcePool(getBattler().id) === ResourcePool.Will,
+        x: 252,
+        y: 150,
+      },
+      horizontalAlignment: "center",
+      text: (): CreateLabelOptionsText => {
+        const ability: Ability = getSelectedAbility();
+        return {
+          value: `${getFormattedInteger(ability.willCost)} FP`,
+        };
+      },
+    }),
+  );
   // Selected ability use button
   hudElementReferences.push(
     createPressableButton({
       condition: (): boolean => {
         if (selectedAbilityCondition()) {
           const battler: Battler = getBattler();
-          const mp: number = battler.resources.mp ?? 0;
-          return mp >= getSelectedAbility().mpCost;
+          return canBattlerAffordAbility(battler.id, getSelectedAbility().id);
         }
         return false;
       },
@@ -2865,34 +3061,41 @@ export const createBattleUI = ({
                   value: "An excellent move!",
                 };
               }
+              case BattleEventType.BleedStart: {
+                const bleedStartBattleEvent: BattleBleedStartEvent =
+                  battleEventInstance.event as BattleBleedStartEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: bleedStartBattleEvent.target.monsterName,
+                  username: bleedStartBattleEvent.target.username,
+                });
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: battlerName.length,
+                    },
+                  ],
+                  value: `${battlerName} begins to bleed.`,
+                };
+              }
               case BattleEventType.Damage: {
                 const damageBattleEvent: BattleDamageEvent =
                   battleEventInstance.event as BattleDamageEvent;
-                if (damageBattleEvent.isRedirected === true) {
-                  const battlerName: string = getBattlerName({
-                    monsterName: damageBattleEvent.target.monsterName,
-                    username: damageBattleEvent.target.username,
-                  });
-                  const trims: CreateLabelOptionsTextTrim[] = [];
-                  if (
-                    typeof damageBattleEvent.target.username !== "undefined"
-                  ) {
-                    trims.push({
-                      index: 0,
-                      length: battlerName.length,
-                    });
-                  }
-                  return {
-                    trims,
-                    value: `${battlerName} guards for ${getFormattedInteger(
-                      damageBattleEvent.amount,
-                    )} damage.`,
-                  };
-                }
+                const damageAmount: string = getFormattedInteger(
+                  damageBattleEvent.amount,
+                );
                 const battlerName: string = getBattlerName({
                   monsterName: damageBattleEvent.target.monsterName,
                   username: damageBattleEvent.target.username,
                 });
+                const verb: string =
+                  damageBattleEvent.isPoison === true
+                    ? "sickens for"
+                    : damageBattleEvent.isBleed === true
+                      ? "bleeds for"
+                      : damageBattleEvent.isRedirected === true
+                        ? "guards for"
+                        : "takes";
                 const trims: CreateLabelOptionsTextTrim[] = [];
                 if (typeof damageBattleEvent.target.username !== "undefined") {
                   trims.push({
@@ -2900,11 +3103,10 @@ export const createBattleUI = ({
                     length: battlerName.length,
                   });
                 }
+                const value: string = `${battlerName} ${verb} ${damageAmount} damage.`;
                 return {
                   trims,
-                  value: `${battlerName} takes ${getFormattedInteger(
-                    damageBattleEvent.amount,
-                  )} damage.`,
+                  value,
                 };
               }
               case BattleEventType.Death: {
@@ -3175,6 +3377,23 @@ export const createBattleUI = ({
                   value: `${obtainBattleEvent.username} gets ${
                     getDefinable(Item, obtainBattleEvent.itemID).name
                   }!`,
+                };
+              }
+              case BattleEventType.PoisonStart: {
+                const poisonStartBattleEvent: BattlePoisonStartEvent =
+                  battleEventInstance.event as BattlePoisonStartEvent;
+                const battlerName: string = getBattlerName({
+                  monsterName: poisonStartBattleEvent.target.monsterName,
+                  username: poisonStartBattleEvent.target.username,
+                });
+                return {
+                  trims: [
+                    {
+                      index: 0,
+                      length: battlerName.length,
+                    },
+                  ],
+                  value: `${battlerName} begins to sicken.`,
                 };
               }
               case BattleEventType.Rejuvenate: {

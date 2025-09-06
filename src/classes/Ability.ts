@@ -24,6 +24,7 @@ export class Ability extends Definable {
   private readonly _mpCost: number;
   private readonly _name: string;
   private readonly _targetType: TargetType;
+  private readonly _willCost: number;
   public constructor(options: AbilityOptions) {
     super(options.id);
     this._battleImpactAnimationID = options.definition.battleImpactAnimationID;
@@ -42,9 +43,10 @@ export class Ability extends Definable {
     this._impactCritAudioPath = options.definition.impactCritAudioPath;
     this._impactInstakillAudioPath =
       options.definition.impactInstakillAudioPath;
-    this._mpCost = options.definition.mpCost;
+    this._mpCost = options.definition.mpCost ?? 0;
     this._name = options.definition.name;
     this._targetType = options.definition.targetType;
+    this._willCost = options.definition.willCost ?? 0;
   }
 
   public get battleImpactAnimation(): BattleImpactAnimation {
@@ -176,6 +178,10 @@ export class Ability extends Definable {
 
   public get targetType(): TargetType {
     return this._targetType;
+  }
+
+  public get willCost(): number {
+    return this._willCost;
   }
 
   public hasBoost(): boolean {

@@ -91,6 +91,12 @@ const getMusicPlayData = (): MusicPlayData | null => {
         };
     }
   }
+  if (state.values.mainMenuState !== null) {
+    return {
+      musicTrackID: "character-select",
+      resumePoint: 0,
+    };
+  }
   return null;
 };
 
