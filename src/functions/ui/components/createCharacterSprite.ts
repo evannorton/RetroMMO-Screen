@@ -38,7 +38,7 @@ export interface CreatePlayerSpriteOptions {
   readonly outfitID: Scriptable<string>;
   readonly scale?: number;
   readonly skinColorID: Scriptable<string>;
-  readonly statusIconImagePath?: Scriptable<string | undefined>;
+  readonly statusIconImagePaths?: Scriptable<readonly string[]>;
 }
 export const createCharacterSprite = ({
   coordinates,
@@ -51,7 +51,7 @@ export const createCharacterSprite = ({
   outfitID,
   scale = 1,
   skinColorID,
-  statusIconImagePath,
+  statusIconImagePaths,
 }: CreatePlayerSpriteOptions): HUDElementReferences => {
   if (
     (typeof entity === "undefined") ===
@@ -645,6 +645,16 @@ export const createCharacterSprite = ({
       id: "WalkUp",
     },
   ];
+  const getStatusIconImagePath = (index: number): string => {
+    const paths: readonly string[] =
+      typeof statusIconImagePaths === "function"
+        ? statusIconImagePaths()
+        : statusIconImagePaths ?? [];
+    if (typeof paths[index] === "undefined") {
+      throw new Error(`paths[${index}] is undefined`);
+    }
+    return paths[index];
+  };
   // Head back sprite
   const headBackSpriteCondition = (): boolean =>
     typeof getMask().headCosmetic.backImagePaths[
@@ -741,15 +751,8 @@ export const createCharacterSprite = ({
     recolors,
   });
   spriteIDs.push(headFrontSpriteID);
-  // Status icon sprite
-  const statusIconSpriteCondition = (): boolean => {
-    const statusIconImagePathValue: string | undefined =
-      typeof statusIconImagePath === "function"
-        ? statusIconImagePath()
-        : statusIconImagePath;
-    return typeof statusIconImagePathValue !== "undefined";
-  };
-  const statusIconSpriteID: string = createSprite({
+  // Status icon sprites
+  const statusIconPosition1SpriteID: string = createSprite({
     animationID: "default",
     animations: [
       {
@@ -774,7 +777,12 @@ export const createCharacterSprite = ({
                 typeof coordinates.condition === "undefined" ||
                 coordinates.condition()
               ) {
-                return statusIconSpriteCondition();
+                return (
+                  (typeof statusIconImagePaths === "function"
+                    ? statusIconImagePaths()
+                    : statusIconImagePaths ?? []
+                  ).length === 1
+                );
               }
               return false;
             },
@@ -788,18 +796,103 @@ export const createCharacterSprite = ({
                 : coordinates.y) + 11,
           }
         : undefined,
-    imagePath: (): string => {
-      const statusIconImagePathValue: string | undefined =
-        typeof statusIconImagePath === "function"
-          ? statusIconImagePath()
-          : statusIconImagePath;
-      if (typeof statusIconImagePathValue === "undefined") {
-        throw new Error("Status icon image path is undefined.");
-      }
-      return statusIconImagePathValue;
-    },
+    imagePath: (): string => getStatusIconImagePath(0),
   });
-  spriteIDs.push(statusIconSpriteID);
+  spriteIDs.push(statusIconPosition1SpriteID);
+  const statusIconPosition2SpriteID: string = createSprite({
+    animationID: "default",
+    animations: [
+      {
+        frames: [
+          {
+            height: 9,
+            sourceHeight: 9,
+            sourceWidth: 9,
+            sourceX: 0,
+            sourceY: 0,
+            width: 9,
+          },
+        ],
+        id: "default",
+      },
+    ],
+    coordinates:
+      typeof coordinates !== "undefined"
+        ? {
+            condition: (): boolean => {
+              if (
+                typeof coordinates.condition === "undefined" ||
+                coordinates.condition()
+              ) {
+                return (
+                  (typeof statusIconImagePaths === "function"
+                    ? statusIconImagePaths()
+                    : statusIconImagePaths ?? []
+                  ).length === 2
+                );
+              }
+              return false;
+            },
+            x: (): number =>
+              (typeof coordinates.x === "function"
+                ? coordinates.x()
+                : coordinates.x) - 2,
+            y: (): number =>
+              (typeof coordinates.y === "function"
+                ? coordinates.y()
+                : coordinates.y) + 11,
+          }
+        : undefined,
+    imagePath: (): string => getStatusIconImagePath(0),
+  });
+  spriteIDs.push(statusIconPosition2SpriteID);
+  const statusIconPosition3SpriteID: string = createSprite({
+    animationID: "default",
+    animations: [
+      {
+        frames: [
+          {
+            height: 9,
+            sourceHeight: 9,
+            sourceWidth: 9,
+            sourceX: 0,
+            sourceY: 0,
+            width: 9,
+          },
+        ],
+        id: "default",
+      },
+    ],
+    coordinates:
+      typeof coordinates !== "undefined"
+        ? {
+            condition: (): boolean => {
+              if (
+                typeof coordinates.condition === "undefined" ||
+                coordinates.condition()
+              ) {
+                return (
+                  (typeof statusIconImagePaths === "function"
+                    ? statusIconImagePaths()
+                    : statusIconImagePaths ?? []
+                  ).length === 2
+                );
+              }
+              return false;
+            },
+            x: (): number =>
+              (typeof coordinates.x === "function"
+                ? coordinates.x()
+                : coordinates.x) + 8,
+            y: (): number =>
+              (typeof coordinates.y === "function"
+                ? coordinates.y()
+                : coordinates.y) + 11,
+          }
+        : undefined,
+    imagePath: (): string => getStatusIconImagePath(1),
+  });
+  spriteIDs.push(statusIconPosition3SpriteID);
   if (typeof entity !== "undefined") {
     addEntitySprite(entity.entityID, {
       condition: headBackSpriteCondition,
@@ -812,10 +905,6 @@ export const createCharacterSprite = ({
     addEntitySprite(entity.entityID, {
       condition: headFrontSpriteCondition,
       spriteID: headFrontSpriteID,
-    });
-    addEntitySprite(entity.entityID, {
-      condition: statusIconSpriteCondition,
-      spriteID: statusIconSpriteID,
     });
   }
   return { spriteIDs };

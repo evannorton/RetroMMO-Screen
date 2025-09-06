@@ -144,15 +144,15 @@ export const createWorldBottomBarUI = (): void => {
         ).id;
       },
       skinColorID: (): string => getPlayer().worldCharacter.skinColor.id,
-      statusIconImagePath: (): string | undefined => {
+      statusIconImagePaths: (): string[] => {
         const player: Player = getPlayer();
         if (
           player.worldCharacter.hasIsRenewing() &&
           player.worldCharacter.isRenewing
         ) {
-          return "status-icons/renew";
+          return ["status-icons/renew"];
         }
-        return undefined;
+        return [];
       },
     });
     createButton({

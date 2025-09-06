@@ -638,6 +638,28 @@ export const createBattleUI = ({
           ).id;
         },
         skinColorID: (): string => friendlyBattler.battleCharacter.skinColorID,
+        statusIconImagePaths: (): string[] => {
+          const statusIconImagePaths: [string, number][] = [];
+          if (friendlyBattler.hasPoison()) {
+            statusIconImagePaths.push([
+              "status-icons/poison",
+              friendlyBattler.poison.order,
+            ]);
+          }
+          if (friendlyBattler.hasBleed()) {
+            statusIconImagePaths.push([
+              "status-icons/bleed",
+              friendlyBattler.bleed.order,
+            ]);
+          }
+          statusIconImagePaths.sort(
+            (a: [string, number], b: [string, number]): number => a[1] - b[1],
+          );
+          return statusIconImagePaths.map(
+            (statusIconImagePath: [string, number]): string =>
+              statusIconImagePath[0],
+          );
+        },
       }),
     );
     buttonIDs.push(
@@ -951,6 +973,32 @@ export const createBattleUI = ({
     };
     const getY = (): number =>
       128 - getBattlerHeight(enemyBattlerID) - getBattlerOffset(enemyBattlerID);
+    const getEnemyBattlerStatusesCount = (): number => {
+      let count: number = 0;
+      if (enemyBattler.hasPoison()) {
+        count++;
+      }
+      if (enemyBattler.hasBleed()) {
+        count++;
+      }
+      return count;
+    };
+    const getStatusIconImagePath = (index: number): string => {
+      const icons: [string, number][] = [];
+      if (enemyBattler.hasPoison()) {
+        icons.push(["status-icons/poison", enemyBattler.poison.order]);
+      }
+      if (enemyBattler.hasBleed()) {
+        icons.push(["status-icons/bleed", enemyBattler.bleed.order]);
+      }
+      icons.sort(
+        (a: [string, number], b: [string, number]): number => a[1] - b[1],
+      );
+      if (typeof icons[index] === "undefined") {
+        throw new Error(`icons[${index}] is undefined`);
+      }
+      return icons[index][0];
+    };
     const getImpactAnimationEventInstance = ():
       | BattleStateRoundEventInstance
       | undefined => {
@@ -1433,9 +1481,21 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          enemySpriteCondition() && enemyBattler.hasBleed(),
+          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 1,
         height: 9,
-        imagePath: "status-icons/bleed",
+        imagePath: (): string => getStatusIconImagePath(0),
+        width: 9,
+        x: (): number =>
+          getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5),
+        y: 131,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 2,
+        height: 9,
+        imagePath: (): string => getStatusIconImagePath(0),
         width: 9,
         x: (): number =>
           getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) - 5,
@@ -1445,9 +1505,9 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          enemySpriteCondition() && enemyBattler.hasPoison(),
+          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 2,
         height: 9,
-        imagePath: "status-icons/poison",
+        imagePath: (): string => getStatusIconImagePath(1),
         width: 9,
         x: (): number =>
           getX() + Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) + 5,
