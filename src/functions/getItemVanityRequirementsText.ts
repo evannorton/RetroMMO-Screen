@@ -2,12 +2,15 @@ import { Class } from "../classes/Class";
 import { getDefinablesCount } from "definables";
 import { getItemVanityClasses } from "./getItemVanityClasses";
 
-export const getItemVanityClassesText = (itemID: string): string => {
+export const getItemVanityRequirementsText = (itemID: string): string => {
   const classes: readonly Class[] = getItemVanityClasses(itemID);
+  let text: string = "";
   if (getDefinablesCount(Class) === classes.length) {
-    return "All";
+    text += "All";
+  } else {
+    text += classes
+      .map((classObject: Class): string => classObject.abbreviation)
+      .join(", ");
   }
-  return classes
-    .map((classObject: Class): string => classObject.abbreviation)
-    .join(", ");
+  return text;
 };
