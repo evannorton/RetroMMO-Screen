@@ -6,7 +6,10 @@ export const getBattlerOffset = (battlerID: string): number => {
   const battler: Battler = getDefinable(Battler, battlerID);
   switch (battler.type) {
     case BattlerType.Monster: {
-      return battler.monster.offset;
+      if (battler.monster.hasOffset()) {
+        return battler.monster.offset;
+      }
+      return 0;
     }
     case BattlerType.Player: {
       return 0;

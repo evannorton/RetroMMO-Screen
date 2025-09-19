@@ -1467,12 +1467,18 @@ export const createBattleUI = ({
             }
             const battleImpactAnimation: BattleImpactAnimation =
               getImpactAnimation();
+            const offset: number = battleImpactAnimation.hasOffset()
+              ? battleImpactAnimation.offset
+              : 0;
             switch (battleImpactAnimation.alignment) {
               case BattleImpactAlignment.Bottom:
-                return 88;
+                return 88 - offset;
               case BattleImpactAlignment.Center:
                 return (
-                  getY() + Math.round(getBattlerHeight(enemyBattlerID) / 2) - 20
+                  getY() +
+                  Math.round(getBattlerHeight(enemyBattlerID) / 2) -
+                  20 -
+                  offset
                 );
             }
           },
