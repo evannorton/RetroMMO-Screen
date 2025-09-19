@@ -13,9 +13,9 @@ import { createPressableButton } from "./createPressableButton";
 import { createSlot } from "./createSlot";
 import { doesItemHaveVanity } from "../../doesItemHaveVanity";
 import { getDefinable } from "definables";
-import { getEquipmentPieceClassesText } from "../../getEquipmentPieceClassesText";
+import { getEquipmentPieceRequirementsText } from "../../getEquipmentPieceRequirementsText";
 import { getEquipmentSlotName } from "../../getEquipmentSlotName";
-import { getItemVanityClassesText } from "../../getItemVanityClassesText";
+import { getItemVanityRequirementsText } from "../../getItemVanityRequirementsText";
 import { getItemVanitySlotText } from "../../getItemVanitySlotText";
 
 interface CreateItemDisplayOptionsButton {
@@ -292,7 +292,7 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "left",
       text: (): CreateLabelOptionsText => ({
-        value: getItemVanityClassesText(getItem().id),
+        value: getItemVanityRequirementsText(getItem().id),
       }),
     }),
   );
@@ -313,7 +313,7 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "left",
       text: (): CreateLabelOptionsText => ({
-        value: getEquipmentPieceClassesText(getItem().equipmentPieceID),
+        value: getEquipmentPieceRequirementsText(getItem().equipmentPieceID),
       }),
     }),
   );
