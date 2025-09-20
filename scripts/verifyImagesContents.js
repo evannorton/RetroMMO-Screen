@@ -372,9 +372,9 @@ const directoryOptions = [
     directoryPath: ["images", "status-icons"],
     isSpriteSheet: false,
     palette: colorPalette.famicube,
-    spriteWidth: 8,
-    spriteHeight: 8,
-    size: { width: 8, height: 8, tiledX: false, tiledY: false }
+    spriteWidth: 9,
+    spriteHeight: 9,
+    size: { width: 9, height: 9, tiledX: false, tiledY: false }
   },
   {
     colorCount: 8,

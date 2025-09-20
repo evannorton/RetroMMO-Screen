@@ -11,7 +11,7 @@ export class Monster extends Definable {
   private readonly _deathAudioPath: string;
   private readonly _imagePath: string;
   private readonly _name: string;
-  private readonly _offset: number;
+  private readonly _offset?: number;
   private readonly _shadowXOffset: number;
   private readonly _shadowXRadius: number;
   private readonly _shadowYOffset: number;
@@ -51,7 +51,10 @@ export class Monster extends Definable {
   }
 
   public get offset(): number {
-    return this._offset;
+    if (typeof this._offset !== "undefined") {
+      return this._offset;
+    }
+    throw new Error(this.getAccessorErrorMessage("offset"));
   }
 
   public get shadowXOffset(): number {
@@ -68,5 +71,9 @@ export class Monster extends Definable {
 
   public get shadowYRadius(): number {
     return this._shadowYRadius;
+  }
+
+  public hasOffset(): boolean {
+    return typeof this._offset !== "undefined";
   }
 }

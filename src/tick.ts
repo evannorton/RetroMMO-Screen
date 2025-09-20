@@ -1,10 +1,12 @@
 import { Ability } from "./classes/Ability";
 import {
+  BattleBleedStartEvent,
   BattleDamageEvent,
   BattleDeathEvent,
   BattleEventType,
   BattleHealEvent,
   BattleInstakillFinishEvent,
+  BattlePoisonStartEvent,
   BattleRejuvenateEvent,
   BattleUseAbilityEvent,
   BattleUseItemEvent,
@@ -196,13 +198,26 @@ export const tick = (): void => {
             eventInstance.isProcessed === false
           ) {
             switch (eventInstance.event.type) {
+              case BattleEventType.BleedStart: {
+                const bleedStartEvent: BattleBleedStartEvent =
+                  eventInstance.event as BattleBleedStartEvent;
+                if (
+                  definableExists(Battler, bleedStartEvent.target.battlerID)
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    bleedStartEvent.target.battlerID,
+                  );
+                  battler.bleed = { order: bleedStartEvent.target.order };
+                }
+                playAudioSource("sfx/actions/impact/bleed-tick", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              }
               case BattleEventType.Damage: {
                 const damageEvent: BattleDamageEvent =
                   eventInstance.event as BattleDamageEvent;
-                const ability: Ability = getDefinable(
-                  Ability,
-                  damageEvent.abilityID,
-                );
                 if (
                   definableExists(Battler, damageEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -218,15 +233,44 @@ export const tick = (): void => {
                     battler.resources.hp - damageEvent.amount,
                   );
                 }
-                if (damageEvent.isCrit === true) {
+                if (damageEvent.isPoison === true) {
+                  playAudioSource("sfx/actions/impact/poison-tick", {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                } else if (damageEvent.isBleed === true) {
+                  playAudioSource("sfx/actions/impact/bleed-tick", {
+                    volumeChannelID: sfxVolumeChannelID,
+                  });
+                } else if (damageEvent.isCrit === true) {
+                  if (typeof damageEvent.abilityID === "undefined") {
+                    throw new Error("No damage event ability ID");
+                  }
+                  const ability: Ability = getDefinable(
+                    Ability,
+                    damageEvent.abilityID,
+                  );
                   playAudioSource(ability.impactCritAudioPath, {
                     volumeChannelID: sfxVolumeChannelID,
                   });
                 } else if (damageEvent.isInstakill === true) {
+                  if (typeof damageEvent.abilityID === "undefined") {
+                    throw new Error("No damage event ability ID");
+                  }
+                  const ability: Ability = getDefinable(
+                    Ability,
+                    damageEvent.abilityID,
+                  );
                   playAudioSource(ability.impactInstakillAudioPath, {
                     volumeChannelID: sfxVolumeChannelID,
                   });
                 } else {
+                  if (typeof damageEvent.abilityID === "undefined") {
+                    throw new Error("No damage event ability ID");
+                  }
+                  const ability: Ability = getDefinable(
+                    Ability,
+                    damageEvent.abilityID,
+                  );
                   playAudioSource(ability.impactAudioPath, {
                     volumeChannelID: sfxVolumeChannelID,
                   });
@@ -333,6 +377,23 @@ export const tick = (): void => {
               }
               case BattleEventType.Miss: {
                 playAudioSource("sfx/actions/miss", {
+                  volumeChannelID: sfxVolumeChannelID,
+                });
+                break;
+              }
+              case BattleEventType.PoisonStart: {
+                const poisonStartEvent: BattlePoisonStartEvent =
+                  eventInstance.event as BattlePoisonStartEvent;
+                if (
+                  definableExists(Battler, poisonStartEvent.target.battlerID)
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    poisonStartEvent.target.battlerID,
+                  );
+                  battler.poison = { order: poisonStartEvent.target.order };
+                }
+                playAudioSource("sfx/actions/impact/poison-tick", {
                   volumeChannelID: sfxVolumeChannelID,
                 });
                 break;

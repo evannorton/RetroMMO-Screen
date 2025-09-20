@@ -144,15 +144,15 @@ export const createWorldBottomBarUI = (): void => {
         ).id;
       },
       skinColorID: (): string => getPlayer().worldCharacter.skinColor.id,
-      statusIconImagePath: (): string | undefined => {
+      statusIconImagePaths: (): string[] => {
         const player: Player = getPlayer();
         if (
           player.worldCharacter.hasIsRenewing() &&
           player.worldCharacter.isRenewing
         ) {
-          return "status-icons/renew";
+          return ["status-icons/renew"];
         }
-        return undefined;
+        return [];
       },
     });
     createButton({
@@ -232,18 +232,19 @@ export const createWorldBottomBarUI = (): void => {
       y: 225,
     });
     // Bottom bar player ability target
-    const targetCondition = (): boolean =>
+    const abilityTargetCondition = (): boolean =>
       partyMemberCondition() &&
       spellbookWorldMenu.isOpen() &&
       spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-      (getCurrentTime() - spellbookWorldMenu.state.values.startedTargetingAt) %
-        (targetBlinkDuration * 2) <
+      ((getCurrentTime() - spellbookWorldMenu.state.values.startedTargetingAt) %
+        targetBlinkDuration) *
+        2 <
         targetBlinkDuration &&
       isWorldCombatInProgress() === false;
     createQuadrilateral({
       color: Color.VeryDarkGray,
       coordinates: {
-        condition: targetCondition,
+        condition: abilityTargetCondition,
         x: playerX + 3,
         y: playerY + 11,
       },
@@ -253,7 +254,39 @@ export const createWorldBottomBarUI = (): void => {
     createLabel({
       color: Color.White,
       coordinates: {
-        condition: targetCondition,
+        condition: abilityTargetCondition,
+        x: playerX + 8,
+        y: playerY + 12,
+      },
+      horizontalAlignment: "center",
+      text: {
+        value: String(partyMemberIndex + 1),
+      },
+    });
+    // Bottom bar player item target
+    const itemTargetCondition = (): boolean =>
+      partyMemberCondition() &&
+      inventoryWorldMenu.isOpen() &&
+      inventoryWorldMenu.state.values.startedTargetingAt !== null &&
+      ((getCurrentTime() - inventoryWorldMenu.state.values.startedTargetingAt) %
+        targetBlinkDuration) *
+        2 <
+        targetBlinkDuration &&
+      isWorldCombatInProgress() === false;
+    createQuadrilateral({
+      color: Color.VeryDarkGray,
+      coordinates: {
+        condition: itemTargetCondition,
+        x: playerX + 3,
+        y: playerY + 11,
+      },
+      height: 9,
+      width: 9,
+    });
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: itemTargetCondition,
         x: playerX + 8,
         y: playerY + 12,
       },
