@@ -283,6 +283,7 @@ export const questLogWorldMenu: WorldMenu<
             } else {
               questLogWorldMenu.state.setValues({
                 selectedInProgressQuestIndex: i,
+                selectedQuestDialoguePage: null,
               });
             }
           },
@@ -337,6 +338,7 @@ export const questLogWorldMenu: WorldMenu<
             } else {
               questLogWorldMenu.state.setValues({
                 selectedCompletedQuestIndex: i,
+                selectedQuestDialoguePage: null,
               });
             }
           },
