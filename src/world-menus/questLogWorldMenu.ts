@@ -283,6 +283,7 @@ export const questLogWorldMenu: WorldMenu<
             } else {
               questLogWorldMenu.state.setValues({
                 selectedInProgressQuestIndex: i,
+                selectedQuestDialoguePage: null,
               });
             }
           },
@@ -337,6 +338,7 @@ export const questLogWorldMenu: WorldMenu<
             } else {
               questLogWorldMenu.state.setValues({
                 selectedCompletedQuestIndex: i,
+                selectedQuestDialoguePage: null,
               });
             }
           },
@@ -386,24 +388,15 @@ export const questLogWorldMenu: WorldMenu<
     const getSelectedQuestDialogueLastPage = (): number => {
       const selectedQuestInstance: WorldCharacterQuestInstance =
         getSelectedQuestInstance();
-      const quest: Quest = getSelectedQuest();
-      let page: number = selectedQuestInstance.isCompleted ? 2 : 1;
-      if (
-        quest.receiverNPCID !== quest.giverNPCID &&
-        selectedQuestInstance.isCompleted
-      ) {
-        page++;
-      }
-      return page;
+      return selectedQuestInstance.isCompleted ? 2 : 1;
     };
     const getSelectedQuestDialoguePage = (): number =>
       questLogWorldMenu.state.values.selectedQuestDialoguePage ??
       getSelectedQuestDialogueLastPage();
     const getSelectedQuestDialoguePageNPC = (): NPC => {
       const page: number = getSelectedQuestDialoguePage();
-      const lastPage: number = getSelectedQuestDialogueLastPage();
       const quest: Quest = getSelectedQuest();
-      if (lastPage === 3 && page === 2) {
+      if (page === 2) {
         return quest.receiverNPC;
       }
       return quest.giverNPC;
