@@ -346,7 +346,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           );
         }
         // Quest accept button
-        const acceptButtonWidth: number = 64;
+        const acceptButtonWidth: number = 48;
         hudElementReferences.push(
           createPressableButton({
             condition: (): boolean => {
@@ -382,7 +382,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           }),
         );
         // Quest turn in button
-        const turnInButtonWidth: number = 64;
+        const turnInButtonWidth: number = 56;
         hudElementReferences.push(
           createPressableButton({
             condition: (): boolean => {
