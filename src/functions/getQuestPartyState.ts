@@ -1,4 +1,5 @@
 import { NPC } from "../classes/NPC";
+import { Quest } from "../classes/Quest";
 import { QuestExchangerQuest } from "../classes/QuestExchanger";
 import { QuestState } from "../types/QuestState";
 import { State } from "pixel-pigeon";
@@ -9,6 +10,7 @@ import {
 import { WorldStateSchema } from "../state";
 import { canWorldCharacterTurnInQuest } from "./canWorldCharacterTurnInQuest";
 import { getDefinable } from "definables";
+import { getQuestState } from "./getQuestState";
 import { getWorldState } from "./state/getWorldState";
 
 export const getQuestPartyState = (
@@ -39,20 +41,23 @@ export const getQuestPartyState = (
     const questInstance: WorldCharacterQuestInstance | undefined =
       questInstances[questID];
     if (typeof questInstance === "undefined") {
-      if (typeof npcID === "undefined") {
-        return QuestState.Accept;
-      }
-      const npc: NPC = getDefinable(NPC, npcID);
-      const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
-        npc.questExchanger.quests.find(
-          (questExchangerQuest: QuestExchangerQuest): boolean =>
-            questExchangerQuest.questID === questID,
-        );
-      if (typeof matchedQuestExchangerQuest === "undefined") {
-        throw new Error("Quest exchanger quest not found");
-      }
-      if (matchedQuestExchangerQuest.isGiver) {
-        return QuestState.Accept;
+      const quest: Quest = getDefinable(Quest, questID);
+      if (getQuestState(quest.prerequisiteQuestID) !== QuestState.Complete) {
+        if (typeof npcID === "undefined") {
+          return QuestState.Accept;
+        }
+        const npc: NPC = getDefinable(NPC, npcID);
+        const matchedQuestExchangerQuest: QuestExchangerQuest | undefined =
+          npc.questExchanger.quests.find(
+            (questExchangerQuest: QuestExchangerQuest): boolean =>
+              questExchangerQuest.questID === questID,
+          );
+        if (typeof matchedQuestExchangerQuest === "undefined") {
+          throw new Error("Quest exchanger quest not found");
+        }
+        if (matchedQuestExchangerQuest.isGiver) {
+          return QuestState.Accept;
+        }
       }
     }
   }

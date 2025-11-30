@@ -117,19 +117,26 @@ export const listenForWorldUpdates = (): void => {
         const questInstance: WorldCharacterQuestInstance | undefined =
           partyPlayer.worldCharacter.questInstances[update.questID];
         if (typeof questInstance === "undefined") {
-          partyPlayer.worldCharacter.questInstances[update.questID] = {
-            isCompleted: false,
-            isStarted: false,
-            monsterKills: quest.hasMonster() ? 0 : undefined,
-          };
-        }
-        const updatedQuestInstance: WorldCharacterQuestInstance | undefined =
-          partyPlayer.worldCharacter.questInstances[update.questID];
-        if (typeof updatedQuestInstance === "undefined") {
-          throw new Error("No updated quest instance.");
-        }
-        if (updatedQuestInstance.isStarted === false) {
-          updatedQuestInstance.isStarted = true;
+          let isBlockedByPrereq: boolean = false;
+          if (quest.hasPrerequisiteQuest()) {
+            const prereqQuestInstance: WorldCharacterQuestInstance | undefined =
+              partyPlayer.worldCharacter.questInstances[
+                quest.prerequisiteQuestID
+              ];
+            if (
+              typeof prereqQuestInstance === "undefined" ||
+              prereqQuestInstance.isCompleted === false
+            ) {
+              isBlockedByPrereq = true;
+            }
+          }
+          if (isBlockedByPrereq === false) {
+            partyPlayer.worldCharacter.questInstances[update.questID] = {
+              isCompleted: false,
+              isStarted: true,
+              monsterKills: quest.hasMonster() ? 0 : undefined,
+            };
+          }
         }
       }
     },
