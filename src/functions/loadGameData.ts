@@ -9,7 +9,6 @@ import {
   ClassDefinition,
   ClothesColorDefinition,
   ClothesDyeDefinition,
-  CombinationLockDefinition,
   Constants,
   Definition,
   EmoteDefinition,
@@ -47,7 +46,6 @@ import { Chest } from "../classes/Chest";
 import { Class } from "../classes/Class";
 import { ClothesColor } from "../classes/ClothesColor";
 import { ClothesDye } from "../classes/ClothesDye";
-import { CombinationLock } from "../classes/CombinationLock";
 import {
   CreateLevelOptionsLayer,
   CreateTilesetOptionsTile,
@@ -194,16 +192,6 @@ export const loadGameData = async (): Promise<void> => {
             gameData[className] as Record<string, ClothesDyeDefinition>
           )[id] as ClothesDyeDefinition;
           new ClothesDye({
-            definition,
-            id,
-          });
-          break;
-        }
-        case "CombinationLock": {
-          const definition: CombinationLockDefinition = (
-            gameData[className] as Record<string, CombinationLockDefinition>
-          )[id] as CombinationLockDefinition;
-          new CombinationLock({
             definition,
             id,
           });
@@ -570,7 +558,6 @@ export const loadGameData = async (): Promise<void> => {
                 const index: number | undefined =
                   tile.bankIndex ??
                   tile.chestIndex ??
-                  tile.combinationLockIndex ??
                   tile.enterableIndex ??
                   tile.npcIndex ??
                   tile.pianoIndex;
@@ -614,21 +601,6 @@ export const loadGameData = async (): Promise<void> => {
                         ...state.values.initialChestTilePositions,
                         {
                           chestID: tilesetTile.chestID,
-                          levelID: id,
-                          position: {
-                            x,
-                            y,
-                          },
-                        },
-                      ],
-                    });
-                  }
-                  if (typeof tilesetTile.combinationLockID !== "undefined") {
-                    state.setValues({
-                      initialCombinationLockTilePositions: [
-                        ...state.values.initialCombinationLockTilePositions,
-                        {
-                          combinationLockID: tilesetTile.combinationLockID,
                           levelID: id,
                           position: {
                             x,

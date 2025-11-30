@@ -12,11 +12,6 @@ export interface InitialChestTilePosition {
   readonly levelID: string;
   readonly position: TilePosition;
 }
-export interface InitialCombinationLockTilePosition {
-  readonly combinationLockID: string;
-  readonly levelID: string;
-  readonly position: TilePosition;
-}
 export interface InitialEnterableTilePosition {
   readonly enterableID: string;
   readonly levelID: string;

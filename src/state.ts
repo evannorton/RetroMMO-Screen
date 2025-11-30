@@ -10,7 +10,6 @@ import { HUDElementReferences, State } from "pixel-pigeon";
 import {
   InitialBankTilePosition,
   InitialChestTilePosition,
-  InitialCombinationLockTilePosition,
   InitialEnterableTilePosition,
   InitialNPCExtenderPosition,
   InitialNPCTilePosition,
@@ -138,7 +137,6 @@ export interface StateSchema {
   readonly defaultOutfitID: string | null;
   readonly initialBankTilePositions: readonly InitialBankTilePosition[];
   readonly initialChestTilePositions: readonly InitialChestTilePosition[];
-  readonly initialCombinationLockTilePositions: readonly InitialCombinationLockTilePosition[];
   readonly initialEnterableTilePositions: readonly InitialEnterableTilePosition[];
   readonly initialNPCExtenderPositions: readonly InitialNPCExtenderPosition[];
   readonly initialNPCTilePositions: readonly InitialNPCTilePosition[];
@@ -164,7 +162,6 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultOutfitID: null,
   initialBankTilePositions: [],
   initialChestTilePositions: [],
-  initialCombinationLockTilePositions: [],
   initialEnterableTilePositions: [],
   initialNPCExtenderPositions: [],
   initialNPCTilePositions: [],

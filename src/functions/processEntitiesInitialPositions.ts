@@ -1,6 +1,5 @@
 import { Bank } from "../classes/Bank";
 import { Chest } from "../classes/Chest";
-import { CombinationLock } from "../classes/CombinationLock";
 import { Constants, Direction } from "retrommo-types";
 import { NPC } from "../classes/NPC";
 import { Piano } from "../classes/Piano";
@@ -231,50 +230,6 @@ export const processEntitiesInitialPositions = (): void => {
         },
       ],
       type: "chest",
-      width: constants["tile-size"],
-    });
-  }
-  for (const position of state.values.initialCombinationLockTilePositions) {
-    const combinationLock: CombinationLock = getDefinable(
-      CombinationLock,
-      position.combinationLockID,
-    );
-    const fieldValues: Map<string, unknown> = new Map();
-    fieldValues.set("combinationLockID", combinationLock.id);
-    createEntity({
-      fieldValues,
-      height: constants["tile-size"],
-      layerID: "combination-locks",
-      levelID: position.levelID,
-      position: {
-        x: position.position.x * constants["tile-size"],
-        y: position.position.y * constants["tile-size"],
-      },
-      sprites: [
-        {
-          condition: (): boolean => state.values.worldState !== null,
-          spriteID: createSprite({
-            animationID: "default",
-            animations: [
-              {
-                frames: [
-                  {
-                    height: constants["tile-size"],
-                    sourceHeight: constants["tile-size"],
-                    sourceWidth: constants["tile-size"],
-                    sourceX: 0,
-                    sourceY: 0,
-                    width: constants["tile-size"],
-                  },
-                ],
-                id: "default",
-              },
-            ],
-            imagePath: combinationLock.imagePath,
-          }),
-        },
-      ],
-      type: "combination-lock",
       width: constants["tile-size"],
     });
   }
