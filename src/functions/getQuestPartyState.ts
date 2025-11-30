@@ -42,7 +42,10 @@ export const getQuestPartyState = (
       questInstances[questID];
     if (typeof questInstance === "undefined") {
       const quest: Quest = getDefinable(Quest, questID);
-      if (getQuestState(quest.prerequisiteQuestID) !== QuestState.Complete) {
+      if (
+        quest.hasPrerequisiteQuest() === false ||
+        getQuestState(quest.prerequisiteQuestID) === QuestState.Complete
+      ) {
         if (typeof npcID === "undefined") {
           return QuestState.Accept;
         }
