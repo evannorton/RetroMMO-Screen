@@ -13,7 +13,7 @@ export const getNPCIndicatorImagePath = (npcID: string): string => {
   if (npc.hasInnCost()) {
     return "indicators/inn";
   }
-  if (npc.hasShopID()) {
+  if (npc.hasShop()) {
     return npc.shop.indicatorImagePath;
   }
   if (npc.hasQuestExchanger()) {

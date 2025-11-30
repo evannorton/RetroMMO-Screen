@@ -114,7 +114,7 @@ export class NPC extends Definable {
     return typeof this._questExchangerID !== "undefined";
   }
 
-  public hasShopID(): boolean {
+  public hasShop(): boolean {
     return typeof this._shopID !== "undefined";
   }
 

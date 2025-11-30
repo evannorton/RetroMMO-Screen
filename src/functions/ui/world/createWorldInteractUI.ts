@@ -92,7 +92,7 @@ export const createWorldInteractUI = (): void => {
           if (npc.hasInnCost()) {
             value = "Rest";
           }
-          if (npc.hasShopID()) {
+          if (npc.hasShop()) {
             value = "Shop";
           }
           if (npc.hasEncounter()) {
