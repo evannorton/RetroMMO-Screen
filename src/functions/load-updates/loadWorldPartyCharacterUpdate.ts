@@ -31,6 +31,7 @@ export const loadWorldPartyCharacterUpdate = (
       };
     }
   }
+  worldCharacter.questInstances = questInstances;
   worldCharacter.isRenewing = worldPartyCharacterUpdate.isRenewing;
   worldCharacter.openedChestIDs = worldPartyCharacterUpdate.openedChestIDs;
   worldCharacter.resources = {
