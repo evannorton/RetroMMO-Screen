@@ -3,12 +3,10 @@ import {
   emitToSocketioServer,
   getEntityFieldValue,
 } from "pixel-pigeon";
-import { NPC } from "../classes/NPC";
 import {
   WorldChestInteractRequest,
   WorldNPCInteractRequest,
 } from "retrommo-types";
-import { getDefinable } from "definables";
 import { getInteractableEntityCollidable } from "./getInteractableEntityCollidable";
 import { pianoWorldMenu } from "../world-menus/pianoWorldMenu";
 
@@ -41,21 +39,13 @@ export const interact = (): void => {
         if (typeof npcID !== "string") {
           throw new Error("No NPC ID.");
         }
-        const npc: NPC = getDefinable(NPC, npcID);
-        if (
-          npc.hasDialogue() ||
-          npc.hasQuestExchanger() ||
-          npc.hasEncounter()
-        ) {
-          emitToSocketioServer<WorldNPCInteractRequest>({
-            data: {
-              npcID,
-            },
-            event: "world/npc-interact",
-          });
-          return;
-        }
-        break;
+        emitToSocketioServer<WorldNPCInteractRequest>({
+          data: {
+            npcID,
+          },
+          event: "world/npc-interact",
+        });
+        return;
       }
       case "piano": {
         const pianoID: unknown = getEntityFieldValue(
