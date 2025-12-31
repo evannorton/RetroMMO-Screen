@@ -78,6 +78,7 @@ import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
+import { npcInnWorldMenu } from "../../world-menus/npcInnWorldMenu";
 import { playMusic } from "../playMusic";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../volumeChannels";
@@ -476,6 +477,9 @@ export const listenForWorldUpdates = (): void => {
           };
         },
       );
+      if (npcInnWorldMenu.isOpen()) {
+        npcInnWorldMenu.close();
+      }
     },
   });
   listenToSocketioEvent<WorldMoveCharactersUpdate>({
@@ -885,12 +889,18 @@ export const listenForWorldUpdates = (): void => {
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
       if (update.wasInteracted === true) {
+        closeWorldMenus();
         if (npc.hasDialogue() || npc.hasQuestExchanger()) {
-          closeWorldMenus();
           npcDialogueWorldMenu.open({
             isLeader,
             npcID: npc.id,
           });
+        } else if (
+          npc.hasInnCost() &&
+          worldCharacter.player.character.party.playerIDs[0] ===
+            worldCharacter.playerID
+        ) {
+          npcInnWorldMenu.open({ npcID: npc.id });
         }
       }
     },

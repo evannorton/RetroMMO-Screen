@@ -61,6 +61,13 @@ export class NPC extends Definable {
     throw new Error(this.getAccessorErrorMessage("indicatorEntityID"));
   }
 
+  public get innCost(): number {
+    if (typeof this._innCost !== "undefined") {
+      return this._innCost;
+    }
+    throw new Error(this.getAccessorErrorMessage("innCost"));
+  }
+
   public get name(): string {
     return this._name;
   }
