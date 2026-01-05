@@ -460,13 +460,15 @@ export const listenForWorldUpdates = (): void => {
       exitLevel();
     },
   });
-  listenToSocketioEvent<WorldMoveCharactersUpdate>({
+  listenToSocketioEvent<WorldInnUpdate>({
     event: "world/inn",
-    onMessage: (): void => {
+    onMessage: (update: WorldInnUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
       const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
-        getWorldState().values.worldCharacterID,
+        worldState.values.worldCharacterID,
       );
+      const npc: NPC = getDefinable(NPC, update.npcID);
       worldCharacter.player.character.party.players.forEach(
         (partyPlayer: Player): void => {
           partyPlayer.worldCharacter.resources = {
@@ -477,8 +479,16 @@ export const listenForWorldUpdates = (): void => {
           };
         },
       );
-      if (npcInnWorldMenu.isOpen()) {
-        npcInnWorldMenu.close();
+      if (
+        worldCharacter.player.character.party.playerIDs[0] ===
+        worldCharacter.playerID
+      ) {
+        if (npcInnWorldMenu.isOpen()) {
+          npcInnWorldMenu.close();
+        }
+        worldState.setValues({
+          inventoryGold: worldState.values.inventoryGold - npc.innCost,
+        });
       }
     },
   });
