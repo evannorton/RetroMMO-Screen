@@ -20,6 +20,7 @@ import {
   WorldEquipmentUpdate,
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
+  WorldInnUpdate,
   WorldMarkerUpdate,
   WorldMoveCharactersUpdate,
   WorldOpenBankUpdate,
