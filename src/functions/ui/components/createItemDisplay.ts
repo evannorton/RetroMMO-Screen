@@ -15,6 +15,7 @@ import { doesItemHaveVanity } from "../../doesItemHaveVanity";
 import { getDefinable } from "definables";
 import { getEquipmentPieceRequirementsText } from "../../getEquipmentPieceRequirementsText";
 import { getEquipmentSlotName } from "../../getEquipmentSlotName";
+import { getFormattedInteger } from "../../getFormattedInteger";
 import { getItemVanityRequirementsText } from "../../getItemVanityRequirementsText";
 import { getItemVanitySlotText } from "../../getItemVanitySlotText";
 
@@ -29,12 +30,14 @@ interface CreateItemDisplayOptionsButton {
 export interface CreateItemDisplayOptions {
   readonly buttons?: CreateItemDisplayOptionsButton[];
   readonly condition?: () => boolean;
+  readonly gold?: Scriptable<number>;
   readonly itemID: Scriptable<string>;
   readonly onClose: () => void;
 }
 export const createItemDisplay = ({
   buttons,
   condition,
+  gold,
   itemID,
   onClose,
 }: CreateItemDisplayOptions): HUDElementReferences => {
@@ -42,7 +45,7 @@ export const createItemDisplay = ({
   const labelIDs: string[] = [];
   const getItem = (): Item =>
     getDefinable(Item, typeof itemID === "function" ? itemID() : itemID);
-  // Selected bag item panel
+  // Panel
   hudElementReferences.push(
     createPanel({
       condition,
@@ -53,7 +56,7 @@ export const createItemDisplay = ({
       y: 132,
     }),
   );
-  // Selected bag item icon
+  // Icon
   hudElementReferences.push(
     createSlot({
       condition,
@@ -67,7 +70,7 @@ export const createItemDisplay = ({
       y: 139,
     }),
   );
-  // Selected bag item name
+  // Name
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -82,7 +85,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item close button
+  // Close button
   hudElementReferences.push(
     createImage({
       condition,
@@ -94,7 +97,7 @@ export const createItemDisplay = ({
       y: 139,
     }),
   );
-  // Selected bag item description
+  // Description
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -116,7 +119,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item strength
+  // Strength
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -136,7 +139,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item intelligence
+  // Intelligence
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -156,7 +159,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item agility
+  // Agility
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -176,7 +179,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item defense
+  // Defense
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -196,7 +199,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item wisdom
+  // Wisdom
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -216,7 +219,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item luck
+  // Luck
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -236,7 +239,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item vanity slot
+  // Vanity slot
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -256,7 +259,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item equipment slot
+  // Equipment slot
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -276,7 +279,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item vanity requirements
+  // Vanity requirements
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -296,7 +299,7 @@ export const createItemDisplay = ({
       }),
     }),
   );
-  // Selected bag item equipment requirements
+  // Equipment requirements
   labelIDs.push(
     createLabel({
       color: Color.White,
@@ -317,6 +320,42 @@ export const createItemDisplay = ({
       }),
     }),
   );
+  if (typeof gold !== "undefined") {
+    if (typeof buttons === "undefined" || buttons.length === 0) {
+      throw new Error("goldLabel.x is undefined and buttons are undefined");
+    }
+    let leftMostButtonX: number | undefined;
+    for (const button of buttons) {
+      if (
+        typeof leftMostButtonX === "undefined" ||
+        button.x < leftMostButtonX
+      ) {
+        leftMostButtonX = button.x;
+      }
+    }
+    if (typeof leftMostButtonX === "undefined") {
+      throw new Error("Buttons array is empty");
+    }
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition,
+          x: leftMostButtonX - 4,
+          y: 186,
+        },
+        horizontalAlignment: "right",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: `${getFormattedInteger(
+            typeof gold === "function" ? gold() : gold,
+          )}g`,
+        }),
+      }),
+    );
+  }
   // Buttons
   if (typeof buttons !== "undefined") {
     for (const button of buttons) {

@@ -80,6 +80,7 @@ import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpda
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { npcInnWorldMenu } from "../../world-menus/npcInnWorldMenu";
+import { npcShopWorldMenu } from "../../world-menus/npcShopWorldMenu";
 import { playMusic } from "../playMusic";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../volumeChannels";
@@ -912,6 +913,11 @@ export const listenForWorldUpdates = (): void => {
             worldCharacter.playerID
         ) {
           npcInnWorldMenu.open({ npcID: npc.id });
+        } else if (npc.hasShop() && isLeader) {
+          npcShopWorldMenu.open({
+            isLeader,
+            npcID: npc.id,
+          });
         }
       }
     },

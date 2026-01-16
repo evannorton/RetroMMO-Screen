@@ -25,6 +25,7 @@ export class Item extends Definable {
   private readonly _maskID?: string;
   private readonly _name: string;
   private readonly _outfitID?: string;
+  private readonly _value: number;
   public constructor(options: ItemOptions) {
     super(options.id);
     this._abilityID = options.definition.abilityID;
@@ -44,6 +45,7 @@ export class Item extends Definable {
     this._maskID = options.definition.maskID;
     this._name = options.definition.name;
     this._outfitID = options.definition.outfitID;
+    this._value = options.definition.value;
   }
 
   public get ability(): Ability {
@@ -159,6 +161,10 @@ export class Item extends Definable {
       return this._outfitID;
     }
     throw new Error(this.getAccessorErrorMessage("outfitID"));
+  }
+
+  public get value(): number {
+    return this._value;
   }
 
   public hasAbility(): boolean {
