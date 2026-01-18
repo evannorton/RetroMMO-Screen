@@ -1,5 +1,4 @@
 import { Ability } from "../../classes/Ability";
-import { Bank } from "../../classes/Bank";
 import {
   BattlePhase,
   Direction,
@@ -7,12 +6,13 @@ import {
   MarkerType,
   VanitySlot,
   WorldAcceptQuestUpdate,
-  WorldBankGoldUpdate,
-  WorldBankItemsUpdate,
+  WorldBankDepositGoldUpdate,
+  WorldBankDepositItemUpdate,
+  WorldBankWithdrawGoldUpdate,
+  WorldBankWithdrawItemUpdate,
   WorldBonkUpdate,
   WorldBuyShopItemUpdate,
   WorldClearMarkerUpdate,
-  WorldCloseBankUpdate,
   WorldCombatUpdate,
   WorldDestroyBoostUpdate,
   WorldEmoteUpdate,
@@ -23,7 +23,6 @@ import {
   WorldInnUpdate,
   WorldMarkerUpdate,
   WorldMoveCharactersUpdate,
-  WorldOpenBankUpdate,
   WorldOpenChestUpdate,
   WorldPianoKeyUpdate,
   WorldPositionUpdate,
@@ -65,6 +64,7 @@ import {
 import { WorldStateSchema, state } from "../../state";
 import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
+import { bankWorldMenu } from "../../world-menus/bankWorldMenu";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleUI } from "../ui/battle/createBattleUI";
@@ -144,37 +144,6 @@ export const listenForWorldUpdates = (): void => {
       }
     },
   });
-  listenToSocketioEvent<WorldBankGoldUpdate>({
-    event: "world/bank-gold",
-    onMessage: (update: WorldBankGoldUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      worldState.setValues({
-        inventoryGold: update.inventoryGold,
-      });
-    },
-  });
-  listenToSocketioEvent<WorldBankItemsUpdate>({
-    event: "world/bank-items",
-    onMessage: (update: WorldBankItemsUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
-        const bagItemInstance: ItemInstance = getDefinable(
-          ItemInstance,
-          bagItemInstanceID,
-        );
-        bagItemInstance.remove();
-      }
-      for (const bagItemInstanceUpdate of update.bagItemInstances) {
-        loadItemInstanceUpdate(bagItemInstanceUpdate);
-      }
-      worldState.setValues({
-        bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstanceUpdate: ItemInstanceUpdate): string =>
-            itemInstanceUpdate.itemInstanceID,
-        ),
-      });
-    },
-  });
   listenToSocketioEvent<WorldBonkUpdate>({
     event: "world/bonk",
     onMessage: (): void => {
@@ -198,20 +167,17 @@ export const listenForWorldUpdates = (): void => {
         id: update.itemInstance.itemInstanceID,
         itemID: update.itemInstance.itemID,
       });
+      if (npcShopWorldMenu.isOpen()) {
+        npcShopWorldMenu.state.setValues({
+          selectedBuyIndex: null,
+        });
+      }
     },
   });
   listenToSocketioEvent<WorldClearMarkerUpdate>({
     event: "world/clear-marker",
     onMessage: (update: WorldClearMarkerUpdate): void => {
       clearWorldCharacterMarker(update.characterID);
-    },
-  });
-  listenToSocketioEvent<WorldCloseBankUpdate>({
-    event: "world/close-bank",
-    onMessage: (update: WorldCloseBankUpdate): void => {
-      const bank: Bank = getDefinable(Bank, update.bankID);
-      bank.isOpen = false;
-      bank.toggledAt = getCurrentTime();
     },
   });
   listenToSocketioEvent<WorldCombatUpdate>({
@@ -562,14 +528,6 @@ export const listenForWorldUpdates = (): void => {
       playMusic();
     },
   });
-  listenToSocketioEvent<WorldOpenBankUpdate>({
-    event: "world/open-bank",
-    onMessage: (update: WorldOpenBankUpdate): void => {
-      const bank: Bank = getDefinable(Bank, update.bankID);
-      bank.isOpen = true;
-      bank.toggledAt = getCurrentTime();
-    },
-  });
   listenToSocketioEvent<WorldOpenChestUpdate>({
     event: "world/open-chest",
     onMessage: (update: WorldOpenChestUpdate): void => {
@@ -745,6 +703,11 @@ export const listenForWorldUpdates = (): void => {
         inventoryGold: update.gold,
       });
       getDefinable(ItemInstance, update.itemInstanceID).remove();
+      if (npcShopWorldMenu.isOpen()) {
+        npcShopWorldMenu.state.setValues({
+          selectedSellIndex: null,
+        });
+      }
     },
   });
   listenToSocketioEvent<WorldStartBattleUpdate>({
@@ -1017,6 +980,109 @@ export const listenForWorldUpdates = (): void => {
           worldCharacter.outfitItemID = update.vanityItemID ?? null;
           break;
       }
+    },
+  });
+  listenToSocketioEvent<WorldBankDepositGoldUpdate>({
+    event: "world/bank-deposit-gold",
+    onMessage: (update: WorldBankDepositGoldUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      worldState.setValues({
+        bankGold: worldState.values.bankGold + update.amount,
+        inventoryGold: worldState.values.inventoryGold - update.amount,
+      });
+      if (bankWorldMenu.isOpen()) {
+        bankWorldMenu.state.setValues({
+          vaultDepositQueuedGold: 0,
+        });
+      }
+    },
+  });
+  listenToSocketioEvent<WorldBankWithdrawGoldUpdate>({
+    event: "world/bank-withdraw-gold",
+    onMessage: (update: WorldBankWithdrawGoldUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      worldState.setValues({
+        bankGold: worldState.values.bankGold - update.amount,
+        inventoryGold: worldState.values.inventoryGold + update.amount,
+      });
+      if (bankWorldMenu.isOpen()) {
+        bankWorldMenu.state.setValues({
+          vaultWithdrawQueuedGold: 0,
+        });
+      }
+    },
+  });
+  listenToSocketioEvent<WorldBankDepositItemUpdate>({
+    event: "world/bank-deposit-item",
+    onMessage: (update: WorldBankDepositItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const bankItemInstanceIDs: (readonly string[])[] = [
+        ...worldState.values.bankItemInstanceIDs,
+      ];
+      const depositPageIndex: number = update.page;
+      while (bankItemInstanceIDs.length <= depositPageIndex) {
+        bankItemInstanceIDs.push([]);
+      }
+      const depositPage: string[] = [
+        ...(bankItemInstanceIDs[depositPageIndex] as readonly string[]),
+      ];
+      depositPage.push(update.itemInstanceID);
+      bankItemInstanceIDs[depositPageIndex] = depositPage;
+      worldState.setValues({
+        bagItemInstanceIDs: worldState.values.bagItemInstanceIDs.filter(
+          (bagItemInstanceID: string): boolean =>
+            bagItemInstanceID !== update.itemInstanceID,
+        ),
+        bankItemInstanceIDs,
+      });
+    },
+  });
+  listenToSocketioEvent<WorldBankWithdrawItemUpdate>({
+    event: "world/bank-withdraw-item",
+    onMessage: (update: WorldBankWithdrawItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      const bankItemInstanceIDs: (readonly string[])[] = [
+        ...worldState.values.bankItemInstanceIDs,
+      ];
+      let foundPageIndex: number = -1;
+      let foundItemIndex: number = -1;
+      for (let i: number = 0; i < bankItemInstanceIDs.length; i++) {
+        const bankPage: readonly string[] | undefined = bankItemInstanceIDs[i];
+        if (typeof bankPage === "undefined") {
+          throw new Error("Bank page not found");
+        }
+        const itemIndex: number = bankPage.findIndex(
+          (bankItemInstanceID: string): boolean =>
+            bankItemInstanceID === update.itemInstanceID,
+        );
+        if (itemIndex !== -1) {
+          foundPageIndex = i;
+          foundItemIndex = itemIndex;
+          break;
+        }
+      }
+      if (foundPageIndex === -1 || foundItemIndex === -1) {
+        throw new Error("Bank item instance not found");
+      }
+      const foundPage: string[] = [
+        ...(bankItemInstanceIDs[foundPageIndex] as readonly string[]),
+      ];
+      foundItemIndex = foundPage.findIndex(
+        (bankItemInstanceID: string): boolean =>
+          bankItemInstanceID === update.itemInstanceID,
+      );
+      if (foundItemIndex === -1) {
+        throw new Error("Item instance not found in page");
+      }
+      foundPage.splice(foundItemIndex, 1);
+      bankItemInstanceIDs[foundPageIndex] = foundPage;
+      worldState.setValues({
+        bagItemInstanceIDs: [
+          ...worldState.values.bagItemInstanceIDs,
+          update.itemInstanceID,
+        ],
+        bankItemInstanceIDs,
+      });
     },
   });
 };

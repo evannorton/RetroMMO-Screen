@@ -46,6 +46,8 @@ export interface MainMenuStateSchema {
 export interface WorldStateSchema {
   readonly agility: number;
   readonly bagItemInstanceIDs: readonly string[];
+  readonly bankGold: number;
+  readonly bankItemInstanceIDs: readonly (readonly string[])[];
   readonly bodyItemInstanceID: string | null;
   readonly boostItemInstanceIDs: readonly string[];
   readonly clothesDyeItemInstanceID: string | null;

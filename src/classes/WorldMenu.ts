@@ -11,7 +11,7 @@ export class WorldMenu<OpenOptions, StateSchema> extends Definable {
   private readonly _create: (options: OpenOptions) => HUDElementReferences;
   private _hudElementReferences: HUDElementReferences | null = null;
   private readonly _initialStateValues: StateSchema;
-  private readonly _onClose?: () => void;
+  private readonly _onClose?: (openOptions?: OpenOptions) => void;
   private _openOptions: OpenOptions | null = null;
   private readonly _preventsWalking: boolean;
   private _state: State<StateSchema> | null = null;
@@ -51,7 +51,7 @@ export class WorldMenu<OpenOptions, StateSchema> extends Definable {
       throw new Error("HUDElementReferences is null.");
     }
     if (typeof this._onClose !== "undefined") {
-      this._onClose();
+      this._onClose(this._openOptions ?? undefined);
     }
     removeHUDElements(this._hudElementReferences);
     this._hudElementReferences = null;
@@ -67,8 +67,8 @@ export class WorldMenu<OpenOptions, StateSchema> extends Definable {
     if (this.isOpen()) {
       throw new Error("Attempted to open a world menu that is already open.");
     }
+    this._state = new State<StateSchema>(this._initialStateValues);
     this._hudElementReferences = this._create(options);
     this._openOptions = options;
-    this._state = new State<StateSchema>(this._initialStateValues);
   }
 }

@@ -105,6 +105,14 @@ export const listenForUpdates = (): void => {
             (bagItemInstance: ItemInstanceUpdate): string =>
               bagItemInstance.itemInstanceID,
           ),
+          bankGold: update.character.bankGold,
+          bankItemInstanceIDs: update.character.bankItemInstances.map(
+            (bankPageItemInstances: readonly ItemInstanceUpdate[]): string[] =>
+              bankPageItemInstances.map(
+                (itemInstance: ItemInstanceUpdate): string =>
+                  itemInstance.itemInstanceID,
+              ),
+          ),
           bodyItemInstanceID: update.character.bodyItemInstance?.itemInstanceID,
           boostItemInstanceIDs: update.character.boostItemInstances.map(
             (boostItemInstance: ItemInstanceUpdate): string =>
@@ -215,6 +223,11 @@ export const listenForUpdates = (): void => {
         if (typeof update.character.outfitItemInstance !== "undefined") {
           loadItemInstanceUpdate(update.character.outfitItemInstance);
         }
+        for (const itemInstanceUpdates of update.character.bankItemInstances) {
+          for (const itemInstanceUpdate of itemInstanceUpdates) {
+            loadItemInstanceUpdate(itemInstanceUpdate);
+          }
+        }
         selectWorldCharacter(update.character.characterID);
         if (state.values.selectedPlayerID !== null) {
           selectedPlayerWorldMenu.open({});
@@ -284,6 +297,16 @@ export const listenForUpdates = (): void => {
             bagItemInstanceIDs: update.character.bagItemInstances.map(
               (itemInstanceUpdate: ItemInstanceUpdate): string =>
                 itemInstanceUpdate.itemInstanceID,
+            ),
+            bankGold: update.character.bankGold,
+            bankItemInstanceIDs: update.character.bankItemInstances.map(
+              (
+                bankPageItemInstances: readonly ItemInstanceUpdate[],
+              ): string[] =>
+                bankPageItemInstances.map(
+                  (itemInstance: ItemInstanceUpdate): string =>
+                    itemInstance.itemInstanceID,
+                ),
             ),
             bodyItemInstanceID:
               update.character.bodyItemInstance?.itemInstanceID,
@@ -363,6 +386,11 @@ export const listenForUpdates = (): void => {
         }
         if (typeof update.character.outfitItemInstance !== "undefined") {
           loadItemInstanceUpdate(update.character.outfitItemInstance);
+        }
+        for (const itemInstanceUpdates of update.character.bankItemInstances) {
+          for (const itemInstanceUpdate of itemInstanceUpdates) {
+            loadItemInstanceUpdate(itemInstanceUpdate);
+          }
         }
         selectWorldCharacter(update.character.characterID);
       }
@@ -573,6 +601,16 @@ export const listenForUpdates = (): void => {
               (itemInstanceUpdate: ItemInstanceUpdate): string =>
                 itemInstanceUpdate.itemInstanceID,
             ),
+            bankGold: update.world.bankGold,
+            bankItemInstanceIDs: update.world.bankItemInstances.map(
+              (
+                bankPageItemInstances: readonly ItemInstanceUpdate[],
+              ): string[] =>
+                bankPageItemInstances.map(
+                  (itemInstance: ItemInstanceUpdate): string =>
+                    itemInstance.itemInstanceID,
+                ),
+            ),
             bodyItemInstanceID: update.world.bodyItemInstance?.itemInstanceID,
             boostItemInstanceIDs: update.world.boostItemInstances.map(
               (itemInstanceUpdate: ItemInstanceUpdate): string =>
@@ -640,6 +678,11 @@ export const listenForUpdates = (): void => {
           }
           if (typeof update.world.outfitItemInstance !== "undefined") {
             loadItemInstanceUpdate(update.world.outfitItemInstance);
+          }
+          for (const itemInstanceUpdates of update.world.bankItemInstances) {
+            for (const itemInstanceUpdate of itemInstanceUpdates) {
+              loadItemInstanceUpdate(itemInstanceUpdate);
+            }
           }
           selectWorldCharacter(update.world.characterID);
           break;

@@ -4,6 +4,8 @@ import { WorldStateSchema } from "../../state";
 export interface CreateWorldStateOptions {
   readonly agility: number;
   readonly bagItemInstanceIDs: readonly string[];
+  readonly bankGold: number;
+  readonly bankItemInstanceIDs: readonly (readonly string[])[];
   readonly bodyItemInstanceID?: string;
   readonly boostItemInstanceIDs: readonly string[];
   readonly clothesDyeItemInstanceID?: string;
@@ -26,6 +28,8 @@ export interface CreateWorldStateOptions {
 }
 export const createWorldState = ({
   agility,
+  bankGold,
+  bankItemInstanceIDs,
   bagItemInstanceIDs,
   bodyItemInstanceID,
   boostItemInstanceIDs,
@@ -50,6 +54,8 @@ export const createWorldState = ({
   new State<WorldStateSchema>({
     agility,
     bagItemInstanceIDs,
+    bankGold,
+    bankItemInstanceIDs: bankItemInstanceIDs ?? [],
     bodyItemInstanceID: bodyItemInstanceID ?? null,
     boostItemInstanceIDs,
     clothesDyeItemInstanceID: clothesDyeItemInstanceID ?? null,

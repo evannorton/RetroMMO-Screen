@@ -368,9 +368,6 @@ export const npcShopWorldMenu: WorldMenu<
                 },
                 event: "world/buy-shop-item",
               });
-              npcShopWorldMenu.state.setValues({
-                selectedBuyIndex: null,
-              });
             },
             text: "Buy",
             width: 34,
@@ -399,9 +396,6 @@ export const npcShopWorldMenu: WorldMenu<
                   itemInstanceID: getSelectedSellItemInstance().id,
                 },
                 event: "world/sell-shop-item",
-              });
-              npcShopWorldMenu.state.setValues({
-                selectedSellIndex: null,
               });
             },
             text: "Sell",
