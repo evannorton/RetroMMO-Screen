@@ -383,7 +383,7 @@ export const bankWorldMenu: WorldMenu<
               data: {
                 amount,
               },
-              event: "world/bank-withdraw-gold",
+              event: "world/bank/withdraw-gold",
             });
           }
         },
@@ -513,7 +513,7 @@ export const bankWorldMenu: WorldMenu<
               data: {
                 amount,
               },
-              event: "world/bank-deposit-gold",
+              event: "world/bank/deposit-gold",
             });
           }
         },
@@ -816,7 +816,7 @@ export const bankWorldMenu: WorldMenu<
                 data: {
                   itemInstanceID: getSelectedWithdrawItemInstance().id,
                 },
-                event: "world/bank-withdraw-item",
+                event: "world/bank/withdraw-item",
               });
               bankWorldMenu.state.setValues({
                 selectedWithdrawIndex: null,
@@ -863,7 +863,7 @@ export const bankWorldMenu: WorldMenu<
                     itemInstanceID: getSelectedDepositItemInstance().id,
                     page: bankWorldMenu.state.values.storagePage,
                   },
-                  event: "world/bank-deposit-item",
+                  event: "world/bank/deposit-item",
                 });
                 bankWorldMenu.state.setValues({
                   selectedDepositIndex: null,

@@ -1,8 +1,8 @@
 import {
   Color,
   ShopItemDefinition,
-  WorldBuyShopItemRequest,
-  WorldSellShopItemRequest,
+  WorldShopBuyItemRequest,
+  WorldShopSellItemRequest,
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
@@ -362,11 +362,11 @@ export const npcShopWorldMenu: WorldMenu<
               return false;
             },
             onClick: (): void => {
-              emitToSocketioServer<WorldBuyShopItemRequest>({
+              emitToSocketioServer<WorldShopBuyItemRequest>({
                 data: {
                   itemID: getSelectedBuyShopItem().itemID,
                 },
-                event: "world/buy-shop-item",
+                event: "world/shop/buy-item",
               });
             },
             text: "Buy",
@@ -391,11 +391,14 @@ export const npcShopWorldMenu: WorldMenu<
           {
             condition: (): boolean => hasSelectedSellItemInstance(),
             onClick: (): void => {
-              emitToSocketioServer<WorldSellShopItemRequest>({
+              emitToSocketioServer<WorldShopSellItemRequest>({
                 data: {
                   itemInstanceID: getSelectedSellItemInstance().id,
                 },
-                event: "world/sell-shop-item",
+                event: "world/shop/sell-item",
+              });
+              npcShopWorldMenu.state.setValues({
+                selectedSellIndex: null,
               });
             },
             text: "Sell",

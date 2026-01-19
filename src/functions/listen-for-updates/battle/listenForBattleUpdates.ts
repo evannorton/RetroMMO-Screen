@@ -11,21 +11,21 @@ import {
   BattleUnbindHotkeyUpdate,
   ItemInstanceUpdate,
 } from "retrommo-types";
-import { BattleCharacter } from "../../classes/BattleCharacter";
+import { BattleCharacter } from "../../../classes/BattleCharacter";
 import {
   BattleMenuState,
   BattleStateHotkey,
   BattleStateRoundEventInstance,
   BattleStateSchema,
-} from "../../state";
-import { Battler } from "../../classes/Battler";
-import { ItemInstance } from "../../classes/ItemInstance";
+} from "../../../state";
+import { Battler } from "../../../classes/Battler";
+import { ItemInstance } from "../../../classes/ItemInstance";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
-import { getBattleState } from "../state/getBattleState";
+import { getBattleState } from "../../state/getBattleState";
 import { getDefinable, getDefinables } from "definables";
-import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
-import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
-import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
+import { loadBattleSubmittedAbilityUpdate } from "../../load-updates/loadBattleSubmittedAbilityUpdate";
+import { loadBattleSubmittedItemUpdate } from "../../load-updates/loadBattleSubmittedItemUpdate";
+import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
 
 export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleBindAbilityUpdate>({

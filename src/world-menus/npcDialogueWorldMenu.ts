@@ -1,8 +1,8 @@
 import {
   Color,
-  WorldAcceptQuestRequest,
-  WorldSelectQuestRequest,
-  WorldTurnInQuestRequest,
+  WorldQuestAcceptRequest,
+  WorldQuestSelectRequest,
+  WorldQuestTurnInRequest,
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
@@ -320,20 +320,20 @@ export const npcDialogueWorldMenu: WorldMenu<
                   npcDialogueWorldMenu.state.setValues({
                     selectedQuestIndex: null,
                   });
-                  emitToSocketioServer<WorldSelectQuestRequest>({
+                  emitToSocketioServer<WorldQuestSelectRequest>({
                     data: {},
-                    event: "world/select-quest",
+                    event: "world/quest/select",
                   });
                 } else {
                   npcDialogueWorldMenu.state.setValues({
                     questCompletion: null,
                     selectedQuestIndex: index,
                   });
-                  emitToSocketioServer<WorldSelectQuestRequest>({
+                  emitToSocketioServer<WorldQuestSelectRequest>({
                     data: {
                       questID: getQuest().id,
                     },
-                    event: "world/select-quest",
+                    event: "world/quest/select",
                   });
                 }
               },
@@ -366,11 +366,11 @@ export const npcDialogueWorldMenu: WorldMenu<
               if (quest === null) {
                 throw new Error("No selected quest.");
               }
-              emitToSocketioServer<WorldAcceptQuestRequest>({
+              emitToSocketioServer<WorldQuestAcceptRequest>({
                 data: {
                   questID: quest.id,
                 },
-                event: "world/accept-quest",
+                event: "world/quest/accept",
               });
             },
             text: {
@@ -402,11 +402,11 @@ export const npcDialogueWorldMenu: WorldMenu<
               if (quest === null) {
                 throw new Error("No selected quest.");
               }
-              emitToSocketioServer<WorldTurnInQuestRequest>({
+              emitToSocketioServer<WorldQuestTurnInRequest>({
                 data: {
                   questID: quest.id,
                 },
-                event: "world/turn-in-quest",
+                event: "world/quest/turn-in",
               });
             },
             text: {

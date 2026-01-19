@@ -13,8 +13,6 @@ import {
   RemovePlayerUpdate,
   RenamePlayerUpdate,
   ServerTimeUpdate,
-  TurnInQuestUpdate,
-  TurnInQuestWorldUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import { BattleStateSchema, WorldStateSchema, state } from "../../state";
@@ -27,11 +25,8 @@ import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
 import { MusicTrack } from "../../classes/MusicTrack";
-import { NPC } from "../../classes/NPC";
 import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
-import { Quest } from "../../classes/Quest";
-import { QuestExchangerQuest } from "../../classes/QuestExchanger";
 import {
   State,
   fadeInAudioSourceVolume,
@@ -39,12 +34,8 @@ import {
   listenToSocketioEvent,
   removeHUDElements,
 } from "pixel-pigeon";
-import {
-  WorldCharacter,
-  WorldCharacterQuestInstance,
-} from "../../classes/WorldCharacter";
+import { WorldCharacter } from "../../classes/WorldCharacter";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
-import { canWorldCharacterTurnInQuest } from "../canWorldCharacterTurnInQuest";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { createBattleUI } from "../ui/battle/createBattleUI";
@@ -57,9 +48,9 @@ import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
 import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
-import { listenForBattleUpdates } from "./listenForBattleUpdates";
+import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
-import { listenForWorldUpdates } from "./listenForWorldUpdates";
+import { listenForWorldUpdates } from "./world/listenForWorldUpdates";
 import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
 import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
@@ -70,7 +61,6 @@ import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpda
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { musicFadeDuration } from "../../constants";
-import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
 import { playMusic } from "../playMusic";
 import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
 import { resetParty } from "../resetParty";
@@ -858,91 +848,6 @@ export const listenForUpdates = (): void => {
           (getCurrentTime() - state.values.serverTimeRequestedAt) / 2 +
           update.serverTime,
       });
-    },
-  });
-  listenToSocketioEvent<TurnInQuestUpdate>({
-    event: "turn-in-quest",
-    onMessage: (update: TurnInQuestUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
-        worldState.values.worldCharacterID,
-      );
-      const previousLevel: number = worldCharacter.player.character.level;
-      for (const playerUpdate of update.players) {
-        const player: Player = getDefinable(Player, playerUpdate.playerID);
-        player.character = {
-          classID: player.character.classID,
-          level: playerUpdate.level,
-          partyID: player.character.partyID,
-        };
-      }
-      const didLevelUp: boolean =
-        worldCharacter.player.character.level !== previousLevel;
-      if (typeof update.world !== "undefined") {
-        const worldUpdate: TurnInQuestWorldUpdate = update.world;
-        const isLeader: boolean =
-          worldCharacter.player.character.party.playerIDs[0] ===
-          worldCharacter.playerID;
-        if (npcDialogueWorldMenu.isOpen() === false) {
-          closeWorldMenus();
-          npcDialogueWorldMenu.open({
-            isLeader,
-            npcID: worldUpdate.npcID,
-          });
-        }
-        for (const worldCharacterUpdate of worldUpdate.characters) {
-          const partyWorldCharacter: WorldCharacter = getDefinable(
-            WorldCharacter,
-            worldCharacterUpdate.characterID,
-          );
-          partyWorldCharacter.resources = {
-            hp: worldCharacterUpdate.resources.hp,
-            maxHP: worldCharacterUpdate.resources.maxHP,
-            maxMP: worldCharacterUpdate.resources.maxMP ?? null,
-            mp: worldCharacterUpdate.resources.mp ?? null,
-          };
-        }
-        const npc: NPC = getDefinable(NPC, worldUpdate.npcID);
-        npcDialogueWorldMenu.state.setValues({
-          selectedQuestIndex:
-            typeof worldUpdate.questID !== "undefined"
-              ? npc.questExchanger.quests.findIndex(
-                  (questExchangerQuest: QuestExchangerQuest): boolean =>
-                    questExchangerQuest.questID === worldUpdate.questID,
-                )
-              : null,
-        });
-        const quest: Quest = getDefinable(Quest, worldUpdate.questID);
-        for (const partyPlayer of worldCharacter.player.character.party
-          .players) {
-          const questInstance: WorldCharacterQuestInstance | undefined =
-            partyPlayer.worldCharacter.questInstances[worldUpdate.questID];
-          if (typeof questInstance !== "undefined") {
-            if (
-              canWorldCharacterTurnInQuest(
-                partyPlayer.worldCharacterID,
-                quest.id,
-                npc.id,
-              )
-            ) {
-              if (questInstance.isCompleted === false) {
-                npcDialogueWorldMenu.state.setValues({
-                  questCompletion: {
-                    didLevelUp,
-                    questID: quest.id,
-                  },
-                  selectedQuestIndex: null,
-                });
-                questInstance.isCompleted = true;
-              }
-            }
-          }
-        }
-        worldState.setValues({
-          experienceUntilLevel: worldUpdate.experienceUntilLevel,
-        });
-      }
     },
   });
 };

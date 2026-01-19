@@ -1,17 +1,11 @@
-import { Ability } from "../../classes/Ability";
+import { Ability } from "../../../classes/Ability";
 import {
   BattlePhase,
   Direction,
   ItemInstanceUpdate,
   MarkerType,
   VanitySlot,
-  WorldAcceptQuestUpdate,
-  WorldBankDepositGoldUpdate,
-  WorldBankDepositItemUpdate,
-  WorldBankWithdrawGoldUpdate,
-  WorldBankWithdrawItemUpdate,
   WorldBonkUpdate,
-  WorldBuyShopItemUpdate,
   WorldClearMarkerUpdate,
   WorldCombatUpdate,
   WorldDestroyBoostUpdate,
@@ -26,8 +20,6 @@ import {
   WorldOpenChestUpdate,
   WorldPianoKeyUpdate,
   WorldPositionUpdate,
-  WorldSelectQuestUpdate,
-  WorldSellShopItemUpdate,
   WorldStartBattleUpdate,
   WorldTradeCompleteUpdate,
   WorldTradeUpdate,
@@ -35,19 +27,17 @@ import {
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
-import { Chest } from "../../classes/Chest";
+import { Chest } from "../../../classes/Chest";
 import {
   CreateBattleStateOptionsHotkey,
   createBattleState,
-} from "../state/createBattleState";
-import { Item } from "../../classes/Item";
-import { ItemInstance } from "../../classes/ItemInstance";
-import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
-import { MusicTrack } from "../../classes/MusicTrack";
-import { NPC } from "../../classes/NPC";
-import { Player } from "../../classes/Player";
-import { Quest } from "../../classes/Quest";
-import { QuestExchangerQuest } from "../../classes/QuestExchanger";
+} from "../../state/createBattleState";
+import { Item } from "../../../classes/Item";
+import { ItemInstance } from "../../../classes/ItemInstance";
+import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
+import { MusicTrack } from "../../../classes/MusicTrack";
+import { NPC } from "../../../classes/NPC";
+import { Player } from "../../../classes/Player";
 import {
   State,
   exitLevel,
@@ -57,121 +47,46 @@ import {
   lockCameraToEntity,
   playAudioSource,
 } from "pixel-pigeon";
-import {
-  WorldCharacter,
-  WorldCharacterQuestInstance,
-} from "../../classes/WorldCharacter";
-import { WorldStateSchema, state } from "../../state";
-import { addWorldCharacterEmote } from "../addWorldCharacterEmote";
-import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
-import { bankWorldMenu } from "../../world-menus/bankWorldMenu";
-import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
-import { closeWorldMenus } from "../world-menus/closeWorldMenus";
-import { createBattleUI } from "../ui/battle/createBattleUI";
-import { createMainMenuState } from "../state/main-menu/createMainMenuState";
+import { WorldCharacter } from "../../../classes/WorldCharacter";
+import { WorldStateSchema, state } from "../../../state";
+import { addWorldCharacterEmote } from "../../addWorldCharacterEmote";
+import { addWorldCharacterMarker } from "../../addWorldCharacterMarker";
+import { clearWorldCharacterMarker } from "../../clearWorldCharacterMarker";
+import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
+import { createBattleUI } from "../../ui/battle/createBattleUI";
+import { createMainMenuState } from "../../state/main-menu/createMainMenuState";
 import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSource";
 import { getDefinable, getDefinables } from "definables";
-import { getWorldState } from "../state/getWorldState";
-import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
-import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
-import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
-import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
-import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
-import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
-import { npcDialogueWorldMenu } from "../../world-menus/npcDialogueWorldMenu";
-import { npcInnWorldMenu } from "../../world-menus/npcInnWorldMenu";
-import { npcShopWorldMenu } from "../../world-menus/npcShopWorldMenu";
-import { playMusic } from "../playMusic";
-import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
-import { sfxVolumeChannelID } from "../../volumeChannels";
-import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
-import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
-import { updateWorldCharacterOrder } from "../updateWorldCharacterOrder";
+import { getWorldState } from "../../state/getWorldState";
+import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
+import { listenForWorldBankUpdates } from "./listenForWorldBankUpdates";
+import { listenForWorldQuestUpdates } from "./listenForWorldQuestUpdates";
+import { listenForWorldShopUpdates } from "./listenForWorldShopUpdates";
+import { loadBattleCharacterUpdate } from "../../load-updates/loadBattleCharacterUpdate";
+import { loadBattlerUpdate } from "../../load-updates/loadBattlerUpdate";
+import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
+import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
+import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
+import { npcDialogueWorldMenu } from "../../../world-menus/npcDialogueWorldMenu";
+import { npcInnWorldMenu } from "../../../world-menus/npcInnWorldMenu";
+import { npcShopWorldMenu } from "../../../world-menus/npcShopWorldMenu";
+import { playMusic } from "../../playMusic";
+import { selectedPlayerWorldMenu } from "../../../world-menus/selectedPlayerWorldMenu";
+import { sfxVolumeChannelID } from "../../../volumeChannels";
+import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
+import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
+import { updateWorldCharacterOrder } from "../../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
-  listenToSocketioEvent<WorldAcceptQuestUpdate>({
-    event: "world/accept-quest",
-    onMessage: (update: WorldAcceptQuestUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
-        worldState.values.worldCharacterID,
-      );
-      const isLeader: boolean =
-        worldCharacter.player.character.party.playerIDs[0] ===
-        worldCharacter.id;
-      if (npcDialogueWorldMenu.isOpen() === false) {
-        closeWorldMenus();
-        npcDialogueWorldMenu.open({
-          isLeader,
-          npcID: update.npcID,
-        });
-      }
-      const npc: NPC = getDefinable(NPC, update.npcID);
-      npcDialogueWorldMenu.state.setValues({
-        questCompletion: null,
-        selectedQuestIndex: npc.questExchanger.quests.findIndex(
-          (questExchangerQuest: QuestExchangerQuest): boolean =>
-            questExchangerQuest.questID === update.questID,
-        ),
-      });
-      const quest: Quest = getDefinable(Quest, update.questID);
-      for (const partyPlayer of worldCharacter.player.character.party.players) {
-        const questInstance: WorldCharacterQuestInstance | undefined =
-          partyPlayer.worldCharacter.questInstances[update.questID];
-        if (typeof questInstance === "undefined") {
-          let isBlockedByPrereq: boolean = false;
-          if (quest.hasPrerequisiteQuest()) {
-            const prereqQuestInstance: WorldCharacterQuestInstance | undefined =
-              partyPlayer.worldCharacter.questInstances[
-                quest.prerequisiteQuestID
-              ];
-            if (
-              typeof prereqQuestInstance === "undefined" ||
-              prereqQuestInstance.isCompleted === false
-            ) {
-              isBlockedByPrereq = true;
-            }
-          }
-          if (isBlockedByPrereq === false) {
-            partyPlayer.worldCharacter.questInstances[update.questID] = {
-              isCompleted: false,
-              isStarted: true,
-              monsterKills: quest.hasMonster() ? 0 : undefined,
-            };
-          }
-        }
-      }
-    },
-  });
+  listenForWorldBankUpdates();
+  listenForWorldQuestUpdates();
+  listenForWorldShopUpdates();
   listenToSocketioEvent<WorldBonkUpdate>({
     event: "world/bonk",
     onMessage: (): void => {
       playAudioSource("sfx/bonk", {
         volumeChannelID: sfxVolumeChannelID,
       });
-    },
-  });
-  listenToSocketioEvent<WorldBuyShopItemUpdate>({
-    event: "world/buy-shop-item",
-    onMessage: (update: WorldBuyShopItemUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      worldState.setValues({
-        bagItemInstanceIDs: [
-          ...worldState.values.bagItemInstanceIDs,
-          update.itemInstance.itemInstanceID,
-        ],
-        inventoryGold: update.gold,
-      });
-      new ItemInstance({
-        id: update.itemInstance.itemInstanceID,
-        itemID: update.itemInstance.itemID,
-      });
-      if (npcShopWorldMenu.isOpen()) {
-        npcShopWorldMenu.state.setValues({
-          selectedBuyIndex: null,
-        });
-      }
     },
   });
   listenToSocketioEvent<WorldClearMarkerUpdate>({
@@ -660,56 +575,6 @@ export const listenForWorldUpdates = (): void => {
       }
     },
   });
-  listenToSocketioEvent<WorldSelectQuestUpdate>({
-    event: "world/select-quest",
-    onMessage: (update: WorldSelectQuestUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      const worldCharacter: WorldCharacter = getDefinable(
-        WorldCharacter,
-        worldState.values.worldCharacterID,
-      );
-      const isLeader: boolean =
-        worldCharacter.player.character.party.playerIDs[0] ===
-        worldCharacter.playerID;
-      if (npcDialogueWorldMenu.isOpen() === false) {
-        closeWorldMenus();
-        npcDialogueWorldMenu.open({
-          isLeader,
-          npcID: update.npcID,
-        });
-      }
-      const npc: NPC = getDefinable(NPC, update.npcID);
-      npcDialogueWorldMenu.state.setValues({
-        questCompletion: null,
-        selectedQuestIndex:
-          typeof update.questID !== "undefined"
-            ? npc.questExchanger.quests.findIndex(
-                (questExchangerQuest: QuestExchangerQuest): boolean =>
-                  questExchangerQuest.questID === update.questID,
-              )
-            : null,
-      });
-    },
-  });
-  listenToSocketioEvent<WorldSellShopItemUpdate>({
-    event: "world/sell-shop-item",
-    onMessage: (update: WorldSellShopItemUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      worldState.setValues({
-        bagItemInstanceIDs: worldState.values.bagItemInstanceIDs.filter(
-          (bagItemInstanceID: string): boolean =>
-            bagItemInstanceID !== update.itemInstanceID,
-        ),
-        inventoryGold: update.gold,
-      });
-      getDefinable(ItemInstance, update.itemInstanceID).remove();
-      if (npcShopWorldMenu.isOpen()) {
-        npcShopWorldMenu.state.setValues({
-          selectedSellIndex: null,
-        });
-      }
-    },
-  });
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
     onMessage: (update: WorldStartBattleUpdate): void => {
@@ -980,109 +845,6 @@ export const listenForWorldUpdates = (): void => {
           worldCharacter.outfitItemID = update.vanityItemID ?? null;
           break;
       }
-    },
-  });
-  listenToSocketioEvent<WorldBankDepositGoldUpdate>({
-    event: "world/bank-deposit-gold",
-    onMessage: (update: WorldBankDepositGoldUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      worldState.setValues({
-        bankGold: worldState.values.bankGold + update.amount,
-        inventoryGold: worldState.values.inventoryGold - update.amount,
-      });
-      if (bankWorldMenu.isOpen()) {
-        bankWorldMenu.state.setValues({
-          vaultDepositQueuedGold: 0,
-        });
-      }
-    },
-  });
-  listenToSocketioEvent<WorldBankWithdrawGoldUpdate>({
-    event: "world/bank-withdraw-gold",
-    onMessage: (update: WorldBankWithdrawGoldUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      worldState.setValues({
-        bankGold: worldState.values.bankGold - update.amount,
-        inventoryGold: worldState.values.inventoryGold + update.amount,
-      });
-      if (bankWorldMenu.isOpen()) {
-        bankWorldMenu.state.setValues({
-          vaultWithdrawQueuedGold: 0,
-        });
-      }
-    },
-  });
-  listenToSocketioEvent<WorldBankDepositItemUpdate>({
-    event: "world/bank-deposit-item",
-    onMessage: (update: WorldBankDepositItemUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      const bankItemInstanceIDs: (readonly string[])[] = [
-        ...worldState.values.bankItemInstanceIDs,
-      ];
-      const depositPageIndex: number = update.page;
-      while (bankItemInstanceIDs.length <= depositPageIndex) {
-        bankItemInstanceIDs.push([]);
-      }
-      const depositPage: string[] = [
-        ...(bankItemInstanceIDs[depositPageIndex] as readonly string[]),
-      ];
-      depositPage.push(update.itemInstanceID);
-      bankItemInstanceIDs[depositPageIndex] = depositPage;
-      worldState.setValues({
-        bagItemInstanceIDs: worldState.values.bagItemInstanceIDs.filter(
-          (bagItemInstanceID: string): boolean =>
-            bagItemInstanceID !== update.itemInstanceID,
-        ),
-        bankItemInstanceIDs,
-      });
-    },
-  });
-  listenToSocketioEvent<WorldBankWithdrawItemUpdate>({
-    event: "world/bank-withdraw-item",
-    onMessage: (update: WorldBankWithdrawItemUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      const bankItemInstanceIDs: (readonly string[])[] = [
-        ...worldState.values.bankItemInstanceIDs,
-      ];
-      let foundPageIndex: number = -1;
-      let foundItemIndex: number = -1;
-      for (let i: number = 0; i < bankItemInstanceIDs.length; i++) {
-        const bankPage: readonly string[] | undefined = bankItemInstanceIDs[i];
-        if (typeof bankPage === "undefined") {
-          throw new Error("Bank page not found");
-        }
-        const itemIndex: number = bankPage.findIndex(
-          (bankItemInstanceID: string): boolean =>
-            bankItemInstanceID === update.itemInstanceID,
-        );
-        if (itemIndex !== -1) {
-          foundPageIndex = i;
-          foundItemIndex = itemIndex;
-          break;
-        }
-      }
-      if (foundPageIndex === -1 || foundItemIndex === -1) {
-        throw new Error("Bank item instance not found");
-      }
-      const foundPage: string[] = [
-        ...(bankItemInstanceIDs[foundPageIndex] as readonly string[]),
-      ];
-      foundItemIndex = foundPage.findIndex(
-        (bankItemInstanceID: string): boolean =>
-          bankItemInstanceID === update.itemInstanceID,
-      );
-      if (foundItemIndex === -1) {
-        throw new Error("Item instance not found in page");
-      }
-      foundPage.splice(foundItemIndex, 1);
-      bankItemInstanceIDs[foundPageIndex] = foundPage;
-      worldState.setValues({
-        bagItemInstanceIDs: [
-          ...worldState.values.bagItemInstanceIDs,
-          update.itemInstanceID,
-        ],
-        bankItemInstanceIDs,
-      });
     },
   });
 };
