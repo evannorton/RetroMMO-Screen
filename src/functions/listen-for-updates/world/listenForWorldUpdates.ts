@@ -524,6 +524,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldPlayerBusyUpdate>({
     event: "world/player-busy",
     onMessage: (update: WorldPlayerBusyUpdate): void => {
+      closeWorldMenus();
       playerBusyWorldMenu.open({ playerID: update.playerID });
     },
   });
