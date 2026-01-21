@@ -16,6 +16,7 @@ import {
   createSprite,
   emitToSocketioServer,
   getCurrentTime,
+  getGameWidth,
   mergeHUDElementReferences,
   playAudioSource,
 } from "pixel-pigeon";
@@ -110,6 +111,7 @@ export const bankWorldMenu: WorldMenu<
     const maximumBagItems: number = constants["maximum-bag-items"];
     const maximumGold: number = constants["maximum-gold"];
     const isSubscribed: boolean = state.values.isSubscribed;
+    const gameWidth: number = getGameWidth();
     const condition = (): boolean => isWorldCombatInProgress() === false;
     const storageCondition = (): boolean =>
       condition() && bankWorldMenu.state.values.section === BankSection.Items;
@@ -257,7 +259,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value:
@@ -288,7 +290,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: { value: "Bank:" },
       }),
@@ -316,7 +318,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(worldState.values.bankGold)}g`,
@@ -348,7 +350,7 @@ export const bankWorldMenu: WorldMenu<
             },
             horizontalAlignment: "right",
             maxLines: 1,
-            maxWidth: 304,
+            maxWidth: gameWidth,
             size: 1,
             text: (): CreateLabelOptionsText => ({
               value: getFormattedInteger(increment),
@@ -418,7 +420,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: { value: "On hand:" },
       }),
@@ -446,7 +448,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(worldState.values.inventoryGold)}g`,
@@ -478,7 +480,7 @@ export const bankWorldMenu: WorldMenu<
             },
             horizontalAlignment: "right",
             maxLines: 1,
-            maxWidth: 304,
+            maxWidth: gameWidth,
             size: 1,
             text: (): CreateLabelOptionsText => ({
               value: getFormattedInteger(increment),
@@ -549,7 +551,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(worldState.values.inventoryGold)}g`,
@@ -954,7 +956,7 @@ export const bankWorldMenu: WorldMenu<
         },
         horizontalAlignment: "right",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: String(bankWorldMenu.state.values.storagePage + 1),

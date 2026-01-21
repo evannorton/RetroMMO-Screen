@@ -16,6 +16,7 @@ import {
   createQuadrilateral,
   emitToSocketioServer,
   getCurrentTime,
+  getGameWidth,
 } from "pixel-pigeon";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../../state";
@@ -56,12 +57,13 @@ export const createWorldBottomBarUI = (): void => {
   const tileSize: number = getConstants()["tile-size"];
   const condition = (): boolean => state.values.worldState !== null;
   const constants: Constants = getConstants();
+  const gameWidth: number = getGameWidth();
   // Bottom bar background
   createPanel({
     condition,
     height: 32,
     imagePath: "panels/basic",
-    width: 304,
+    width: gameWidth,
     x: 0,
     y: 208,
   });

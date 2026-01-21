@@ -12,6 +12,7 @@ import {
   createLabel,
   createSprite,
   emitToSocketioServer,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Item } from "../classes/Item";
@@ -63,6 +64,7 @@ export const npcShopWorldMenu: WorldMenu<
     const width: number = 128;
     const height: number = 184;
     const maximumBagItems: number = getConstants()["maximum-bag-items"];
+    const gameWidth: number = getGameWidth();
     const getBuyShopItemsForPage = (): readonly ShopItemDefinition[] => {
       const allShopItems: readonly ShopItemDefinition[] = npc.shop.shopItems;
       const startIndex: number =
@@ -133,7 +135,7 @@ export const npcShopWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(worldState.values.inventoryGold)}g`,

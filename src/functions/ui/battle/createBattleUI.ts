@@ -537,7 +537,7 @@ export const createBattleUI = ({
         getBattleState().values.phase === BattlePhase.Selection,
       height: 47,
       imagePath: "panels/basic",
-      width: 304,
+      width: gameWidth,
       x: 0,
       y: 0,
     }),
@@ -3552,7 +3552,7 @@ export const createBattleUI = ({
       },
       horizontalAlignment: "center",
       maxLines: 1,
-      maxWidth: 304,
+      maxWidth: gameWidth,
       size: 1,
       text: (): CreateLabelOptionsText => {
         if (state.values.serverTime === null) {

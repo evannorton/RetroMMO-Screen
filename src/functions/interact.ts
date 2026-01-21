@@ -36,7 +36,7 @@ export const interact = (): void => {
         playAudioSource("sfx/open-chest", {
           volumeChannelID: sfxVolumeChannelID,
         });
-        break;
+        return;
       }
       case "chest": {
         const chestID: unknown = getEntityFieldValue(
@@ -52,7 +52,7 @@ export const interact = (): void => {
           },
           event: "world/chest-interact",
         });
-        break;
+        return;
       }
       case "npc": {
         const npcID: unknown = getEntityFieldValue(
@@ -68,7 +68,7 @@ export const interact = (): void => {
           },
           event: "world/npc-interact",
         });
-        break;
+        return;
       }
       case "piano": {
         const pianoID: unknown = getEntityFieldValue(
@@ -79,7 +79,7 @@ export const interact = (): void => {
           throw new Error("No piano ID.");
         }
         pianoWorldMenu.open({});
-        break;
+        return;
       }
     }
   }

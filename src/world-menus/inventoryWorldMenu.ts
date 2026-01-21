@@ -19,6 +19,7 @@ import {
   createSprite,
   emitToSocketioServer,
   getCurrentTime,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Item } from "../classes/Item";
@@ -176,6 +177,7 @@ export const inventoryWorldMenu: WorldMenu<
         WorldCharacter,
         worldState.values.worldCharacterID,
       );
+      const gameWidth: number = getGameWidth();
       const bagTabCondition = (): boolean =>
         inventoryWorldMenu.state.values.tab === InventoryTab.Bag;
       const equipmentTabCondition = (): boolean =>
@@ -694,7 +696,7 @@ export const inventoryWorldMenu: WorldMenu<
           },
           horizontalAlignment: "center",
           maxLines: 1,
-          maxWidth: 304,
+          maxWidth: gameWidth,
           text: (): CreateLabelOptionsText => ({
             value: "Select a target.",
           }),

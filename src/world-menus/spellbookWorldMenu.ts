@@ -9,6 +9,7 @@ import {
   createLabel,
   emitToSocketioServer,
   getCurrentTime,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { WorldCharacter } from "../classes/WorldCharacter";
@@ -75,6 +76,7 @@ export const spellbookWorldMenu: WorldMenu<
         WorldCharacter,
         worldState.values.worldCharacterID,
       );
+      const gameWidth: number = getGameWidth();
       // Background panel
       hudElementReferences.push(
         createPanel({
@@ -450,7 +452,7 @@ export const spellbookWorldMenu: WorldMenu<
           },
           horizontalAlignment: "center",
           maxLines: 1,
-          maxWidth: 304,
+          maxWidth: gameWidth,
           text: (): CreateLabelOptionsText => ({
             value: "Select a target.",
           }),

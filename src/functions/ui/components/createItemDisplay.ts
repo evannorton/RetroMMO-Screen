@@ -4,6 +4,7 @@ import {
   HUDElementReferences,
   Scriptable,
   createLabel,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Item } from "../../../classes/Item";
@@ -43,6 +44,7 @@ export const createItemDisplay = ({
 }: CreateItemDisplayOptions): HUDElementReferences => {
   const hudElementReferences: HUDElementReferences[] = [];
   const labelIDs: string[] = [];
+  const gameWidth: number = getGameWidth();
   const getItem = (): Item =>
     getDefinable(Item, typeof itemID === "function" ? itemID() : itemID);
   // Panel
@@ -346,7 +348,7 @@ export const createItemDisplay = ({
         },
         horizontalAlignment: "right",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(

@@ -19,6 +19,7 @@ import {
   WorldMoveCharactersUpdate,
   WorldOpenChestUpdate,
   WorldPianoKeyUpdate,
+  WorldPlayerBusyUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
   WorldTradeCompleteUpdate,
@@ -71,6 +72,7 @@ import { npcDialogueWorldMenu } from "../../../world-menus/npcDialogueWorldMenu"
 import { npcInnWorldMenu } from "../../../world-menus/npcInnWorldMenu";
 import { npcShopWorldMenu } from "../../../world-menus/npcShopWorldMenu";
 import { playMusic } from "../../playMusic";
+import { playerBusyWorldMenu } from "../../../world-menus/playerBusyWorldMenu";
 import { selectedPlayerWorldMenu } from "../../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../../volumeChannels";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
@@ -517,6 +519,12 @@ export const listenForWorldUpdates = (): void => {
         ],
         pianoSessionID: update.pianoSessionID,
       });
+    },
+  });
+  listenToSocketioEvent<WorldPlayerBusyUpdate>({
+    event: "world/player-busy",
+    onMessage: (update: WorldPlayerBusyUpdate): void => {
+      playerBusyWorldMenu.open({ playerID: update.playerID });
     },
   });
   listenToSocketioEvent<WorldPositionUpdate>({
