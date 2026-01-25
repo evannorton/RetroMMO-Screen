@@ -5,6 +5,7 @@ import {
   ItemInstanceUpdate,
   MarkerType,
   VanitySlot,
+  WorldBagFullUpdate,
   WorldBonkUpdate,
   WorldClearMarkerUpdate,
   WorldCombatUpdate,
@@ -33,6 +34,7 @@ import {
   CreateBattleStateOptionsHotkey,
   createBattleState,
 } from "../../state/createBattleState";
+import { Enterable } from "../../../classes/Enterable";
 import { Item } from "../../../classes/Item";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
@@ -48,10 +50,12 @@ import {
   lockCameraToEntity,
   playAudioSource,
 } from "pixel-pigeon";
+import { Transport } from "../../../classes/Transport";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema, state } from "../../../state";
 import { addWorldCharacterEmote } from "../../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../../addWorldCharacterMarker";
+import { bagFullWorldMenu } from "../../../world-menus/bagFullWorldMenu";
 import { clearWorldCharacterMarker } from "../../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { createBattleUI } from "../../ui/battle/createBattleUI";
@@ -71,6 +75,7 @@ import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
 import { npcDialogueWorldMenu } from "../../../world-menus/npcDialogueWorldMenu";
 import { npcInnWorldMenu } from "../../../world-menus/npcInnWorldMenu";
 import { npcShopWorldMenu } from "../../../world-menus/npcShopWorldMenu";
+import { openedChestWorldMenu } from "../../../world-menus/openedChestWorldMenu";
 import { playMusic } from "../../playMusic";
 import { playerBusyWorldMenu } from "../../../world-menus/playerBusyWorldMenu";
 import { selectedPlayerWorldMenu } from "../../../world-menus/selectedPlayerWorldMenu";
@@ -83,6 +88,16 @@ export const listenForWorldUpdates = (): void => {
   listenForWorldBankUpdates();
   listenForWorldQuestUpdates();
   listenForWorldShopUpdates();
+  listenToSocketioEvent<WorldBagFullUpdate>({
+    event: "world/bag-full",
+    onMessage: (): void => {
+      closeWorldMenus();
+      bagFullWorldMenu.open({});
+      playAudioSource("sfx/fail", {
+        volumeChannelID: sfxVolumeChannelID,
+      });
+    },
+  });
   listenToSocketioEvent<WorldBonkUpdate>({
     event: "world/bonk",
     onMessage: (): void => {
@@ -485,6 +500,13 @@ export const listenForWorldUpdates = (): void => {
         ),
         inventoryGold: update.inventoryGold,
       });
+      closeWorldMenus();
+      openedChestWorldMenu.open({
+        chestID: update.chestID,
+      });
+      playAudioSource("sfx/open-chest", {
+        volumeChannelID: sfxVolumeChannelID,
+      });
     },
   });
   listenToSocketioEvent<WorldMarkerUpdate>({
@@ -581,6 +603,26 @@ export const listenForWorldUpdates = (): void => {
         playAudioSource("sfx/teleport", {
           volumeChannelID: sfxVolumeChannelID,
         });
+      }
+      if (typeof update.enterableID !== "undefined") {
+        const enterable: Enterable = getDefinable(
+          Enterable,
+          update.enterableID,
+        );
+        playAudioSource(enterable.audioPath, {
+          volumeChannelID: sfxVolumeChannelID,
+        });
+      }
+      if (typeof update.transportID !== "undefined") {
+        const transport: Transport = getDefinable(
+          Transport,
+          update.transportID,
+        );
+        if (transport.hasAudioPath()) {
+          playAudioSource(transport.audioPath, {
+            volumeChannelID: sfxVolumeChannelID,
+          });
+        }
       }
     },
   });

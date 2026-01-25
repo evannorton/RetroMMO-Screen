@@ -13,6 +13,7 @@ import {
   Definition,
   EmoteDefinition,
   EncounterDefinition,
+  EnterableDefinition,
   EquipmentPieceDefinition,
   FigureDefinition,
   HairColorDefinition,
@@ -37,6 +38,7 @@ import {
   TilesetDefinition,
   TilesetTileAnimationFrameDefinition,
   TilesetTileDefinition,
+  TransportDefinition,
 } from "retrommo-types";
 import { Bank } from "../classes/Bank";
 import { BattleImpactAnimation } from "../classes/BattleImpactAnimation";
@@ -56,6 +58,7 @@ import {
 } from "pixel-pigeon";
 import { Emote } from "../classes/Emote";
 import { Encounter } from "../classes/Encounter";
+import { Enterable } from "../classes/Enterable";
 import { EquipmentPiece } from "../classes/EquipmentPiece";
 import { Figure } from "../classes/Figure";
 import { HairColor } from "../classes/HairColor";
@@ -74,6 +77,7 @@ import { QuestExchanger } from "../classes/QuestExchanger";
 import { Reachable } from "../classes/Reachable";
 import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
+import { Transport } from "../classes/Transport";
 import { getDefinables } from "definables";
 import { state } from "../state";
 
@@ -217,8 +221,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Enterable":
+        case "Enterable": {
+          const definition: EnterableDefinition = (
+            gameData[className] as Record<string, EnterableDefinition>
+          )[id] as EnterableDefinition;
+          new Enterable({
+            definition,
+            id,
+          });
           break;
+        }
         case "EquipmentPiece": {
           const definition: EquipmentPieceDefinition = (
             gameData[className] as Record<string, EquipmentPieceDefinition>
@@ -711,8 +723,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Transport":
+        case "Transport": {
+          const definition: TransportDefinition = (
+            gameData[className] as Record<string, TransportDefinition>
+          )[id] as TransportDefinition;
+          new Transport({
+            definition,
+            id,
+          });
           break;
+        }
         default:
           throw new Error(`Unknown class name: ${className}`);
       }

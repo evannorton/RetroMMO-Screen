@@ -252,15 +252,6 @@ const directoryOptions = [
   },
   {
     colorCount: 8,
-    directoryPath: ["images", "combination-locks"],
-    isSpriteSheet: true,
-    palette: colorPalette.famicube,
-    spriteWidth: 16,
-    spriteHeight: 16,
-    size: { width: 16, height: 16, tiledX: false, tiledY: false }
-  },
-  {
-    colorCount: 8,
     directoryPath: ["images", "dials"],
     isSpriteSheet: false,
     palette: colorPalette.famicube,
