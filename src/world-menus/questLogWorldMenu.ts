@@ -489,15 +489,13 @@ export const questLogWorldMenu: WorldMenu<
               throw new Error("No monster kills found");
             }
             return {
-              value: `Defeat ${monster.name} - ${getFormattedInteger(
+              value: `${monster.name} - ${getFormattedInteger(
                 questInstance.monsterKills,
               )}/${getFormattedInteger(quest.monster.kills)}`,
             };
           }
           return {
-            value: `Talk to ${quest.receiverNPC.name} - ${getFormattedInteger(
-              questInstance.isCompleted ? 1 : 0,
-            )}/${getFormattedInteger(1)}`,
+            value: `Talk to ${quest.receiverNPC.name}`,
           };
         },
       }),
