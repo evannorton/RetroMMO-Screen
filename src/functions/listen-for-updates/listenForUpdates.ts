@@ -1,7 +1,8 @@
 import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
-  BattlerType,
+  CombatEvent,
+  CombatantType,
   EndPlayerBattlesUpdate,
   EnterPlayerUpdate,
   ExitPlayerUpdate,
@@ -15,7 +16,12 @@ import {
   ServerTimeUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
-import { BattleStateSchema, WorldStateSchema, state } from "../../state";
+import {
+  BattleStateSchema,
+  WorldStateCombatRoundEventInstance,
+  WorldStateSchema,
+  state,
+} from "../../state";
 import { Battler } from "../../classes/Battler";
 import {
   CreateBattleStateOptionsHotkey,
@@ -608,6 +614,21 @@ export const listenForUpdates = (): void => {
             ),
             clothesDyeItemInstanceID:
               update.world.clothesDyeItemInstance?.itemInstanceID,
+            combatRound:
+              typeof update.world.combatRound !== "undefined"
+                ? {
+                    duration: update.world.combatRound.duration,
+                    eventInstances: update.world.combatRound.events.map(
+                      (
+                        combatEvent: CombatEvent,
+                      ): WorldStateCombatRoundEventInstance => ({
+                        event: combatEvent,
+                        isProcessed: false,
+                      }),
+                    ),
+                    serverTime: update.world.combatRound.serverTime,
+                  }
+                : undefined,
             defense: update.world.defense,
             experienceUntilLevel: update.world.experienceUntilLevel,
             hairDyeItemInstanceID:
@@ -814,7 +835,7 @@ export const listenForUpdates = (): void => {
         exitBattlers([battlerID]);
         for (const battler of getDefinables(Battler).values()) {
           switch (battler.type) {
-            case BattlerType.Player:
+            case CombatantType.Player:
               if (
                 battler.battleCharacter.hasSubmittedMove() &&
                 battler.battleCharacter.submittedMove.battlerID === battlerID

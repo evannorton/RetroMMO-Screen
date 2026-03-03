@@ -1,37 +1,23 @@
 import { Ability } from "../../../classes/Ability";
 import {
-  BattleAmbushEvent,
   BattleBindAbilityRequest,
   BattleBindItemRequest,
-  BattleBleedStartEvent,
   BattleCancelSubmittedMoveRequest,
-  BattleDamageEvent,
-  BattleDeathEvent,
-  BattleDefeatEvent,
-  BattleDropEvent,
-  BattleEventType,
-  BattleExperienceEvent,
-  BattleFriendlyTargetFailureEvent,
-  BattleGainStatEvent,
-  BattleGoldEvent,
-  BattleHealEvent,
   BattleImpactAlignment,
-  BattleInstakillEvent,
-  BattleInstakillFinishEvent,
-  BattleInventoryFullEvent,
-  BattleLevelUpEvent,
-  BattleNewLevelEvent,
-  BattleObtainEvent,
   BattlePhase,
-  BattlePoisonStartEvent,
-  BattleRejuvenateEvent,
   BattleUnbindHotkeyRequest,
-  BattleUseAbilityEvent,
   BattleUseAbilityRequest,
-  BattleUseItemEvent,
   BattleUseItemInstanceRequest,
-  BattlerType,
   Color,
+  CombatBleedStartEvent,
+  CombatDamageEvent,
+  CombatEventType,
+  CombatHealEvent,
+  CombatInstakillEvent,
+  CombatInstakillFinishEvent,
+  CombatPoisonStartEvent,
+  CombatRejuvenateEvent,
+  CombatantType,
   Constants,
   Direction,
   ResourcePool,
@@ -123,12 +109,13 @@ import { createSlot } from "../components/createSlot";
 import { getBattleState } from "../../state/getBattleState";
 import { getBattlerHeight } from "../../battle/getBattlerHeight";
 import { getBattlerMonsterNameData } from "../../battle/getBattlerMonsterNameData";
-import { getBattlerName } from "../../battle/getBattlerName";
 import { getBattlerOffset } from "../../battle/getBattlerOffset";
 import { getBattlerResourcePool } from "../../battle/getBattlerResourcePool";
 import { getBattlerShadowXOffset } from "../../battle/getBattlerShadowXOffset";
 import { getBattlerShadowYOffset } from "../../battle/getBattlerShadowYOffset";
 import { getBattlerWidth } from "../../battle/getBattlerWidth";
+import { getCombatEventText } from "../../combat/getCombatEventText";
+import { getCombatantName } from "../../combat/getCombatantName";
 import { getConstants } from "../../getConstants";
 import { getCyclicIndex } from "../../getCyclicIndex";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
@@ -137,7 +124,6 @@ import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../../getFormattedInteger";
-import { getStatName } from "../../stats/getStatName";
 import { getSumOfNumbers } from "../../getSumOfNumbers";
 import { isBattleMultiplayer } from "../../battle/isBattleMultiplayer";
 
@@ -227,7 +213,6 @@ const useAbility = (battlerID: string): void => {
     case TargetType.AllAllies:
     case TargetType.AllEnemies:
     case TargetType.None:
-    case TargetType.Self:
       useAction();
       break;
   }
@@ -252,7 +237,6 @@ const useItemInstance = (itemInstanceID: string): void => {
     case TargetType.AllAllies:
     case TargetType.AllEnemies:
     case TargetType.None:
-    case TargetType.Self:
       useAction();
       break;
   }
@@ -881,17 +865,17 @@ export const createBattleUI = ({
               battler.battleCharacter.submittedMove.battlerID,
             );
             value += " on ";
-            const targetBattlerName: string = getBattlerName({
+            const targetBattlerName: string = getCombatantName({
               monsterName:
-                targetBattler.type === BattlerType.Monster
+                targetBattler.type === CombatantType.Monster
                   ? getBattlerMonsterNameData(targetBattler.id, enemyBattlerIDs)
                   : undefined,
               username:
-                targetBattler.type === BattlerType.Player
+                targetBattler.type === CombatantType.Player
                   ? targetBattler.battleCharacter.player.username
                   : undefined,
             });
-            if (targetBattler.type === BattlerType.Player) {
+            if (targetBattler.type === CombatantType.Player) {
               trims.push({
                 index: value.length,
                 length: targetBattlerName.length,
@@ -1020,34 +1004,34 @@ export const createBattleUI = ({
               eventInstance.event.startedAt + eventInstance.event.duration
           ) {
             switch (eventInstance.event.type) {
-              case BattleEventType.BleedStart: {
-                const bleedStartEvent: BattleBleedStartEvent =
-                  eventInstance.event as BattleBleedStartEvent;
+              case CombatEventType.BleedStart: {
+                const bleedStartEvent: CombatBleedStartEvent =
+                  eventInstance.event as CombatBleedStartEvent;
                 return bleedStartEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Damage: {
-                const damageEvent: BattleDamageEvent =
-                  eventInstance.event as BattleDamageEvent;
+              case CombatEventType.Damage: {
+                const damageEvent: CombatDamageEvent =
+                  eventInstance.event as CombatDamageEvent;
                 return damageEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Heal: {
-                const healEvent: BattleHealEvent =
-                  eventInstance.event as BattleHealEvent;
+              case CombatEventType.Heal: {
+                const healEvent: CombatHealEvent =
+                  eventInstance.event as CombatHealEvent;
                 return healEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.InstakillFinish: {
-                const instakillFinishEvent: BattleInstakillFinishEvent =
-                  eventInstance.event as BattleInstakillFinishEvent;
+              case CombatEventType.InstakillFinish: {
+                const instakillFinishEvent: CombatInstakillFinishEvent =
+                  eventInstance.event as CombatInstakillFinishEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.PoisonStart: {
-                const poisonStartEvent: BattlePoisonStartEvent =
-                  eventInstance.event as BattlePoisonStartEvent;
+              case CombatEventType.PoisonStart: {
+                const poisonStartEvent: CombatPoisonStartEvent =
+                  eventInstance.event as CombatPoisonStartEvent;
                 return poisonStartEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Rejuvenate: {
-                const rejuvenateEvent: BattleRejuvenateEvent =
-                  eventInstance.event as BattleRejuvenateEvent;
+              case CombatEventType.Rejuvenate: {
+                const rejuvenateEvent: CombatRejuvenateEvent =
+                  eventInstance.event as CombatRejuvenateEvent;
                 return rejuvenateEvent.target.battlerID === enemyBattlerID;
               }
             }
@@ -1074,34 +1058,34 @@ export const createBattleUI = ({
               eventInstance.event.startedAt + battleImpactAnimationDuration * 8
           ) {
             switch (eventInstance.event.type) {
-              case BattleEventType.BleedStart: {
-                const bleedStartEvent: BattleBleedStartEvent =
-                  eventInstance.event as BattleBleedStartEvent;
+              case CombatEventType.BleedStart: {
+                const bleedStartEvent: CombatBleedStartEvent =
+                  eventInstance.event as CombatBleedStartEvent;
                 return bleedStartEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Damage: {
-                const damageEvent: BattleDamageEvent =
-                  eventInstance.event as BattleDamageEvent;
+              case CombatEventType.Damage: {
+                const damageEvent: CombatDamageEvent =
+                  eventInstance.event as CombatDamageEvent;
                 return damageEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Heal: {
-                const healEvent: BattleHealEvent =
-                  eventInstance.event as BattleHealEvent;
+              case CombatEventType.Heal: {
+                const healEvent: CombatHealEvent =
+                  eventInstance.event as CombatHealEvent;
                 return healEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.InstakillFinish: {
-                const instakillFinishEvent: BattleInstakillEvent =
-                  eventInstance.event as BattleInstakillEvent;
+              case CombatEventType.InstakillFinish: {
+                const instakillFinishEvent: CombatInstakillEvent =
+                  eventInstance.event as CombatInstakillEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.PoisonStart: {
-                const poisonStartEvent: BattlePoisonStartEvent =
-                  eventInstance.event as BattlePoisonStartEvent;
+              case CombatEventType.PoisonStart: {
+                const poisonStartEvent: CombatPoisonStartEvent =
+                  eventInstance.event as CombatPoisonStartEvent;
                 return poisonStartEvent.target.battlerID === enemyBattlerID;
               }
-              case BattleEventType.Rejuvenate: {
-                const rejuvenateEvent: BattleRejuvenateEvent =
-                  eventInstance.event as BattleRejuvenateEvent;
+              case CombatEventType.Rejuvenate: {
+                const rejuvenateEvent: CombatRejuvenateEvent =
+                  eventInstance.event as CombatRejuvenateEvent;
                 return rejuvenateEvent.target.battlerID === enemyBattlerID;
               }
             }
@@ -1124,12 +1108,12 @@ export const createBattleUI = ({
         throw new Error("matchedEventInstance is undefined");
       }
       switch (matchedEventInstance.event.type) {
-        case BattleEventType.BleedStart: {
+        case CombatEventType.BleedStart: {
           return getDefinable(BattleImpactAnimation, "bleed-tick");
         }
-        case BattleEventType.Damage: {
-          const damageEvent: BattleDamageEvent =
-            matchedEventInstance.event as BattleDamageEvent;
+        case CombatEventType.Damage: {
+          const damageEvent: CombatDamageEvent =
+            matchedEventInstance.event as CombatDamageEvent;
           if (damageEvent.isPoison === true) {
             return getDefinable(BattleImpactAnimation, "poison-tick");
           }
@@ -1156,24 +1140,24 @@ export const createBattleUI = ({
           return getDefinable(Ability, damageEvent.abilityID)
             .battleImpactAnimation;
         }
-        case BattleEventType.Heal: {
-          const healEvent: BattleHealEvent =
-            matchedEventInstance.event as BattleHealEvent;
+        case CombatEventType.Heal: {
+          const healEvent: CombatHealEvent =
+            matchedEventInstance.event as CombatHealEvent;
           return getDefinable(Ability, healEvent.abilityID)
             .battleImpactAnimation;
         }
-        case BattleEventType.InstakillFinish: {
-          const instakillFinishEvent: BattleInstakillFinishEvent =
-            matchedEventInstance.event as BattleInstakillFinishEvent;
+        case CombatEventType.InstakillFinish: {
+          const instakillFinishEvent: CombatInstakillFinishEvent =
+            matchedEventInstance.event as CombatInstakillFinishEvent;
           return getDefinable(Ability, instakillFinishEvent.abilityID)
             .battleImpactInstakillAnimation;
         }
-        case BattleEventType.PoisonStart: {
+        case CombatEventType.PoisonStart: {
           return getDefinable(BattleImpactAnimation, "poison-tick");
         }
-        case BattleEventType.Rejuvenate: {
-          const rejuvenateEvent: BattleRejuvenateEvent =
-            matchedEventInstance.event as BattleRejuvenateEvent;
+        case CombatEventType.Rejuvenate: {
+          const rejuvenateEvent: CombatRejuvenateEvent =
+            matchedEventInstance.event as CombatRejuvenateEvent;
           return getDefinable(Ability, rejuvenateEvent.abilityID)
             .battleImpactAnimation;
         }
@@ -1197,8 +1181,8 @@ export const createBattleUI = ({
               throw new Error("eventInstance is undefined");
             }
             switch (eventInstance.event.type) {
-              case BattleEventType.Damage:
-              case BattleEventType.InstakillFinish: {
+              case CombatEventType.Damage:
+              case CombatEventType.InstakillFinish: {
                 const elapsedServerTime: number =
                   state.values.serverTime - battleState.values.round.serverTime;
                 const diff: number =
@@ -1224,17 +1208,17 @@ export const createBattleUI = ({
     const enemyHeight: number = getBattlerHeight(enemyBattlerID);
     const getShadowWidth = (): number => {
       switch (enemyBattler.type) {
-        case BattlerType.Player:
+        case CombatantType.Player:
           return 23;
-        case BattlerType.Monster:
+        case CombatantType.Monster:
           return enemyBattler.monster.shadowXRadius * 2;
       }
     };
     const getShadowHeight = (): number => {
       switch (enemyBattler.type) {
-        case BattlerType.Player:
+        case CombatantType.Player:
           return 8;
-        case BattlerType.Monster:
+        case CombatantType.Monster:
           return enemyBattler.monster.shadowYRadius * 2;
       }
     };
@@ -1261,7 +1245,7 @@ export const createBattleUI = ({
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          enemySpriteCondition() && enemyBattler.type === BattlerType.Monster,
+          enemySpriteCondition() && enemyBattler.type === CombatantType.Monster,
         height: enemyHeight,
         imagePath: (): string => {
           const monster: Monster = getDefinable(
@@ -1288,7 +1272,8 @@ export const createBattleUI = ({
         },
         coordinates: {
           condition: (): boolean =>
-            enemySpriteCondition() && enemyBattler.type === BattlerType.Player,
+            enemySpriteCondition() &&
+            enemyBattler.type === CombatantType.Player,
           x: getX,
           y: getY,
         },
@@ -3042,485 +3027,22 @@ export const createBattleUI = ({
           }
           const elapsedServerTime: number =
             state.values.serverTime - battleState.values.round.serverTime;
-          const battleEventInstance: BattleStateRoundEventInstance | undefined =
+          const combatEventInstance: BattleStateRoundEventInstance | undefined =
             battleState.values.round.eventInstances.find(
               (
-                roundBattleEventInstance: BattleStateRoundEventInstance,
+                roundBattleStateRoundEventInstance: BattleStateRoundEventInstance,
               ): boolean =>
-                roundBattleEventInstance.event.channel === i &&
-                elapsedServerTime >= roundBattleEventInstance.event.startedAt &&
+                roundBattleStateRoundEventInstance.event.channel === i &&
+                elapsedServerTime >=
+                  roundBattleStateRoundEventInstance.event.startedAt &&
                 elapsedServerTime <
-                  roundBattleEventInstance.event.startedAt +
-                    roundBattleEventInstance.event.duration,
+                  roundBattleStateRoundEventInstance.event.startedAt +
+                    roundBattleStateRoundEventInstance.event.duration,
             );
-          if (typeof battleEventInstance !== "undefined") {
-            const battler: Battler = getBattler();
-            switch (battleEventInstance.event.type) {
-              case BattleEventType.Ambush: {
-                const battleAmbushEvent: BattleAmbushEvent =
-                  battleEventInstance.event as BattleAmbushEvent;
-                return {
-                  value:
-                    battleState.values.teamIndex === battleAmbushEvent.teamIndex
-                      ? "...but they don't notice you."
-                      : "They ambush you!",
-                };
-              }
-              case BattleEventType.Approach:
-                return {
-                  value:
-                    battleState.values.enemyBattlersCount > 1
-                      ? "Enemies approach."
-                      : "An enemy approaches.",
-                };
-              case BattleEventType.Crit: {
-                return {
-                  value: "An excellent move!",
-                };
-              }
-              case BattleEventType.BleedStart: {
-                const bleedStartBattleEvent: BattleBleedStartEvent =
-                  battleEventInstance.event as BattleBleedStartEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: bleedStartBattleEvent.target.monsterName,
-                  username: bleedStartBattleEvent.target.username,
-                });
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: battlerName.length,
-                    },
-                  ],
-                  value: `${battlerName} begins to bleed.`,
-                };
-              }
-              case BattleEventType.Damage: {
-                const damageBattleEvent: BattleDamageEvent =
-                  battleEventInstance.event as BattleDamageEvent;
-                const damageAmount: string = getFormattedInteger(
-                  damageBattleEvent.amount,
-                );
-                const battlerName: string = getBattlerName({
-                  monsterName: damageBattleEvent.target.monsterName,
-                  username: damageBattleEvent.target.username,
-                });
-                const verb: string =
-                  damageBattleEvent.isPoison === true
-                    ? "sickens for"
-                    : damageBattleEvent.isBleed === true
-                      ? "bleeds for"
-                      : damageBattleEvent.isRedirected === true
-                        ? "guards for"
-                        : "takes";
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (typeof damageBattleEvent.target.username !== "undefined") {
-                  trims.push({
-                    index: 0,
-                    length: battlerName.length,
-                  });
-                }
-                const value: string = `${battlerName} ${verb} ${damageAmount} damage.`;
-                return {
-                  trims,
-                  value,
-                };
-              }
-              case BattleEventType.Death: {
-                const deathBattleEvent: BattleDeathEvent =
-                  battleEventInstance.event as BattleDeathEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: deathBattleEvent.target.monsterName,
-                  username: deathBattleEvent.target.username,
-                });
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (typeof deathBattleEvent.target.username !== "undefined") {
-                  trims.push({
-                    index: 0,
-                    length: battlerName.length,
-                  });
-                }
-                return {
-                  trims,
-                  value: `${battlerName} is defeated!`,
-                };
-              }
-              case BattleEventType.Defeat: {
-                const defeatBattleEvent: BattleDefeatEvent =
-                  battleEventInstance.event as BattleDefeatEvent;
-                const verb: string = defeatBattleEvent.wasFled
-                  ? "evaded"
-                  : "defeated";
-                if (
-                  defeatBattleEvent.winningTeamIndex ===
-                  battleState.values.teamIndex
-                ) {
-                  if (battleState.values.enemyBattlersCount > 1) {
-                    return { value: `The enemies are ${verb}...` };
-                  }
-                  return { value: `The enemy is ${verb}...` };
-                }
-                return {
-                  value: `You are ${verb}...`,
-                };
-              }
-              case BattleEventType.Drop: {
-                const dropBattleEvent: BattleDropEvent =
-                  battleEventInstance.event as BattleDropEvent;
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: dropBattleEvent.username.length,
-                    },
-                  ],
-                  value: `${dropBattleEvent.username} finds an item on the ground.`,
-                };
-              }
-              case BattleEventType.Experience: {
-                const experienceBattleEvent: BattleExperienceEvent =
-                  battleEventInstance.event as BattleExperienceEvent;
-                return {
-                  value: `You gain ${getFormattedInteger(
-                    experienceBattleEvent.amount,
-                  )} experience.`,
-                };
-              }
-              case BattleEventType.FleeFailure: {
-                return {
-                  value: "...but fails to flee the battle.",
-                };
-              }
-              case BattleEventType.FleeSuccess: {
-                return {
-                  value: "...and successfully flees the battle!",
-                };
-              }
-              case BattleEventType.FriendlyTargetFailure: {
-                const friendlyTargetFailureBattleEvent: BattleFriendlyTargetFailureEvent =
-                  battleEventInstance.event as BattleFriendlyTargetFailureEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName:
-                    friendlyTargetFailureBattleEvent.target.monsterName,
-                  username: friendlyTargetFailureBattleEvent.target.username,
-                });
-                let value: string = "...but ";
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (
-                  typeof friendlyTargetFailureBattleEvent.target.username !==
-                  "undefined"
-                ) {
-                  trims.push({
-                    index: value.length,
-                    length: battlerName.length,
-                  });
-                }
-                value += `${battlerName} is defeated.`;
-                return {
-                  trims,
-                  value,
-                };
-              }
-              case BattleEventType.Gold: {
-                const goldBattleEvent: BattleGoldEvent =
-                  battleEventInstance.event as BattleGoldEvent;
-                return {
-                  value: `You ${
-                    goldBattleEvent.winningTeamIndex ===
-                    battleState.values.teamIndex
-                      ? "find"
-                      : "lose"
-                  } ${
-                    goldBattleEvent.winningTeamIndex ===
-                    battleState.values.teamIndex
-                      ? getFormattedInteger(goldBattleEvent.amount)
-                      : battler.gold
-                  } gold.`,
-                };
-              }
-              case BattleEventType.GainStat: {
-                const gainStatEvent: BattleGainStatEvent =
-                  battleEventInstance.event as BattleGainStatEvent;
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: gainStatEvent.username.length,
-                    },
-                  ],
-                  value: `${gainStatEvent.username} gains ${getFormattedInteger(
-                    gainStatEvent.amount,
-                  )} ${getStatName(gainStatEvent.stat)}.`,
-                };
-              }
-              case BattleEventType.Heal: {
-                const damageBattleEvent: BattleDamageEvent =
-                  battleEventInstance.event as BattleDamageEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: damageBattleEvent.target.monsterName,
-                  username: damageBattleEvent.target.username,
-                });
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (typeof damageBattleEvent.target.username !== "undefined") {
-                  trims.push({
-                    index: 0,
-                    length: battlerName.length,
-                  });
-                }
-                return {
-                  trims,
-                  value: `${battlerName} recovers ${getFormattedInteger(
-                    damageBattleEvent.amount,
-                  )} HP.`,
-                };
-              }
-              case BattleEventType.Instakill: {
-                const instakillBattleEvent: BattleInstakillEvent =
-                  battleEventInstance.event as BattleInstakillEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: instakillBattleEvent.target.monsterName,
-                  username: instakillBattleEvent.target.username,
-                });
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (
-                  typeof instakillBattleEvent.target.username !== "undefined"
-                ) {
-                  trims.push({
-                    index: 0,
-                    length: battlerName.length,
-                  });
-                }
-                return {
-                  trims,
-                  value: `${battlerName} is drawn into the light.`,
-                };
-              }
-              case BattleEventType.InstakillFinish: {
-                const instakillFinishBattleEvent: BattleInstakillFinishEvent =
-                  battleEventInstance.event as BattleInstakillFinishEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: instakillFinishBattleEvent.target.monsterName,
-                  username: instakillFinishBattleEvent.target.username,
-                });
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (
-                  typeof instakillFinishBattleEvent.target.username !==
-                  "undefined"
-                ) {
-                  trims.push({
-                    index: 0,
-                    length: battlerName.length,
-                  });
-                }
-                return {
-                  trims,
-                  value: `${battlerName} is drawn into the light.`,
-                };
-              }
-              case BattleEventType.InventoryFull: {
-                const inventoryFullEvent: BattleInventoryFullEvent =
-                  battleEventInstance.event as BattleInventoryFullEvent;
-                let value: string = "...but ";
-                const nameIndex: number = value.length;
-                value += `${inventoryFullEvent.username} has no space for ${
-                  getDefinable(Item, inventoryFullEvent.itemID).name
-                }.`;
-                return {
-                  trims: [
-                    {
-                      index: nameIndex,
-                      length: inventoryFullEvent.username.length,
-                    },
-                  ],
-                  value,
-                };
-              }
-              case BattleEventType.LevelUp: {
-                const levelUpEvent: BattleLevelUpEvent =
-                  battleEventInstance.event as BattleLevelUpEvent;
-                if (levelUpEvent.amount > 1) {
-                  return {
-                    trims: [
-                      {
-                        index: 0,
-                        length: levelUpEvent.username.length,
-                      },
-                    ],
-                    value: `${
-                      levelUpEvent.username
-                    } levels up ${getFormattedInteger(
-                      levelUpEvent.amount,
-                    )} times!`,
-                  };
-                }
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: levelUpEvent.username.length,
-                    },
-                  ],
-                  value: `${levelUpEvent.username} levels up!`,
-                };
-              }
-              case BattleEventType.Miss: {
-                return { value: "...but it misses." };
-              }
-              case BattleEventType.NewLevel: {
-                const newLevelEvent: BattleNewLevelEvent =
-                  battleEventInstance.event as BattleNewLevelEvent;
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: newLevelEvent.username.length,
-                    },
-                  ],
-                  value: `${
-                    newLevelEvent.username
-                  } is now level ${getFormattedInteger(newLevelEvent.level)}.`,
-                };
-              }
-              case BattleEventType.Obtain: {
-                const obtainBattleEvent: BattleObtainEvent =
-                  battleEventInstance.event as BattleObtainEvent;
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: obtainBattleEvent.username.length,
-                    },
-                  ],
-                  value: `${obtainBattleEvent.username} gets ${
-                    getDefinable(Item, obtainBattleEvent.itemID).name
-                  }!`,
-                };
-              }
-              case BattleEventType.PoisonStart: {
-                const poisonStartBattleEvent: BattlePoisonStartEvent =
-                  battleEventInstance.event as BattlePoisonStartEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: poisonStartBattleEvent.target.monsterName,
-                  username: poisonStartBattleEvent.target.username,
-                });
-                return {
-                  trims: [
-                    {
-                      index: 0,
-                      length: battlerName.length,
-                    },
-                  ],
-                  value: `${battlerName} begins to sicken.`,
-                };
-              }
-              case BattleEventType.Rejuvenate: {
-                const rejuvenateEvent: BattleRejuvenateEvent =
-                  battleEventInstance.event as BattleRejuvenateEvent;
-                const battlerName: string = getBattlerName({
-                  monsterName: rejuvenateEvent.target.monsterName,
-                  username: rejuvenateEvent.target.username,
-                });
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (typeof rejuvenateEvent.target.username !== "undefined") {
-                  trims.push({
-                    index: 0,
-                    length: battlerName.length,
-                  });
-                }
-                return {
-                  trims,
-                  value: `${battlerName} recovers ${getFormattedInteger(
-                    rejuvenateEvent.amount,
-                  )} MP.`,
-                };
-              }
-              case BattleEventType.UseAbility: {
-                const useAbilityBattleEvent: BattleUseAbilityEvent =
-                  battleEventInstance.event as BattleUseAbilityEvent;
-                const ability: Ability = getDefinable(
-                  Ability,
-                  useAbilityBattleEvent.abilityID,
-                );
-                const casterName: string = getBattlerName({
-                  monsterName: useAbilityBattleEvent.caster.monsterName,
-                  username: useAbilityBattleEvent.caster.username,
-                });
-                let value: string = `${casterName} uses ${ability.name}`;
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (
-                  typeof useAbilityBattleEvent.caster.username !== "undefined"
-                ) {
-                  trims.push({
-                    index: 0,
-                    length: casterName.length,
-                  });
-                }
-                if (typeof useAbilityBattleEvent.target !== "undefined") {
-                  const targetName: string = getBattlerName({
-                    monsterName: useAbilityBattleEvent.target.monsterName,
-                    username: useAbilityBattleEvent.target.username,
-                  });
-                  value += " on ";
-                  if (
-                    typeof useAbilityBattleEvent.target.username !== "undefined"
-                  ) {
-                    trims.push({
-                      index: value.length,
-                      length: targetName.length,
-                    });
-                  }
-                  value += targetName;
-                }
-                value += ".";
-                return {
-                  trims,
-                  value,
-                };
-              }
-              case BattleEventType.UseItem: {
-                const useItemBattleEvent: BattleUseItemEvent =
-                  battleEventInstance.event as BattleUseItemEvent;
-                const item: Item = getDefinable(
-                  Item,
-                  useItemBattleEvent.itemID,
-                );
-                const casterName: string = getBattlerName({
-                  monsterName: useItemBattleEvent.caster.monsterName,
-                  username: useItemBattleEvent.caster.username,
-                });
-                let value: string = `${casterName} uses ${item.name}`;
-                const trims: CreateLabelOptionsTextTrim[] = [];
-                if (typeof useItemBattleEvent.caster.username !== "undefined") {
-                  trims.push({
-                    index: 0,
-                    length: casterName.length,
-                  });
-                }
-                if (typeof useItemBattleEvent.target !== "undefined") {
-                  const targetName: string = getBattlerName({
-                    monsterName: useItemBattleEvent.target.monsterName,
-                    username: useItemBattleEvent.target.username,
-                  });
-                  value += " on ";
-                  if (
-                    typeof useItemBattleEvent.target.username !== "undefined"
-                  ) {
-                    trims.push({
-                      index: value.length,
-                      length: targetName.length,
-                    });
-                  }
-                  value += targetName;
-                }
-                value += ".";
-                return {
-                  trims,
-                  value,
-                };
-              }
-            }
+          if (typeof combatEventInstance === "undefined") {
+            return { value: "" };
           }
-          return { value: "" };
+          return getCombatEventText(combatEventInstance.event);
         },
       }),
     );

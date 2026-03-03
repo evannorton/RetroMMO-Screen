@@ -481,17 +481,6 @@ export const inventoryWorldMenu: WorldMenu<
                       isAwaitingWorldCombat: true,
                     });
                     break;
-                  case TargetType.Self:
-                    emitToSocketioServer<WorldUseItemInstanceRequest>({
-                      data: {
-                        itemInstanceID: itemInstance.id,
-                      },
-                      event: "world/use-item-instance",
-                    });
-                    inventoryWorldMenu.state.setValues({
-                      isAwaitingWorldCombat: true,
-                    });
-                    break;
                   case TargetType.SingleAlly:
                     inventoryWorldMenu.state.setValues({
                       startedTargetingAt: getCurrentTime(),

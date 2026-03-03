@@ -1,23 +1,21 @@
 import { Ability } from "./classes/Ability";
+import { Battler } from "./classes/Battler";
 import {
-  BattleBleedStartEvent,
-  BattleDamageEvent,
-  BattleDeathEvent,
-  BattleEventType,
-  BattleHealEvent,
-  BattleInstakillFinishEvent,
-  BattlePoisonStartEvent,
-  BattleRejuvenateEvent,
-  BattleUseAbilityEvent,
-  BattleUseItemEvent,
-  BattlerType,
+  CombatBleedStartEvent,
+  CombatDamageEvent,
+  CombatDeathEvent,
+  CombatEventType,
+  CombatHealEvent,
+  CombatInstakillFinishEvent,
+  CombatPoisonStartEvent,
+  CombatRejuvenateEvent,
+  CombatRenewEvent,
+  CombatUseAbilityEvent,
   Constants,
   Direction,
   ResourcePool,
   ServerTimeRequest,
 } from "retrommo-types";
-import { Battler } from "./classes/Battler";
-import { Item } from "./classes/Item";
 import { MusicTrack } from "./classes/MusicTrack";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
@@ -35,6 +33,7 @@ import { getConstants } from "./functions/getConstants";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
 import { musicFadeDuration, serverTimeUpdateInterval } from "./constants";
+import { playCombatEventSFX } from "./functions/combat/playCombatEventSFX";
 import { playMusic } from "./functions/playMusic";
 import { sfxVolumeChannelID } from "./volumeChannels";
 import { state } from "./state";
@@ -184,6 +183,136 @@ export const tick = (): void => {
     state.values.worldState.setValues({
       pianoNotes: updatedPianoNotes,
     });
+    if (state.values.worldState.values.combatRound !== null) {
+      if (state.values.serverTime !== null) {
+        const elapsedServerTime: number =
+          state.values.serverTime -
+          state.values.worldState.values.combatRound.serverTime;
+        for (const eventInstance of state.values.worldState.values.combatRound
+          .eventInstances) {
+          if (
+            elapsedServerTime >= eventInstance.event.startedAt &&
+            eventInstance.isProcessed === false
+          ) {
+            switch (eventInstance.event.type) {
+              case CombatEventType.Heal: {
+                const healEvent: CombatHealEvent =
+                  eventInstance.event as CombatHealEvent;
+                if (typeof healEvent.target.characterID === "undefined") {
+                  throw new Error("No heal event target character ID");
+                }
+                if (
+                  definableExists(WorldCharacter, healEvent.target.characterID)
+                ) {
+                  const worldCharacter: WorldCharacter = getDefinable(
+                    WorldCharacter,
+                    healEvent.target.characterID,
+                  );
+                  worldCharacter.resources = {
+                    ...worldCharacter.resources,
+                    hp: Math.min(
+                      worldCharacter.resources.maxHP,
+                      worldCharacter.resources.hp + healEvent.amount,
+                    ),
+                  };
+                }
+                break;
+              }
+              case CombatEventType.Rejuvenate: {
+                const rejuvenateEvent: CombatRejuvenateEvent =
+                  eventInstance.event as CombatRejuvenateEvent;
+                if (typeof rejuvenateEvent.target.characterID === "undefined") {
+                  throw new Error("No rejuvenate event target character ID");
+                }
+                if (
+                  definableExists(
+                    WorldCharacter,
+                    rejuvenateEvent.target.characterID,
+                  )
+                ) {
+                  const worldCharacter: WorldCharacter = getDefinable(
+                    WorldCharacter,
+                    rejuvenateEvent.target.characterID,
+                  );
+                  if (worldCharacter.resources.mp === null) {
+                    throw new Error(
+                      "WorldCharacter has no MP but is trying to be rejuvenated.",
+                    );
+                  }
+                  if (worldCharacter.resources.maxMP === null) {
+                    throw new Error(
+                      "WorldCharacter has no max MP but is trying to be rejuvenated.",
+                    );
+                  }
+                  worldCharacter.resources = {
+                    ...worldCharacter.resources,
+                    mp: Math.min(
+                      worldCharacter.resources.maxMP,
+                      worldCharacter.resources.mp + rejuvenateEvent.amount,
+                    ),
+                  };
+                }
+                break;
+              }
+              case CombatEventType.Renew: {
+                const renewEvent: CombatRenewEvent =
+                  eventInstance.event as CombatRenewEvent;
+                if (typeof renewEvent.characterID === "undefined") {
+                  throw new Error("No renew event character ID");
+                }
+                if (definableExists(WorldCharacter, renewEvent.characterID)) {
+                  const worldCharacter: WorldCharacter = getDefinable(
+                    WorldCharacter,
+                    renewEvent.characterID,
+                  );
+                  worldCharacter.isRenewing = true;
+                }
+                break;
+              }
+              case CombatEventType.UseAbility: {
+                const useAbilityEvent: CombatUseAbilityEvent =
+                  eventInstance.event as CombatUseAbilityEvent;
+                const ability: Ability = getDefinable(
+                  Ability,
+                  useAbilityEvent.abilityID,
+                );
+                if (typeof useAbilityEvent.caster.characterID === "undefined") {
+                  throw new Error("No use ability event caster character ID");
+                }
+                if (
+                  definableExists(
+                    WorldCharacter,
+                    useAbilityEvent.caster.characterID,
+                  )
+                ) {
+                  const worldCharacter: WorldCharacter = getDefinable(
+                    WorldCharacter,
+                    useAbilityEvent.caster.characterID,
+                  );
+                  switch (worldCharacter.player.character.class.resourcePool) {
+                    case ResourcePool.MP: {
+                      if (worldCharacter.resources.mp === null) {
+                        throw new Error(
+                          "WorldCharacter has no MP but is trying to use an ability that costs MP.",
+                        );
+                      }
+                      worldCharacter.resources = {
+                        ...worldCharacter.resources,
+                        mp: worldCharacter.resources.mp - ability.mpCost,
+                      };
+                      break;
+                    }
+                  }
+                }
+                break;
+              }
+            }
+            playCombatEventSFX(eventInstance.event);
+            eventInstance.isProcessed = true;
+          }
+        }
+      }
+    }
   }
   if (state.values.battleState !== null) {
     if (state.values.battleState.values.round !== null) {
@@ -198,9 +327,12 @@ export const tick = (): void => {
             eventInstance.isProcessed === false
           ) {
             switch (eventInstance.event.type) {
-              case BattleEventType.BleedStart: {
-                const bleedStartEvent: BattleBleedStartEvent =
-                  eventInstance.event as BattleBleedStartEvent;
+              case CombatEventType.BleedStart: {
+                const bleedStartEvent: CombatBleedStartEvent =
+                  eventInstance.event as CombatBleedStartEvent;
+                if (typeof bleedStartEvent.target.battlerID === "undefined") {
+                  throw new Error("No bleed start event target battler ID");
+                }
                 if (
                   definableExists(Battler, bleedStartEvent.target.battlerID)
                 ) {
@@ -210,14 +342,14 @@ export const tick = (): void => {
                   );
                   battler.bleed = { order: bleedStartEvent.target.order };
                 }
-                playAudioSource("sfx/actions/impact/bleed-tick", {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
                 break;
               }
-              case BattleEventType.Damage: {
-                const damageEvent: BattleDamageEvent =
-                  eventInstance.event as BattleDamageEvent;
+              case CombatEventType.Damage: {
+                const damageEvent: CombatDamageEvent =
+                  eventInstance.event as CombatDamageEvent;
+                if (typeof damageEvent.target.battlerID === "undefined") {
+                  throw new Error("No damage event target battler ID");
+                }
                 if (
                   definableExists(Battler, damageEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -233,101 +365,33 @@ export const tick = (): void => {
                     battler.resources.hp - damageEvent.amount,
                   );
                 }
-                if (damageEvent.isPoison === true) {
-                  playAudioSource("sfx/actions/impact/poison-tick", {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                } else if (damageEvent.isBleed === true) {
-                  playAudioSource("sfx/actions/impact/bleed-tick", {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                } else if (damageEvent.isCrit === true) {
-                  if (typeof damageEvent.abilityID === "undefined") {
-                    throw new Error("No damage event ability ID");
-                  }
-                  const ability: Ability = getDefinable(
-                    Ability,
-                    damageEvent.abilityID,
-                  );
-                  playAudioSource(ability.impactCritAudioPath, {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                } else if (damageEvent.isInstakill === true) {
-                  if (typeof damageEvent.abilityID === "undefined") {
-                    throw new Error("No damage event ability ID");
-                  }
-                  const ability: Ability = getDefinable(
-                    Ability,
-                    damageEvent.abilityID,
-                  );
-                  playAudioSource(ability.impactInstakillAudioPath, {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                } else {
-                  if (typeof damageEvent.abilityID === "undefined") {
-                    throw new Error("No damage event ability ID");
-                  }
-                  const ability: Ability = getDefinable(
-                    Ability,
-                    damageEvent.abilityID,
-                  );
-                  playAudioSource(ability.impactAudioPath, {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                }
                 break;
               }
-              case BattleEventType.Death: {
-                const deathEvent: BattleDeathEvent =
-                  eventInstance.event as BattleDeathEvent;
+              case CombatEventType.Death: {
+                const deathEvent: CombatDeathEvent =
+                  eventInstance.event as CombatDeathEvent;
+                if (typeof deathEvent.target.battlerID === "undefined") {
+                  throw new Error("No death event target battler ID");
+                }
                 if (definableExists(Battler, deathEvent.target.battlerID)) {
                   const battler: Battler = getDefinable(
                     Battler,
                     deathEvent.target.battlerID,
                   );
                   battler.isAlive = false;
-                  switch (battler.type) {
-                    case BattlerType.Monster:
-                      playAudioSource(battler.monster.deathAudioPath, {
-                        volumeChannelID: sfxVolumeChannelID,
-                      });
-                      break;
-                    case BattlerType.Player:
-                      playAudioSource("sfx/actions/death/player", {
-                        volumeChannelID: sfxVolumeChannelID,
-                      });
-                      break;
-                  }
                 }
                 break;
               }
-              case BattleEventType.Defeat: {
+              case CombatEventType.Defeat: {
                 playMusic();
                 break;
               }
-              case BattleEventType.FleeFailure:
-                playAudioSource("sfx/fail", {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
-                break;
-              case BattleEventType.FleeSuccess:
-                playAudioSource("sfx/actions/flee", {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
-                break;
-              case BattleEventType.FriendlyTargetFailure: {
-                playAudioSource("sfx/fail", {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
-                break;
-              }
-              case BattleEventType.Heal: {
-                const healEvent: BattleHealEvent =
-                  eventInstance.event as BattleHealEvent;
-                const ability: Ability = getDefinable(
-                  Ability,
-                  healEvent.abilityID,
-                );
+              case CombatEventType.Heal: {
+                const healEvent: CombatHealEvent =
+                  eventInstance.event as CombatHealEvent;
+                if (typeof healEvent.target.battlerID === "undefined") {
+                  throw new Error("No heal event target battler ID");
+                }
                 if (
                   definableExists(Battler, healEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -343,18 +407,18 @@ export const tick = (): void => {
                     battler.resources.hp + healEvent.amount,
                   );
                 }
-                playAudioSource(ability.impactAudioPath, {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
                 break;
               }
-              case BattleEventType.InstakillFinish: {
-                const instakillFinishEvent: BattleInstakillFinishEvent =
-                  eventInstance.event as BattleInstakillFinishEvent;
-                const ability: Ability = getDefinable(
-                  Ability,
-                  instakillFinishEvent.abilityID,
-                );
+              case CombatEventType.InstakillFinish: {
+                const instakillFinishEvent: CombatInstakillFinishEvent =
+                  eventInstance.event as CombatInstakillFinishEvent;
+                if (
+                  typeof instakillFinishEvent.target.battlerID === "undefined"
+                ) {
+                  throw new Error(
+                    "No instakill finish event target battler ID",
+                  );
+                }
                 if (
                   definableExists(
                     Battler,
@@ -370,20 +434,14 @@ export const tick = (): void => {
                   );
                   battler.resources.hp = 0;
                 }
-                playAudioSource(ability.impactInstakillAudioPath, {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
                 break;
               }
-              case BattleEventType.Miss: {
-                playAudioSource("sfx/actions/miss", {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
-                break;
-              }
-              case BattleEventType.PoisonStart: {
-                const poisonStartEvent: BattlePoisonStartEvent =
-                  eventInstance.event as BattlePoisonStartEvent;
+              case CombatEventType.PoisonStart: {
+                const poisonStartEvent: CombatPoisonStartEvent =
+                  eventInstance.event as CombatPoisonStartEvent;
+                if (typeof poisonStartEvent.target.battlerID === "undefined") {
+                  throw new Error("No poison start event target battler ID");
+                }
                 if (
                   definableExists(Battler, poisonStartEvent.target.battlerID)
                 ) {
@@ -393,18 +451,14 @@ export const tick = (): void => {
                   );
                   battler.poison = { order: poisonStartEvent.target.order };
                 }
-                playAudioSource("sfx/actions/impact/poison-tick", {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
                 break;
               }
-              case BattleEventType.Rejuvenate: {
-                const rejuvenateEvent: BattleRejuvenateEvent =
-                  eventInstance.event as BattleRejuvenateEvent;
-                const ability: Ability = getDefinable(
-                  Ability,
-                  rejuvenateEvent.abilityID,
-                );
+              case CombatEventType.Rejuvenate: {
+                const rejuvenateEvent: CombatRejuvenateEvent =
+                  eventInstance.event as CombatRejuvenateEvent;
+                if (typeof rejuvenateEvent.target.battlerID === "undefined") {
+                  throw new Error("No rejuvenate event target battler ID");
+                }
                 if (
                   definableExists(Battler, rejuvenateEvent.target.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -430,18 +484,18 @@ export const tick = (): void => {
                     battler.resources.mp + rejuvenateEvent.amount,
                   );
                 }
-                playAudioSource(ability.impactAudioPath, {
-                  volumeChannelID: sfxVolumeChannelID,
-                });
                 break;
               }
-              case BattleEventType.UseAbility: {
-                const useAbilityEvent: BattleUseAbilityEvent =
-                  eventInstance.event as BattleUseAbilityEvent;
+              case CombatEventType.UseAbility: {
+                const useAbilityEvent: CombatUseAbilityEvent =
+                  eventInstance.event as CombatUseAbilityEvent;
                 const ability: Ability = getDefinable(
                   Ability,
                   useAbilityEvent.abilityID,
                 );
+                if (typeof useAbilityEvent.caster.battlerID === "undefined") {
+                  throw new Error("No use ability event caster battler ID");
+                }
                 if (
                   definableExists(Battler, useAbilityEvent.caster.battlerID) &&
                   state.values.battleState.values.friendlyBattlerIDs.includes(
@@ -476,25 +530,10 @@ export const tick = (): void => {
                     }
                   }
                 }
-                if (ability.hasChargeAudioPath()) {
-                  playAudioSource(ability.chargeAudioPath, {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                }
-                break;
-              }
-              case BattleEventType.UseItem: {
-                const useItemEvent: BattleUseItemEvent =
-                  eventInstance.event as BattleUseItemEvent;
-                const item: Item = getDefinable(Item, useItemEvent.itemID);
-                if (item.ability.hasChargeAudioPath()) {
-                  playAudioSource(item.ability.chargeAudioPath, {
-                    volumeChannelID: sfxVolumeChannelID,
-                  });
-                }
                 break;
               }
             }
+            playCombatEventSFX(eventInstance.event);
             eventInstance.isProcessed = true;
           }
           if (

@@ -3,12 +3,12 @@ import {
   BattleBindItemUpdate,
   BattleCancelSubmittedMoveUpdate,
   BattleEndRoundUpdate,
-  BattleEvent,
   BattlePhase,
   BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
   BattleSubmitItemUpdate,
   BattleUnbindHotkeyUpdate,
+  CombatEvent,
   ItemInstanceUpdate,
 } from "retrommo-types";
 import { BattleCharacter } from "../../../classes/BattleCharacter";
@@ -188,8 +188,8 @@ export const listenForBattleUpdates = (): void => {
         round: {
           duration: update.round.duration,
           eventInstances: update.round.events.map(
-            (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
-              event: battleEvent,
+            (combatEvent: CombatEvent): BattleStateRoundEventInstance => ({
+              event: combatEvent,
               isProcessed: false,
             }),
           ),

@@ -1,10 +1,10 @@
-import { BattleEvent, BattlePhase, BattleType } from "retrommo-types";
 import {
   BattleMenuState,
   BattleStateHotkey,
   BattleStateRoundEventInstance,
   BattleStateSchema,
 } from "../../state";
+import { BattlePhase, BattleType, CombatEvent } from "retrommo-types";
 import { DefinableReference } from "definables";
 import { HUDElementReferences, State } from "pixel-pigeon";
 
@@ -13,7 +13,7 @@ export interface CreateBattleStateOptionsSelection {
 }
 export interface CreateBattleStateOptionsRound {
   readonly duration: number;
-  readonly events: readonly BattleEvent[];
+  readonly events: readonly CombatEvent[];
   readonly isFinal: boolean;
   readonly serverTime: number;
 }
@@ -78,8 +78,8 @@ export const createBattleState = ({
         ? {
             duration: round.duration,
             eventInstances: round.events.map(
-              (battleEvent: BattleEvent): BattleStateRoundEventInstance => ({
-                event: battleEvent,
+              (combatEvent: CombatEvent): BattleStateRoundEventInstance => ({
+                event: combatEvent,
                 isProcessed: false,
               }),
             ),

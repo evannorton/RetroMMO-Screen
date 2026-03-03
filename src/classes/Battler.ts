@@ -1,5 +1,5 @@
 import { BattleCharacter } from "./BattleCharacter";
-import { BattlerType } from "retrommo-types";
+import { CombatantType } from "retrommo-types";
 import { Definable, getDefinable } from "definables";
 import { Monster } from "./Monster";
 
@@ -37,7 +37,7 @@ export interface BattlerOptions {
   readonly poison?: BattlerOptionsPoison;
   readonly monsterID?: string;
   readonly resources?: BattlerOptionsResources;
-  readonly type: BattlerType;
+  readonly type: CombatantType;
 }
 export class Battler extends Definable {
   private readonly _battleCharacterID?: string;
@@ -47,7 +47,7 @@ export class Battler extends Definable {
   private readonly _monsterID?: string;
   private _poison: BattlerPoison | null;
   private _resources: BattlerResources | null;
-  private readonly _type: BattlerType;
+  private readonly _type: CombatantType;
   public constructor(id: string, options: BattlerOptions) {
     super(id);
     this._battleCharacterID = options.battleCharacterID;
@@ -78,12 +78,12 @@ export class Battler extends Definable {
     this._monsterID = options.monsterID;
     this._type = options.type;
     switch (options.type) {
-      case BattlerType.Player:
+      case CombatantType.Player:
         if (typeof this._battleCharacterID === "undefined") {
           throw new Error("Player must have a battleCharacterID");
         }
         break;
-      case BattlerType.Monster:
+      case CombatantType.Monster:
         if (typeof this._monsterID === "undefined") {
           throw new Error("Monster must have a monsterID");
         }
@@ -148,7 +148,7 @@ export class Battler extends Definable {
     throw new Error(this.getAccessorErrorMessage("resources"));
   }
 
-  public get type(): BattlerType {
+  public get type(): CombatantType {
     return this._type;
   }
 

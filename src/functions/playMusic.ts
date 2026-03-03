@@ -1,5 +1,5 @@
-import { BattleDefeatEvent, BattleEventType, BattleType } from "retrommo-types";
 import { BattleStateRoundEventInstance, state } from "../state";
+import { BattleType, CombatDefeatEvent, CombatEventType } from "retrommo-types";
 import { Encounter } from "../classes/Encounter";
 import { MusicTrack } from "../classes/MusicTrack";
 import { Reachable } from "../classes/Reachable";
@@ -37,16 +37,16 @@ const getMusicPlayData = (): MusicPlayData | null => {
         state.values.battleState.values.round.serverTime;
       const eventInstance: BattleStateRoundEventInstance | undefined =
         state.values.battleState.values.round.eventInstances.find(
-          (battleEventInstance: BattleStateRoundEventInstance): boolean =>
-            elapsedServerTime >= battleEventInstance.event.startedAt &&
-            battleEventInstance.isProcessed === false,
+          (combatEventInstance: BattleStateRoundEventInstance): boolean =>
+            elapsedServerTime >= combatEventInstance.event.startedAt &&
+            combatEventInstance.isProcessed === false,
         );
       if (
         typeof eventInstance !== "undefined" &&
-        eventInstance.event.type === BattleEventType.Defeat
+        eventInstance.event.type === CombatEventType.Defeat
       ) {
-        const defeatEvent: BattleDefeatEvent =
-          eventInstance.event as BattleDefeatEvent;
+        const defeatEvent: CombatDefeatEvent =
+          eventInstance.event as CombatDefeatEvent;
         if (
           defeatEvent.winningTeamIndex ===
           state.values.battleState.values.teamIndex

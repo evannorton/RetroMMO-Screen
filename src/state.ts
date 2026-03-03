@@ -1,7 +1,7 @@
 import {
-  BattleEvent,
   BattlePhase,
   BattleType,
+  CombatEvent,
   Constants,
   Direction,
 } from "retrommo-types";
@@ -43,6 +43,15 @@ export interface MainMenuStateSchema {
   readonly characterSelectState: State<MainMenuCharacterSelectStateSchema> | null;
   readonly mainMenuCharacterIDs: readonly string[];
 }
+export interface WorldStateCombatRoundEventInstance {
+  readonly event: CombatEvent;
+  isProcessed: boolean;
+}
+export interface WorldStateCombatRound {
+  readonly duration: number;
+  readonly eventInstances: readonly WorldStateCombatRoundEventInstance[];
+  readonly serverTime: number;
+}
 export interface WorldStateSchema {
   readonly agility: number;
   readonly bagItemInstanceIDs: readonly string[];
@@ -51,6 +60,7 @@ export interface WorldStateSchema {
   readonly bodyItemInstanceID: string | null;
   readonly boostItemInstanceIDs: readonly string[];
   readonly clothesDyeItemInstanceID: string | null;
+  readonly combatRound: WorldStateCombatRound | null;
   readonly defense: number;
   readonly experienceUntilLevel: number | null;
   readonly hairDyeItemInstanceID: string | null;
@@ -73,7 +83,7 @@ export interface WorldStateSchema {
   readonly worldCharacterID: string;
 }
 export interface BattleStateRoundEventInstance {
-  readonly event: BattleEvent;
+  readonly event: CombatEvent;
   isProcessed: boolean;
 }
 export interface BattleStateRound {

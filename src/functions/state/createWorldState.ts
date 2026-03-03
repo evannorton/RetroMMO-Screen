@@ -1,5 +1,5 @@
 import { State, getCurrentTime } from "pixel-pigeon";
-import { WorldStateSchema } from "../../state";
+import { WorldStateCombatRound, WorldStateSchema } from "../../state";
 
 export interface CreateWorldStateOptions {
   readonly agility: number;
@@ -9,6 +9,7 @@ export interface CreateWorldStateOptions {
   readonly bodyItemInstanceID?: string;
   readonly boostItemInstanceIDs: readonly string[];
   readonly clothesDyeItemInstanceID?: string;
+  readonly combatRound?: WorldStateCombatRound;
   readonly defense: number;
   readonly experienceUntilLevel?: number;
   readonly hairDyeItemInstanceID?: string;
@@ -34,6 +35,7 @@ export const createWorldState = ({
   bodyItemInstanceID,
   boostItemInstanceIDs,
   clothesDyeItemInstanceID,
+  combatRound,
   defense,
   experienceUntilLevel,
   hairDyeItemInstanceID,
@@ -59,6 +61,7 @@ export const createWorldState = ({
     bodyItemInstanceID: bodyItemInstanceID ?? null,
     boostItemInstanceIDs,
     clothesDyeItemInstanceID: clothesDyeItemInstanceID ?? null,
+    combatRound: combatRound ?? null,
     defense,
     experienceUntilLevel: experienceUntilLevel ?? null,
     hairDyeItemInstanceID: hairDyeItemInstanceID ?? null,

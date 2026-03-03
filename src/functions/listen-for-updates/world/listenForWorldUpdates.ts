@@ -1,6 +1,7 @@
 import { Ability } from "../../../classes/Ability";
 import {
   BattlePhase,
+  CombatEvent,
   Direction,
   ItemInstanceUpdate,
   MarkerType,
@@ -52,7 +53,11 @@ import {
 } from "pixel-pigeon";
 import { Transport } from "../../../classes/Transport";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
-import { WorldStateSchema, state } from "../../../state";
+import {
+  WorldStateCombatRoundEventInstance,
+  WorldStateSchema,
+  state,
+} from "../../../state";
 import { addWorldCharacterEmote } from "../../addWorldCharacterEmote";
 import { addWorldCharacterMarker } from "../../addWorldCharacterMarker";
 import { bagFullWorldMenu } from "../../../world-menus/bagFullWorldMenu";
@@ -146,20 +151,17 @@ export const listenForWorldUpdates = (): void => {
           (itemInstanceUpdate: ItemInstanceUpdate): string =>
             itemInstanceUpdate.itemInstanceID,
         ),
+        combatRound: {
+          duration: update.round.duration,
+          eventInstances: update.round.events.map(
+            (combatEvent: CombatEvent): WorldStateCombatRoundEventInstance => ({
+              event: combatEvent,
+              isProcessed: false,
+            }),
+          ),
+          serverTime: update.round.serverTime,
+        },
       });
-      for (const worldCombatCharacter of update.worldCombatCharacters) {
-        const worldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          worldCombatCharacter.characterID,
-        );
-        worldCharacter.isRenewing = worldCombatCharacter.isRenewing ?? false;
-        worldCharacter.resources = {
-          hp: worldCombatCharacter.resources.hp,
-          maxHP: worldCombatCharacter.resources.maxHP,
-          maxMP: worldCombatCharacter.resources.maxMP ?? null,
-          mp: worldCombatCharacter.resources.mp ?? null,
-        };
-      }
       if (
         spellbookWorldMenu.isOpen() &&
         spellbookWorldMenu.state.values.isAwaitingWorldCombat

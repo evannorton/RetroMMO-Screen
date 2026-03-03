@@ -1,12 +1,13 @@
 import { Monster } from "../../classes/Monster";
 import { MonsterNameData } from "retrommo-types/lib/MonsterNameData";
 import { getDefinable } from "definables";
+import { getFormattedInteger } from "../getFormattedInteger";
 
-export interface GetBattlerNameOptions {
+export interface GetCombatantNameOptions {
   readonly monsterName?: MonsterNameData;
   readonly username?: string;
 }
-export const getBattlerName = (options: GetBattlerNameOptions): string => {
+export const getCombatantName = (options: GetCombatantNameOptions): string => {
   if (typeof options.username !== "undefined") {
     return options.username;
   }
@@ -18,7 +19,9 @@ export const getBattlerName = (options: GetBattlerNameOptions): string => {
     if (options.monsterName.count === 1) {
       return monster.name;
     }
-    return `${monster.name}-${options.monsterName.index + 1}`;
+    return `${monster.name}-${getFormattedInteger(
+      options.monsterName.index + 1,
+    )}`;
   }
   throw new Error("Either monsterName or username must be provided.");
 };

@@ -1,5 +1,5 @@
 import { Battler } from "../../classes/Battler";
-import { BattlerType, MonsterNameData } from "retrommo-types";
+import { CombatantType, MonsterNameData } from "retrommo-types";
 import { getDefinable } from "definables";
 
 export const getBattlerMonsterNameData = (
@@ -13,7 +13,7 @@ export const getBattlerMonsterNameData = (
     )
     .filter(
       (teamBattler: Battler): boolean =>
-        teamBattler.type === BattlerType.Monster &&
+        teamBattler.type === CombatantType.Monster &&
         teamBattler.monsterID === battler.monsterID,
     );
   const count: number = sameMonstersOnTeam.length;

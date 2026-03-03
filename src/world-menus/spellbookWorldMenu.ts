@@ -333,17 +333,6 @@ export const spellbookWorldMenu: WorldMenu<
                   isAwaitingWorldCombat: true,
                 });
                 break;
-              case TargetType.Self:
-                emitToSocketioServer<WorldUseAbilityRequest>({
-                  data: {
-                    abilityID: ability.id,
-                  },
-                  event: "world/use-ability",
-                });
-                spellbookWorldMenu.state.setValues({
-                  isAwaitingWorldCombat: true,
-                });
-                break;
               case TargetType.SingleAlly:
                 spellbookWorldMenu.state.setValues({
                   startedTargetingAt: getCurrentTime(),
