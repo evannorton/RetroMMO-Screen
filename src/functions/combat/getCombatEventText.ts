@@ -1,11 +1,11 @@
 import { Ability } from "../../classes/Ability";
 import { BattleStateSchema } from "../../state";
 import { Battler } from "../../classes/Battler";
-import { Boost } from "../../classes/Boost";
 import {
   CombatAmbushEvent,
   CombatBleedStartEvent,
   CombatBoostEvent,
+  CombatBoostFailureEvent,
   CombatDamageEvent,
   CombatDeathEvent,
   CombatDefeatEvent,
@@ -67,7 +67,7 @@ export const getCombatEventText = (
     case CombatEventType.BleedStart: {
       const bleedStartCombatEvent: CombatBleedStartEvent =
         combatEvent as CombatBleedStartEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: bleedStartCombatEvent.target.monsterName,
         username: bleedStartCombatEvent.target.username,
       });
@@ -75,16 +75,19 @@ export const getCombatEventText = (
         trims: [
           {
             index: 0,
-            length: battlerName.length,
+            length: combatantName.length,
           },
         ],
-        value: `${battlerName} begins to bleed.`,
+        value: `${combatantName} begins to bleed.`,
       };
     }
     case CombatEventType.Boost: {
       const boostCombatEvent: CombatBoostEvent =
         combatEvent as CombatBoostEvent;
-      const boost: Boost = getDefinable(Boost, boostCombatEvent.boostID);
+      const ability: Ability = getDefinable(
+        Ability,
+        boostCombatEvent.abilityID,
+      );
       return {
         trims: [
           {
@@ -93,8 +96,25 @@ export const getCombatEventText = (
           },
         ],
         value: `${boostCombatEvent.username} gains ${getFormattedInteger(
-          boost.amount,
-        )} ${getStatName(boost.stat)}.`,
+          ability.boost.amount,
+        )} ${getStatName(ability.boost.stat)}.`,
+      };
+    }
+    case CombatEventType.BoostFailure: {
+      const boostFailureCombatEvent: CombatBoostFailureEvent =
+        combatEvent as CombatBoostFailureEvent;
+      const combatantName: string = boostFailureCombatEvent.username;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [
+        {
+          index: value.length,
+          length: combatantName.length,
+        },
+      ];
+      value += `${combatantName} already has the maximum amount of boosts.`;
+      return {
+        trims,
+        value,
       };
     }
     case CombatEventType.Crit: {
@@ -108,7 +128,7 @@ export const getCombatEventText = (
       const damageAmount: string = getFormattedInteger(
         damageCombatEvent.amount,
       );
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: damageCombatEvent.target.monsterName,
         username: damageCombatEvent.target.username,
       });
@@ -124,10 +144,10 @@ export const getCombatEventText = (
       if (typeof damageCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
-      const value: string = `${battlerName} ${verb} ${damageAmount} damage.`;
+      const value: string = `${combatantName} ${verb} ${damageAmount} damage.`;
       return {
         trims,
         value,
@@ -136,7 +156,7 @@ export const getCombatEventText = (
     case CombatEventType.Death: {
       const deathCombatEvent: CombatDeathEvent =
         combatEvent as CombatDeathEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: deathCombatEvent.target.monsterName,
         username: deathCombatEvent.target.username,
       });
@@ -144,12 +164,12 @@ export const getCombatEventText = (
       if (typeof deathCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
       return {
         trims,
-        value: `${battlerName} is defeated!`,
+        value: `${combatantName} is defeated!`,
       };
     }
     case CombatEventType.Defeat: {
@@ -201,7 +221,7 @@ export const getCombatEventText = (
     case CombatEventType.FriendlyTargetFailure: {
       const friendlyTargetFailureCombatEvent: CombatFriendlyTargetFailureEvent =
         combatEvent as CombatFriendlyTargetFailureEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: friendlyTargetFailureCombatEvent.target.monsterName,
         username: friendlyTargetFailureCombatEvent.target.username,
       });
@@ -212,10 +232,10 @@ export const getCombatEventText = (
       ) {
         trims.push({
           index: value.length,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
-      value += `${battlerName} is defeated.`;
+      value += `${combatantName} is defeated.`;
       return {
         trims,
         value,
@@ -258,7 +278,7 @@ export const getCombatEventText = (
     case CombatEventType.Heal: {
       const damageCombatEvent: CombatDamageEvent =
         combatEvent as CombatDamageEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: damageCombatEvent.target.monsterName,
         username: damageCombatEvent.target.username,
       });
@@ -266,12 +286,12 @@ export const getCombatEventText = (
       if (typeof damageCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
       return {
         trims,
-        value: `${battlerName} recovers ${getFormattedInteger(
+        value: `${combatantName} recovers ${getFormattedInteger(
           damageCombatEvent.amount,
         )} HP.`,
       };
@@ -279,7 +299,7 @@ export const getCombatEventText = (
     case CombatEventType.Instakill: {
       const instakillCombatEvent: CombatInstakillEvent =
         combatEvent as CombatInstakillEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: instakillCombatEvent.target.monsterName,
         username: instakillCombatEvent.target.username,
       });
@@ -287,18 +307,18 @@ export const getCombatEventText = (
       if (typeof instakillCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
       return {
         trims,
-        value: `${battlerName} is drawn into the light.`,
+        value: `${combatantName} is drawn into the light.`,
       };
     }
     case CombatEventType.InstakillFinish: {
       const instakillFinishCombatEvent: CombatInstakillFinishEvent =
         combatEvent as CombatInstakillFinishEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: instakillFinishCombatEvent.target.monsterName,
         username: instakillFinishCombatEvent.target.username,
       });
@@ -306,12 +326,12 @@ export const getCombatEventText = (
       if (typeof instakillFinishCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
       return {
         trims,
-        value: `${battlerName} is drawn into the light.`,
+        value: `${combatantName} is drawn into the light.`,
       };
     }
     case CombatEventType.InventoryFull: {
@@ -394,7 +414,7 @@ export const getCombatEventText = (
     case CombatEventType.PoisonStart: {
       const poisonStartCombatEvent: CombatPoisonStartEvent =
         combatEvent as CombatPoisonStartEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: poisonStartCombatEvent.target.monsterName,
         username: poisonStartCombatEvent.target.username,
       });
@@ -402,16 +422,16 @@ export const getCombatEventText = (
         trims: [
           {
             index: 0,
-            length: battlerName.length,
+            length: combatantName.length,
           },
         ],
-        value: `${battlerName} begins to sicken.`,
+        value: `${combatantName} begins to sicken.`,
       };
     }
     case CombatEventType.Rejuvenate: {
       const rejuvenateEvent: CombatRejuvenateEvent =
         combatEvent as CombatRejuvenateEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: rejuvenateEvent.target.monsterName,
         username: rejuvenateEvent.target.username,
       });
@@ -419,12 +439,12 @@ export const getCombatEventText = (
       if (typeof rejuvenateEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
       return {
         trims,
-        value: `${battlerName} recovers ${getFormattedInteger(
+        value: `${combatantName} recovers ${getFormattedInteger(
           rejuvenateEvent.amount,
         )} MP.`,
       };
@@ -432,7 +452,7 @@ export const getCombatEventText = (
     case CombatEventType.RejuvenateFailure: {
       const friendlyTargetFailureCombatEvent: CombatFriendlyTargetFailureEvent =
         combatEvent as CombatFriendlyTargetFailureEvent;
-      const battlerName: string = getCombatantName({
+      const combatantName: string = getCombatantName({
         monsterName: friendlyTargetFailureCombatEvent.target.monsterName,
         username: friendlyTargetFailureCombatEvent.target.username,
       });
@@ -443,10 +463,10 @@ export const getCombatEventText = (
       ) {
         trims.push({
           index: value.length,
-          length: battlerName.length,
+          length: combatantName.length,
         });
       }
-      value += `${battlerName} does not use MP.`;
+      value += `${combatantName} does not use MP.`;
       return {
         trims,
         value,

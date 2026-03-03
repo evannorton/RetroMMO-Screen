@@ -1,6 +1,7 @@
 import { Ability } from "../../classes/Ability";
 import { Battler } from "../../classes/Battler";
 import {
+  CombatBoostEvent,
   CombatDamageEvent,
   CombatDeathEvent,
   CombatEvent,
@@ -24,6 +25,14 @@ const getCombatEventSFXAudioPath = (
   switch (combatEvent.type) {
     case CombatEventType.BleedStart: {
       return "sfx/actions/impact/bleed-tick";
+    }
+    case CombatEventType.Boost: {
+      const boostEvent: CombatBoostEvent = combatEvent as CombatBoostEvent;
+      const ability: Ability = getDefinable(Ability, boostEvent.abilityID);
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.BoostFailure: {
+      return "sfx/fail";
     }
     case CombatEventType.Damage: {
       const damageEvent: CombatDamageEvent = combatEvent as CombatDamageEvent;
