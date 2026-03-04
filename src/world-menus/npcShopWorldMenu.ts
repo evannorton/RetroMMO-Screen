@@ -25,6 +25,7 @@ import { createImage } from "../functions/ui/components/createImage";
 import { createItemDisplay } from "../functions/ui/components/createItemDisplay";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { getConstants } from "../functions/getConstants";
+import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getWorldState } from "../functions/state/getWorldState";
@@ -112,6 +113,28 @@ export const npcShopWorldMenu: WorldMenu<
       npcShopWorldMenu.state.values.tab === NPCShopTab.Buy;
     const sellTabCondition = (): boolean =>
       npcShopWorldMenu.state.values.tab === NPCShopTab.Sell;
+    const getBuyLastPage = (): number =>
+      Math.max(0, Math.ceil(npc.shop.shopItems.length / buyItemsPerPage) - 1);
+    const isBuyPaginated = (): boolean =>
+      npc.shop.shopItems.length > buyItemsPerPage;
+    const setBuyPage = (page: number): void => {
+      npcShopWorldMenu.state.setValues({
+        buyPage: page,
+        selectedBuyIndex: null,
+      });
+    };
+    const pageBuy = (offset: number): void => {
+      const pages: number[] = [];
+      for (let i: number = 0; i < getBuyLastPage() + 1; i++) {
+        pages.push(i);
+      }
+      setBuyPage(
+        getCyclicIndex(
+          pages.indexOf(npcShopWorldMenu.state.values.buyPage) + offset,
+          pages,
+        ),
+      );
+    };
     const selectedItemDisplayCondition = (): boolean =>
       condition() &&
       (hasSelectedBuyShopItem() || hasSelectedSellItemInstance());
@@ -350,6 +373,52 @@ export const npcShopWorldMenu: WorldMenu<
         }),
       );
     }
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          condition() && buyTabCondition() && isBuyPaginated(),
+        height: 14,
+        imagePath: "arrows/left",
+        onClick: (): void => {
+          pageBuy(-1);
+        },
+        width: 14,
+        x: 190,
+        y: 176,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          condition() && buyTabCondition() && isBuyPaginated(),
+        height: 14,
+        imagePath: "arrows/right",
+        onClick: (): void => {
+          pageBuy(1);
+        },
+        width: 14,
+        x: 275,
+        y: 176,
+      }),
+    );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            condition() && buyTabCondition() && isBuyPaginated(),
+          x: 296,
+          y: 193,
+        },
+        horizontalAlignment: "right",
+        maxLines: 1,
+        maxWidth: gameWidth,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: String(npcShopWorldMenu.state.values.buyPage + 1),
+        }),
+      }),
+    );
     hudElementReferences.push(
       createItemDisplay({
         buttons: [
