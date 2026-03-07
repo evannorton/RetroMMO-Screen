@@ -425,10 +425,13 @@ export const npcShopWorldMenu: WorldMenu<
           {
             condition: (): boolean => {
               if (hasSelectedBuyShopItem()) {
-                return (
+                const hasEnoughGold: boolean =
                   worldState.values.inventoryGold >=
-                  getSelectedBuyShopItem().cost
-                );
+                  getSelectedBuyShopItem().cost;
+                const isInventoryFull: boolean =
+                  worldState.values.bagItemInstanceIDs.length >=
+                  maximumBagItems;
+                return hasEnoughGold && isInventoryFull === false;
               }
               return false;
             },
