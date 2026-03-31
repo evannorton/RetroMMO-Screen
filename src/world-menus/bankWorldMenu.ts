@@ -346,7 +346,7 @@ export const bankWorldMenu: WorldMenu<
             coordinates: {
               condition: vaultCondition,
               x: 102,
-              y: 72 + key * 18,
+              y: 70 + key * 18,
             },
             horizontalAlignment: "right",
             maxLines: 1,
@@ -476,7 +476,7 @@ export const bankWorldMenu: WorldMenu<
             coordinates: {
               condition: vaultCondition,
               x: 246,
-              y: 72 + key * 18,
+              y: 70 + key * 18,
             },
             horizontalAlignment: "right",
             maxLines: 1,
