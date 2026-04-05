@@ -7,7 +7,7 @@ export const battleImpactAnimationDuration: number = 1500 / 2 / 8;
 export const battleItemsPerPage: number = 5;
 export const chestOpenDuration: number = 267 / 2;
 export const emotesPerPage: number = 25;
-export const grayColors: readonly Color[] = [
+export const grayColors: Color[] = [
   Color.Black,
   Color.MostlyBlackGray,
   Color.VeryDarkGray,

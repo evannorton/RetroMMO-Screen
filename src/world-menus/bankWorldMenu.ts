@@ -1009,7 +1009,7 @@ export const bankWorldMenu: WorldMenu<
     vaultDepositQueuedGold: 0,
     vaultWithdrawQueuedGold: 0,
   },
-  onClose: (openOptions?: BankWorldMenuOpenOptions): void => {
+  onClose: (openOptions?: BankWorldMenuOpenOptions): boolean => {
     if (typeof openOptions === "undefined") {
       throw new Error("No open options");
     }
@@ -1019,6 +1019,7 @@ export const bankWorldMenu: WorldMenu<
     playAudioSource("sfx/close-chest", {
       volumeChannelID: sfxVolumeChannelID,
     });
+    return true;
   },
   preventsWalking: true,
 });

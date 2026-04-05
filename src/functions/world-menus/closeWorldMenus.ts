@@ -3,7 +3,7 @@ import { getDefinables } from "definables";
 
 export const closeWorldMenus = (): void => {
   getDefinables(WorldMenu).forEach(
-    (worldMenu: WorldMenu<unknown, unknown>): void => {
+    (worldMenu: WorldMenu<unknown, object>): void => {
       if (worldMenu.isOpen()) {
         worldMenu.close();
       }

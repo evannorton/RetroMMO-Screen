@@ -1,0 +1,827 @@
+import {
+  Color,
+  WorldTradeAcceptRequest,
+  WorldTradeCancelRequest,
+  WorldTradeIdentifyGoldRequest,
+  WorldTradeOfferGoldRequest,
+  WorldTradeUnacceptRequest,
+  WorldTradeUnofferGoldRequest,
+} from "retrommo-types";
+import {
+  CreateLabelOptionsText,
+  HUDElementReferences,
+  State,
+  createButton,
+  createLabel,
+  createSprite,
+  emitToSocketioServer,
+  mergeHUDElementReferences,
+} from "pixel-pigeon";
+import { ItemInstance } from "../classes/ItemInstance";
+import { WorldCharacter } from "../classes/WorldCharacter";
+import { WorldMenu } from "../classes/WorldMenu";
+import { WorldStateSchema } from "../state";
+import { createIconListItem } from "../functions/ui/components/createIconListItem";
+import { createImage } from "../functions/ui/components/createImage";
+import { createItemDisplay } from "../functions/ui/components/createItemDisplay";
+import { createPanel } from "../functions/ui/components/createPanel";
+import { createPressableButton } from "../functions/ui/components/createPressableButton";
+import { createSlot } from "../functions/ui/components/createSlot";
+import { getConstants } from "../functions/getConstants";
+import { getDefinable } from "definables";
+import { getFormattedInteger } from "../functions/getFormattedInteger";
+import { getWorldState } from "../functions/state/getWorldState";
+import { grayColors } from "../constants";
+
+enum TradeTab {
+  Items = "items",
+  Gold = "gold",
+}
+const tradeGoldIncrements: readonly number[] = [
+  1, 10, 100, 1000, 10000, 100000,
+];
+
+export interface TradeWorldMenuOpenOptions {
+  readonly hasAccepted?: boolean;
+  readonly hasTraderAccepted?: boolean;
+  readonly isOfferedGoldIdentified?: boolean;
+  readonly isTraderOfferedGoldIdentified?: boolean;
+  readonly offeredGold: number;
+  readonly traderOfferedGold: number;
+  readonly traderWorldCharacterID: string;
+}
+export interface TradeWorldMenuStateSchema {
+  hasAccepted: boolean;
+  hasTraderAccepted: boolean;
+  isFinishing: boolean;
+  isOfferedGoldIdentified: boolean;
+  isTraderOfferedGoldIdentified: boolean;
+  offeredGold: number;
+  offeredItemInstanceIDs: readonly string[];
+  queuedGold: number;
+  selectedOfferedItemIndex: number | null;
+  selectedBagItemIndex: number | null;
+  selectedTraderOfferedItemIndex: number | null;
+  tab: TradeTab;
+  traderOfferedGold: number;
+  traderOfferedItemInstanceIDs: readonly string[];
+}
+export const tradeWorldMenu: WorldMenu<
+  TradeWorldMenuOpenOptions,
+  TradeWorldMenuStateSchema
+> = new WorldMenu<TradeWorldMenuOpenOptions, TradeWorldMenuStateSchema>({
+  create: (options: TradeWorldMenuOpenOptions): HUDElementReferences => {
+    const buttonIDs: string[] = [];
+    const hudElementReferences: HUDElementReferences[] = [];
+    const labelIDs: string[] = [];
+    const spriteIDs: string[] = [];
+    const worldState: State<WorldStateSchema> = getWorldState();
+    const maximumBagItems: number = getConstants()["maximum-bag-items"];
+    const itemsTabCondition = (): boolean =>
+      tradeWorldMenu.state.values.tab === TradeTab.Items;
+    const goldTabCondition = (): boolean =>
+      tradeWorldMenu.state.values.tab === TradeTab.Gold;
+    const worldCharacter: WorldCharacter = getDefinable(
+      WorldCharacter,
+      worldState.values.worldCharacterID,
+    );
+    const traderWorldCharacter: WorldCharacter = getDefinable(
+      WorldCharacter,
+      options.traderWorldCharacterID,
+    );
+    // Bag panel
+    hudElementReferences.push(
+      createPanel({
+        height: 184,
+        imagePath: "panels/basic",
+        width: 128,
+        x: 176,
+        y: 24,
+      }),
+    );
+    // Trade panel
+    hudElementReferences.push(
+      createPanel({
+        height: 132,
+        imagePath: "panels/basic",
+        width: 176,
+        x: 0,
+        y: 0,
+      }),
+    );
+    // Username
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          x: 88,
+          y: 7,
+        },
+        horizontalAlignment: "center",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: worldCharacter.player.username,
+        }),
+      }),
+    );
+    // Description
+    labelIDs.push(
+      createLabel({
+        color: (): Color => {
+          if (
+            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false
+          ) {
+            return Color.BrightRed;
+          }
+          if (tradeWorldMenu.state.values.hasAccepted) {
+            return Color.StrongLimeGreen;
+          }
+          return Color.LightYellow;
+        },
+        coordinates: {
+          x: 164,
+          y: 18,
+        },
+        horizontalAlignment: "right",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => {
+          if (
+            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false
+          ) {
+            return { value: "Offer not identified" };
+          }
+          if (tradeWorldMenu.state.values.hasAccepted) {
+            return { value: "Accepted" };
+          }
+          return { value: "Not accepted" };
+        },
+      }),
+    );
+    // Offered items
+    for (let i: number = 0; i < maximumBagItems; i++) {
+      hudElementReferences.push(
+        createSlot({
+          button: {
+            onClick: (): void => {
+              if (tradeWorldMenu.state.values.selectedOfferedItemIndex === i) {
+                tradeWorldMenu.state.setValues({
+                  selectedOfferedItemIndex: null,
+                });
+              } else {
+                tradeWorldMenu.state.setValues({
+                  selectedOfferedItemIndex: i,
+                });
+              }
+            },
+          },
+          condition: (): boolean =>
+            i < tradeWorldMenu.state.values.offeredItemInstanceIDs.length,
+          icons: [],
+          imagePath: "slots/basic",
+          isSelected: (): boolean =>
+            tradeWorldMenu.state.values.selectedOfferedItemIndex === i,
+          x: 10 + i * 20,
+          y: 29,
+        }),
+      );
+    }
+    // Offered gold
+    hudElementReferences.push(
+      createSlot({
+        icons: [{ imagePath: "gold" }],
+        imagePath: "slots/basic",
+        x: 30,
+        y: 49,
+      }),
+    );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          x: 51,
+          y: 54,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: `${getFormattedInteger(
+            tradeWorldMenu.state.values.offeredGold,
+          )}g`,
+        }),
+      }),
+    );
+    // Cancel gold
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean => tradeWorldMenu.state.values.offeredGold > 0,
+        height: 11,
+        imagePath: "x",
+        onClick: (): void => {
+          emitToSocketioServer<WorldTradeUnofferGoldRequest>({
+            data: {
+              amount: tradeWorldMenu.state.values.offeredGold,
+            },
+            event: "world/trade/unoffer-gold",
+          });
+        },
+        width: 10,
+        x: 15,
+        y: 52,
+      }),
+    );
+    // Accept button
+    hudElementReferences.push(
+      createPressableButton({
+        condition: (): boolean =>
+          tradeWorldMenu.state.values.isTraderOfferedGoldIdentified &&
+          tradeWorldMenu.state.values.hasAccepted === false,
+        height: 16,
+        imagePath: "pressable-buttons/gray",
+        onClick: (): void => {
+          emitToSocketioServer<WorldTradeAcceptRequest>({
+            data: {},
+            event: "world/trade/accept",
+          });
+        },
+        text: (): CreateLabelOptionsText => ({ value: "Accept" }),
+        width: 48,
+        x: 118,
+        y: 49,
+      }),
+    );
+    // Cancel button
+    hudElementReferences.push(
+      createPressableButton({
+        condition: (): boolean => tradeWorldMenu.state.values.hasAccepted,
+        height: 16,
+        imagePath: "pressable-buttons/gray",
+        onClick: (): void => {
+          emitToSocketioServer<WorldTradeUnacceptRequest>({
+            data: {},
+            event: "world/trade/unaccept",
+          });
+        },
+        text: (): CreateLabelOptionsText => ({ value: "Cancel" }),
+        width: 48,
+        x: 118,
+        y: 49,
+      }),
+    );
+    // Trader username
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          x: 88,
+          y: 68,
+        },
+        horizontalAlignment: "center",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: traderWorldCharacter.player.username,
+        }),
+      }),
+    );
+    // Trader description
+    labelIDs.push(
+      createLabel({
+        color: (): Color => {
+          if (tradeWorldMenu.state.values.isOfferedGoldIdentified === false) {
+            return Color.BrightRed;
+          }
+          if (tradeWorldMenu.state.values.hasTraderAccepted) {
+            return Color.StrongLimeGreen;
+          }
+          return Color.LightYellow;
+        },
+        coordinates: {
+          x: 164,
+          y: 79,
+        },
+        horizontalAlignment: "right",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => {
+          if (tradeWorldMenu.state.values.isOfferedGoldIdentified === false) {
+            return { value: "Offer not identified" };
+          }
+          if (tradeWorldMenu.state.values.hasTraderAccepted) {
+            return { value: "Accepted" };
+          }
+          return { value: "Not accepted" };
+        },
+      }),
+    );
+    // Trader offered items
+    for (let i: number = 0; i < maximumBagItems; i++) {
+      hudElementReferences.push(
+        createSlot({
+          button: {
+            onClick: (): void => {
+              if (
+                tradeWorldMenu.state.values.selectedTraderOfferedItemIndex === i
+              ) {
+                tradeWorldMenu.state.setValues({
+                  selectedTraderOfferedItemIndex: null,
+                });
+              } else {
+                tradeWorldMenu.state.setValues({
+                  selectedTraderOfferedItemIndex: i,
+                });
+              }
+            },
+          },
+          condition: (): boolean =>
+            i < tradeWorldMenu.state.values.traderOfferedItemInstanceIDs.length,
+          icons: [],
+          imagePath: "slots/basic",
+          isSelected: (): boolean =>
+            tradeWorldMenu.state.values.selectedTraderOfferedItemIndex === i,
+          x: 10 + i * 20,
+          y: 90,
+        }),
+      );
+    }
+    // Trader offered gold
+    hudElementReferences.push(
+      createSlot({
+        button: {
+          condition: (): boolean =>
+            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false,
+          onClick: (): void => {
+            emitToSocketioServer<WorldTradeIdentifyGoldRequest>({
+              data: {
+                amount: tradeWorldMenu.state.values.traderOfferedGold,
+              },
+              event: "world/trade/identify-gold",
+            });
+          },
+        },
+        icons: [
+          {
+            imagePath: "gold",
+            palette: (): string[] =>
+              tradeWorldMenu.state.values.isTraderOfferedGoldIdentified
+                ? []
+                : grayColors,
+          },
+          {
+            condition: (): boolean =>
+              tradeWorldMenu.state.values.isTraderOfferedGoldIdentified ===
+              false,
+            imagePath: "unidentified",
+          },
+        ],
+        imagePath: "slots/basic",
+        x: 30,
+        y: 110,
+      }),
+    );
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified,
+          x: 51,
+          y: 115,
+        },
+        horizontalAlignment: "left",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: `${getFormattedInteger(
+            tradeWorldMenu.state.values.traderOfferedGold,
+          )}g`,
+        }),
+      }),
+    );
+    // Bag gold
+    labelIDs.push(
+      createLabel({
+        color: Color.LightYellow,
+        coordinates: {
+          x: 240,
+          y: 193,
+        },
+        horizontalAlignment: "center",
+        maxLines: 1,
+        maxWidth: 304,
+        size: 1,
+        text: (): CreateLabelOptionsText => ({
+          value: `${getFormattedInteger(
+            worldState.values.inventoryGold -
+              tradeWorldMenu.state.values.offeredGold,
+          )}g`,
+        }),
+      }),
+    );
+    // Selected offered item display
+    hudElementReferences.push(
+      createItemDisplay({
+        buttons: [
+          {
+            onClick: (): void => {
+              tradeWorldMenu.state.setValues({
+                selectedOfferedItemIndex: null,
+              });
+            },
+            text: "Remove",
+            width: 56,
+            x: 113,
+          },
+        ],
+        condition: (): boolean =>
+          tradeWorldMenu.state.values.selectedOfferedItemIndex !== null,
+        itemID: (): string => {
+          const index: number | null =
+            tradeWorldMenu.state.values.selectedOfferedItemIndex;
+          if (index === null) {
+            throw new Error("Selected offered item index is null");
+          }
+          const itemInstanceID: string | undefined =
+            tradeWorldMenu.state.values.offeredItemInstanceIDs[index];
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("Item instance ID not found");
+          }
+          const itemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            itemInstanceID,
+          );
+          return itemInstance.itemID;
+        },
+        onClose: (): void => {
+          tradeWorldMenu.state.setValues({
+            selectedOfferedItemIndex: null,
+          });
+        },
+      }),
+    );
+    // Selected trader offered item display
+    hudElementReferences.push(
+      createItemDisplay({
+        condition: (): boolean =>
+          tradeWorldMenu.state.values.selectedTraderOfferedItemIndex !== null,
+        itemID: (): string => {
+          const index: number | null =
+            tradeWorldMenu.state.values.selectedTraderOfferedItemIndex;
+          if (index === null) {
+            throw new Error("Selected trader offered item index is null");
+          }
+          const itemInstanceID: string | undefined =
+            tradeWorldMenu.state.values.traderOfferedItemInstanceIDs[index];
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("Item instance ID not found");
+          }
+          const itemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            itemInstanceID,
+          );
+          return itemInstance.itemID;
+        },
+        onClose: (): void => {
+          tradeWorldMenu.state.setValues({
+            selectedTraderOfferedItemIndex: null,
+          });
+        },
+      }),
+    );
+    // Bag tabs
+    spriteIDs.push(
+      createSprite({
+        animationID: (): string => {
+          switch (tradeWorldMenu.state.values.tab) {
+            case TradeTab.Items:
+              return "1";
+            case TradeTab.Gold:
+              return "2";
+          }
+        },
+        animations: [
+          {
+            frames: [
+              {
+                height: 21,
+                sourceHeight: 21,
+                sourceWidth: 124,
+                sourceX: 0,
+                sourceY: 0,
+                width: 124,
+              },
+            ],
+            id: "1",
+          },
+          {
+            frames: [
+              {
+                height: 21,
+                sourceHeight: 21,
+                sourceWidth: 124,
+                sourceX: 124,
+                sourceY: 0,
+                width: 124,
+              },
+            ],
+            id: "2",
+          },
+        ],
+        coordinates: {
+          x: 178,
+          y: 26,
+        },
+        imagePath: "tabs/2",
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        height: 16,
+        imagePath: "tab-icons/trade/items",
+        width: 16,
+        x: 197,
+        y: 29,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        height: 16,
+        imagePath: "tab-icons/trade/gold",
+        width: 16,
+        x: 250,
+        y: 29,
+      }),
+    );
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: (): boolean => itemsTabCondition() === false,
+          x: 179,
+          y: 27,
+        },
+        height: 20,
+        onClick: (): void => {
+          tradeWorldMenu.state.setValues({
+            selectedBagItemIndex: null,
+            tab: TradeTab.Items,
+          });
+        },
+        width: 52,
+      }),
+    );
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: (): boolean => goldTabCondition() === false,
+          x: 233,
+          y: 27,
+        },
+        height: 20,
+        onClick: (): void => {
+          tradeWorldMenu.state.setValues({
+            tab: TradeTab.Gold,
+          });
+        },
+        width: 51,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        height: 11,
+        imagePath: "x",
+        onClick: (): void => {
+          tradeWorldMenu.close();
+        },
+        width: 10,
+        x: 287,
+        y: 31,
+      }),
+    );
+    // Bag items
+    for (let i: number = 0; i < maximumBagItems; i++) {
+      const y: number = 49 + i * 18;
+      hudElementReferences.push(
+        createIconListItem({
+          condition: (): boolean =>
+            itemsTabCondition() &&
+            i < worldState.values.bagItemInstanceIDs.length,
+          icons: [
+            {
+              imagePath: (): string => {
+                const itemInstanceID: string | undefined =
+                  worldState.values.bagItemInstanceIDs[i];
+                if (typeof itemInstanceID === "undefined") {
+                  throw new Error("Item instance ID not found");
+                }
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  itemInstanceID,
+                );
+                return itemInstance.item.iconImagePath;
+              },
+            },
+          ],
+          isSelected: (): boolean =>
+            tradeWorldMenu.state.values.selectedBagItemIndex === i,
+          onClick: (): void => {
+            if (tradeWorldMenu.state.values.selectedBagItemIndex === i) {
+              tradeWorldMenu.state.setValues({
+                selectedBagItemIndex: null,
+              });
+            } else {
+              tradeWorldMenu.state.setValues({
+                selectedBagItemIndex: i,
+              });
+            }
+          },
+          slotImagePath: "slots/basic",
+          text: (): CreateLabelOptionsText => {
+            const itemInstanceID: string | undefined =
+              worldState.values.bagItemInstanceIDs[i];
+            if (typeof itemInstanceID === "undefined") {
+              throw new Error("Item instance ID not found");
+            }
+            const itemInstance: ItemInstance = getDefinable(
+              ItemInstance,
+              itemInstanceID,
+            );
+            return {
+              value: itemInstance.item.name,
+            };
+          },
+          width: 116,
+          x: 182,
+          y,
+        }),
+      );
+    }
+    // Selected bag item display
+    hudElementReferences.push(
+      createItemDisplay({
+        buttons: [
+          {
+            onClick: (): void => {},
+            text: "Offer",
+            width: 46,
+            x: 123,
+          },
+        ],
+        condition: (): boolean =>
+          itemsTabCondition() &&
+          tradeWorldMenu.state.values.selectedBagItemIndex !== null,
+        itemID: (): string => {
+          if (tradeWorldMenu.state.values.selectedBagItemIndex === null) {
+            throw new Error("Selected trade item index is null");
+          }
+          const itemInstanceID: string | undefined =
+            worldState.values.bagItemInstanceIDs[
+              tradeWorldMenu.state.values.selectedBagItemIndex
+            ];
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("Item instance ID not found");
+          }
+          const itemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            itemInstanceID,
+          );
+          return itemInstance.itemID;
+        },
+        onClose: (): void => {
+          tradeWorldMenu.state.setValues({
+            selectedBagItemIndex: null,
+          });
+        },
+      }),
+    );
+    // Bag gold controls (minus / amount / plus, aligned with bank deposit gold UI)
+    const tradeBagGoldPanelX: number = 176;
+    tradeGoldIncrements.forEach((increment: number, key: number): void => {
+      hudElementReferences.push(
+        createImage({
+          condition: goldTabCondition,
+          height: 10,
+          imagePath: "minus",
+          onClick: (): void => {
+            const current: number = tradeWorldMenu.state.values.queuedGold;
+            const next: number = Math.max(0, current - increment);
+            tradeWorldMenu.state.setValues({
+              queuedGold: next,
+            });
+          },
+          width: 10,
+          x: tradeBagGoldPanelX + 18,
+          y: 60 + key * 18,
+        }),
+      );
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: goldTabCondition,
+            x: tradeBagGoldPanelX + 86,
+            y: 62 + key * 18,
+          },
+          horizontalAlignment: "right",
+          maxLines: 1,
+          maxWidth: 304,
+          size: 1,
+          text: (): CreateLabelOptionsText => ({
+            value: getFormattedInteger(increment),
+          }),
+        }),
+      );
+      hudElementReferences.push(
+        createImage({
+          condition: goldTabCondition,
+          height: 10,
+          imagePath: "plus",
+          onClick: (): void => {
+            const queuedGold: number = Math.min(
+              tradeWorldMenu.state.values.queuedGold + increment,
+              worldState.values.inventoryGold -
+                tradeWorldMenu.state.values.offeredGold,
+            );
+            tradeWorldMenu.state.setValues({
+              queuedGold,
+            });
+          },
+          width: 10,
+          x: tradeBagGoldPanelX + 100,
+          y: 60 + key * 18,
+        }),
+      );
+    });
+    hudElementReferences.push(
+      createPressableButton({
+        condition: goldTabCondition,
+        height: 16,
+        imagePath: "pressable-buttons/gray",
+        onClick: (): void => {
+          const amount: number = tradeWorldMenu.state.values.queuedGold;
+          if (amount > 0) {
+            emitToSocketioServer<WorldTradeOfferGoldRequest>({
+              data: {
+                amount,
+              },
+              event: "world/trade/offer-gold",
+            });
+          }
+        },
+        text: (): CreateLabelOptionsText => ({
+          value: `Offer ${getFormattedInteger(
+            tradeWorldMenu.state.values.queuedGold,
+          )}g`,
+        }),
+        width: 112,
+        x: 184,
+        y: 169,
+      }),
+    );
+    return mergeHUDElementReferences([
+      {
+        buttonIDs,
+        labelIDs,
+        spriteIDs,
+      },
+      ...hudElementReferences,
+    ]);
+  },
+  initialStateValues: (
+    options: TradeWorldMenuOpenOptions,
+  ): TradeWorldMenuStateSchema => ({
+    hasAccepted: options.hasAccepted ?? false,
+    hasTraderAccepted: options.hasTraderAccepted ?? false,
+    isFinishing: false,
+    isOfferedGoldIdentified: options.isOfferedGoldIdentified ?? false,
+    isTraderOfferedGoldIdentified:
+      options.isTraderOfferedGoldIdentified ?? false,
+    offeredGold: options.offeredGold,
+    offeredItemInstanceIDs: [],
+    queuedGold: 0,
+    selectedBagItemIndex: null,
+    selectedOfferedItemIndex: null,
+    selectedTraderOfferedItemIndex: null,
+    tab: TradeTab.Gold,
+    traderOfferedGold: options.traderOfferedGold,
+    traderOfferedItemInstanceIDs: [],
+  }),
+  onClose: (): boolean => {
+    if (tradeWorldMenu.state.values.isFinishing) {
+      return true;
+    }
+    emitToSocketioServer<WorldTradeCancelRequest>({
+      data: {},
+      event: "world/trade/cancel",
+    });
+    return false;
+  },
+  preventsWalking: false,
+});

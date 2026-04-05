@@ -7,6 +7,7 @@ import {
   EnterPlayerUpdate,
   ExitPlayerUpdate,
   InitialUpdate,
+  InitialWorldTradeTraderUpdate,
   ItemInstanceUpdate,
   MainState,
   MarkerType,
@@ -74,6 +75,7 @@ import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
+import { tradeWorldMenu } from "../../world-menus/tradeWorldMenu";
 
 export const listenForUpdates = (): void => {
   listenForBattleUpdates();
@@ -696,7 +698,42 @@ export const listenForUpdates = (): void => {
             }
           }
           selectWorldCharacter(update.world.characterID);
-          break;
+          if (typeof update.world.trade !== "undefined") {
+            for (const trader of update.world.trade.traders) {
+              for (const itemInstanceUpdate of trader.offeredItemInstances) {
+                loadItemInstanceUpdate(itemInstanceUpdate);
+              }
+            }
+            const traderUpdate: InitialWorldTradeTraderUpdate | undefined =
+              update.world.trade.traders.find(
+                (tradeTrader: InitialWorldTradeTraderUpdate): boolean =>
+                  tradeTrader.worldCharacterID ===
+                  worldState.values.worldCharacterID,
+              );
+            if (typeof traderUpdate === "undefined") {
+              throw new Error("Trader not found");
+            }
+            const traderTraderUpdate:
+              | InitialWorldTradeTraderUpdate
+              | undefined = update.world.trade.traders.find(
+              (tradeTrader: InitialWorldTradeTraderUpdate): boolean =>
+                tradeTrader.worldCharacterID !==
+                worldState.values.worldCharacterID,
+            );
+            if (typeof traderTraderUpdate === "undefined") {
+              throw new Error("Trader not found");
+            }
+            tradeWorldMenu.open({
+              hasAccepted: traderUpdate.hasAccepted,
+              hasTraderAccepted: traderTraderUpdate.hasAccepted,
+              isOfferedGoldIdentified: traderUpdate.isGoldIdentified,
+              isTraderOfferedGoldIdentified:
+                traderTraderUpdate.isGoldIdentified,
+              offeredGold: traderUpdate.offeredGold,
+              traderOfferedGold: traderTraderUpdate.offeredGold,
+              traderWorldCharacterID: traderTraderUpdate.worldCharacterID,
+            });
+          }
         }
       }
       playMusic();

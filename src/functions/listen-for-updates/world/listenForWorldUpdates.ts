@@ -24,8 +24,6 @@ import {
   WorldPlayerBusyUpdate,
   WorldPositionUpdate,
   WorldStartBattleUpdate,
-  WorldTradeCompleteUpdate,
-  WorldTradeUpdate,
   WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
@@ -72,6 +70,7 @@ import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
 import { listenForWorldBankUpdates } from "./listenForWorldBankUpdates";
 import { listenForWorldQuestUpdates } from "./listenForWorldQuestUpdates";
 import { listenForWorldShopUpdates } from "./listenForWorldShopUpdates";
+import { listenForWorldTradeUpdates } from "./listenForWorldTradeUpdates";
 import { loadBattleCharacterUpdate } from "../../load-updates/loadBattleCharacterUpdate";
 import { loadBattlerUpdate } from "../../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
@@ -93,6 +92,7 @@ export const listenForWorldUpdates = (): void => {
   listenForWorldBankUpdates();
   listenForWorldQuestUpdates();
   listenForWorldShopUpdates();
+  listenForWorldTradeUpdates();
   listenToSocketioEvent<WorldBagFullUpdate>({
     event: "world/bag-full",
     onMessage: (): void => {
@@ -721,39 +721,6 @@ export const listenForWorldUpdates = (): void => {
         });
       }
       closeWorldMenus();
-    },
-  });
-  listenToSocketioEvent<WorldTradeUpdate>({
-    event: "world/trade",
-    onMessage: (): void => {
-      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
-        if (worldCharacter.hasMarkerEntity()) {
-          clearWorldCharacterMarker(worldCharacter.id);
-        }
-      }
-    },
-  });
-  listenToSocketioEvent<WorldTradeCompleteUpdate>({
-    event: "world/trade-complete",
-    onMessage: (update: WorldTradeCompleteUpdate): void => {
-      const worldState: State<WorldStateSchema> = getWorldState();
-      for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
-        const bagItemInstance: ItemInstance = getDefinable(
-          ItemInstance,
-          bagItemInstanceID,
-        );
-        bagItemInstance.remove();
-      }
-      for (const bagItemInstanceUpdate of update.bagItemInstances) {
-        loadItemInstanceUpdate(bagItemInstanceUpdate);
-      }
-      worldState.setValues({
-        bagItemInstanceIDs: update.bagItemInstances.map(
-          (itemInstanceUpdate: ItemInstanceUpdate): string =>
-            itemInstanceUpdate.itemInstanceID,
-        ),
-        inventoryGold: update.gold,
-      });
     },
   });
   listenToSocketioEvent<WorldTurnCharactersUpdate>({

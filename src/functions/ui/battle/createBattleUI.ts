@@ -1811,7 +1811,7 @@ export const createBattleUI = ({
             },
             palette: (): string[] => {
               if (canUseHotkey() === false) {
-                return [...grayColors];
+                return grayColors;
               }
               return [];
             },

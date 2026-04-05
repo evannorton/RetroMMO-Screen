@@ -1,4 +1,4 @@
-import { Color } from "retrommo-types";
+import { Color, Stat } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
@@ -19,9 +19,10 @@ import { getEquipmentSlotName } from "../../getEquipmentSlotName";
 import { getFormattedInteger } from "../../getFormattedInteger";
 import { getItemVanityRequirementsText } from "../../getItemVanityRequirementsText";
 import { getItemVanitySlotText } from "../../getItemVanitySlotText";
+import { getStatAbbreviation } from "../../stats/getStatAbbreviation";
 
 interface CreateItemDisplayOptionsButton {
-  readonly condition: () => boolean;
+  readonly condition?: () => boolean;
   readonly onClick: () => void;
   readonly text: string;
   readonly width: number;
@@ -137,7 +138,9 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "center",
       text: (): CreateLabelOptionsText => ({
-        value: `${getItem().equipmentPiece.strength} STR`,
+        value: `${getItem().equipmentPiece.strength} ${getStatAbbreviation(
+          Stat.Strength,
+        )}`,
       }),
     }),
   );
@@ -157,7 +160,9 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "center",
       text: (): CreateLabelOptionsText => ({
-        value: `${getItem().equipmentPiece.intelligence} INT`,
+        value: `${getItem().equipmentPiece.intelligence} ${getStatAbbreviation(
+          Stat.Intelligence,
+        )}`,
       }),
     }),
   );
@@ -177,7 +182,9 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "center",
       text: (): CreateLabelOptionsText => ({
-        value: `${getItem().equipmentPiece.agility} AGI`,
+        value: `${getItem().equipmentPiece.agility} ${getStatAbbreviation(
+          Stat.Agility,
+        )}`,
       }),
     }),
   );
@@ -197,7 +204,9 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "center",
       text: (): CreateLabelOptionsText => ({
-        value: `${getItem().equipmentPiece.defense} DEF`,
+        value: `${getItem().equipmentPiece.defense} ${getStatAbbreviation(
+          Stat.Defense,
+        )}`,
       }),
     }),
   );
@@ -217,7 +226,9 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "center",
       text: (): CreateLabelOptionsText => ({
-        value: `${getItem().equipmentPiece.wisdom} WIS`,
+        value: `${getItem().equipmentPiece.wisdom} ${getStatAbbreviation(
+          Stat.Wisdom,
+        )}`,
       }),
     }),
   );
@@ -237,7 +248,9 @@ export const createItemDisplay = ({
       },
       horizontalAlignment: "center",
       text: (): CreateLabelOptionsText => ({
-        value: `${getItem().equipmentPiece.luck} LCK`,
+        value: `${getItem().equipmentPiece.luck} ${getStatAbbreviation(
+          Stat.Luck,
+        )}`,
       }),
     }),
   );
@@ -365,7 +378,9 @@ export const createItemDisplay = ({
         createPressableButton({
           condition: (): boolean => {
             if (typeof condition === "undefined" || condition()) {
-              return button.condition();
+              return (
+                typeof button.condition === "undefined" || button.condition()
+              );
             }
             return false;
           },

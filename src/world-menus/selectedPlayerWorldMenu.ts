@@ -250,7 +250,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
   initialStateValues: {
     isBattleStarting: false,
   },
-  onClose: (): void => {
+  onClose: (): boolean => {
     if (state.values.selectedPlayerID === null) {
       throw new Error("No player ID selected");
     }
@@ -264,6 +264,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
     if (selectedPlayerWorldMenu.state.values.isBattleStarting === false) {
       state.setValues({ selectedPlayerID: null });
     }
+    return true;
   },
   preventsWalking: false,
 });
