@@ -724,7 +724,11 @@ export const listenForUpdates = (): void => {
               throw new Error("Trader not found");
             }
             tradeWorldMenu.open({
+              doesTraderHaveRoomForGold: traderTraderUpdate.hasRoomForGold,
+              doesTraderHaveRoomForItems: traderTraderUpdate.hasRoomForItems,
               hasAccepted: traderUpdate.hasAccepted,
+              hasRoomForGold: traderUpdate.hasRoomForGold,
+              hasRoomForItems: traderUpdate.hasRoomForItems,
               hasTraderAccepted: traderTraderUpdate.hasAccepted,
               isOfferedGoldIdentified: traderUpdate.isGoldIdentified,
               isTraderOfferedGoldIdentified:

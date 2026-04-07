@@ -140,6 +140,19 @@ export const listenForWorldTradeUpdates = (): void => {
             tradeWorldMenu.state.values.traderOfferedGold + update.amount,
         });
       }
+      for (const roomUpdate of update.room) {
+        if (
+          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
+        ) {
+          tradeWorldMenu.state.setValues({
+            hasRoomForGold: roomUpdate.hasRoom ?? false,
+          });
+        } else {
+          tradeWorldMenu.state.setValues({
+            doesTraderHaveRoomForGold: roomUpdate.hasRoom ?? false,
+          });
+        }
+      }
     },
   });
   listenToSocketioEvent<WorldTradeStartUpdate>({
@@ -161,6 +174,10 @@ export const listenForWorldTradeUpdates = (): void => {
         throw new Error("Trader world character ID not found");
       }
       tradeWorldMenu.open({
+        doesTraderHaveRoomForGold: true,
+        doesTraderHaveRoomForItems: true,
+        hasRoomForGold: true,
+        hasRoomForItems: true,
         isOfferedGoldIdentified: true,
         isTraderOfferedGoldIdentified: true,
         offeredGold: 0,
@@ -202,6 +219,19 @@ export const listenForWorldTradeUpdates = (): void => {
           isTraderOfferedGoldIdentified: false,
           traderOfferedGold: 0,
         });
+      }
+      for (const roomUpdate of update.room) {
+        if (
+          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
+        ) {
+          tradeWorldMenu.state.setValues({
+            hasRoomForGold: roomUpdate.hasRoom ?? false,
+          });
+        } else {
+          tradeWorldMenu.state.setValues({
+            doesTraderHaveRoomForGold: roomUpdate.hasRoom ?? false,
+          });
+        }
       }
     },
   });

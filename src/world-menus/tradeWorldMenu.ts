@@ -42,7 +42,11 @@ const tradeGoldIncrements: readonly number[] = [
 ];
 
 export interface TradeWorldMenuOpenOptions {
+  readonly doesTraderHaveRoomForGold?: boolean;
+  readonly doesTraderHaveRoomForItems?: boolean;
   readonly hasAccepted?: boolean;
+  readonly hasRoomForGold?: boolean;
+  readonly hasRoomForItems?: boolean;
   readonly hasTraderAccepted?: boolean;
   readonly isOfferedGoldIdentified?: boolean;
   readonly isTraderOfferedGoldIdentified?: boolean;
@@ -51,7 +55,11 @@ export interface TradeWorldMenuOpenOptions {
   readonly traderWorldCharacterID: string;
 }
 export interface TradeWorldMenuStateSchema {
+  doesTraderHaveRoomForGold: boolean;
+  doesTraderHaveRoomForItems: boolean;
   hasAccepted: boolean;
+  hasRoomForGold: boolean;
+  hasRoomForItems: boolean;
   hasTraderAccepted: boolean;
   isFinishing: boolean;
   isOfferedGoldIdentified: boolean;
@@ -131,7 +139,10 @@ export const tradeWorldMenu: WorldMenu<
       createLabel({
         color: (): Color => {
           if (
-            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false
+            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified ===
+              false ||
+            tradeWorldMenu.state.values.hasRoomForGold === false ||
+            tradeWorldMenu.state.values.hasRoomForItems === false
           ) {
             return Color.BrightRed;
           }
@@ -153,6 +164,18 @@ export const tradeWorldMenu: WorldMenu<
             tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false
           ) {
             return { value: "Offer not identified" };
+          }
+          if (
+            tradeWorldMenu.state.values.hasRoomForGold === false &&
+            tradeWorldMenu.state.values.hasRoomForItems === false
+          ) {
+            return { value: "No room for gold or items" };
+          }
+          if (tradeWorldMenu.state.values.hasRoomForGold === false) {
+            return { value: "No room for gold" };
+          }
+          if (tradeWorldMenu.state.values.hasRoomForItems === false) {
+            return { value: "No room for items" };
           }
           if (tradeWorldMenu.state.values.hasAccepted) {
             return { value: "Accepted" };
@@ -240,7 +263,9 @@ export const tradeWorldMenu: WorldMenu<
       createPressableButton({
         condition: (): boolean =>
           tradeWorldMenu.state.values.isTraderOfferedGoldIdentified &&
-          tradeWorldMenu.state.values.hasAccepted === false,
+          tradeWorldMenu.state.values.hasAccepted === false &&
+          tradeWorldMenu.state.values.hasRoomForGold &&
+          tradeWorldMenu.state.values.hasRoomForItems,
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
@@ -294,7 +319,11 @@ export const tradeWorldMenu: WorldMenu<
     labelIDs.push(
       createLabel({
         color: (): Color => {
-          if (tradeWorldMenu.state.values.isOfferedGoldIdentified === false) {
+          if (
+            tradeWorldMenu.state.values.isOfferedGoldIdentified === false ||
+            tradeWorldMenu.state.values.doesTraderHaveRoomForGold === false ||
+            tradeWorldMenu.state.values.doesTraderHaveRoomForItems === false
+          ) {
             return Color.BrightRed;
           }
           if (tradeWorldMenu.state.values.hasTraderAccepted) {
@@ -313,6 +342,20 @@ export const tradeWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           if (tradeWorldMenu.state.values.isOfferedGoldIdentified === false) {
             return { value: "Offer not identified" };
+          }
+          if (
+            tradeWorldMenu.state.values.doesTraderHaveRoomForGold === false &&
+            tradeWorldMenu.state.values.doesTraderHaveRoomForItems === false
+          ) {
+            return { value: "No room for gold or items" };
+          }
+          if (tradeWorldMenu.state.values.doesTraderHaveRoomForGold === false) {
+            return { value: "No room for gold" };
+          }
+          if (
+            tradeWorldMenu.state.values.doesTraderHaveRoomForItems === false
+          ) {
+            return { value: "No room for items" };
           }
           if (tradeWorldMenu.state.values.hasTraderAccepted) {
             return { value: "Accepted" };
@@ -797,7 +840,11 @@ export const tradeWorldMenu: WorldMenu<
   initialStateValues: (
     options: TradeWorldMenuOpenOptions,
   ): TradeWorldMenuStateSchema => ({
+    doesTraderHaveRoomForGold: options.doesTraderHaveRoomForGold ?? false,
+    doesTraderHaveRoomForItems: options.doesTraderHaveRoomForItems ?? false,
     hasAccepted: options.hasAccepted ?? false,
+    hasRoomForGold: options.hasRoomForGold ?? false,
+    hasRoomForItems: options.hasRoomForItems ?? false,
     hasTraderAccepted: options.hasTraderAccepted ?? false,
     isFinishing: false,
     isOfferedGoldIdentified: options.isOfferedGoldIdentified ?? false,
