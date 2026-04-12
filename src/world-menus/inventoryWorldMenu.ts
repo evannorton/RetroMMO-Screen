@@ -154,7 +154,7 @@ const hasVanityItemInstance = (vanitySlot: VanitySlot): boolean => {
 export interface InventoryWorldMenuOpenOptions {}
 export interface InventoryWorldMenuStateSchema {
   isAwaitingWorldCombat: boolean;
-  selectedBagItemIndex: number | null;
+  selectedBagItemInstanceID: string | null;
   selectedEquipmentSlot: EquipmentSlot | null;
   selectedVanitySlot: VanitySlot | null;
   startedTargetingAt: number | null;
@@ -347,7 +347,7 @@ export const inventoryWorldMenu: WorldMenu<
           height: 20,
           onClick: (): void => {
             inventoryWorldMenu.state.setValues({
-              selectedBagItemIndex: null,
+              selectedBagItemInstanceID: null,
               selectedVanitySlot: null,
               tab: InventoryTab.Equipment,
             });
@@ -368,7 +368,7 @@ export const inventoryWorldMenu: WorldMenu<
           height: 20,
           onClick: (): void => {
             inventoryWorldMenu.state.setValues({
-              selectedBagItemIndex: null,
+              selectedBagItemInstanceID: null,
               selectedEquipmentSlot: null,
               tab: InventoryTab.Vanity,
             });
@@ -408,16 +408,33 @@ export const inventoryWorldMenu: WorldMenu<
                   getBagItemInstance(i).item.iconImagePath,
               },
             ],
-            isSelected: (): boolean =>
-              inventoryWorldMenu.state.values.selectedBagItemIndex === i,
+            isSelected: (): boolean => {
+              const slotItemInstanceID: string | undefined =
+                worldState.values.bagItemInstanceIDs[i];
+              if (typeof slotItemInstanceID === "undefined") {
+                return false;
+              }
+              return (
+                inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                slotItemInstanceID
+              );
+            },
             onClick: (): void => {
-              if (inventoryWorldMenu.state.values.selectedBagItemIndex === i) {
+              const slotItemInstanceID: string | undefined =
+                worldState.values.bagItemInstanceIDs[i];
+              if (typeof slotItemInstanceID === "undefined") {
+                throw new Error("Bag item instance ID is undefined");
+              }
+              if (
+                inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                slotItemInstanceID
+              ) {
                 inventoryWorldMenu.state.setValues({
-                  selectedBagItemIndex: null,
+                  selectedBagItemInstanceID: null,
                 });
               } else {
                 inventoryWorldMenu.state.setValues({
-                  selectedBagItemIndex: i,
+                  selectedBagItemInstanceID: slotItemInstanceID,
                 });
               }
             },
@@ -438,24 +455,28 @@ export const inventoryWorldMenu: WorldMenu<
             {
               condition: (): boolean => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 const item: Item = getDefinable(Item, itemInstance.itemID);
                 return item.hasAbility() && item.ability.canBeUsedInWorld;
               },
               onClick: (): void => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 switch (itemInstance.item.ability.targetType) {
                   case TargetType.AllAllies:
@@ -494,12 +515,14 @@ export const inventoryWorldMenu: WorldMenu<
             {
               condition: (): boolean => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 return (
                   itemInstance.item.hasEquipmentPiece() &&
@@ -512,12 +535,14 @@ export const inventoryWorldMenu: WorldMenu<
               },
               onClick: (): void => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 emitToSocketioServer<WorldEquipEquipmentItemRequest>({
                   data: {
@@ -533,12 +558,14 @@ export const inventoryWorldMenu: WorldMenu<
             {
               condition: (): boolean => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 return (
                   doesItemHaveVanity(itemInstance.itemID) &&
@@ -549,12 +576,14 @@ export const inventoryWorldMenu: WorldMenu<
               },
               onClick: (): void => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 emitToSocketioServer<WorldEquipVanityItemRequest>({
                   data: {
@@ -570,19 +599,26 @@ export const inventoryWorldMenu: WorldMenu<
           ],
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            inventoryWorldMenu.state.values.selectedBagItemIndex !== null &&
+            inventoryWorldMenu.state.values.selectedBagItemInstanceID !==
+              null &&
+            worldState.values.bagItemInstanceIDs.includes(
+              inventoryWorldMenu.state.values.selectedBagItemInstanceID,
+            ) &&
             isWorldCombatInProgress() === false,
           itemID: (): string => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
+            if (
+              inventoryWorldMenu.state.values.selectedBagItemInstanceID === null
+            ) {
+              throw new Error("Selected bag item instance ID is null");
             }
-            return getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            return getDefinable(
+              ItemInstance,
+              inventoryWorldMenu.state.values.selectedBagItemInstanceID,
             ).itemID;
           },
           onClose: (): void => {
             inventoryWorldMenu.state.setValues({
-              selectedBagItemIndex: null,
+              selectedBagItemInstanceID: null,
             });
           },
         }),
@@ -610,12 +646,14 @@ export const inventoryWorldMenu: WorldMenu<
             {
               imagePath: (): string => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 const item: Item = getDefinable(Item, itemInstance.itemID);
                 return item.iconImagePath;
@@ -640,11 +678,14 @@ export const inventoryWorldMenu: WorldMenu<
           },
           horizontalAlignment: "left",
           text: (): CreateLabelOptionsText => {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-              throw new Error("Selected bag item index is null");
+            if (
+              inventoryWorldMenu.state.values.selectedBagItemInstanceID === null
+            ) {
+              throw new Error("Selected bag item instance ID is null");
             }
-            const itemInstance: ItemInstance = getBagItemInstance(
-              inventoryWorldMenu.state.values.selectedBagItemIndex,
+            const itemInstance: ItemInstance = getDefinable(
+              ItemInstance,
+              inventoryWorldMenu.state.values.selectedBagItemInstanceID,
             );
             const item: Item = getDefinable(Item, itemInstance.itemID);
             return {
@@ -707,12 +748,14 @@ export const inventoryWorldMenu: WorldMenu<
               inputCollectionID,
               onInput: (): void => {
                 if (
-                  inventoryWorldMenu.state.values.selectedBagItemIndex === null
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
                 ) {
-                  throw new Error("Selected bag item index is null");
+                  throw new Error("Selected bag item instance ID is null");
                 }
-                const itemInstance: ItemInstance = getBagItemInstance(
-                  inventoryWorldMenu.state.values.selectedBagItemIndex,
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 );
                 const partyMemberPlayerID: string | undefined =
                   worldCharacter.player.character.party.playerIDs[
@@ -997,7 +1040,7 @@ export const inventoryWorldMenu: WorldMenu<
     },
     initialStateValues: {
       isAwaitingWorldCombat: false,
-      selectedBagItemIndex: null,
+      selectedBagItemInstanceID: null,
       selectedEquipmentSlot: null,
       selectedVanitySlot: null,
       startedTargetingAt: null,

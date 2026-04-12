@@ -207,8 +207,8 @@ const useAbility = (battlerID: string): void => {
     actionDefinableReference: ability.getReference(),
     queuedAt: getCurrentTime(),
   };
-  battleState.values.selection.selectedAbilityIndex = null;
-  battleState.values.selection.selectedItemInstanceIndex = null;
+  battleState.values.selection.selectedAbilityID = null;
+  battleState.values.selection.selectedItemInstanceID = null;
   switch (ability.targetType) {
     case TargetType.AllAllies:
     case TargetType.AllEnemies:
@@ -231,8 +231,8 @@ const useItemInstance = (itemInstanceID: string): void => {
     actionDefinableReference: itemInstance.getReference(),
     queuedAt: getCurrentTime(),
   };
-  battleState.values.selection.selectedAbilityIndex = null;
-  battleState.values.selection.selectedItemInstanceIndex = null;
+  battleState.values.selection.selectedAbilityID = null;
+  battleState.values.selection.selectedItemInstanceID = null;
   switch (itemInstance.item.ability.targetType) {
     case TargetType.AllAllies:
     case TargetType.AllEnemies:
@@ -298,14 +298,6 @@ const pageAbilities = (offset: number): void => {
     pages,
   );
 };
-const getAbility = (i: number): Ability => {
-  const abilityIDs: readonly string[] = getAbilityIDs();
-  const abilityID: string | undefined = abilityIDs[i];
-  if (typeof abilityID === "undefined") {
-    throw new Error("Ability ID not found");
-  }
-  return getDefinable(Ability, abilityID);
-};
 const getPaginatedAbilityIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
   const abilityIDs: readonly string[] = getAbilityIDs();
@@ -340,7 +332,7 @@ const selectedAbilityCondition = (): boolean => {
     }
     return (
       battleState.values.selection.menuState === BattleMenuState.Abilities &&
-      battleState.values.selection.selectedAbilityIndex !== null
+      battleState.values.selection.selectedAbilityID !== null
     );
   }
   return false;
@@ -350,10 +342,10 @@ const getSelectedAbility = (): Ability => {
   if (battleState.values.selection === null) {
     throw new Error("selection is null");
   }
-  if (battleState.values.selection.selectedAbilityIndex === null) {
-    throw new Error("selectedAbilityIndex is null");
+  if (battleState.values.selection.selectedAbilityID === null) {
+    throw new Error("abilityID is null");
   }
-  return getAbility(battleState.values.selection.selectedAbilityIndex);
+  return getDefinable(Ability, battleState.values.selection.selectedAbilityID);
 };
 const getItemInstanceIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
@@ -380,14 +372,6 @@ const pageItems = (offset: number): void => {
     pages.indexOf(battleState.values.selection.itemsPage) + offset,
     pages,
   );
-};
-const getItemInstance = (i: number): ItemInstance => {
-  const itemInstanceIDs: readonly string[] = getItemInstanceIDs();
-  const itemInstanceID: string | undefined = itemInstanceIDs[i];
-  if (typeof itemInstanceID === "undefined") {
-    throw new Error("ItemInstance ID not found");
-  }
-  return getDefinable(ItemInstance, itemInstanceID);
 };
 const getPaginatedItemInstanceIDs = (): readonly string[] => {
   const battleState: State<BattleStateSchema> = getBattleState();
@@ -423,7 +407,7 @@ const selectedItemInstanceCondition = (): boolean => {
     }
     return (
       battleState.values.selection.menuState === BattleMenuState.Items &&
-      battleState.values.selection.selectedItemInstanceIndex !== null
+      battleState.values.selection.selectedItemInstanceID !== null
     );
   }
   return false;
@@ -433,11 +417,12 @@ const getSelectedItemInstance = (): ItemInstance => {
   if (battleState.values.selection === null) {
     throw new Error("selection is null");
   }
-  if (battleState.values.selection.selectedItemInstanceIndex === null) {
-    throw new Error("selectedItemInstanceIndex is null");
+  if (battleState.values.selection.selectedItemInstanceID === null) {
+    throw new Error("itemInstanceID is null");
   }
-  return getItemInstance(
-    battleState.values.selection.selectedItemInstanceIndex,
+  return getDefinable(
+    ItemInstance,
+    battleState.values.selection.selectedItemInstanceID,
   );
 };
 const isBindingHotkey = (): boolean => {
@@ -1974,8 +1959,8 @@ export const createBattleUI = ({
         battleState.values.selection.bindAction = null;
         battleState.values.selection.menuState = BattleMenuState.Default;
         battleState.values.selection.queuedAction = null;
-        battleState.values.selection.selectedAbilityIndex = null;
-        battleState.values.selection.selectedItemInstanceIndex = null;
+        battleState.values.selection.selectedAbilityID = null;
+        battleState.values.selection.selectedItemInstanceID = null;
         battleState.values.selection.unbindStartedAt = getCurrentTime();
       },
       width: 10,
@@ -1995,8 +1980,8 @@ export const createBattleUI = ({
         battleState.values.selection.bindAction = null;
         battleState.values.selection.menuState = BattleMenuState.Default;
         battleState.values.selection.queuedAction = null;
-        battleState.values.selection.selectedAbilityIndex = null;
-        battleState.values.selection.selectedItemInstanceIndex = null;
+        battleState.values.selection.selectedAbilityID = null;
+        battleState.values.selection.selectedItemInstanceID = null;
         battleState.values.selection.unbindStartedAt = getCurrentTime();
       },
     }),
@@ -2082,13 +2067,13 @@ export const createBattleUI = ({
       battleState.values.selection.abilitiesPage = 0;
       battleState.values.selection.itemsPage = 0;
       battleState.values.selection.menuState = BattleMenuState.Default;
-      battleState.values.selection.selectedAbilityIndex = null;
-      battleState.values.selection.selectedItemInstanceIndex = null;
+      battleState.values.selection.selectedAbilityID = null;
+      battleState.values.selection.selectedItemInstanceID = null;
     } else {
       battleState.values.selection.bindAction = null;
       battleState.values.selection.itemsPage = 0;
       battleState.values.selection.menuState = BattleMenuState.Abilities;
-      battleState.values.selection.selectedItemInstanceIndex = null;
+      battleState.values.selection.selectedItemInstanceID = null;
     }
   };
   hudElementReferences.push(
@@ -2138,13 +2123,13 @@ export const createBattleUI = ({
       battleState.values.selection.abilitiesPage = 0;
       battleState.values.selection.itemsPage = 0;
       battleState.values.selection.menuState = BattleMenuState.Default;
-      battleState.values.selection.selectedAbilityIndex = null;
-      battleState.values.selection.selectedItemInstanceIndex = null;
+      battleState.values.selection.selectedAbilityID = null;
+      battleState.values.selection.selectedItemInstanceID = null;
     } else {
       battleState.values.selection.bindAction = null;
       battleState.values.selection.itemsPage = 0;
       battleState.values.selection.menuState = BattleMenuState.Items;
-      battleState.values.selection.selectedItemInstanceIndex = null;
+      battleState.values.selection.selectedItemInstanceID = null;
     }
   };
   hudElementReferences.push(
@@ -2511,11 +2496,9 @@ export const createBattleUI = ({
           if (battleState.values.selection === null) {
             throw new Error("selection is null");
           }
+          const slotAbilityID: string = getPaginatedAbility(i).id;
           return (
-            battleState.values.selection.selectedAbilityIndex ===
-            i +
-              battleState.values.selection.abilitiesPage *
-                battleAbilitiesPerPage
+            battleState.values.selection.selectedAbilityID === slotAbilityID
           );
         },
         onClick: (): void => {
@@ -2523,18 +2506,13 @@ export const createBattleUI = ({
           if (battleState.values.selection === null) {
             throw new Error("selection is null");
           }
+          const slotAbilityID: string = getPaginatedAbility(i).id;
           if (
-            battleState.values.selection.selectedAbilityIndex ===
-            i +
-              battleState.values.selection.abilitiesPage *
-                battleAbilitiesPerPage
+            battleState.values.selection.selectedAbilityID === slotAbilityID
           ) {
-            battleState.values.selection.selectedAbilityIndex = null;
+            battleState.values.selection.selectedAbilityID = null;
           } else {
-            battleState.values.selection.selectedAbilityIndex =
-              i +
-              battleState.values.selection.abilitiesPage *
-                battleAbilitiesPerPage;
+            battleState.values.selection.selectedAbilityID = slotAbilityID;
           }
         },
         slotImagePath: "slots/basic",
@@ -2742,7 +2720,7 @@ export const createBattleUI = ({
           hotkeyableDefinableReference: getSelectedAbility().getReference(),
         };
         battleState.values.selection.menuState = BattleMenuState.Default;
-        battleState.values.selection.selectedAbilityIndex = null;
+        battleState.values.selection.selectedAbilityID = null;
       },
       text: { value: "Bind" },
       width: 34,
@@ -2801,9 +2779,10 @@ export const createBattleUI = ({
           if (battleState.values.selection === null) {
             throw new Error("selection is null");
           }
+          const slotItemInstanceID: string = getPaginatedItemInstance(i).id;
           return (
-            battleState.values.selection.selectedItemInstanceIndex ===
-            i + battleState.values.selection.itemsPage * battleItemsPerPage
+            battleState.values.selection.selectedItemInstanceID ===
+            slotItemInstanceID
           );
         },
         onClick: (): void => {
@@ -2811,14 +2790,15 @@ export const createBattleUI = ({
           if (battleState.values.selection === null) {
             throw new Error("selection is null");
           }
+          const slotItemInstanceID: string = getPaginatedItemInstance(i).id;
           if (
-            battleState.values.selection.selectedItemInstanceIndex ===
-            i + battleState.values.selection.itemsPage * battleItemsPerPage
+            battleState.values.selection.selectedItemInstanceID ===
+            slotItemInstanceID
           ) {
-            battleState.values.selection.selectedItemInstanceIndex = null;
+            battleState.values.selection.selectedItemInstanceID = null;
           } else {
-            battleState.values.selection.selectedItemInstanceIndex =
-              i + battleState.values.selection.itemsPage * battleItemsPerPage;
+            battleState.values.selection.selectedItemInstanceID =
+              slotItemInstanceID;
           }
         },
         slotImagePath: "slots/basic",
@@ -2981,7 +2961,7 @@ export const createBattleUI = ({
             getSelectedItemInstance().item.getReference(),
         };
         battleState.values.selection.menuState = BattleMenuState.Default;
-        battleState.values.selection.selectedItemInstanceIndex = null;
+        battleState.values.selection.selectedItemInstanceID = null;
       },
       text: { value: "Bind" },
       width: 34,

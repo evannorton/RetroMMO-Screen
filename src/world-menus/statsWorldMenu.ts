@@ -34,7 +34,7 @@ import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 
 export interface StatsWorldMenuOpenOptions {}
 export interface StatsWorldMenuStateSchema {
-  selectedBoostIndex: number | null;
+  selectedBoostItemInstanceID: string | null;
 }
 export const statsWorldMenu: WorldMenu<
   StatsWorldMenuOpenOptions,
@@ -470,11 +470,17 @@ export const statsWorldMenu: WorldMenu<
             condition: (): boolean =>
               i < worldState.values.boostItemInstanceIDs.length,
             onClick: (): void => {
+              const slotItemInstanceID: string | undefined =
+                worldState.values.boostItemInstanceIDs[i];
+              if (typeof slotItemInstanceID === "undefined") {
+                throw new Error("Item ID is undefined");
+              }
               statsWorldMenu.state.setValues({
-                selectedBoostIndex:
-                  statsWorldMenu.state.values.selectedBoostIndex === i
+                selectedBoostItemInstanceID:
+                  statsWorldMenu.state.values.selectedBoostItemInstanceID ===
+                  slotItemInstanceID
                     ? null
-                    : i,
+                    : slotItemInstanceID,
               });
             },
           },
@@ -497,8 +503,17 @@ export const statsWorldMenu: WorldMenu<
             },
           ],
           imagePath: "slots/basic",
-          isSelected: (): boolean =>
-            statsWorldMenu.state.values.selectedBoostIndex === i,
+          isSelected: (): boolean => {
+            const slotItemInstanceID: string | undefined =
+              worldState.values.boostItemInstanceIDs[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              return false;
+            }
+            return (
+              statsWorldMenu.state.values.selectedBoostItemInstanceID ===
+              slotItemInstanceID
+            );
+          },
           x: 23 + i * 35,
           y: 141,
         }),
@@ -510,25 +525,23 @@ export const statsWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            statsWorldMenu.state.values.selectedBoostIndex !== null,
+            statsWorldMenu.state.values.selectedBoostItemInstanceID !== null &&
+            worldState.values.boostItemInstanceIDs.includes(
+              statsWorldMenu.state.values.selectedBoostItemInstanceID,
+            ),
           x: 257,
           y: 136,
         },
         horizontalAlignment: "center",
         text: (): CreateLabelOptionsText => {
-          if (statsWorldMenu.state.values.selectedBoostIndex === null) {
-            throw new Error("Selected boost index is null");
-          }
-          const itemInstanceID: string | undefined =
-            worldState.values.boostItemInstanceIDs[
-              statsWorldMenu.state.values.selectedBoostIndex
-            ];
-          if (typeof itemInstanceID === "undefined") {
-            throw new Error("Item ID is undefined");
+          if (
+            statsWorldMenu.state.values.selectedBoostItemInstanceID === null
+          ) {
+            throw new Error("Selected boost item instance ID is null");
           }
           const itemInstance: ItemInstance = getDefinable(
             ItemInstance,
-            itemInstanceID,
+            statsWorldMenu.state.values.selectedBoostItemInstanceID,
           );
           const boost: Boost = itemInstance.item.ability.boost;
           return {
@@ -543,22 +556,23 @@ export const statsWorldMenu: WorldMenu<
     hudElementReferences.push(
       createPressableButton({
         condition: (): boolean =>
-          statsWorldMenu.state.values.selectedBoostIndex !== null,
+          statsWorldMenu.state.values.selectedBoostItemInstanceID !== null &&
+          worldState.values.boostItemInstanceIDs.includes(
+            statsWorldMenu.state.values.selectedBoostItemInstanceID,
+          ),
         height: 16,
         imagePath: "pressable-buttons/red",
         onClick: (): void => {
-          if (statsWorldMenu.state.values.selectedBoostIndex === null) {
-            throw new Error("Selected boost index is null");
-          }
-          const itemInstanceID: string | undefined =
-            worldState.values.boostItemInstanceIDs[
-              statsWorldMenu.state.values.selectedBoostIndex
-            ];
-          if (typeof itemInstanceID === "undefined") {
-            throw new Error("Item ID is undefined");
+          if (
+            statsWorldMenu.state.values.selectedBoostItemInstanceID === null
+          ) {
+            throw new Error("Selected boost item instance ID is null");
           }
           emitToSocketioServer({
-            data: { itemInstanceID },
+            data: {
+              itemInstanceID:
+                statsWorldMenu.state.values.selectedBoostItemInstanceID,
+            },
             event: "world/destroy-boost",
           });
         },
@@ -661,7 +675,7 @@ export const statsWorldMenu: WorldMenu<
     ]);
   },
   initialStateValues: {
-    selectedBoostIndex: null,
+    selectedBoostItemInstanceID: null,
   },
   preventsWalking: false,
 });

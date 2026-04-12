@@ -97,8 +97,8 @@ export const createBattleState = ({
             itemsPage: 0,
             menuState: BattleMenuState.Default,
             queuedAction: null,
-            selectedAbilityIndex: null,
-            selectedItemInstanceIndex: null,
+            selectedAbilityID: null,
+            selectedItemInstanceID: null,
             serverTime: selection.serverTime,
             unbindStartedAt: null,
           }

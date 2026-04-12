@@ -33,7 +33,7 @@ import {
 export interface SpellbookWorldMenuOpenOptions {}
 export interface SpellbookWorldMenuStateSchema {
   isAwaitingWorldCombat: boolean;
-  selectedAbilityIndex: number | null;
+  selectedAbilityID: string | null;
   startedTargetingAt: number | null;
 }
 const getAbilityIDs = (): string[] => {
@@ -107,7 +107,10 @@ export const spellbookWorldMenu: WorldMenu<
         }),
       );
       const selectedAbilityCondition = (): boolean =>
-        spellbookWorldMenu.state.values.selectedAbilityIndex !== null &&
+        spellbookWorldMenu.state.values.selectedAbilityID !== null &&
+        getAbilityIDs().includes(
+          spellbookWorldMenu.state.values.selectedAbilityID,
+        ) &&
         spellbookWorldMenu.state.values.startedTargetingAt === null &&
         isWorldCombatInProgress() === false;
       // Abilities
@@ -124,16 +127,25 @@ export const spellbookWorldMenu: WorldMenu<
                 imagePath: (): string => getSpellbookAbility(i).iconImagePath,
               },
             ],
-            isSelected: (): boolean =>
-              spellbookWorldMenu.state.values.selectedAbilityIndex === i,
+            isSelected: (): boolean => {
+              const slotAbilityID: string = getSpellbookAbility(i).id;
+              return (
+                spellbookWorldMenu.state.values.selectedAbilityID ===
+                slotAbilityID
+              );
+            },
             onClick: (): void => {
-              if (spellbookWorldMenu.state.values.selectedAbilityIndex === i) {
+              const slotAbilityID: string = getSpellbookAbility(i).id;
+              if (
+                spellbookWorldMenu.state.values.selectedAbilityID ===
+                slotAbilityID
+              ) {
                 spellbookWorldMenu.state.setValues({
-                  selectedAbilityIndex: null,
+                  selectedAbilityID: null,
                 });
               } else {
                 spellbookWorldMenu.state.setValues({
-                  selectedAbilityIndex: i,
+                  selectedAbilityID: slotAbilityID,
                 });
               }
             },
@@ -166,12 +178,13 @@ export const spellbookWorldMenu: WorldMenu<
             {
               imagePath: (): string => {
                 if (
-                  spellbookWorldMenu.state.values.selectedAbilityIndex === null
+                  spellbookWorldMenu.state.values.selectedAbilityID === null
                 ) {
-                  throw new Error("Selected ability index is null");
+                  throw new Error("Selected ability ID is null");
                 }
-                return getSpellbookAbility(
-                  spellbookWorldMenu.state.values.selectedAbilityIndex,
+                return getDefinable(
+                  Ability,
+                  spellbookWorldMenu.state.values.selectedAbilityID,
                 ).iconImagePath;
               },
             },
@@ -192,12 +205,13 @@ export const spellbookWorldMenu: WorldMenu<
           },
           horizontalAlignment: "left",
           text: (): CreateLabelOptionsText => {
-            if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
-              throw new Error("Selected ability index is null");
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
             }
             return {
-              value: getSpellbookAbility(
-                spellbookWorldMenu.state.values.selectedAbilityIndex,
+              value: getDefinable(
+                Ability,
+                spellbookWorldMenu.state.values.selectedAbilityID,
               ).name,
             };
           },
@@ -211,7 +225,7 @@ export const spellbookWorldMenu: WorldMenu<
           imagePath: "x",
           onClick: (): void => {
             spellbookWorldMenu.state.setValues({
-              selectedAbilityIndex: null,
+              selectedAbilityID: null,
             });
           },
           width: 10,
@@ -232,12 +246,13 @@ export const spellbookWorldMenu: WorldMenu<
           maxLines: 3,
           maxWidth: 160,
           text: (): CreateLabelOptionsText => {
-            if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
-              throw new Error("Selected ability index is null");
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
             }
             return {
-              value: getSpellbookAbility(
-                spellbookWorldMenu.state.values.selectedAbilityIndex,
+              value: getDefinable(
+                Ability,
+                spellbookWorldMenu.state.values.selectedAbilityID,
               ).description,
             };
           },
@@ -251,13 +266,14 @@ export const spellbookWorldMenu: WorldMenu<
             condition: (): boolean => {
               if (selectedAbilityCondition()) {
                 if (
-                  spellbookWorldMenu.state.values.selectedAbilityIndex === null
+                  spellbookWorldMenu.state.values.selectedAbilityID === null
                 ) {
-                  throw new Error("Selected ability index is null");
+                  throw new Error("Selected ability ID is null");
                 }
                 return (
-                  getSpellbookAbility(
-                    spellbookWorldMenu.state.values.selectedAbilityIndex,
+                  getDefinable(
+                    Ability,
+                    spellbookWorldMenu.state.values.selectedAbilityID,
                   ).mpCost > 0
                 );
               }
@@ -268,13 +284,14 @@ export const spellbookWorldMenu: WorldMenu<
           },
           horizontalAlignment: "right",
           text: (): CreateLabelOptionsText => {
-            if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
-              throw new Error("Selected ability index is null");
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
             }
             return {
               value: `${
-                getSpellbookAbility(
-                  spellbookWorldMenu.state.values.selectedAbilityIndex,
+                getDefinable(
+                  Ability,
+                  spellbookWorldMenu.state.values.selectedAbilityID,
                 ).mpCost
               } MP`,
             };
@@ -286,13 +303,12 @@ export const spellbookWorldMenu: WorldMenu<
         createPressableButton({
           condition: (): boolean => {
             if (selectedAbilityCondition()) {
-              if (
-                spellbookWorldMenu.state.values.selectedAbilityIndex === null
-              ) {
-                throw new Error("Selected ability index is null");
+              if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+                throw new Error("Selected ability ID is null");
               }
-              const ability: Ability = getSpellbookAbility(
-                spellbookWorldMenu.state.values.selectedAbilityIndex,
+              const ability: Ability = getDefinable(
+                Ability,
+                spellbookWorldMenu.state.values.selectedAbilityID,
               );
               if (ability.canBeUsedInWorld) {
                 const mp: number = worldCharacter.resources.mp ?? 0;
@@ -304,11 +320,12 @@ export const spellbookWorldMenu: WorldMenu<
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
-            if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
-              throw new Error("Selected ability index is null");
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
             }
-            const ability: Ability = getSpellbookAbility(
-              spellbookWorldMenu.state.values.selectedAbilityIndex,
+            const ability: Ability = getDefinable(
+              Ability,
+              spellbookWorldMenu.state.values.selectedAbilityID,
             );
             switch (ability.targetType) {
               case TargetType.AllAllies:
@@ -369,12 +386,13 @@ export const spellbookWorldMenu: WorldMenu<
             {
               imagePath: (): string => {
                 if (
-                  spellbookWorldMenu.state.values.selectedAbilityIndex === null
+                  spellbookWorldMenu.state.values.selectedAbilityID === null
                 ) {
-                  throw new Error("Selected ability index is null");
+                  throw new Error("Selected ability ID is null");
                 }
-                const ability: Ability = getSpellbookAbility(
-                  spellbookWorldMenu.state.values.selectedAbilityIndex,
+                const ability: Ability = getDefinable(
+                  Ability,
+                  spellbookWorldMenu.state.values.selectedAbilityID,
                 );
                 return ability.iconImagePath;
               },
@@ -398,11 +416,12 @@ export const spellbookWorldMenu: WorldMenu<
           },
           horizontalAlignment: "left",
           text: (): CreateLabelOptionsText => {
-            if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
-              throw new Error("Selected ability index is null");
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
             }
-            const ability: Ability = getSpellbookAbility(
-              spellbookWorldMenu.state.values.selectedAbilityIndex,
+            const ability: Ability = getDefinable(
+              Ability,
+              spellbookWorldMenu.state.values.selectedAbilityID,
             );
             return {
               value: ability.name,
@@ -464,12 +483,13 @@ export const spellbookWorldMenu: WorldMenu<
               inputCollectionID,
               onInput: (): void => {
                 if (
-                  spellbookWorldMenu.state.values.selectedAbilityIndex === null
+                  spellbookWorldMenu.state.values.selectedAbilityID === null
                 ) {
-                  throw new Error("Selected ability index is null");
+                  throw new Error("Selected ability ID is null");
                 }
-                const ability: Ability = getSpellbookAbility(
-                  spellbookWorldMenu.state.values.selectedAbilityIndex,
+                const ability: Ability = getDefinable(
+                  Ability,
+                  spellbookWorldMenu.state.values.selectedAbilityID,
                 );
                 const partyMemberPlayerID: string | undefined =
                   worldCharacter.player.character.party.playerIDs[
@@ -505,7 +525,7 @@ export const spellbookWorldMenu: WorldMenu<
     },
     initialStateValues: {
       isAwaitingWorldCombat: false,
-      selectedAbilityIndex: null,
+      selectedAbilityID: null,
       startedTargetingAt: null,
     },
     preventsWalking: false,

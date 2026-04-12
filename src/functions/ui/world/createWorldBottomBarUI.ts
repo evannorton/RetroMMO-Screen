@@ -26,20 +26,12 @@ import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createImage } from "../components/createImage";
 import { createPanel } from "../components/createPanel";
 import { createResourceBar } from "../components/createResourceBar";
-import {
-  getBagItemInstance,
-  inventoryWorldMenu,
-} from "../../../world-menus/inventoryWorldMenu";
 import { getConstants } from "../../getConstants";
 import { getDefaultedClothesDye } from "../../defaulted-cosmetics/getDefaultedClothesDye";
 import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairDye";
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
-import {
-  getSpellbookAbility,
-  spellbookWorldMenu,
-} from "../../../world-menus/spellbookWorldMenu";
 import { getWorldState } from "../../state/getWorldState";
 import { handleWorldCharacterClick } from "../../handleWorldCharacterClick";
 import {
@@ -48,8 +40,10 @@ import {
   spellbookInputCollectionID,
   statsInputCollectionID,
 } from "../../../input";
+import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
+import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
 import { targetBlinkDuration } from "../../../constants";
 
@@ -171,11 +165,14 @@ export const createWorldBottomBarUI = (): void => {
           inventoryWorldMenu.isOpen() &&
           inventoryWorldMenu.state.values.startedTargetingAt !== null
         ) {
-          if (inventoryWorldMenu.state.values.selectedBagItemIndex === null) {
-            throw new Error("No selected bag item index.");
+          if (
+            inventoryWorldMenu.state.values.selectedBagItemInstanceID === null
+          ) {
+            throw new Error("No selected bag item instance ID.");
           }
-          const itemInstance: ItemInstance = getBagItemInstance(
-            inventoryWorldMenu.state.values.selectedBagItemIndex,
+          const itemInstance: ItemInstance = getDefinable(
+            ItemInstance,
+            inventoryWorldMenu.state.values.selectedBagItemInstanceID,
           );
           emitToSocketioServer<WorldUseItemInstanceRequest>({
             data: {
@@ -189,11 +186,12 @@ export const createWorldBottomBarUI = (): void => {
           spellbookWorldMenu.isOpen() &&
           spellbookWorldMenu.state.values.startedTargetingAt !== null
         ) {
-          if (spellbookWorldMenu.state.values.selectedAbilityIndex === null) {
-            throw new Error("No selected ability index.");
+          if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+            throw new Error("No selected ability ID.");
           }
-          const ability: Ability = getSpellbookAbility(
-            spellbookWorldMenu.state.values.selectedAbilityIndex,
+          const ability: Ability = getDefinable(
+            Ability,
+            spellbookWorldMenu.state.values.selectedAbilityID,
           );
           emitToSocketioServer<WorldUseAbilityRequest>({
             data: {

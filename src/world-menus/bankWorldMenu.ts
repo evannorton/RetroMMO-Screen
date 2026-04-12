@@ -92,8 +92,8 @@ export interface BankWorldMenuStateSchema {
   storagePage: number;
   storageTab: BankStorageTab;
   section: BankSection;
-  selectedDepositIndex: number | null;
-  selectedWithdrawIndex: number | null;
+  selectedDepositItemInstanceID: string | null;
+  selectedWithdrawItemInstanceID: string | null;
   vaultDepositQueuedGold: number;
   vaultWithdrawQueuedGold: number;
 }
@@ -122,7 +122,7 @@ export const bankWorldMenu: WorldMenu<
     const depositTabCondition = (): boolean =>
       bankWorldMenu.state.values.storageTab === BankStorageTab.Deposit;
     const hasSelectedWithdrawItemInstance = (): boolean => {
-      if (bankWorldMenu.state.values.selectedWithdrawIndex === null) {
+      if (bankWorldMenu.state.values.selectedWithdrawItemInstanceID === null) {
         return false;
       }
       const currentPage: readonly string[] | undefined =
@@ -132,51 +132,35 @@ export const bankWorldMenu: WorldMenu<
       if (typeof currentPage === "undefined") {
         return false;
       }
-      return (
-        bankWorldMenu.state.values.selectedWithdrawIndex >= 0 &&
-        bankWorldMenu.state.values.selectedWithdrawIndex < currentPage.length
+      return currentPage.includes(
+        bankWorldMenu.state.values.selectedWithdrawItemInstanceID,
       );
     };
     const getSelectedWithdrawItemInstance = (): ItemInstance => {
-      if (bankWorldMenu.state.values.selectedWithdrawIndex === null) {
-        throw new Error("selectedWithdrawIndex is null");
+      if (bankWorldMenu.state.values.selectedWithdrawItemInstanceID === null) {
+        throw new Error("selectedWithdrawItemInstanceID is null");
       }
-      const currentPage: readonly string[] | undefined =
-        worldState.values.bankItemInstanceIDs[
-          bankWorldMenu.state.values.storagePage
-        ];
-      if (typeof currentPage === "undefined") {
-        throw new Error("Current page is undefined");
-      }
-      const itemInstanceID: string | undefined =
-        currentPage[bankWorldMenu.state.values.selectedWithdrawIndex];
-      if (typeof itemInstanceID === "undefined") {
-        throw new Error("Selected withdraw item instance ID is undefined");
-      }
-      return getDefinable(ItemInstance, itemInstanceID);
+      return getDefinable(
+        ItemInstance,
+        bankWorldMenu.state.values.selectedWithdrawItemInstanceID,
+      );
     };
     const hasSelectedDepositItemInstance = (): boolean => {
-      if (bankWorldMenu.state.values.selectedDepositIndex === null) {
+      if (bankWorldMenu.state.values.selectedDepositItemInstanceID === null) {
         return false;
       }
-      return (
-        bankWorldMenu.state.values.selectedDepositIndex >= 0 &&
-        bankWorldMenu.state.values.selectedDepositIndex <
-          worldState.values.bagItemInstanceIDs.length
+      return worldState.values.bagItemInstanceIDs.includes(
+        bankWorldMenu.state.values.selectedDepositItemInstanceID,
       );
     };
     const getSelectedDepositItemInstance = (): ItemInstance => {
-      if (bankWorldMenu.state.values.selectedDepositIndex === null) {
-        throw new Error("selectedDepositIndex is null");
+      if (bankWorldMenu.state.values.selectedDepositItemInstanceID === null) {
+        throw new Error("selectedDepositItemInstanceID is null");
       }
-      const itemInstanceID: string | undefined =
-        worldState.values.bagItemInstanceIDs[
-          bankWorldMenu.state.values.selectedDepositIndex
-        ];
-      if (typeof itemInstanceID === "undefined") {
-        throw new Error("Selected deposit item instance ID is undefined");
-      }
-      return getDefinable(ItemInstance, itemInstanceID);
+      return getDefinable(
+        ItemInstance,
+        bankWorldMenu.state.values.selectedDepositItemInstanceID,
+      );
     };
     const adjustVaultDepositQueuedGold = (amount: number): void => {
       const inventoryGold: number = worldState.values.inventoryGold;
@@ -240,8 +224,8 @@ export const bankWorldMenu: WorldMenu<
               : BankSection.Gold;
           bankWorldMenu.state.setValues({
             section: nextSection,
-            selectedDepositIndex: null,
-            selectedWithdrawIndex: null,
+            selectedDepositItemInstanceID: null,
+            selectedWithdrawItemInstanceID: null,
           });
         },
         width: 68,
@@ -635,8 +619,8 @@ export const bankWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           bankWorldMenu.state.setValues({
-            selectedDepositIndex: null,
-            selectedWithdrawIndex: null,
+            selectedDepositItemInstanceID: null,
+            selectedWithdrawItemInstanceID: null,
             storageTab: BankStorageTab.Withdraw,
           });
         },
@@ -654,8 +638,8 @@ export const bankWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           bankWorldMenu.state.setValues({
-            selectedDepositIndex: null,
-            selectedWithdrawIndex: null,
+            selectedDepositItemInstanceID: null,
+            selectedWithdrawItemInstanceID: null,
             storageTab: BankStorageTab.Deposit,
           });
         },
@@ -716,15 +700,44 @@ export const bankWorldMenu: WorldMenu<
               },
             },
           ],
-          isSelected: (): boolean =>
-            bankWorldMenu.state.values.selectedWithdrawIndex === i,
+          isSelected: (): boolean => {
+            const currentPageForSelection: readonly string[] | undefined =
+              worldState.values.bankItemInstanceIDs[
+                bankWorldMenu.state.values.storagePage
+              ];
+            if (typeof currentPageForSelection === "undefined") {
+              return false;
+            }
+            const slotItemInstanceID: string | undefined =
+              currentPageForSelection[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              return false;
+            }
+            return (
+              bankWorldMenu.state.values.selectedWithdrawItemInstanceID ===
+              slotItemInstanceID
+            );
+          },
           onClick: (): void => {
+            const currentPageForClick: readonly string[] | undefined =
+              worldState.values.bankItemInstanceIDs[
+                bankWorldMenu.state.values.storagePage
+              ];
+            if (typeof currentPageForClick === "undefined") {
+              throw new Error("Current page is undefined");
+            }
+            const slotItemInstanceID: string | undefined =
+              currentPageForClick[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              throw new Error("Bank item instance ID is undefined");
+            }
             bankWorldMenu.state.setValues({
-              selectedDepositIndex: null,
-              selectedWithdrawIndex:
-                bankWorldMenu.state.values.selectedWithdrawIndex === i
+              selectedDepositItemInstanceID: null,
+              selectedWithdrawItemInstanceID:
+                bankWorldMenu.state.values.selectedWithdrawItemInstanceID ===
+                slotItemInstanceID
                   ? null
-                  : i,
+                  : slotItemInstanceID,
             });
           },
           slotImagePath: "slots/basic",
@@ -772,15 +785,30 @@ export const bankWorldMenu: WorldMenu<
               },
             },
           ],
-          isSelected: (): boolean =>
-            bankWorldMenu.state.values.selectedDepositIndex === i,
+          isSelected: (): boolean => {
+            const slotItemInstanceID: string | undefined =
+              worldState.values.bagItemInstanceIDs[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              return false;
+            }
+            return (
+              bankWorldMenu.state.values.selectedDepositItemInstanceID ===
+              slotItemInstanceID
+            );
+          },
           onClick: (): void => {
+            const slotItemInstanceID: string | undefined =
+              worldState.values.bagItemInstanceIDs[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              throw new Error("Bag item instance ID is undefined");
+            }
             bankWorldMenu.state.setValues({
-              selectedDepositIndex:
-                bankWorldMenu.state.values.selectedDepositIndex === i
+              selectedDepositItemInstanceID:
+                bankWorldMenu.state.values.selectedDepositItemInstanceID ===
+                slotItemInstanceID
                   ? null
-                  : i,
-              selectedWithdrawIndex: null,
+                  : slotItemInstanceID,
+              selectedWithdrawItemInstanceID: null,
             });
           },
           slotImagePath: "slots/basic",
@@ -833,7 +861,7 @@ export const bankWorldMenu: WorldMenu<
         itemID: (): string => getSelectedWithdrawItemInstance().itemID,
         onClose: (): void => {
           bankWorldMenu.state.setValues({
-            selectedWithdrawIndex: null,
+            selectedWithdrawItemInstanceID: null,
           });
         },
       }),
@@ -878,14 +906,14 @@ export const bankWorldMenu: WorldMenu<
         itemID: (): string => getSelectedDepositItemInstance().itemID,
         onClose: (): void => {
           bankWorldMenu.state.setValues({
-            selectedDepositIndex: null,
+            selectedDepositItemInstanceID: null,
           });
         },
       }),
     );
     const setPage = (page: number): void => {
       bankWorldMenu.state.setValues({
-        selectedWithdrawIndex: null,
+        selectedWithdrawItemInstanceID: null,
         storagePage: page,
       });
     };
@@ -996,8 +1024,8 @@ export const bankWorldMenu: WorldMenu<
   },
   initialStateValues: {
     section: BankSection.Gold,
-    selectedDepositIndex: null,
-    selectedWithdrawIndex: null,
+    selectedDepositItemInstanceID: null,
+    selectedWithdrawItemInstanceID: null,
     storagePage: 0,
     storageTab: BankStorageTab.Withdraw,
     vaultDepositQueuedGold: 0,

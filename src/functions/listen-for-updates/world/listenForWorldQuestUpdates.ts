@@ -1,7 +1,6 @@
 import { NPC } from "../../../classes/NPC";
 import { Player } from "../../../classes/Player";
 import { Quest } from "../../../classes/Quest";
-import { QuestExchangerQuest } from "../../../classes/QuestExchanger";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
 import {
   WorldCharacter,
@@ -39,13 +38,9 @@ export const listenForWorldQuestUpdates = (): void => {
           npcID: update.npcID,
         });
       }
-      const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
         questCompletion: null,
-        selectedQuestIndex: npc.questExchanger.quests.findIndex(
-          (questExchangerQuest: QuestExchangerQuest): boolean =>
-            questExchangerQuest.questID === update.questID,
-        ),
+        selectedQuestID: update.questID,
       });
       const quest: Quest = getDefinable(Quest, update.questID);
       for (const partyPlayer of worldCharacter.player.character.party.players) {
@@ -94,16 +89,10 @@ export const listenForWorldQuestUpdates = (): void => {
           npcID: update.npcID,
         });
       }
-      const npc: NPC = getDefinable(NPC, update.npcID);
       npcDialogueWorldMenu.state.setValues({
         questCompletion: null,
-        selectedQuestIndex:
-          typeof update.questID !== "undefined"
-            ? npc.questExchanger.quests.findIndex(
-                (questExchangerQuest: QuestExchangerQuest): boolean =>
-                  questExchangerQuest.questID === update.questID,
-              )
-            : null,
+        selectedQuestID:
+          typeof update.questID !== "undefined" ? update.questID : null,
       });
     },
   });
@@ -152,12 +141,9 @@ export const listenForWorldQuestUpdates = (): void => {
         }
         const npc: NPC = getDefinable(NPC, worldUpdate.npcID);
         npcDialogueWorldMenu.state.setValues({
-          selectedQuestIndex:
+          selectedQuestID:
             typeof worldUpdate.questID !== "undefined"
-              ? npc.questExchanger.quests.findIndex(
-                  (questExchangerQuest: QuestExchangerQuest): boolean =>
-                    questExchangerQuest.questID === worldUpdate.questID,
-                )
+              ? worldUpdate.questID
               : null,
         });
         const quest: Quest = getDefinable(Quest, worldUpdate.questID);
@@ -179,7 +165,7 @@ export const listenForWorldQuestUpdates = (): void => {
                     didLevelUp,
                     questID: quest.id,
                   },
-                  selectedQuestIndex: null,
+                  selectedQuestID: null,
                 });
                 questInstance.isCompleted = true;
               }

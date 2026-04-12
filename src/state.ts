@@ -100,8 +100,8 @@ export interface BattleStateSelection {
   itemsPage: number;
   menuState: BattleMenuState;
   queuedAction: BattleStateQueuedAction | null;
-  selectedAbilityIndex: number | null;
-  selectedItemInstanceIndex: number | null;
+  selectedAbilityID: string | null;
+  selectedItemInstanceID: string | null;
   readonly serverTime: number;
   unbindStartedAt: number | null;
 }

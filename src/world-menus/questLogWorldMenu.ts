@@ -44,8 +44,8 @@ enum QuestLogTab {
 
 export interface QuestLogWorldMenuOpenOptions {}
 export interface QuestLogWorldMenuStateSchema {
-  selectedCompletedQuestIndex: number | null;
-  selectedInProgressQuestIndex: number | null;
+  selectedCompletedQuestID: string | null;
+  selectedInProgressQuestID: string | null;
   selectedQuestDialoguePage: number | null;
   tab: QuestLogTab;
 }
@@ -156,7 +156,7 @@ export const questLogWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
-            selectedCompletedQuestIndex: null,
+            selectedCompletedQuestID: null,
             selectedQuestDialoguePage: null,
             tab: QuestLogTab.InProgress,
           });
@@ -174,7 +174,7 @@ export const questLogWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
-            selectedInProgressQuestIndex: null,
+            selectedInProgressQuestID: null,
             selectedQuestDialoguePage: null,
             tab: QuestLogTab.Completed,
           });
@@ -270,19 +270,26 @@ export const questLogWorldMenu: WorldMenu<
                 getQuestIconRecolors(getInProgressQuest(i).id, false),
             },
           ],
-          isSelected: (): boolean =>
-            questLogWorldMenu.state.values.selectedInProgressQuestIndex === i,
+          isSelected: (): boolean => {
+            const slotQuestID: string = getInProgressQuest(i).id;
+            return (
+              questLogWorldMenu.state.values.selectedInProgressQuestID ===
+              slotQuestID
+            );
+          },
           onClick: (): void => {
+            const slotQuestID: string = getInProgressQuest(i).id;
             if (
-              questLogWorldMenu.state.values.selectedInProgressQuestIndex === i
+              questLogWorldMenu.state.values.selectedInProgressQuestID ===
+              slotQuestID
             ) {
               questLogWorldMenu.state.setValues({
-                selectedInProgressQuestIndex: null,
+                selectedInProgressQuestID: null,
                 selectedQuestDialoguePage: null,
               });
             } else {
               questLogWorldMenu.state.setValues({
-                selectedInProgressQuestIndex: i,
+                selectedInProgressQuestID: slotQuestID,
                 selectedQuestDialoguePage: null,
               });
             }
@@ -325,19 +332,26 @@ export const questLogWorldMenu: WorldMenu<
                 getQuestIconRecolors(getCompletedQuest(i).id, false),
             },
           ],
-          isSelected: (): boolean =>
-            questLogWorldMenu.state.values.selectedCompletedQuestIndex === i,
+          isSelected: (): boolean => {
+            const slotQuestID: string = getCompletedQuest(i).id;
+            return (
+              questLogWorldMenu.state.values.selectedCompletedQuestID ===
+              slotQuestID
+            );
+          },
           onClick: (): void => {
+            const slotQuestID: string = getCompletedQuest(i).id;
             if (
-              questLogWorldMenu.state.values.selectedCompletedQuestIndex === i
+              questLogWorldMenu.state.values.selectedCompletedQuestID ===
+              slotQuestID
             ) {
               questLogWorldMenu.state.setValues({
-                selectedCompletedQuestIndex: null,
+                selectedCompletedQuestID: null,
                 selectedQuestDialoguePage: null,
               });
             } else {
               questLogWorldMenu.state.setValues({
-                selectedCompletedQuestIndex: i,
+                selectedCompletedQuestID: slotQuestID,
                 selectedQuestDialoguePage: null,
               });
             }
@@ -356,21 +370,23 @@ export const questLogWorldMenu: WorldMenu<
       switch (questLogWorldMenu.state.values.tab) {
         case QuestLogTab.InProgress:
           if (
-            questLogWorldMenu.state.values.selectedInProgressQuestIndex === null
+            questLogWorldMenu.state.values.selectedInProgressQuestID === null
           ) {
-            throw new Error("No selected quest index");
+            throw new Error("No selected in-progress quest ID");
           }
-          return getInProgressQuest(
-            questLogWorldMenu.state.values.selectedInProgressQuestIndex,
+          return getDefinable(
+            Quest,
+            questLogWorldMenu.state.values.selectedInProgressQuestID,
           );
         case QuestLogTab.Completed:
           if (
-            questLogWorldMenu.state.values.selectedCompletedQuestIndex === null
+            questLogWorldMenu.state.values.selectedCompletedQuestID === null
           ) {
-            throw new Error("No selected quest index");
+            throw new Error("No selected completed quest ID");
           }
-          return getCompletedQuest(
-            questLogWorldMenu.state.values.selectedCompletedQuestIndex,
+          return getDefinable(
+            Quest,
+            questLogWorldMenu.state.values.selectedCompletedQuestID,
           );
       }
     };
@@ -382,9 +398,22 @@ export const questLogWorldMenu: WorldMenu<
       }
       return questInstance;
     };
-    const isQuestSelected = (): boolean =>
-      questLogWorldMenu.state.values.selectedInProgressQuestIndex !== null ||
-      questLogWorldMenu.state.values.selectedCompletedQuestIndex !== null;
+    const isQuestSelected = (): boolean => {
+      if (questLogWorldMenu.state.values.tab === QuestLogTab.InProgress) {
+        if (questLogWorldMenu.state.values.selectedInProgressQuestID === null) {
+          return false;
+        }
+        return getInProgressQuestIDs().includes(
+          questLogWorldMenu.state.values.selectedInProgressQuestID,
+        );
+      }
+      if (questLogWorldMenu.state.values.selectedCompletedQuestID === null) {
+        return false;
+      }
+      return getCompletedQuestIDs().includes(
+        questLogWorldMenu.state.values.selectedCompletedQuestID,
+      );
+    };
     const getSelectedQuestDialogueLastPage = (): number => {
       const selectedQuestInstance: WorldCharacterQuestInstance =
         getSelectedQuestInstance();
@@ -553,8 +582,8 @@ export const questLogWorldMenu: WorldMenu<
         imagePath: "x",
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
-            selectedCompletedQuestIndex: null,
-            selectedInProgressQuestIndex: null,
+            selectedCompletedQuestID: null,
+            selectedInProgressQuestID: null,
             selectedQuestDialoguePage: null,
           });
         },
@@ -722,8 +751,8 @@ export const questLogWorldMenu: WorldMenu<
     ]);
   },
   initialStateValues: {
-    selectedCompletedQuestIndex: null,
-    selectedInProgressQuestIndex: null,
+    selectedCompletedQuestID: null,
+    selectedInProgressQuestID: null,
     selectedQuestDialoguePage: null,
     tab: QuestLogTab.InProgress,
   },

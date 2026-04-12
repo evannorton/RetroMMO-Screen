@@ -46,7 +46,7 @@ export interface NPCDialogueWorldMenuOpenOptions {
 }
 export interface NPCDialogueWorldMenuStateSchema {
   questCompletion: NPCDialogueWorldMenuStateQuestCompletion | null;
-  selectedQuestIndex: number | null;
+  selectedQuestID: string | null;
 }
 export const npcDialogueWorldMenu: WorldMenu<
   NPCDialogueWorldMenuOpenOptions,
@@ -70,15 +70,16 @@ export const npcDialogueWorldMenu: WorldMenu<
       worldState.values.worldCharacterID,
     );
     const getSelectedQuest = (): Quest | null => {
-      if (npcDialogueWorldMenu.state.values.selectedQuestIndex === null) {
+      if (npcDialogueWorldMenu.state.values.selectedQuestID === null) {
         return null;
       }
       const questExchangerQuest: QuestExchangerQuest | undefined =
-        npc.questExchanger.quests[
-          npcDialogueWorldMenu.state.values.selectedQuestIndex
-        ];
+        npc.questExchanger.quests.find(
+          (q: QuestExchangerQuest): boolean =>
+            q.questID === npcDialogueWorldMenu.state.values.selectedQuestID,
+        );
       if (typeof questExchangerQuest === "undefined") {
-        throw new Error("No quest giver quest.");
+        return null;
       }
       return getDefinable(Quest, questExchangerQuest.questID);
     };
@@ -104,9 +105,9 @@ export const npcDialogueWorldMenu: WorldMenu<
             worldCharacter.player.character.party.playerIDs[0] ===
             worldCharacter.playerID
           ) {
-            if (npcDialogueWorldMenu.state.values.selectedQuestIndex !== null) {
+            if (npcDialogueWorldMenu.state.values.selectedQuestID !== null) {
               npcDialogueWorldMenu.state.setValues({
-                selectedQuestIndex: null,
+                selectedQuestID: null,
               });
             } else if (
               npcDialogueWorldMenu.state.values.questCompletion !== null
@@ -275,7 +276,6 @@ export const npcDialogueWorldMenu: WorldMenu<
         );
         // Quests list
         for (let i: number = 0; i < npcQuestsPerPage; i++) {
-          const index: number = i;
           const getQuest = (): Quest => {
             const questExchangerQuest: QuestExchangerQuest | undefined =
               getQuestExchangerQuests(npc.id)[i];
@@ -312,13 +312,16 @@ export const npcDialogueWorldMenu: WorldMenu<
                 },
               ],
               isSelected: (): boolean =>
-                npcDialogueWorldMenu.state.values.selectedQuestIndex === i,
+                npcDialogueWorldMenu.state.values.selectedQuestID ===
+                getQuest().id,
               onClick: (): void => {
+                const slotQuestID: string = getQuest().id;
                 if (
-                  npcDialogueWorldMenu.state.values.selectedQuestIndex === i
+                  npcDialogueWorldMenu.state.values.selectedQuestID ===
+                  slotQuestID
                 ) {
                   npcDialogueWorldMenu.state.setValues({
-                    selectedQuestIndex: null,
+                    selectedQuestID: null,
                   });
                   emitToSocketioServer<WorldQuestSelectRequest>({
                     data: {},
@@ -327,11 +330,11 @@ export const npcDialogueWorldMenu: WorldMenu<
                 } else {
                   npcDialogueWorldMenu.state.setValues({
                     questCompletion: null,
-                    selectedQuestIndex: index,
+                    selectedQuestID: slotQuestID,
                   });
                   emitToSocketioServer<WorldQuestSelectRequest>({
                     data: {
-                      questID: getQuest().id,
+                      questID: slotQuestID,
                     },
                     event: "world/quest/select",
                   });
@@ -496,7 +499,7 @@ export const npcDialogueWorldMenu: WorldMenu<
   },
   initialStateValues: {
     questCompletion: null,
-    selectedQuestIndex: null,
+    selectedQuestID: null,
   },
   preventsWalking: true,
 });

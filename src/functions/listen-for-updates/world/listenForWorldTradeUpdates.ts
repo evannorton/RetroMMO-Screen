@@ -20,7 +20,6 @@ import { WorldStateSchema } from "../../../state";
 import { clearWorldCharacterMarker } from "../../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { getDefinable, getDefinables } from "definables";
-import { getTradeBagItemInstance } from "../../trade/const getTradeBagItemInstance";
 import { getWorldState } from "../../state/getWorldState";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
 
@@ -137,15 +136,13 @@ export const listenForWorldTradeUpdates = (): void => {
     onMessage: (update: WorldTradeOfferItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       if (update.worldCharacterID === worldState.values.worldCharacterID) {
-        if (tradeWorldMenu.state.values.selectedBagItemIndex !== null) {
-          const selectedBagItemInstance: ItemInstance = getTradeBagItemInstance(
-            tradeWorldMenu.state.values.selectedBagItemIndex,
-          );
+        if (tradeWorldMenu.state.values.selectedBagItemInstanceID !== null) {
           if (
-            selectedBagItemInstance.id === update.itemInstance.itemInstanceID
+            update.itemInstance.itemInstanceID ===
+            tradeWorldMenu.state.values.selectedBagItemInstanceID
           ) {
             tradeWorldMenu.state.setValues({
-              selectedBagItemIndex: null,
+              selectedBagItemInstanceID: null,
             });
           }
         }
@@ -276,17 +273,15 @@ export const listenForWorldTradeUpdates = (): void => {
     onMessage: (update: WorldTradeUnofferItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       if (update.worldCharacterID === worldState.values.worldCharacterID) {
-        if (tradeWorldMenu.state.values.selectedOfferedItemIndex !== null) {
-          const selectedOfferedItem: TradeItem | undefined =
-            tradeWorldMenu.state.values.offeredItems[
-              tradeWorldMenu.state.values.selectedOfferedItemIndex
-            ];
-          if (typeof selectedOfferedItem === "undefined") {
-            throw new Error("Selected offered item instance ID not found");
-          }
-          if (update.itemInstanceID === selectedOfferedItem.itemInstanceID) {
+        if (
+          tradeWorldMenu.state.values.selectedOfferedItemInstanceID !== null
+        ) {
+          if (
+            update.itemInstanceID ===
+            tradeWorldMenu.state.values.selectedOfferedItemInstanceID
+          ) {
             tradeWorldMenu.state.setValues({
-              selectedOfferedItemIndex: null,
+              selectedOfferedItemInstanceID: null,
             });
           }
         }
@@ -308,22 +303,15 @@ export const listenForWorldTradeUpdates = (): void => {
         });
       } else {
         if (
-          tradeWorldMenu.state.values.selectedTraderOfferedItemIndex !== null
+          tradeWorldMenu.state.values.selectedTraderOfferedItemInstanceID !==
+          null
         ) {
-          const selectedTraderOfferedItem: TradeItem | undefined =
-            tradeWorldMenu.state.values.traderOfferedItems[
-              tradeWorldMenu.state.values.selectedTraderOfferedItemIndex
-            ];
-          if (typeof selectedTraderOfferedItem === "undefined") {
-            throw new Error(
-              "Selected trader offered item instance ID not found",
-            );
-          }
           if (
-            update.itemInstanceID === selectedTraderOfferedItem.itemInstanceID
+            update.itemInstanceID ===
+            tradeWorldMenu.state.values.selectedTraderOfferedItemInstanceID
           ) {
             tradeWorldMenu.state.setValues({
-              selectedTraderOfferedItemIndex: null,
+              selectedTraderOfferedItemInstanceID: null,
             });
           }
         }

@@ -33,18 +33,14 @@ export const listenForWorldShopUpdates = (): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       if (
         npcShopWorldMenu.isOpen() &&
-        npcShopWorldMenu.state.values.selectedSellIndex !== null
+        npcShopWorldMenu.state.values.selectedSellItemInstanceID !== null
       ) {
-        const selectedSellItemInstanceID: string | undefined =
-          worldState.values.bagItemInstanceIDs[
-            npcShopWorldMenu.state.values.selectedSellIndex
-          ];
-        if (typeof selectedSellItemInstanceID === "undefined") {
-          throw new Error("Selected sell item instance ID not found");
-        }
-        if (selectedSellItemInstanceID === update.itemInstanceID) {
+        if (
+          update.itemInstanceID ===
+          npcShopWorldMenu.state.values.selectedSellItemInstanceID
+        ) {
           npcShopWorldMenu.state.setValues({
-            selectedSellIndex: null,
+            selectedSellItemInstanceID: null,
           });
         }
       }

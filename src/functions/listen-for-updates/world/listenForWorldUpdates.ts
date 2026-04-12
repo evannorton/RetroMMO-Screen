@@ -194,18 +194,14 @@ export const listenForWorldUpdates = (): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       if (
         statsWorldMenu.isOpen() &&
-        statsWorldMenu.state.values.selectedBoostIndex !== null
+        statsWorldMenu.state.values.selectedBoostItemInstanceID !== null
       ) {
-        const selectedBoostItemInstanceID: string | undefined =
-          worldState.values.boostItemInstanceIDs[
-            statsWorldMenu.state.values.selectedBoostIndex
-          ];
-        if (typeof selectedBoostItemInstanceID === "undefined") {
-          throw new Error("Selected boost item instance ID not found");
-        }
-        if (update.itemInstanceID === selectedBoostItemInstanceID) {
+        if (
+          update.itemInstanceID ===
+          statsWorldMenu.state.values.selectedBoostItemInstanceID
+        ) {
           statsWorldMenu.state.setValues({
-            selectedBoostIndex: null,
+            selectedBoostItemInstanceID: null,
           });
         }
       }
@@ -356,23 +352,18 @@ export const listenForWorldUpdates = (): void => {
             break;
           }
           case InventoryTab.Bag: {
-            if (inventoryWorldMenu.state.values.selectedBagItemIndex !== null) {
-              const selectedBagItemInstanceID: string | undefined =
-                worldState.values.bagItemInstanceIDs[
-                  inventoryWorldMenu.state.values.selectedBagItemIndex
-                ];
-              if (typeof selectedBagItemInstanceID === "undefined") {
-                throw new Error("Selected bag item instance ID not found");
-              }
+            if (
+              inventoryWorldMenu.state.values.selectedBagItemInstanceID !== null
+            ) {
               if (
                 update.bagItemInstances.some(
                   (itemInstanceUpdate: ItemInstanceUpdate): boolean =>
                     itemInstanceUpdate.itemInstanceID ===
-                    selectedBagItemInstanceID,
+                    inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                 ) === false
               ) {
                 inventoryWorldMenu.state.setValues({
-                  selectedBagItemIndex: null,
+                  selectedBagItemInstanceID: null,
                 });
               }
             }
@@ -968,24 +959,18 @@ export const listenForWorldUpdates = (): void => {
             }
             case InventoryTab.Bag: {
               if (
-                inventoryWorldMenu.state.values.selectedBagItemIndex !== null
+                inventoryWorldMenu.state.values.selectedBagItemInstanceID !==
+                null
               ) {
-                const selectedBagItemInstanceID: string | undefined =
-                  worldState.values.bagItemInstanceIDs[
-                    inventoryWorldMenu.state.values.selectedBagItemIndex
-                  ];
-                if (typeof selectedBagItemInstanceID === "undefined") {
-                  throw new Error("Selected bag item instance ID not found");
-                }
                 if (
                   update.items.bagItemInstances.some(
                     (itemInstanceUpdate: ItemInstanceUpdate): boolean =>
                       itemInstanceUpdate.itemInstanceID ===
-                      selectedBagItemInstanceID,
+                      inventoryWorldMenu.state.values.selectedBagItemInstanceID,
                   ) === false
                 ) {
                   inventoryWorldMenu.state.setValues({
-                    selectedBagItemIndex: null,
+                    selectedBagItemInstanceID: null,
                   });
                 }
               }

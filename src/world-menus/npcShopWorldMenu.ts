@@ -44,7 +44,7 @@ export interface NPCShopWorldMenuOpenOptions {
 export interface NPCShopWorldMenuStateSchema {
   buyPage: number;
   selectedBuyIndex: number | null;
-  selectedSellIndex: number | null;
+  selectedSellItemInstanceID: string | null;
   tab: NPCShopTab;
 }
 export const npcShopWorldMenu: WorldMenu<
@@ -87,26 +87,20 @@ export const npcShopWorldMenu: WorldMenu<
     const hasSelectedBuyShopItem = (): boolean =>
       npcShopWorldMenu.state.values.selectedBuyIndex !== null;
     const getSelectedSellItemInstance = (): ItemInstance => {
-      if (npcShopWorldMenu.state.values.selectedSellIndex === null) {
-        throw new Error("selectedSellIndex is null");
+      if (npcShopWorldMenu.state.values.selectedSellItemInstanceID === null) {
+        throw new Error("selectedSellItemInstanceID is null");
       }
-      const itemInstanceID: string | undefined =
-        worldState.values.bagItemInstanceIDs[
-          npcShopWorldMenu.state.values.selectedSellIndex
-        ];
-      if (typeof itemInstanceID === "undefined") {
-        throw new Error("Selected sell item instance ID is undefined");
-      }
-      return getDefinable(ItemInstance, itemInstanceID);
+      return getDefinable(
+        ItemInstance,
+        npcShopWorldMenu.state.values.selectedSellItemInstanceID,
+      );
     };
     const hasSelectedSellItemInstance = (): boolean => {
-      if (npcShopWorldMenu.state.values.selectedSellIndex === null) {
+      if (npcShopWorldMenu.state.values.selectedSellItemInstanceID === null) {
         return false;
       }
-      return (
-        npcShopWorldMenu.state.values.selectedSellIndex >= 0 &&
-        npcShopWorldMenu.state.values.selectedSellIndex <
-          worldState.values.bagItemInstanceIDs.length
+      return worldState.values.bagItemInstanceIDs.includes(
+        npcShopWorldMenu.state.values.selectedSellItemInstanceID,
       );
     };
     const buyTabCondition = (): boolean =>
@@ -254,7 +248,7 @@ export const npcShopWorldMenu: WorldMenu<
         height: 20,
         onClick: (): void => {
           npcShopWorldMenu.state.setValues({
-            selectedSellIndex: null,
+            selectedSellItemInstanceID: null,
             tab: NPCShopTab.Buy,
           });
         },
@@ -304,7 +298,7 @@ export const npcShopWorldMenu: WorldMenu<
             npcShopWorldMenu.state.setValues({
               selectedBuyIndex:
                 npcShopWorldMenu.state.values.selectedBuyIndex === i ? null : i,
-              selectedSellIndex: null,
+              selectedSellItemInstanceID: null,
             });
           },
           slotImagePath: "slots/basic",
@@ -345,15 +339,30 @@ export const npcShopWorldMenu: WorldMenu<
               },
             },
           ],
-          isSelected: (): boolean =>
-            npcShopWorldMenu.state.values.selectedSellIndex === i,
+          isSelected: (): boolean => {
+            const slotItemInstanceID: string | undefined =
+              worldState.values.bagItemInstanceIDs[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              return false;
+            }
+            return (
+              npcShopWorldMenu.state.values.selectedSellItemInstanceID ===
+              slotItemInstanceID
+            );
+          },
           onClick: (): void => {
+            const slotItemInstanceID: string | undefined =
+              worldState.values.bagItemInstanceIDs[i];
+            if (typeof slotItemInstanceID === "undefined") {
+              throw new Error("Bag item instance ID is undefined");
+            }
             npcShopWorldMenu.state.setValues({
               selectedBuyIndex: null,
-              selectedSellIndex:
-                npcShopWorldMenu.state.values.selectedSellIndex === i
+              selectedSellItemInstanceID:
+                npcShopWorldMenu.state.values.selectedSellItemInstanceID ===
+                slotItemInstanceID
                   ? null
-                  : i,
+                  : slotItemInstanceID,
             });
           },
           slotImagePath: "slots/basic",
@@ -483,7 +492,7 @@ export const npcShopWorldMenu: WorldMenu<
         itemID: (): string => getSelectedSellItemInstance().itemID,
         onClose: (): void => {
           npcShopWorldMenu.state.setValues({
-            selectedSellIndex: null,
+            selectedSellItemInstanceID: null,
           });
         },
       }),
@@ -500,7 +509,7 @@ export const npcShopWorldMenu: WorldMenu<
   initialStateValues: {
     buyPage: 0,
     selectedBuyIndex: null,
-    selectedSellIndex: null,
+    selectedSellItemInstanceID: null,
     tab: NPCShopTab.Buy,
   },
   preventsWalking: true,
