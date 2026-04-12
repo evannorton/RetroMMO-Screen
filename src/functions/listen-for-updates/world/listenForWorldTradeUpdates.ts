@@ -5,20 +5,24 @@ import {
   WorldTradeCancelUpdate,
   WorldTradeCompleteUpdate,
   WorldTradeIdentifyGoldUpdate,
+  WorldTradeIdentifyItemUpdate,
   WorldTradeOfferGoldUpdate,
+  WorldTradeOfferItemUpdate,
   WorldTradeStartUpdate,
   WorldTradeUnacceptUpdate,
   WorldTradeUnofferGoldUpdate,
+  WorldTradeUnofferItemUpdate,
 } from "retrommo-types";
 import { State, listenToSocketioEvent } from "pixel-pigeon";
+import { TradeItem, tradeWorldMenu } from "../../../world-menus/tradeWorldMenu";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { WorldStateSchema } from "../../../state";
 import { clearWorldCharacterMarker } from "../../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { getDefinable, getDefinables } from "definables";
+import { getTradeBagItemInstance } from "../../trade/const getTradeBagItemInstance";
 import { getWorldState } from "../../state/getWorldState";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
-import { tradeWorldMenu } from "../../../world-menus/tradeWorldMenu";
 
 export const listenForWorldTradeUpdates = (): void => {
   listenToSocketioEvent<WorldTradeAcceptUpdate>({
@@ -39,19 +43,10 @@ export const listenForWorldTradeUpdates = (): void => {
   listenToSocketioEvent<WorldTradeCancelUpdate>({
     event: "world/trade/cancel",
     onMessage: (): void => {
-      for (const offeredItemInstanceID of tradeWorldMenu.state.values
-        .offeredItemInstanceIDs) {
-        const offeredItemInstance: ItemInstance = getDefinable(
-          ItemInstance,
-          offeredItemInstanceID,
-        );
-        offeredItemInstance.remove();
-      }
-      for (const traderOfferedItemInstanceID of tradeWorldMenu.state.values
-        .traderOfferedItemInstanceIDs) {
+      for (const tradeItem of tradeWorldMenu.state.values.traderOfferedItems) {
         const traderOfferedItemInstance: ItemInstance = getDefinable(
           ItemInstance,
-          traderOfferedItemInstanceID,
+          tradeItem.itemInstanceID,
         );
         traderOfferedItemInstance.remove();
       }
@@ -64,19 +59,10 @@ export const listenForWorldTradeUpdates = (): void => {
   listenToSocketioEvent<WorldTradeCompleteUpdate>({
     event: "world/trade/complete",
     onMessage: (update: WorldTradeCompleteUpdate): void => {
-      for (const offeredItemInstanceID of tradeWorldMenu.state.values
-        .offeredItemInstanceIDs) {
-        const offeredItemInstance: ItemInstance = getDefinable(
-          ItemInstance,
-          offeredItemInstanceID,
-        );
-        offeredItemInstance.remove();
-      }
-      for (const traderOfferedItemInstanceID of tradeWorldMenu.state.values
-        .traderOfferedItemInstanceIDs) {
+      for (const tradeItem of tradeWorldMenu.state.values.traderOfferedItems) {
         const traderOfferedItemInstance: ItemInstance = getDefinable(
           ItemInstance,
-          traderOfferedItemInstanceID,
+          tradeItem.itemInstanceID,
         );
         traderOfferedItemInstance.remove();
       }
@@ -116,6 +102,90 @@ export const listenForWorldTradeUpdates = (): void => {
         tradeWorldMenu.state.setValues({
           isOfferedGoldIdentified: true,
         });
+      }
+    },
+  });
+  listenToSocketioEvent<WorldTradeIdentifyItemUpdate>({
+    event: "world/trade/identify-item",
+    onMessage: (update: WorldTradeIdentifyItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      if (worldState.values.worldCharacterID === update.worldCharacterID) {
+        const tradeItem: TradeItem | undefined =
+          tradeWorldMenu.state.values.traderOfferedItems.find(
+            (offeredItem: TradeItem): boolean =>
+              offeredItem.itemInstanceID === update.itemInstanceID,
+          );
+        if (typeof tradeItem === "undefined") {
+          throw new Error("Trade item not found");
+        }
+        tradeItem.isIdentified = true;
+      } else {
+        const tradeItem: TradeItem | undefined =
+          tradeWorldMenu.state.values.offeredItems.find(
+            (offeredItem: TradeItem): boolean =>
+              offeredItem.itemInstanceID === update.itemInstanceID,
+          );
+        if (typeof tradeItem === "undefined") {
+          throw new Error("Trade item not found");
+        }
+        tradeItem.isIdentified = true;
+      }
+    },
+  });
+  listenToSocketioEvent<WorldTradeOfferItemUpdate>({
+    event: "world/trade/offer-item",
+    onMessage: (update: WorldTradeOfferItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      if (update.worldCharacterID === worldState.values.worldCharacterID) {
+        if (tradeWorldMenu.state.values.selectedBagItemIndex !== null) {
+          const selectedBagItemInstance: ItemInstance = getTradeBagItemInstance(
+            tradeWorldMenu.state.values.selectedBagItemIndex,
+          );
+          if (
+            selectedBagItemInstance.id === update.itemInstance.itemInstanceID
+          ) {
+            tradeWorldMenu.state.setValues({
+              selectedBagItemIndex: null,
+            });
+          }
+        }
+        tradeWorldMenu.state.setValues({
+          hasAccepted: false,
+          hasTraderAccepted: false,
+          offeredItems: [
+            ...tradeWorldMenu.state.values.offeredItems,
+            {
+              isIdentified: false,
+              itemInstanceID: update.itemInstance.itemInstanceID,
+            },
+          ],
+        });
+      } else {
+        loadItemInstanceUpdate(update.itemInstance);
+        tradeWorldMenu.state.setValues({
+          hasAccepted: false,
+          hasTraderAccepted: false,
+          traderOfferedItems: [
+            ...tradeWorldMenu.state.values.traderOfferedItems,
+            {
+              isIdentified: false,
+              itemInstanceID: update.itemInstance.itemInstanceID,
+            },
+          ],
+        });
+      }
+      for (const roomUpdate of update.room) {
+        if (
+          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
+        ) {
+          tradeWorldMenu.state.setValues({
+            hasRoomForItems: roomUpdate.hasRoom ?? false,
+          });
+        } else {
+          tradeWorldMenu.state.setValues({
+            doesTraderHaveRoomForItems: roomUpdate.hasRoom ?? false,
+          });
+        }
       }
     },
   });
@@ -198,6 +268,99 @@ export const listenForWorldTradeUpdates = (): void => {
         tradeWorldMenu.state.setValues({
           hasTraderAccepted: false,
         });
+      }
+    },
+  });
+  listenToSocketioEvent<WorldTradeUnofferItemUpdate>({
+    event: "world/trade/unoffer-item",
+    onMessage: (update: WorldTradeUnofferItemUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      if (update.worldCharacterID === worldState.values.worldCharacterID) {
+        if (tradeWorldMenu.state.values.selectedOfferedItemIndex !== null) {
+          const selectedOfferedItem: TradeItem | undefined =
+            tradeWorldMenu.state.values.offeredItems[
+              tradeWorldMenu.state.values.selectedOfferedItemIndex
+            ];
+          if (typeof selectedOfferedItem === "undefined") {
+            throw new Error("Selected offered item instance ID not found");
+          }
+          if (update.itemInstanceID === selectedOfferedItem.itemInstanceID) {
+            tradeWorldMenu.state.setValues({
+              selectedOfferedItemIndex: null,
+            });
+          }
+        }
+        tradeWorldMenu.state.setValues({
+          hasAccepted: false,
+          hasTraderAccepted: false,
+          isOfferedGoldIdentified: false,
+          offeredItems: tradeWorldMenu.state.values.offeredItems
+            .filter(
+              (tradeItem: TradeItem): boolean =>
+                tradeItem.itemInstanceID !== update.itemInstanceID,
+            )
+            .map(
+              (tradeItem: TradeItem): TradeItem => ({
+                isIdentified: false,
+                itemInstanceID: tradeItem.itemInstanceID,
+              }),
+            ),
+        });
+      } else {
+        if (
+          tradeWorldMenu.state.values.selectedTraderOfferedItemIndex !== null
+        ) {
+          const selectedTraderOfferedItem: TradeItem | undefined =
+            tradeWorldMenu.state.values.traderOfferedItems[
+              tradeWorldMenu.state.values.selectedTraderOfferedItemIndex
+            ];
+          if (typeof selectedTraderOfferedItem === "undefined") {
+            throw new Error(
+              "Selected trader offered item instance ID not found",
+            );
+          }
+          if (
+            update.itemInstanceID === selectedTraderOfferedItem.itemInstanceID
+          ) {
+            tradeWorldMenu.state.setValues({
+              selectedTraderOfferedItemIndex: null,
+            });
+          }
+        }
+        const itemInstance: ItemInstance = getDefinable(
+          ItemInstance,
+          update.itemInstanceID,
+        );
+        tradeWorldMenu.state.setValues({
+          hasAccepted: false,
+          hasTraderAccepted: false,
+          isTraderOfferedGoldIdentified: false,
+          traderOfferedItems: tradeWorldMenu.state.values.traderOfferedItems
+            .filter(
+              (tradeItem: TradeItem): boolean =>
+                tradeItem.itemInstanceID !== update.itemInstanceID,
+            )
+            .map(
+              (tradeItem: TradeItem): TradeItem => ({
+                isIdentified: false,
+                itemInstanceID: tradeItem.itemInstanceID,
+              }),
+            ),
+        });
+        itemInstance.remove();
+      }
+      for (const roomUpdate of update.room) {
+        if (
+          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
+        ) {
+          tradeWorldMenu.state.setValues({
+            hasRoomForItems: roomUpdate.hasRoom ?? false,
+          });
+        } else {
+          tradeWorldMenu.state.setValues({
+            doesTraderHaveRoomForItems: roomUpdate.hasRoom ?? false,
+          });
+        }
       }
     },
   });

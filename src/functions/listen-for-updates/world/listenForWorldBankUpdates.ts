@@ -29,6 +29,22 @@ export const listenForWorldBankUpdates = (): void => {
     event: "world/bank/deposit-item",
     onMessage: (update: WorldBankDepositItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
+      if (bankWorldMenu.isOpen()) {
+        if (bankWorldMenu.state.values.selectedDepositIndex !== null) {
+          const itemInstanceID: string | undefined =
+            worldState.values.bagItemInstanceIDs[
+              bankWorldMenu.state.values.selectedDepositIndex
+            ];
+          if (typeof itemInstanceID === "undefined") {
+            throw new Error("Item instance ID not found");
+          }
+          if (update.itemInstanceID === itemInstanceID) {
+            bankWorldMenu.state.setValues({
+              selectedDepositIndex: null,
+            });
+          }
+        }
+      }
       const bankItemInstanceIDs: (readonly string[])[] = [
         ...worldState.values.bankItemInstanceIDs,
       ];
@@ -69,6 +85,28 @@ export const listenForWorldBankUpdates = (): void => {
     event: "world/bank/withdraw-item",
     onMessage: (update: WorldBankWithdrawItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
+      if (
+        bankWorldMenu.isOpen() &&
+        bankWorldMenu.state.values.selectedWithdrawIndex !== null
+      ) {
+        const currentPage: readonly string[] | undefined =
+          worldState.values.bankItemInstanceIDs[
+            bankWorldMenu.state.values.storagePage
+          ];
+        if (typeof currentPage === "undefined") {
+          throw new Error("Current page not found");
+        }
+        const itemInstanceID: string | undefined =
+          currentPage[bankWorldMenu.state.values.selectedWithdrawIndex];
+        if (typeof itemInstanceID === "undefined") {
+          throw new Error("Item instance ID not found");
+        }
+        if (update.itemInstanceID === itemInstanceID) {
+          bankWorldMenu.state.setValues({
+            selectedWithdrawIndex: null,
+          });
+        }
+      }
       const bankItemInstanceIDs: (readonly string[])[] = [
         ...worldState.values.bankItemInstanceIDs,
       ];

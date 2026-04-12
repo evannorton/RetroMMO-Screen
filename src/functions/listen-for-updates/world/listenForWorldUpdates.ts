@@ -3,6 +3,7 @@ import {
   BattlePhase,
   CombatEvent,
   Direction,
+  EquipmentSlot,
   ItemInstanceUpdate,
   MarkerType,
   VanitySlot,
@@ -34,6 +35,10 @@ import {
   createBattleState,
 } from "../../state/createBattleState";
 import { Enterable } from "../../../classes/Enterable";
+import {
+  InventoryTab,
+  inventoryWorldMenu,
+} from "../../../world-menus/inventoryWorldMenu";
 import { Item } from "../../../classes/Item";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
@@ -66,7 +71,6 @@ import { createMainMenuState } from "../../state/main-menu/createMainMenuState";
 import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSource";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../../state/getWorldState";
-import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
 import { listenForWorldBankUpdates } from "./listenForWorldBankUpdates";
 import { listenForWorldQuestUpdates } from "./listenForWorldQuestUpdates";
 import { listenForWorldShopUpdates } from "./listenForWorldShopUpdates";
@@ -188,6 +192,23 @@ export const listenForWorldUpdates = (): void => {
     event: "world/destroy-boost",
     onMessage: (update: WorldDestroyBoostUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
+      if (
+        statsWorldMenu.isOpen() &&
+        statsWorldMenu.state.values.selectedBoostIndex !== null
+      ) {
+        const selectedBoostItemInstanceID: string | undefined =
+          worldState.values.boostItemInstanceIDs[
+            statsWorldMenu.state.values.selectedBoostIndex
+          ];
+        if (typeof selectedBoostItemInstanceID === "undefined") {
+          throw new Error("Selected boost item instance ID not found");
+        }
+        if (update.itemInstanceID === selectedBoostItemInstanceID) {
+          statsWorldMenu.state.setValues({
+            selectedBoostIndex: null,
+          });
+        }
+      }
       worldState.setValues({
         boostItemInstanceIDs: worldState.values.boostItemInstanceIDs.filter(
           (boostItemInstanceID: string): boolean =>
@@ -195,11 +216,6 @@ export const listenForWorldUpdates = (): void => {
         ),
       });
       getDefinable(ItemInstance, update.itemInstanceID).remove();
-      if (statsWorldMenu.isOpen()) {
-        statsWorldMenu.state.setValues({
-          selectedBoostIndex: null,
-        });
-      }
     },
   });
   listenToSocketioEvent<WorldEmoteUpdate>({
@@ -286,6 +302,84 @@ export const listenForWorldUpdates = (): void => {
       if (typeof update.offHandItemInstance !== "undefined") {
         loadItemInstanceUpdate(update.offHandItemInstance);
       }
+      if (inventoryWorldMenu.isOpen()) {
+        switch (inventoryWorldMenu.state.values.tab) {
+          case InventoryTab.Equipment: {
+            const didUnequipEquipmentHead: boolean =
+              typeof update.headItemInstance === "undefined" &&
+              worldState.values.headItemInstanceID !== null;
+            const didUnequipEquipmentBody: boolean =
+              typeof update.bodyItemInstance === "undefined" &&
+              worldState.values.bodyItemInstanceID !== null;
+            const didUnequipEquipmentMainHand: boolean =
+              typeof update.mainHandItemInstance === "undefined" &&
+              worldState.values.mainHandItemInstanceID !== null;
+            const didUnequipEquipmentOffHand: boolean =
+              typeof update.offHandItemInstance === "undefined" &&
+              worldState.values.offHandItemInstanceID !== null;
+            if (
+              didUnequipEquipmentHead &&
+              inventoryWorldMenu.state.values.selectedEquipmentSlot ===
+                EquipmentSlot.Head
+            ) {
+              inventoryWorldMenu.state.setValues({
+                selectedEquipmentSlot: null,
+              });
+            }
+            if (
+              didUnequipEquipmentBody &&
+              inventoryWorldMenu.state.values.selectedEquipmentSlot ===
+                EquipmentSlot.Body
+            ) {
+              inventoryWorldMenu.state.setValues({
+                selectedEquipmentSlot: null,
+              });
+            }
+            if (
+              didUnequipEquipmentMainHand &&
+              inventoryWorldMenu.state.values.selectedEquipmentSlot ===
+                EquipmentSlot.MainHand
+            ) {
+              inventoryWorldMenu.state.setValues({
+                selectedEquipmentSlot: null,
+              });
+            }
+            if (
+              didUnequipEquipmentOffHand &&
+              inventoryWorldMenu.state.values.selectedEquipmentSlot ===
+                EquipmentSlot.OffHand
+            ) {
+              inventoryWorldMenu.state.setValues({
+                selectedEquipmentSlot: null,
+              });
+            }
+            break;
+          }
+          case InventoryTab.Bag: {
+            if (inventoryWorldMenu.state.values.selectedBagItemIndex !== null) {
+              const selectedBagItemInstanceID: string | undefined =
+                worldState.values.bagItemInstanceIDs[
+                  inventoryWorldMenu.state.values.selectedBagItemIndex
+                ];
+              if (typeof selectedBagItemInstanceID === "undefined") {
+                throw new Error("Selected bag item instance ID not found");
+              }
+              if (
+                update.bagItemInstances.some(
+                  (itemInstanceUpdate: ItemInstanceUpdate): boolean =>
+                    itemInstanceUpdate.itemInstanceID ===
+                    selectedBagItemInstanceID,
+                ) === false
+              ) {
+                inventoryWorldMenu.state.setValues({
+                  selectedBagItemIndex: null,
+                });
+              }
+            }
+            break;
+          }
+        }
+      }
       worldState.setValues({
         bagItemInstanceIDs: update.bagItemInstances.map(
           (itemInstanceUpdate: ItemInstanceUpdate): string =>
@@ -298,12 +392,6 @@ export const listenForWorldUpdates = (): void => {
         offHandItemInstanceID:
           update.offHandItemInstance?.itemInstanceID ?? null,
       });
-      if (inventoryWorldMenu.isOpen()) {
-        inventoryWorldMenu.state.setValues({
-          selectedBagItemIndex: null,
-          selectedEquipmentSlot: null,
-        });
-      }
     },
   });
   listenToSocketioEvent<WorldExitCharactersUpdate>({
@@ -825,6 +913,86 @@ export const listenForWorldUpdates = (): void => {
         if (typeof update.items.outfitItemInstance !== "undefined") {
           loadItemInstanceUpdate(update.items.outfitItemInstance);
         }
+        if (inventoryWorldMenu.isOpen()) {
+          switch (inventoryWorldMenu.state.values.tab) {
+            case InventoryTab.Vanity: {
+              const didUnequipClothesDye: boolean =
+                typeof update.items.clothesDyeItemInstance === "undefined" &&
+                worldState.values.clothesDyeItemInstanceID !== null;
+              const didUnequipHairDye: boolean =
+                typeof update.items.hairDyeItemInstance === "undefined" &&
+                worldState.values.hairDyeItemInstanceID !== null;
+              const didUnequipMask: boolean =
+                typeof update.items.maskItemInstance === "undefined" &&
+                worldState.values.maskItemInstanceID !== null;
+              const didUnequipOutfit: boolean =
+                typeof update.items.outfitItemInstance === "undefined" &&
+                worldState.values.outfitItemInstanceID !== null;
+              if (
+                didUnequipClothesDye &&
+                inventoryWorldMenu.state.values.selectedVanitySlot ===
+                  VanitySlot.ClothesDye
+              ) {
+                inventoryWorldMenu.state.setValues({
+                  selectedVanitySlot: null,
+                });
+              }
+              if (
+                didUnequipHairDye &&
+                inventoryWorldMenu.state.values.selectedVanitySlot ===
+                  VanitySlot.HairDye
+              ) {
+                inventoryWorldMenu.state.setValues({
+                  selectedVanitySlot: null,
+                });
+              }
+              if (
+                didUnequipMask &&
+                inventoryWorldMenu.state.values.selectedVanitySlot ===
+                  VanitySlot.Mask
+              ) {
+                inventoryWorldMenu.state.setValues({
+                  selectedVanitySlot: null,
+                });
+              }
+              if (
+                didUnequipOutfit &&
+                inventoryWorldMenu.state.values.selectedVanitySlot ===
+                  VanitySlot.Outfit
+              ) {
+                inventoryWorldMenu.state.setValues({
+                  selectedVanitySlot: null,
+                });
+              }
+              break;
+            }
+            case InventoryTab.Bag: {
+              if (
+                inventoryWorldMenu.state.values.selectedBagItemIndex !== null
+              ) {
+                const selectedBagItemInstanceID: string | undefined =
+                  worldState.values.bagItemInstanceIDs[
+                    inventoryWorldMenu.state.values.selectedBagItemIndex
+                  ];
+                if (typeof selectedBagItemInstanceID === "undefined") {
+                  throw new Error("Selected bag item instance ID not found");
+                }
+                if (
+                  update.items.bagItemInstances.some(
+                    (itemInstanceUpdate: ItemInstanceUpdate): boolean =>
+                      itemInstanceUpdate.itemInstanceID ===
+                      selectedBagItemInstanceID,
+                  ) === false
+                ) {
+                  inventoryWorldMenu.state.setValues({
+                    selectedBagItemIndex: null,
+                  });
+                }
+              }
+              break;
+            }
+          }
+        }
         worldState.setValues({
           bagItemInstanceIDs: update.items.bagItemInstances.map(
             (bagItemInstanceUpdate: ItemInstanceUpdate): string =>
@@ -840,12 +1008,6 @@ export const listenForWorldUpdates = (): void => {
             update.items.outfitItemInstance?.itemInstanceID ?? null,
           worldCharacterID: update.characterID,
         });
-        if (inventoryWorldMenu.isOpen()) {
-          inventoryWorldMenu.state.setValues({
-            selectedBagItemIndex: null,
-            selectedVanitySlot: null,
-          });
-        }
       }
       const worldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,

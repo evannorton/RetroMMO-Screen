@@ -7,6 +7,7 @@ import {
 import { WorldStateSchema } from "../../../state";
 import { getDefinable } from "definables";
 import { getWorldState } from "../../state/getWorldState";
+import { npcShopWorldMenu } from "../../../world-menus/npcShopWorldMenu";
 
 export const listenForWorldShopUpdates = (): void => {
   listenToSocketioEvent<WorldShopBuyItemUpdate>({
@@ -32,14 +33,20 @@ export const listenForWorldShopUpdates = (): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
       if (
         npcShopWorldMenu.isOpen() &&
-        npcShopWorldMenu.state.values.selectedSellIndex !== null &&
-        worldState.values.bagItemInstanceIDs[
-          npcShopWorldMenu.state.values.selectedSellIndex
-        ] === update.itemInstanceID
+        npcShopWorldMenu.state.values.selectedSellIndex !== null
       ) {
-        npcShopWorldMenu.state.setValues({
-          selectedSellIndex: null,
-        });
+        const selectedSellItemInstanceID: string | undefined =
+          worldState.values.bagItemInstanceIDs[
+            npcShopWorldMenu.state.values.selectedSellIndex
+          ];
+        if (typeof selectedSellItemInstanceID === "undefined") {
+          throw new Error("Selected sell item instance ID not found");
+        }
+        if (selectedSellItemInstanceID === update.itemInstanceID) {
+          npcShopWorldMenu.state.setValues({
+            selectedSellIndex: null,
+          });
+        }
       }
       worldState.setValues({
         bagItemInstanceIDs: worldState.values.bagItemInstanceIDs.filter(

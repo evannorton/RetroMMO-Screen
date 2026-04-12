@@ -3,9 +3,12 @@ import {
   WorldTradeAcceptRequest,
   WorldTradeCancelRequest,
   WorldTradeIdentifyGoldRequest,
+  WorldTradeIdentifyItemRequest,
   WorldTradeOfferGoldRequest,
+  WorldTradeOfferItemRequest,
   WorldTradeUnacceptRequest,
   WorldTradeUnofferGoldRequest,
+  WorldTradeUnofferItemRequest,
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
@@ -30,6 +33,8 @@ import { createSlot } from "../functions/ui/components/createSlot";
 import { getConstants } from "../functions/getConstants";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
+import { getTradeBagItemInstance } from "../functions/trade/const getTradeBagItemInstance";
+import { getTradeBagItemInstances } from "../functions/trade/getTradeBagItemInstances";
 import { getWorldState } from "../functions/state/getWorldState";
 import { grayColors } from "../constants";
 
@@ -41,6 +46,10 @@ const tradeGoldIncrements: readonly number[] = [
   1, 10, 100, 1000, 10000, 100000,
 ];
 
+export interface TradeItem {
+  isIdentified: boolean;
+  readonly itemInstanceID: string;
+}
 export interface TradeWorldMenuOpenOptions {
   readonly doesTraderHaveRoomForGold?: boolean;
   readonly doesTraderHaveRoomForItems?: boolean;
@@ -51,7 +60,9 @@ export interface TradeWorldMenuOpenOptions {
   readonly isOfferedGoldIdentified?: boolean;
   readonly isTraderOfferedGoldIdentified?: boolean;
   readonly offeredGold: number;
+  readonly offeredItems?: readonly TradeItem[];
   readonly traderOfferedGold: number;
+  readonly traderOfferedItems?: readonly TradeItem[];
   readonly traderWorldCharacterID: string;
 }
 export interface TradeWorldMenuStateSchema {
@@ -65,14 +76,14 @@ export interface TradeWorldMenuStateSchema {
   isOfferedGoldIdentified: boolean;
   isTraderOfferedGoldIdentified: boolean;
   offeredGold: number;
-  offeredItemInstanceIDs: readonly string[];
+  offeredItems: readonly TradeItem[];
   queuedGold: number;
   selectedOfferedItemIndex: number | null;
   selectedBagItemIndex: number | null;
   selectedTraderOfferedItemIndex: number | null;
   tab: TradeTab;
   traderOfferedGold: number;
-  traderOfferedItemInstanceIDs: readonly string[];
+  traderOfferedItems: readonly TradeItem[];
 }
 export const tradeWorldMenu: WorldMenu<
   TradeWorldMenuOpenOptions,
@@ -141,6 +152,10 @@ export const tradeWorldMenu: WorldMenu<
           if (
             tradeWorldMenu.state.values.isTraderOfferedGoldIdentified ===
               false ||
+            tradeWorldMenu.state.values.traderOfferedItems.some(
+              (tradeItem: TradeItem): boolean =>
+                tradeItem.isIdentified === false,
+            ) ||
             tradeWorldMenu.state.values.hasRoomForGold === false ||
             tradeWorldMenu.state.values.hasRoomForItems === false
           ) {
@@ -161,7 +176,12 @@ export const tradeWorldMenu: WorldMenu<
         size: 1,
         text: (): CreateLabelOptionsText => {
           if (
-            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false
+            tradeWorldMenu.state.values.isTraderOfferedGoldIdentified ===
+              false ||
+            tradeWorldMenu.state.values.traderOfferedItems.some(
+              (tradeItem: TradeItem): boolean =>
+                tradeItem.isIdentified === false,
+            )
           ) {
             return { value: "Offer not identified" };
           }
@@ -196,14 +216,31 @@ export const tradeWorldMenu: WorldMenu<
                 });
               } else {
                 tradeWorldMenu.state.setValues({
+                  selectedBagItemIndex: null,
                   selectedOfferedItemIndex: i,
+                  selectedTraderOfferedItemIndex: null,
                 });
               }
             },
           },
           condition: (): boolean =>
-            i < tradeWorldMenu.state.values.offeredItemInstanceIDs.length,
-          icons: [],
+            i < tradeWorldMenu.state.values.offeredItems.length,
+          icons: [
+            {
+              imagePath: (): string => {
+                const tradeItem: TradeItem | undefined =
+                  tradeWorldMenu.state.values.offeredItems[i];
+                if (typeof tradeItem === "undefined") {
+                  throw new Error("Offered trade item not found");
+                }
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  tradeItem.itemInstanceID,
+                );
+                return itemInstance.item.iconImagePath;
+              },
+            },
+          ],
           imagePath: "slots/basic",
           isSelected: (): boolean =>
             tradeWorldMenu.state.values.selectedOfferedItemIndex === i,
@@ -263,6 +300,9 @@ export const tradeWorldMenu: WorldMenu<
       createPressableButton({
         condition: (): boolean =>
           tradeWorldMenu.state.values.isTraderOfferedGoldIdentified &&
+          tradeWorldMenu.state.values.traderOfferedItems.every(
+            (tradeItem: TradeItem): boolean => tradeItem.isIdentified,
+          ) &&
           tradeWorldMenu.state.values.hasAccepted === false &&
           tradeWorldMenu.state.values.hasRoomForGold &&
           tradeWorldMenu.state.values.hasRoomForItems,
@@ -321,6 +361,10 @@ export const tradeWorldMenu: WorldMenu<
         color: (): Color => {
           if (
             tradeWorldMenu.state.values.isOfferedGoldIdentified === false ||
+            tradeWorldMenu.state.values.offeredItems.some(
+              (tradeItem: TradeItem): boolean =>
+                tradeItem.isIdentified === false,
+            ) ||
             tradeWorldMenu.state.values.doesTraderHaveRoomForGold === false ||
             tradeWorldMenu.state.values.doesTraderHaveRoomForItems === false
           ) {
@@ -340,7 +384,13 @@ export const tradeWorldMenu: WorldMenu<
         maxWidth: 304,
         size: 1,
         text: (): CreateLabelOptionsText => {
-          if (tradeWorldMenu.state.values.isOfferedGoldIdentified === false) {
+          if (
+            tradeWorldMenu.state.values.isOfferedGoldIdentified === false ||
+            tradeWorldMenu.state.values.offeredItems.some(
+              (tradeItem: TradeItem): boolean =>
+                tradeItem.isIdentified === false,
+            )
+          ) {
             return { value: "Offer not identified" };
           }
           if (
@@ -378,14 +428,63 @@ export const tradeWorldMenu: WorldMenu<
                 });
               } else {
                 tradeWorldMenu.state.setValues({
+                  selectedBagItemIndex: null,
+                  selectedOfferedItemIndex: null,
                   selectedTraderOfferedItemIndex: i,
                 });
+                const tradeItem: TradeItem | undefined =
+                  tradeWorldMenu.state.values.traderOfferedItems[i];
+                if (typeof tradeItem === "undefined") {
+                  throw new Error("Trader offered trade item not found");
+                }
+                if (tradeItem.isIdentified === false) {
+                  emitToSocketioServer<WorldTradeIdentifyItemRequest>({
+                    data: {
+                      itemInstanceID: tradeItem.itemInstanceID,
+                    },
+                    event: "world/trade/identify-item",
+                  });
+                }
               }
             },
           },
           condition: (): boolean =>
-            i < tradeWorldMenu.state.values.traderOfferedItemInstanceIDs.length,
-          icons: [],
+            i < tradeWorldMenu.state.values.traderOfferedItems.length,
+          icons: [
+            {
+              imagePath: (): string => {
+                const tradeItem: TradeItem | undefined =
+                  tradeWorldMenu.state.values.traderOfferedItems[i];
+                if (typeof tradeItem === "undefined") {
+                  throw new Error("Trader offered trade item not found");
+                }
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  tradeItem.itemInstanceID,
+                );
+                return itemInstance.item.iconImagePath;
+              },
+              palette: (): string[] => {
+                const tradeItem: TradeItem | undefined =
+                  tradeWorldMenu.state.values.traderOfferedItems[i];
+                if (typeof tradeItem === "undefined") {
+                  throw new Error("Trader offered trade item not found");
+                }
+                return tradeItem.isIdentified ? [] : grayColors;
+              },
+            },
+            {
+              condition: (): boolean => {
+                const tradeItem: TradeItem | undefined =
+                  tradeWorldMenu.state.values.traderOfferedItems[i];
+                if (typeof tradeItem === "undefined") {
+                  throw new Error("Trader offered trade item not found");
+                }
+                return tradeItem.isIdentified === false;
+              },
+              imagePath: "unidentified",
+            },
+          ],
           imagePath: "slots/basic",
           isSelected: (): boolean =>
             tradeWorldMenu.state.values.selectedTraderOfferedItemIndex === i,
@@ -402,9 +501,7 @@ export const tradeWorldMenu: WorldMenu<
             tradeWorldMenu.state.values.isTraderOfferedGoldIdentified === false,
           onClick: (): void => {
             emitToSocketioServer<WorldTradeIdentifyGoldRequest>({
-              data: {
-                amount: tradeWorldMenu.state.values.traderOfferedGold,
-              },
+              data: {},
               event: "world/trade/identify-gold",
             });
           },
@@ -475,8 +572,21 @@ export const tradeWorldMenu: WorldMenu<
         buttons: [
           {
             onClick: (): void => {
-              tradeWorldMenu.state.setValues({
-                selectedOfferedItemIndex: null,
+              const selectedIndex: number | null =
+                tradeWorldMenu.state.values.selectedOfferedItemIndex;
+              if (selectedIndex === null) {
+                throw new Error("Selected offered item index is null");
+              }
+              const tradeItem: TradeItem | undefined =
+                tradeWorldMenu.state.values.offeredItems[selectedIndex];
+              if (typeof tradeItem === "undefined") {
+                throw new Error("Offered trade item not found");
+              }
+              emitToSocketioServer<WorldTradeUnofferItemRequest>({
+                data: {
+                  itemInstanceID: tradeItem.itemInstanceID,
+                },
+                event: "world/trade/unoffer-item",
               });
             },
             text: "Remove",
@@ -492,14 +602,14 @@ export const tradeWorldMenu: WorldMenu<
           if (index === null) {
             throw new Error("Selected offered item index is null");
           }
-          const itemInstanceID: string | undefined =
-            tradeWorldMenu.state.values.offeredItemInstanceIDs[index];
-          if (typeof itemInstanceID === "undefined") {
+          const tradeItem: TradeItem | undefined =
+            tradeWorldMenu.state.values.offeredItems[index];
+          if (typeof tradeItem === "undefined") {
             throw new Error("Item instance ID not found");
           }
           const itemInstance: ItemInstance = getDefinable(
             ItemInstance,
-            itemInstanceID,
+            tradeItem.itemInstanceID,
           );
           return itemInstance.itemID;
         },
@@ -521,14 +631,14 @@ export const tradeWorldMenu: WorldMenu<
           if (index === null) {
             throw new Error("Selected trader offered item index is null");
           }
-          const itemInstanceID: string | undefined =
-            tradeWorldMenu.state.values.traderOfferedItemInstanceIDs[index];
-          if (typeof itemInstanceID === "undefined") {
-            throw new Error("Item instance ID not found");
+          const tradeItem: TradeItem | undefined =
+            tradeWorldMenu.state.values.traderOfferedItems[index];
+          if (typeof tradeItem === "undefined") {
+            throw new Error("Trader offered trade item not found");
           }
           const itemInstance: ItemInstance = getDefinable(
             ItemInstance,
-            itemInstanceID,
+            tradeItem.itemInstanceID,
           );
           return itemInstance.itemID;
         },
@@ -654,22 +764,11 @@ export const tradeWorldMenu: WorldMenu<
       hudElementReferences.push(
         createIconListItem({
           condition: (): boolean =>
-            itemsTabCondition() &&
-            i < worldState.values.bagItemInstanceIDs.length,
+            itemsTabCondition() && i < getTradeBagItemInstances().length,
           icons: [
             {
-              imagePath: (): string => {
-                const itemInstanceID: string | undefined =
-                  worldState.values.bagItemInstanceIDs[i];
-                if (typeof itemInstanceID === "undefined") {
-                  throw new Error("Item instance ID not found");
-                }
-                const itemInstance: ItemInstance = getDefinable(
-                  ItemInstance,
-                  itemInstanceID,
-                );
-                return itemInstance.item.iconImagePath;
-              },
+              imagePath: (): string =>
+                getTradeBagItemInstance(i).item.iconImagePath,
             },
           ],
           isSelected: (): boolean =>
@@ -682,6 +781,8 @@ export const tradeWorldMenu: WorldMenu<
             } else {
               tradeWorldMenu.state.setValues({
                 selectedBagItemIndex: i,
+                selectedOfferedItemIndex: null,
+                selectedTraderOfferedItemIndex: null,
               });
             }
           },
@@ -711,7 +812,30 @@ export const tradeWorldMenu: WorldMenu<
       createItemDisplay({
         buttons: [
           {
-            onClick: (): void => {},
+            onClick: (): void => {
+              if (tradeWorldMenu.state.values.selectedBagItemIndex === null) {
+                throw new Error("Selected trade item index is null");
+              }
+              const itemInstance: ItemInstance = getTradeBagItemInstance(
+                tradeWorldMenu.state.values.selectedBagItemIndex,
+              );
+              if (typeof itemInstance === "undefined") {
+                throw new Error("Item instance ID not found");
+              }
+              if (
+                tradeWorldMenu.state.values.offeredItems.some(
+                  (tradeItem: TradeItem): boolean =>
+                    tradeItem.itemInstanceID === itemInstance.id,
+                ) === false
+              ) {
+                emitToSocketioServer<WorldTradeOfferItemRequest>({
+                  data: {
+                    itemInstanceID: itemInstance.id,
+                  },
+                  event: "world/trade/offer-item",
+                });
+              }
+            },
             text: "Offer",
             width: 46,
             x: 123,
@@ -851,14 +975,14 @@ export const tradeWorldMenu: WorldMenu<
     isTraderOfferedGoldIdentified:
       options.isTraderOfferedGoldIdentified ?? false,
     offeredGold: options.offeredGold,
-    offeredItemInstanceIDs: [],
+    offeredItems: options.offeredItems ?? [],
     queuedGold: 0,
     selectedBagItemIndex: null,
     selectedOfferedItemIndex: null,
     selectedTraderOfferedItemIndex: null,
-    tab: TradeTab.Gold,
+    tab: TradeTab.Items,
     traderOfferedGold: options.traderOfferedGold,
-    traderOfferedItemInstanceIDs: [],
+    traderOfferedItems: options.traderOfferedItems ?? [],
   }),
   onClose: (): boolean => {
     if (tradeWorldMenu.state.values.isFinishing) {
@@ -870,5 +994,4 @@ export const tradeWorldMenu: WorldMenu<
     });
     return false;
   },
-  preventsWalking: false,
 });

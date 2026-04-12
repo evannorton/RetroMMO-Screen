@@ -820,9 +820,6 @@ export const bankWorldMenu: WorldMenu<
                 },
                 event: "world/bank/withdraw-item",
               });
-              bankWorldMenu.state.setValues({
-                selectedWithdrawIndex: null,
-              });
             },
             text: "Withdraw",
             width: 54,
@@ -866,9 +863,6 @@ export const bankWorldMenu: WorldMenu<
                     page: bankWorldMenu.state.values.storagePage,
                   },
                   event: "world/bank/deposit-item",
-                });
-                bankWorldMenu.state.setValues({
-                  selectedDepositIndex: null,
                 });
               }
             },

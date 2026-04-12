@@ -7,6 +7,7 @@ import {
   EnterPlayerUpdate,
   ExitPlayerUpdate,
   InitialUpdate,
+  InitialWorldTradeTraderItemUpdate,
   InitialWorldTradeTraderUpdate,
   ItemInstanceUpdate,
   MainState,
@@ -41,6 +42,7 @@ import {
   listenToSocketioEvent,
   removeHUDElements,
 } from "pixel-pigeon";
+import { TradeItem, tradeWorldMenu } from "../../world-menus/tradeWorldMenu";
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
@@ -75,7 +77,6 @@ import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
 import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
-import { tradeWorldMenu } from "../../world-menus/tradeWorldMenu";
 
 export const listenForUpdates = (): void => {
   listenForBattleUpdates();
@@ -699,11 +700,6 @@ export const listenForUpdates = (): void => {
           }
           selectWorldCharacter(update.world.characterID);
           if (typeof update.world.trade !== "undefined") {
-            for (const trader of update.world.trade.traders) {
-              for (const itemInstanceUpdate of trader.offeredItemInstances) {
-                loadItemInstanceUpdate(itemInstanceUpdate);
-              }
-            }
             const traderUpdate: InitialWorldTradeTraderUpdate | undefined =
               update.world.trade.traders.find(
                 (tradeTrader: InitialWorldTradeTraderUpdate): boolean =>
@@ -723,6 +719,11 @@ export const listenForUpdates = (): void => {
             if (typeof traderTraderUpdate === "undefined") {
               throw new Error("Trader not found");
             }
+            for (const traderTraderOfferedItemInstance of traderTraderUpdate.offeredItemInstances) {
+              loadItemInstanceUpdate(
+                traderTraderOfferedItemInstance.itemInstance,
+              );
+            }
             tradeWorldMenu.open({
               doesTraderHaveRoomForGold: traderTraderUpdate.hasRoomForGold,
               doesTraderHaveRoomForItems: traderTraderUpdate.hasRoomForItems,
@@ -734,7 +735,19 @@ export const listenForUpdates = (): void => {
               isTraderOfferedGoldIdentified:
                 traderTraderUpdate.isGoldIdentified,
               offeredGold: traderUpdate.offeredGold,
+              offeredItems: traderUpdate.offeredItemInstances.map(
+                (itemUpdate: InitialWorldTradeTraderItemUpdate): TradeItem => ({
+                  isIdentified: itemUpdate.isIdentified ?? false,
+                  itemInstanceID: itemUpdate.itemInstance.itemInstanceID,
+                }),
+              ),
               traderOfferedGold: traderTraderUpdate.offeredGold,
+              traderOfferedItems: traderTraderUpdate.offeredItemInstances.map(
+                (itemUpdate: InitialWorldTradeTraderItemUpdate): TradeItem => ({
+                  isIdentified: itemUpdate.isIdentified ?? false,
+                  itemInstanceID: itemUpdate.itemInstance.itemInstanceID,
+                }),
+              ),
               traderWorldCharacterID: traderTraderUpdate.worldCharacterID,
             });
           }

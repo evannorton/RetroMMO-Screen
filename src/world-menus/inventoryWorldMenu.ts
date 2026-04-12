@@ -46,12 +46,11 @@ import {
   targetWorldPartyCharacter3InputCollectionID,
 } from "../input";
 
-enum InventoryTab {
+export enum InventoryTab {
   Bag = "bag",
   Equipment = "equipment",
   Vanity = "vanity",
 }
-
 export const getBagItemInstance = (i: number): ItemInstance => {
   const worldState: State<WorldStateSchema> = getWorldState();
   const itemInstanceID: string | undefined =
