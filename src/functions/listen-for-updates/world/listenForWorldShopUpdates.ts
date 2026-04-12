@@ -30,6 +30,17 @@ export const listenForWorldShopUpdates = (): void => {
     event: "world/shop/sell-item",
     onMessage: (update: WorldShopSellItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
+      if (
+        npcShopWorldMenu.isOpen() &&
+        npcShopWorldMenu.state.values.selectedSellIndex !== null &&
+        worldState.values.bagItemInstanceIDs[
+          npcShopWorldMenu.state.values.selectedSellIndex
+        ] === update.itemInstanceID
+      ) {
+        npcShopWorldMenu.state.setValues({
+          selectedSellIndex: null,
+        });
+      }
       worldState.setValues({
         bagItemInstanceIDs: worldState.values.bagItemInstanceIDs.filter(
           (bagItemInstanceID: string): boolean =>
