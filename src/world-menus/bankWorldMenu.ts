@@ -121,21 +121,8 @@ export const bankWorldMenu: WorldMenu<
       bankWorldMenu.state.values.storageTab === BankStorageTab.Withdraw;
     const depositTabCondition = (): boolean =>
       bankWorldMenu.state.values.storageTab === BankStorageTab.Deposit;
-    const hasSelectedWithdrawItemInstance = (): boolean => {
-      if (bankWorldMenu.state.values.selectedWithdrawItemInstanceID === null) {
-        return false;
-      }
-      const currentPage: readonly string[] | undefined =
-        worldState.values.bankItemInstanceIDs[
-          bankWorldMenu.state.values.storagePage
-        ];
-      if (typeof currentPage === "undefined") {
-        return false;
-      }
-      return currentPage.includes(
-        bankWorldMenu.state.values.selectedWithdrawItemInstanceID,
-      );
-    };
+    const hasSelectedWithdrawItemInstance = (): boolean =>
+      bankWorldMenu.state.values.selectedWithdrawItemInstanceID !== null;
     const getSelectedWithdrawItemInstance = (): ItemInstance => {
       if (bankWorldMenu.state.values.selectedWithdrawItemInstanceID === null) {
         throw new Error("selectedWithdrawItemInstanceID is null");
@@ -911,12 +898,6 @@ export const bankWorldMenu: WorldMenu<
         },
       }),
     );
-    const setPage = (page: number): void => {
-      bankWorldMenu.state.setValues({
-        selectedWithdrawItemInstanceID: null,
-        storagePage: page,
-      });
-    };
     const getLastPage = (): number =>
       Math.max(worldState.values.bankItemInstanceIDs.length - 1, 0);
     const isPaginated = (): boolean =>
@@ -926,12 +907,12 @@ export const bankWorldMenu: WorldMenu<
       for (let i: number = 0; i < getLastPage() + 1; i++) {
         pages.push(i);
       }
-      setPage(
-        getCyclicIndex(
+      bankWorldMenu.state.setValues({
+        storagePage: getCyclicIndex(
           pages.indexOf(bankWorldMenu.state.values.storagePage) + offset,
           pages,
         ),
-      );
+      });
     };
     // Page arrows and label
     hudElementReferences.push(
