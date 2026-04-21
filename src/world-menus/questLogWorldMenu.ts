@@ -519,7 +519,7 @@ export const questLogWorldMenu: WorldMenu<
             }
             return {
               value:
-                questInstance.monsterKills === 1
+                quest.monster.kills === 1
                   ? `Defeat ${monster.name}`
                   : `${monster.name} - ${getFormattedInteger(
                       questInstance.monsterKills,
@@ -756,5 +756,4 @@ export const questLogWorldMenu: WorldMenu<
     selectedQuestDialoguePage: null,
     tab: QuestLogTab.InProgress,
   },
-  preventsWalking: false,
 });
