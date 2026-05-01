@@ -1,4 +1,5 @@
-import { Color, Constants, MarkerType } from "retrommo-types";
+import { Color, Constants } from "retrommo-types";
+import { MarkerType } from "../types/MarkerType";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { createEntity } from "pixel-pigeon";
 import { getConstants } from "./getConstants";

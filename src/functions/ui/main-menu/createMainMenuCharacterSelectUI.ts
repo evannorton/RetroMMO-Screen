@@ -167,7 +167,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
       }
       emitToSocketioServer<MainMenuCharacterSelectDeleteCharacterRequest>({
         data: {
-          mainMenuCharacterID: mainMenuCharacterIDToDelete,
+          characterID: mainMenuCharacterIDToDelete,
         },
         event: "main-menu/character-select/delete-character",
       });
@@ -322,7 +322,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
         if (canPlayCharacter()) {
           emitToSocketioServer<MainMenuCharacterSelectSelectCharacterRequest>({
             data: {
-              mainMenuCharacterID,
+              characterID: mainMenuCharacterID,
             },
             event: "main-menu/character-select/select-character",
           });
@@ -351,7 +351,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
           throw new Error("Out of bounds character IDs index");
         }
         emitToSocketioServer<MainMenuCharacterSelectSortCharacterLeftRequest>({
-          data: { mainMenuCharacterID },
+          data: { characterID: mainMenuCharacterID },
           event: "main-menu/character-select/sort-character-left",
         });
       },
@@ -372,7 +372,7 @@ export const createMainMenuCharacterSelectUI = (): void => {
           throw new Error("Out of bounds character IDs index");
         }
         emitToSocketioServer<MainMenuCharacterSelectSortCharacterRightRequest>({
-          data: { mainMenuCharacterID },
+          data: { characterID: mainMenuCharacterID },
           event: "main-menu/character-select/sort-character-right",
         });
       },

@@ -18,7 +18,7 @@ import { createPanel } from "../functions/ui/components/createPanel";
 import { createVisibilityToggle } from "../functions/ui/components/createVisibilityToggle";
 import { createWhitePianoKey } from "../functions/ui/components/createWhitePianoKey";
 import { getPianoKeyAudioPath } from "../functions/getPianoKeyAudioPath";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 export interface PianoWorldMenuOpenOptions {}
 export interface PianoWorldMenuStateSchema {
@@ -72,7 +72,7 @@ export const pianoWorldMenu: WorldMenu<
     const panelY: number = 130;
     hudElementReferences.push(
       createPanel({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: panelHeight,
         imagePath: "panels/piano",
         width: panelWidth,
@@ -119,7 +119,7 @@ export const pianoWorldMenu: WorldMenu<
       hudElementReferences.push(
         createWhitePianoKey({
           audioPath,
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           inputCollectionID,
           isLabelVisible: (): boolean =>
             pianoWorldMenu.state.values.areLabelsVisible,
@@ -157,7 +157,7 @@ export const pianoWorldMenu: WorldMenu<
         hudElementReferences.push(
           createBlackPianoKey({
             audioPath,
-            condition: (): boolean => isWorldCombatInProgress() === false,
+            condition: (): boolean => isForcedWorldUIVisible() === false,
             inputCollectionID,
             isLabelVisible: (): boolean =>
               pianoWorldMenu.state.values.areLabelsVisible,
@@ -175,7 +175,7 @@ export const pianoWorldMenu: WorldMenu<
     const xWidth: number = 10;
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -190,7 +190,7 @@ export const pianoWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: panelX + Math.floor(panelWidth / 2) - 1,
           y: panelY + 10,
         },
@@ -202,7 +202,7 @@ export const pianoWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createVisibilityToggle({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         isVisible: (): boolean => pianoWorldMenu.state.values.areLabelsVisible,
         onClick: (): void => {
           pianoWorldMenu.state.setValues({

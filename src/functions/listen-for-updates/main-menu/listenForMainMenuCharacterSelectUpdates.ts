@@ -24,13 +24,13 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
         getMainMenuCharacterSelectState();
       const character: MainMenuCharacter = getDefinable(
         MainMenuCharacter,
-        update.mainMenuCharacterID,
+        update.characterID,
       );
       character.remove();
       const mainMenuCharacterIDs: string[] =
         mainMenuState.values.mainMenuCharacterIDs.filter(
           (mainMenuCharacterID: string): boolean =>
-            mainMenuCharacterID !== update.mainMenuCharacterID,
+            mainMenuCharacterID !== update.characterID,
         );
       const thresholdCharactersAmount: number =
         characterSelectState.values.page * mainMenuCharactersPerPage;
@@ -57,9 +57,7 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
     ): void => {
       const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
       const characterIndex: number =
-        mainMenuState.values.mainMenuCharacterIDs.indexOf(
-          update.mainMenuCharacterID,
-        );
+        mainMenuState.values.mainMenuCharacterIDs.indexOf(update.characterID);
       const targetIndex: number =
         characterIndex === 0
           ? getLastPlayableCharacterIndex()
@@ -72,7 +70,7 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       const mainMenuCharacterIDs: string[] = [
         ...mainMenuState.values.mainMenuCharacterIDs,
       ];
-      mainMenuCharacterIDs[targetIndex] = update.mainMenuCharacterID;
+      mainMenuCharacterIDs[targetIndex] = update.characterID;
       mainMenuCharacterIDs[characterIndex] = targetCharacterID;
       mainMenuState.setValues({ mainMenuCharacterIDs });
     },
@@ -84,9 +82,7 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
     ): void => {
       const mainMenuState: State<MainMenuStateSchema> = getMainMenuState();
       const characterIndex: number =
-        mainMenuState.values.mainMenuCharacterIDs.indexOf(
-          update.mainMenuCharacterID,
-        );
+        mainMenuState.values.mainMenuCharacterIDs.indexOf(update.characterID);
       const targetIndex: number =
         characterIndex === getLastPlayableCharacterIndex()
           ? 0
@@ -99,7 +95,7 @@ export const listenForMainMenuCharacterSelectUpdates = (): void => {
       const mainMenuCharacterIDs: string[] = [
         ...mainMenuState.values.mainMenuCharacterIDs,
       ];
-      mainMenuCharacterIDs[targetIndex] = update.mainMenuCharacterID;
+      mainMenuCharacterIDs[targetIndex] = update.characterID;
       mainMenuCharacterIDs[characterIndex] = targetCharacterID;
       mainMenuState.setValues({ mainMenuCharacterIDs });
     },

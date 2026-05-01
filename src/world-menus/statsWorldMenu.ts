@@ -30,7 +30,7 @@ import { getStatAbbreviation } from "../functions/stats/getStatAbbreviation";
 import { getStatBonusAmount } from "../functions/stats/getStatBonusAmount";
 import { getStatName } from "../functions/stats/getStatName";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 export interface StatsWorldMenuOpenOptions {}
 export interface StatsWorldMenuStateSchema {
@@ -52,7 +52,7 @@ export const statsWorldMenu: WorldMenu<
     // Panel
     hudElementReferences.push(
       createPanel({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 174,
         imagePath: "panels/basic",
         width: 282,
@@ -63,7 +63,7 @@ export const statsWorldMenu: WorldMenu<
     // Close button
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -79,7 +79,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 152,
           y: 33,
         },
@@ -92,7 +92,7 @@ export const statsWorldMenu: WorldMenu<
     // Divider 1
     hudElementReferences.push(
       createUnderstrike({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         width: 266,
         x: 19,
         y: 44,
@@ -103,7 +103,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
           y: 50,
         },
@@ -120,7 +120,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
           y: 50,
         },
@@ -133,7 +133,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
           y: 50,
         },
@@ -150,7 +150,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
           y: 67,
         },
@@ -170,7 +170,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean =>
             worldCharacter.player.character.level <
-              constants["maximum-level"] && isWorldCombatInProgress() === false,
+              constants["maximum-level"] && isForcedWorldUIVisible() === false,
           x: 144,
           y: 67,
         },
@@ -194,7 +194,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean =>
             worldCharacter.player.character.class.resourcePool ===
-              ResourcePool.MP && isWorldCombatInProgress() === false,
+              ResourcePool.MP && isForcedWorldUIVisible() === false,
           x: 160,
           y: 67,
         },
@@ -209,7 +209,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean =>
             worldCharacter.player.character.class.resourcePool ===
-              ResourcePool.MP && isWorldCombatInProgress() === false,
+              ResourcePool.MP && isForcedWorldUIVisible() === false,
           x: 284,
           y: 67,
         },
@@ -234,7 +234,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
           y: 84,
         },
@@ -247,7 +247,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 144,
           y: 84,
         },
@@ -271,7 +271,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
           y: 84,
         },
@@ -284,7 +284,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
           y: 84,
         },
@@ -310,7 +310,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
           y: 101,
         },
@@ -323,7 +323,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 144,
           y: 101,
         },
@@ -347,7 +347,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
           y: 101,
         },
@@ -360,7 +360,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
           y: 101,
         },
@@ -384,7 +384,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
           y: 118,
         },
@@ -397,7 +397,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 144,
           y: 118,
         },
@@ -421,7 +421,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
           y: 118,
         },
@@ -434,7 +434,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
           y: 118,
         },
@@ -456,7 +456,7 @@ export const statsWorldMenu: WorldMenu<
     // Divider 2
     hudElementReferences.push(
       createUnderstrike({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         width: 266,
         x: 19,
         y: 130,
@@ -585,7 +585,7 @@ export const statsWorldMenu: WorldMenu<
     // Divider 3
     hudElementReferences.push(
       createUnderstrike({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         width: 266,
         x: 19,
         y: 167,
@@ -596,7 +596,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
           y: 177,
         },
@@ -620,7 +620,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 286,
           y: 172,
         },
@@ -646,7 +646,7 @@ export const statsWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 286,
           y: 183,
         },
@@ -677,5 +677,4 @@ export const statsWorldMenu: WorldMenu<
   initialStateValues: {
     selectedBoostItemInstanceID: null,
   },
-  preventsWalking: false,
 });

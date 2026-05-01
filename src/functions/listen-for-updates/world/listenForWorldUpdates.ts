@@ -5,12 +5,13 @@ import {
   Direction,
   EquipmentSlot,
   ItemInstanceUpdate,
-  MarkerType,
   VanitySlot,
   WorldBagFullUpdate,
   WorldBonkUpdate,
-  WorldClearMarkerUpdate,
   WorldCombatUpdate,
+  WorldDeclineDuelInviteUpdate,
+  WorldDeclinePartyInviteUpdate,
+  WorldDeclineTradeInviteUpdate,
   WorldDestroyBoostUpdate,
   WorldEmoteUpdate,
   WorldEnterCharactersUpdate,
@@ -18,7 +19,6 @@ import {
   WorldExitCharactersUpdate,
   WorldExitToMainMenuUpdate,
   WorldInnUpdate,
-  WorldMarkerUpdate,
   WorldMoveCharactersUpdate,
   WorldOpenChestUpdate,
   WorldPianoKeyUpdate,
@@ -42,6 +42,7 @@ import {
 import { Item } from "../../../classes/Item";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
+import { MarkerType } from "../../../types/MarkerType";
 import { MusicTrack } from "../../../classes/MusicTrack";
 import { NPC } from "../../../classes/NPC";
 import { Player } from "../../../classes/Player";
@@ -68,10 +69,12 @@ import { clearWorldCharacterMarker } from "../../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { createBattleUI } from "../../ui/battle/createBattleUI";
 import { createMainMenuState } from "../../state/main-menu/createMainMenuState";
+import { duelInviteWorldMenu } from "../../../world-menus/duelInviteWorldMenu";
 import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSource";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../../state/getWorldState";
 import { listenForWorldBankUpdates } from "./listenForWorldBankUpdates";
+import { listenForWorldInviteUpdates } from "./listenForWorldInviteUpdates";
 import { listenForWorldQuestUpdates } from "./listenForWorldQuestUpdates";
 import { listenForWorldShopUpdates } from "./listenForWorldShopUpdates";
 import { listenForWorldTradeUpdates } from "./listenForWorldTradeUpdates";
@@ -79,21 +82,26 @@ import { loadBattleCharacterUpdate } from "../../load-updates/loadBattleCharacte
 import { loadBattlerUpdate } from "../../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
 import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
+import { loadWorldInvitePromptsUpdate } from "../../load-updates/loadWorldInvitePromptsUpdate";
 import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
 import { npcDialogueWorldMenu } from "../../../world-menus/npcDialogueWorldMenu";
 import { npcInnWorldMenu } from "../../../world-menus/npcInnWorldMenu";
 import { npcShopWorldMenu } from "../../../world-menus/npcShopWorldMenu";
 import { openedChestWorldMenu } from "../../../world-menus/openedChestWorldMenu";
+import { partyInviteWorldMenu } from "../../../world-menus/partyInviteWorldMenu";
 import { playMusic } from "../../playMusic";
 import { playerBusyWorldMenu } from "../../../world-menus/playerBusyWorldMenu";
+import { playerInvitedWorldMenu } from "../../../world-menus/playerInvitedWorldMenu";
 import { selectedPlayerWorldMenu } from "../../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../../volumeChannels";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
+import { tradeInviteWorldMenu } from "../../../world-menus/tradeInviteWorldMenu";
 import { updateWorldCharacterOrder } from "../../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
   listenForWorldBankUpdates();
+  listenForWorldInviteUpdates();
   listenForWorldQuestUpdates();
   listenForWorldShopUpdates();
   listenForWorldTradeUpdates();
@@ -113,12 +121,6 @@ export const listenForWorldUpdates = (): void => {
       playAudioSource("sfx/bonk", {
         volumeChannelID: sfxVolumeChannelID,
       });
-    },
-  });
-  listenToSocketioEvent<WorldClearMarkerUpdate>({
-    event: "world/clear-marker",
-    onMessage: (update: WorldClearMarkerUpdate): void => {
-      clearWorldCharacterMarker(update.characterID);
     },
   });
   listenToSocketioEvent<WorldCombatUpdate>({
@@ -186,6 +188,36 @@ export const listenForWorldUpdates = (): void => {
           clearWorldCharacterMarker(worldCharacter.id);
         }
       }
+      if (playerInvitedWorldMenu.isOpen()) {
+        playerInvitedWorldMenu.close();
+      }
+    },
+  });
+  listenToSocketioEvent<WorldDeclineDuelInviteUpdate>({
+    event: "world/decline-duel-invite",
+    onMessage: (): void => {
+      duelInviteWorldMenu.state.setValues({
+        isFinishing: true,
+      });
+      duelInviteWorldMenu.close();
+    },
+  });
+  listenToSocketioEvent<WorldDeclinePartyInviteUpdate>({
+    event: "world/decline-party-invite",
+    onMessage: (): void => {
+      partyInviteWorldMenu.state.setValues({
+        isFinishing: true,
+      });
+      partyInviteWorldMenu.close();
+    },
+  });
+  listenToSocketioEvent<WorldDeclineTradeInviteUpdate>({
+    event: "world/decline-trade-invite",
+    onMessage: (): void => {
+      tradeInviteWorldMenu.state.setValues({
+        isFinishing: true,
+      });
+      tradeInviteWorldMenu.close();
     },
   });
   listenToSocketioEvent<WorldDestroyBoostUpdate>({
@@ -241,6 +273,9 @@ export const listenForWorldUpdates = (): void => {
             MarkerType.Selected,
           );
         }
+      }
+      if (typeof update.invites !== "undefined") {
+        loadWorldInvitePromptsUpdate(update.invites);
       }
     },
   });
@@ -526,19 +561,13 @@ export const listenForWorldUpdates = (): void => {
         }
         worldCharacter.movedAt = getCurrentTime();
       }
-      for (const clearedMarkerWorldCharacterID of update.clearedMarkerWorldCharacterIDs) {
-        const clearedMarkerWorldCharacter: WorldCharacter = getDefinable(
-          WorldCharacter,
-          clearedMarkerWorldCharacterID,
-        );
-        if (clearedMarkerWorldCharacter.hasMarkerEntity()) {
-          clearWorldCharacterMarker(clearedMarkerWorldCharacterID);
-        }
-      }
       worldState.setValues({
         reachableID: update.reachableID,
       });
       playMusic();
+      if (typeof update.invites !== "undefined") {
+        loadWorldInvitePromptsUpdate(update.invites);
+      }
     },
   });
   listenToSocketioEvent<WorldOpenChestUpdate>({
@@ -588,12 +617,6 @@ export const listenForWorldUpdates = (): void => {
       playAudioSource("sfx/open-chest", {
         volumeChannelID: sfxVolumeChannelID,
       });
-    },
-  });
-  listenToSocketioEvent<WorldMarkerUpdate>({
-    event: "world/marker",
-    onMessage: (update: WorldMarkerUpdate): void => {
-      addWorldCharacterMarker(update.characterID, update.type);
     },
   });
   listenToSocketioEvent<WorldPianoKeyUpdate>({
@@ -705,6 +728,9 @@ export const listenForWorldUpdates = (): void => {
           });
         }
       }
+      if (typeof update.invites !== "undefined") {
+        loadWorldInvitePromptsUpdate(update.invites);
+      }
     },
   });
   listenToSocketioEvent<WorldStartBattleUpdate>({
@@ -797,6 +823,11 @@ export const listenForWorldUpdates = (): void => {
       if (selectedPlayerWorldMenu.isOpen()) {
         selectedPlayerWorldMenu.state.setValues({
           isBattleStarting: true,
+        });
+      }
+      if (duelInviteWorldMenu.isOpen()) {
+        duelInviteWorldMenu.state.setValues({
+          isFinishing: true,
         });
       }
       closeWorldMenus();

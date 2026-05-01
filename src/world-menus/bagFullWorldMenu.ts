@@ -13,7 +13,7 @@ import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { getDefinable } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 export interface BagFullWorldMenuOpenOptions {}
 export interface BagFullWorldMenuStateSchema {}
@@ -31,7 +31,7 @@ export const bagFullWorldMenu: WorldMenu<
     );
     const isPartied: boolean =
       worldCharacter.player.character.party.playerIDs.length > 1;
-    const shouldShowMenu = (): boolean => isWorldCombatInProgress() === false;
+    const shouldShowMenu = (): boolean => isForcedWorldUIVisible() === false;
     const panelHeight: number = isPartied ? 48 : 37;
     hudElementReferences.push(
       createPanel({
@@ -78,5 +78,4 @@ export const bagFullWorldMenu: WorldMenu<
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
   initialStateValues: {},
-  preventsWalking: false,
 });

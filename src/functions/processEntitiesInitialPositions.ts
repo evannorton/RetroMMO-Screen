@@ -1,6 +1,7 @@
 import { Bank } from "../classes/Bank";
 import { Chest } from "../classes/Chest";
 import { Constants, Direction } from "retrommo-types";
+import { Enterable } from "../classes/Enterable";
 import { NPC } from "../classes/NPC";
 import { Piano } from "../classes/Piano";
 import { bankToggleDuration, chestOpenDuration } from "../constants";
@@ -234,7 +235,11 @@ export const processEntitiesInitialPositions = (): void => {
     });
   }
   for (const position of state.values.initialEnterableTilePositions) {
+    const enterable: Enterable = getDefinable(Enterable, position.enterableID);
+    const fieldValues: Map<string, unknown> = new Map();
+    fieldValues.set("enterableID", enterable.id);
     createEntity({
+      fieldValues,
       height: constants["tile-size"],
       layerID: "enterables",
       levelID: position.levelID,

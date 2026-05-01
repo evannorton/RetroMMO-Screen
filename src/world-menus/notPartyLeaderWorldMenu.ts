@@ -1,61 +1,50 @@
 import { Color } from "retrommo-types";
 import {
-  CreateLabelOptionsText,
   HUDElementReferences,
   createLabel,
-  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
-import { Player } from "../classes/Player";
 import { WorldMenu } from "../classes/WorldMenu";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
-import { getDefinable } from "definables";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
-export interface PlayerBusyWorldMenuOpenOptions {
-  readonly playerID: string;
-}
-export interface PlayerBusyWorldMenuStateSchema {}
-export const playerBusyWorldMenu: WorldMenu<
-  PlayerBusyWorldMenuOpenOptions,
-  PlayerBusyWorldMenuStateSchema
+export interface NotPartyLeaderWorldMenuOpenOptions {}
+export interface NotPartyLeaderWorldMenuStateSchema {}
+export const notPartyLeaderWorldMenu: WorldMenu<
+  NotPartyLeaderWorldMenuOpenOptions,
+  NotPartyLeaderWorldMenuStateSchema
 > = new WorldMenu<
-  PlayerBusyWorldMenuOpenOptions,
-  PlayerBusyWorldMenuStateSchema
+  NotPartyLeaderWorldMenuOpenOptions,
+  NotPartyLeaderWorldMenuStateSchema
 >({
-  create: (options: PlayerBusyWorldMenuOpenOptions): HUDElementReferences => {
+  create: (): HUDElementReferences => {
     const hudElementReferences: HUDElementReferences[] = [];
     const labelIDs: string[] = [];
-    const busyPlayer: Player = getDefinable(Player, options.playerID);
-    const gameWidth: number = getGameWidth();
     const shouldShowMenu = (): boolean => isForcedWorldUIVisible() === false;
-    // Background panel
     hudElementReferences.push(
       createPanel({
         condition: shouldShowMenu,
-        height: 41,
+        height: 62,
         imagePath: "panels/basic",
         width: 208,
         x: 48,
         y: 136,
       }),
     );
-    // Close button
     hudElementReferences.push(
       createImage({
         condition: shouldShowMenu,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          playerBusyWorldMenu.close();
+          notPartyLeaderWorldMenu.close();
         },
         width: 10,
         x: 239,
         y: 143,
       }),
     );
-    // Username
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -66,14 +55,13 @@ export const playerBusyWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: gameWidth,
+        maxWidth: 304,
         size: 1,
-        text: (): CreateLabelOptionsText => ({
-          value: busyPlayer.username,
-        }),
+        text: {
+          value: "Invite Cancelled",
+        },
       }),
     );
-    // Notice
     labelIDs.push(
       createLabel({
         color: Color.White,
@@ -83,11 +71,11 @@ export const playerBusyWorldMenu: WorldMenu<
           y: 159,
         },
         horizontalAlignment: "center",
-        maxLines: 1,
+        maxLines: 3,
         maxWidth: 140,
         size: 1,
         text: {
-          value: "Player is currently busy.",
+          value: "The player who invited you is no longer leading a party.",
         },
       }),
     );

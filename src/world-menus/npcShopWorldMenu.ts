@@ -29,7 +29,7 @@ import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 enum NPCShopTab {
   Buy = "buy",
@@ -59,7 +59,7 @@ export const npcShopWorldMenu: WorldMenu<
     const npc: NPC = getDefinable(NPC, options.npcID);
     const worldState: State<WorldStateSchema> = getWorldState();
     const condition = (): boolean =>
-      options.isLeader && isWorldCombatInProgress() === false;
+      options.isLeader && isForcedWorldUIVisible() === false;
     const x: number = 176;
     const y: number = 24;
     const width: number = 128;

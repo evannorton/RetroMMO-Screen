@@ -17,7 +17,7 @@ import { createSlot } from "../functions/ui/components/createSlot";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 export interface OpenedChestWorldMenuOpenOptions {
   readonly chestID: string;
@@ -42,7 +42,7 @@ export const openedChestWorldMenu: WorldMenu<
     const isPartied: boolean =
       worldCharacter.player.character.party.playerIDs.length > 1;
     const chest: Chest = getDefinable(Chest, options.chestID);
-    const shouldShowMenu = (): boolean => isWorldCombatInProgress() === false;
+    const shouldShowMenu = (): boolean => isForcedWorldUIVisible() === false;
     hudElementReferences.push(
       createPanel({
         condition: shouldShowMenu,
@@ -126,5 +126,4 @@ export const openedChestWorldMenu: WorldMenu<
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
   initialStateValues: {},
-  preventsWalking: false,
 });

@@ -1,4 +1,5 @@
-import { MarkerType, WorldCancelInviteRequest } from "retrommo-types";
+import { MarkerType } from "../types/MarkerType";
+import { WorldCancelInviteRequest } from "retrommo-types";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { addWorldCharacterMarker } from "./addWorldCharacterMarker";
 import { closeWorldMenus } from "./world-menus/closeWorldMenus";

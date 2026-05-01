@@ -18,6 +18,7 @@ import { getDefaultedClothesDye } from "../defaulted-cosmetics/getDefaultedCloth
 import { getDefaultedHairDye } from "../defaulted-cosmetics/getDefaultedHairDye";
 import { getDefaultedMask } from "../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../defaulted-cosmetics/getDefaultedOutfit";
+import { getInviteMarkerType } from "../getInviteMarkerType";
 
 export const loadWorldCharacterUpdate = (
   worldCharacterUpdate: WorldCharacterUpdate,
@@ -125,8 +126,11 @@ export const loadWorldCharacterUpdate = (
       ).id,
     skinColorID: (): string => worldCharacter.skinColorID,
   });
-  if (typeof worldCharacterUpdate.marker !== "undefined") {
-    addWorldCharacterMarker(worldCharacter.id, worldCharacterUpdate.marker);
+  if (typeof worldCharacterUpdate.invite !== "undefined") {
+    addWorldCharacterMarker(
+      worldCharacter.id,
+      getInviteMarkerType(worldCharacterUpdate.invite),
+    );
   }
   if (typeof worldCharacterUpdate.emote !== "undefined") {
     addWorldCharacterEmote(

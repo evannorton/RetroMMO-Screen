@@ -33,7 +33,7 @@ import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestPartyState } from "../functions/getQuestPartyState";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import { npcQuestsPerPage } from "../constants";
 
 export interface NPCDialogueWorldMenuStateQuestCompletion {
@@ -86,7 +86,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     // Background panel
     hudElementReferences.push(
       createPanel({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height,
         imagePath: "panels/basic",
         width,
@@ -97,7 +97,7 @@ export const npcDialogueWorldMenu: WorldMenu<
     // Close button
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -132,7 +132,7 @@ export const npcDialogueWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: x + xOffset,
           y: y + 10,
         },
@@ -167,7 +167,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           condition: (): boolean =>
             npc.hasDialogue() &&
             npcDialogueWorldMenu.state.values.questCompletion === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           x: x + xOffset,
           y: y + 23,
         },
@@ -219,7 +219,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           createPanel({
             condition: (): boolean =>
               getQuestExchangerQuests(npc.id).length > 0 &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             height: questsHeight,
             imagePath: "panels/basic",
             width: questsWidth,
@@ -232,7 +232,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           createImage({
             condition: (): boolean =>
               getQuestExchangerQuests(npc.id).length > 0 &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             height: 11,
             imagePath: "x",
             onClick: (): void => {
@@ -250,7 +250,7 @@ export const npcDialogueWorldMenu: WorldMenu<
             coordinates: {
               condition: (): boolean =>
                 getQuestExchangerQuests(npc.id).length > 0 &&
-                isWorldCombatInProgress() === false,
+                isForcedWorldUIVisible() === false,
               x: questsX + Math.round(questsWidth / 2),
               y: questsY + 9,
             },
@@ -268,7 +268,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           createUnderstrike({
             condition: (): boolean =>
               getQuestExchangerQuests(npc.id).length > 0 &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             width: questsWidth - 16,
             x: questsX + 8,
             y: questsY + 20,
@@ -288,7 +288,7 @@ export const npcDialogueWorldMenu: WorldMenu<
             createIconListItem({
               condition: (): boolean =>
                 getQuestExchangerQuests(npc.id).length > i &&
-                isWorldCombatInProgress() === false,
+                isForcedWorldUIVisible() === false,
               icons: [
                 {
                   imagePath: (): string =>
@@ -303,7 +303,7 @@ export const npcDialogueWorldMenu: WorldMenu<
                     return (
                       (questState === QuestState.InProgress ||
                         questState === QuestState.TurnIn) &&
-                      isWorldCombatInProgress() === false
+                      isForcedWorldUIVisible() === false
                     );
                   },
                   imagePath: "quest-banners/default",
@@ -357,7 +357,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               if (quest !== null) {
                 return (
                   getQuestPartyState(quest.id, npc.id) === QuestState.Accept &&
-                  isWorldCombatInProgress() === false
+                  isForcedWorldUIVisible() === false
                 );
               }
               return false;
@@ -393,7 +393,7 @@ export const npcDialogueWorldMenu: WorldMenu<
               if (quest !== null) {
                 return (
                   getQuestPartyState(quest.id, npc.id) === QuestState.TurnIn &&
-                  isWorldCombatInProgress() === false
+                  isForcedWorldUIVisible() === false
                 );
               }
               return false;
@@ -428,7 +428,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               npcDialogueWorldMenu.state.values.questCompletion !== null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: x + xOffset,
             y: y + 33,
           },
@@ -467,7 +467,7 @@ export const npcDialogueWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               npcDialogueWorldMenu.state.values.questCompletion !== null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: x + xOffset,
             y: y + 44,
           },

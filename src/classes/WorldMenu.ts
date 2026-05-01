@@ -31,6 +31,13 @@ export class WorldMenu<
     this._preventsWalking = options.preventsWalking ?? false;
   }
 
+  public get openOptions(): OpenOptions {
+    if (this._openOptions === null) {
+      throw new Error("Open options is null.");
+    }
+    return this._openOptions;
+  }
+
   public get preventsWalking(): boolean {
     return this._preventsWalking;
   }

@@ -1,7 +1,8 @@
+.env
+.VSCodeCounter
 node_modules
 out
 scripts/output
-.env
 pp-dev.json
 pp-env.json
 game.zip

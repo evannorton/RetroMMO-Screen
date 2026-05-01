@@ -31,7 +31,7 @@ import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestState } from "../functions/getQuestState";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import {
   questLogCompletedQuestsPerPage,
   questLogInProgressQuestsPerPage,
@@ -70,7 +70,7 @@ export const questLogWorldMenu: WorldMenu<
     // Background panel
     hudElementReferences.push(
       createPanel({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 184,
         imagePath: "panels/basic",
         width: 128,
@@ -118,7 +118,7 @@ export const questLogWorldMenu: WorldMenu<
           },
         ],
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 178,
           y: 26,
         },
@@ -127,7 +127,7 @@ export const questLogWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 16,
         imagePath: "tab-icons/quest-log/in-progress",
         width: 16,
@@ -137,7 +137,7 @@ export const questLogWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 16,
         imagePath: "tab-icons/quest-log/completed",
         width: 16,
@@ -149,7 +149,7 @@ export const questLogWorldMenu: WorldMenu<
       createButton({
         coordinates: {
           condition: (): boolean =>
-            completedTabCondition() && isWorldCombatInProgress() === false,
+            completedTabCondition() && isForcedWorldUIVisible() === false,
           x: 179,
           y: 27,
         },
@@ -185,7 +185,7 @@ export const questLogWorldMenu: WorldMenu<
     // X button
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -249,7 +249,7 @@ export const questLogWorldMenu: WorldMenu<
           condition: (): boolean =>
             inProgressTabCondition() &&
             i < getInProgressQuestIDs().length &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           icons: [
             {
               imagePath: (): string =>
@@ -311,7 +311,7 @@ export const questLogWorldMenu: WorldMenu<
           condition: (): boolean =>
             completedTabCondition() &&
             i < getCompletedQuestIDs().length &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           icons: [
             {
               imagePath: (): string =>
@@ -436,7 +436,7 @@ export const questLogWorldMenu: WorldMenu<
     hudElementReferences.push(
       createPanel({
         condition: (): boolean =>
-          isQuestSelected() && isWorldCombatInProgress() === false,
+          isQuestSelected() && isForcedWorldUIVisible() === false,
         height: 184,
         imagePath: "panels/basic",
         width: selectedQuestWidth,
@@ -448,7 +448,7 @@ export const questLogWorldMenu: WorldMenu<
     hudElementReferences.push(
       createSlot({
         condition: (): boolean =>
-          isQuestSelected() && isWorldCombatInProgress() === false,
+          isQuestSelected() && isForcedWorldUIVisible() === false,
         icons: [
           {
             imagePath: (): string =>
@@ -480,7 +480,7 @@ export const questLogWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            isQuestSelected() && isWorldCombatInProgress() === false,
+            isQuestSelected() && isForcedWorldUIVisible() === false,
           x: 26,
           y: selectedQuestY + 12,
         },
@@ -498,7 +498,7 @@ export const questLogWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            isQuestSelected() && isWorldCombatInProgress() === false,
+            isQuestSelected() && isForcedWorldUIVisible() === false,
           x: 8,
           y: selectedQuestY + 27,
         },
@@ -536,7 +536,7 @@ export const questLogWorldMenu: WorldMenu<
     hudElementReferences.push(
       createUnderstrike({
         condition: (): boolean =>
-          isQuestSelected() && isWorldCombatInProgress() === false,
+          isQuestSelected() && isForcedWorldUIVisible() === false,
         width: 162,
         x: 7,
         y: selectedQuestY + 39,
@@ -546,7 +546,7 @@ export const questLogWorldMenu: WorldMenu<
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          isQuestSelected() && isWorldCombatInProgress() === false,
+          isQuestSelected() && isForcedWorldUIVisible() === false,
         height: 16,
         imagePath: (): string =>
           getSelectedQuestDialoguePageNPC().actorImagePath,
@@ -561,7 +561,7 @@ export const questLogWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            isQuestSelected() && isWorldCombatInProgress() === false,
+            isQuestSelected() && isForcedWorldUIVisible() === false,
           x: 26,
           y: selectedQuestY + 50,
         },
@@ -577,7 +577,7 @@ export const questLogWorldMenu: WorldMenu<
     hudElementReferences.push(
       createImage({
         condition: (): boolean =>
-          isQuestSelected() && isWorldCombatInProgress() === false,
+          isQuestSelected() && isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -598,7 +598,7 @@ export const questLogWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
-            isQuestSelected() && isWorldCombatInProgress() === false,
+            isQuestSelected() && isForcedWorldUIVisible() === false,
           x: 8,
           y: selectedQuestY + 65,
         },
@@ -650,7 +650,7 @@ export const questLogWorldMenu: WorldMenu<
         condition: (): boolean =>
           isQuestSelected() &&
           getSelectedQuestDialoguePage() > 0 &&
-          isWorldCombatInProgress() === false,
+          isForcedWorldUIVisible() === false,
         height: 14,
         imagePath: "arrows/left",
         onClick: (): void => {
@@ -668,7 +668,7 @@ export const questLogWorldMenu: WorldMenu<
         condition: (): boolean =>
           isQuestSelected() &&
           getSelectedQuestDialoguePage() < getSelectedQuestDialogueLastPage() &&
-          isWorldCombatInProgress() === false,
+          isForcedWorldUIVisible() === false,
         height: 14,
         imagePath: "arrows/right",
         onClick: (): void => {
@@ -687,7 +687,7 @@ export const questLogWorldMenu: WorldMenu<
         condition: (): boolean =>
           isQuestSelected() &&
           getSelectedQuestInstance().isCompleted &&
-          isWorldCombatInProgress() === false,
+          isForcedWorldUIVisible() === false,
         width: 162,
         x: 7,
         y: selectedQuestY + 152,
@@ -701,7 +701,7 @@ export const questLogWorldMenu: WorldMenu<
           condition: (): boolean =>
             isQuestSelected() &&
             getSelectedQuestInstance().isCompleted &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           x: 8,
           y: selectedQuestY + 158,
         },
@@ -726,7 +726,7 @@ export const questLogWorldMenu: WorldMenu<
           condition: (): boolean =>
             isQuestSelected() &&
             getSelectedQuestInstance().isCompleted &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           x: 8,
           y: selectedQuestY + 169,
         },

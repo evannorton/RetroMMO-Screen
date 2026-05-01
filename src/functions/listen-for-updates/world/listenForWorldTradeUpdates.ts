@@ -22,13 +22,14 @@ import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../../state/getWorldState";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
+import { tradeInviteWorldMenu } from "../../../world-menus/tradeInviteWorldMenu";
 
 export const listenForWorldTradeUpdates = (): void => {
   listenToSocketioEvent<WorldTradeAcceptUpdate>({
     event: "world/trade/accept",
     onMessage: (update: WorldTradeAcceptUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (worldState.values.worldCharacterID === update.worldCharacterID) {
+      if (worldState.values.worldCharacterID === update.characterID) {
         tradeWorldMenu.state.setValues({
           hasAccepted: true,
         });
@@ -93,7 +94,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/identify-gold",
     onMessage: (update: WorldTradeIdentifyGoldUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (worldState.values.worldCharacterID === update.worldCharacterID) {
+      if (worldState.values.worldCharacterID === update.characterID) {
         tradeWorldMenu.state.setValues({
           isTraderOfferedGoldIdentified: true,
         });
@@ -108,7 +109,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/identify-item",
     onMessage: (update: WorldTradeIdentifyItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (worldState.values.worldCharacterID === update.worldCharacterID) {
+      if (worldState.values.worldCharacterID === update.characterID) {
         const tradeItem: TradeItem | undefined =
           tradeWorldMenu.state.values.traderOfferedItems.find(
             (offeredItem: TradeItem): boolean =>
@@ -135,7 +136,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/offer-item",
     onMessage: (update: WorldTradeOfferItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (update.worldCharacterID === worldState.values.worldCharacterID) {
+      if (update.characterID === worldState.values.worldCharacterID) {
         if (tradeWorldMenu.state.values.selectedBagItemInstanceID !== null) {
           if (
             update.itemInstance.itemInstanceID ===
@@ -172,9 +173,7 @@ export const listenForWorldTradeUpdates = (): void => {
         });
       }
       for (const roomUpdate of update.room) {
-        if (
-          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
-        ) {
+        if (roomUpdate.characterID === worldState.values.worldCharacterID) {
           tradeWorldMenu.state.setValues({
             hasRoomForItems: roomUpdate.hasRoom ?? false,
           });
@@ -190,7 +189,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/offer-gold",
     onMessage: (update: WorldTradeOfferGoldUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (update.worldCharacterID === worldState.values.worldCharacterID) {
+      if (update.characterID === worldState.values.worldCharacterID) {
         tradeWorldMenu.state.setValues({
           hasAccepted: false,
           hasTraderAccepted: false,
@@ -208,9 +207,7 @@ export const listenForWorldTradeUpdates = (): void => {
         });
       }
       for (const roomUpdate of update.room) {
-        if (
-          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
-        ) {
+        if (roomUpdate.characterID === worldState.values.worldCharacterID) {
           tradeWorldMenu.state.setValues({
             hasRoomForGold: roomUpdate.hasRoom ?? false,
           });
@@ -226,20 +223,25 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/start",
     onMessage: (update: WorldTradeStartUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      closeWorldMenus();
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         if (worldCharacter.hasMarkerEntity()) {
           clearWorldCharacterMarker(worldCharacter.id);
         }
       }
       const traderWorldCharacterID: string | undefined =
-        update.worldCharacterIDs.find(
+        update.characterIDs.find(
           (worldCharacterID: string): boolean =>
             worldCharacterID !== worldState.values.worldCharacterID,
         );
       if (typeof traderWorldCharacterID === "undefined") {
         throw new Error("Trader world character ID not found");
       }
+      if (tradeInviteWorldMenu.isOpen()) {
+        tradeInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+      }
+      closeWorldMenus();
       tradeWorldMenu.open({
         doesTraderHaveRoomForGold: true,
         doesTraderHaveRoomForItems: true,
@@ -257,7 +259,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/unaccept",
     onMessage: (update: WorldTradeUnacceptUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (worldState.values.worldCharacterID === update.worldCharacterID) {
+      if (worldState.values.worldCharacterID === update.characterID) {
         tradeWorldMenu.state.setValues({
           hasAccepted: false,
         });
@@ -272,7 +274,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/unoffer-item",
     onMessage: (update: WorldTradeUnofferItemUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (update.worldCharacterID === worldState.values.worldCharacterID) {
+      if (update.characterID === worldState.values.worldCharacterID) {
         if (
           tradeWorldMenu.state.values.selectedOfferedItemInstanceID !== null
         ) {
@@ -338,9 +340,7 @@ export const listenForWorldTradeUpdates = (): void => {
         itemInstance.remove();
       }
       for (const roomUpdate of update.room) {
-        if (
-          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
-        ) {
+        if (roomUpdate.characterID === worldState.values.worldCharacterID) {
           tradeWorldMenu.state.setValues({
             hasRoomForItems: roomUpdate.hasRoom ?? false,
           });
@@ -356,7 +356,7 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/unoffer-gold",
     onMessage: (update: WorldTradeUnofferGoldUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      if (worldState.values.worldCharacterID === update.worldCharacterID) {
+      if (worldState.values.worldCharacterID === update.characterID) {
         tradeWorldMenu.state.setValues({
           hasAccepted: false,
           hasTraderAccepted: false,
@@ -372,9 +372,7 @@ export const listenForWorldTradeUpdates = (): void => {
         });
       }
       for (const roomUpdate of update.room) {
-        if (
-          roomUpdate.worldCharacterID === worldState.values.worldCharacterID
-        ) {
+        if (roomUpdate.characterID === worldState.values.worldCharacterID) {
           tradeWorldMenu.state.setValues({
             hasRoomForGold: roomUpdate.hasRoom ?? false,
           });

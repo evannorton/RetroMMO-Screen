@@ -22,7 +22,7 @@ import { createPressableButton } from "../functions/ui/components/createPressabl
 import { createSlot } from "../functions/ui/components/createSlot";
 import { getDefinable } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import { spellbookAbilitiesPerPage } from "../constants";
 import {
   targetWorldPartyCharacter1InputCollectionID,
@@ -82,7 +82,7 @@ export const spellbookWorldMenu: WorldMenu<
         createPanel({
           condition: (): boolean =>
             spellbookWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 184,
           imagePath: "panels/basic",
           width: 128,
@@ -95,7 +95,7 @@ export const spellbookWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             spellbookWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -112,7 +112,7 @@ export const spellbookWorldMenu: WorldMenu<
           spellbookWorldMenu.state.values.selectedAbilityID,
         ) &&
         spellbookWorldMenu.state.values.startedTargetingAt === null &&
-        isWorldCombatInProgress() === false;
+        isForcedWorldUIVisible() === false;
       // Abilities
       for (let i: number = 0; i < spellbookAbilitiesPerPage; i++) {
         const y: number = 49 + i * 18;
@@ -121,7 +121,7 @@ export const spellbookWorldMenu: WorldMenu<
             condition: (): boolean =>
               spellbookWorldMenu.state.values.startedTargetingAt === null &&
               i < getAbilityIDs().length &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             icons: [
               {
                 imagePath: (): string => getSpellbookAbility(i).iconImagePath,
@@ -368,7 +368,7 @@ export const spellbookWorldMenu: WorldMenu<
         createPanel({
           condition: (): boolean =>
             spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 44,
           imagePath: "panels/basic",
           width: 147,
@@ -381,7 +381,7 @@ export const spellbookWorldMenu: WorldMenu<
         createSlot({
           condition: (): boolean =>
             spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           icons: [
             {
               imagePath: (): string => {
@@ -410,7 +410,7 @@ export const spellbookWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 27,
             y: 176,
           },
@@ -434,7 +434,7 @@ export const spellbookWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -454,7 +454,7 @@ export const spellbookWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               spellbookWorldMenu.state.values.startedTargetingAt !== null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 74,
             y: 191,
           },
@@ -479,7 +479,7 @@ export const spellbookWorldMenu: WorldMenu<
                 spellbookWorldMenu.state.values.startedTargetingAt !== null &&
                 worldCharacter.player.character.party.playerIDs.length >
                   inputCollectionIndex &&
-                isWorldCombatInProgress() === false,
+                isForcedWorldUIVisible() === false,
               inputCollectionID,
               onInput: (): void => {
                 if (
@@ -528,6 +528,5 @@ export const spellbookWorldMenu: WorldMenu<
       selectedAbilityID: null,
       startedTargetingAt: null,
     },
-    preventsWalking: false,
   },
 );

@@ -26,7 +26,7 @@ import { emotesWorldMenu } from "./emotesWorldMenu";
 import { getConstants } from "../functions/getConstants";
 import { getDefinable } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 export interface SelectedPlayerWorldMenuOpenOptions {}
 export interface SelectedPlayerWorldMenuStateSchema {
@@ -58,7 +58,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
     // Background panel
     hudElementReferences.push(
       createPanel({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 62,
         imagePath: "panels/basic",
         width: 208,
@@ -69,7 +69,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
     // Close button
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -85,7 +85,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 152,
           y: 146,
         },
@@ -100,7 +100,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 152,
           y: 159,
         },
@@ -114,7 +114,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
     if (worldCharacter.playerID === state.values.selectedPlayerID) {
       hudElementReferences.push(
         createPressableButton({
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
@@ -182,7 +182,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
       hudElementReferences.push(
         createPressableButton({
           condition: (): boolean =>
-            duelButtonCondition() && isWorldCombatInProgress() === false,
+            duelButtonCondition() && isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
@@ -204,7 +204,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
       hudElementReferences.push(
         createPressableButton({
           condition: (): boolean =>
-            partyButtonCondition() && isWorldCombatInProgress() === false,
+            partyButtonCondition() && isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
@@ -226,7 +226,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
       hudElementReferences.push(
         createPressableButton({
           condition: (): boolean =>
-            tradeButtonCondition() && isWorldCombatInProgress() === false,
+            tradeButtonCondition() && isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
@@ -266,5 +266,4 @@ export const selectedPlayerWorldMenu: WorldMenu<
     }
     return true;
   },
-  preventsWalking: false,
 });

@@ -9,9 +9,9 @@ import {
   InitialUpdate,
   InitialWorldTradeTraderItemUpdate,
   InitialWorldTradeTraderUpdate,
+  InviteType,
   ItemInstanceUpdate,
   MainState,
-  MarkerType,
   PartyChangesUpdate,
   RemovePlayerUpdate,
   RenamePlayerUpdate,
@@ -32,6 +32,7 @@ import {
 import { Item } from "../../classes/Item";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../classes/MainMenuCharacter";
+import { MarkerType } from "../../types/MarkerType";
 import { MusicTrack } from "../../classes/MusicTrack";
 import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
@@ -51,12 +52,11 @@ import { createBattleUI } from "../ui/battle/createBattleUI";
 import { createMainMenuState } from "../state/main-menu/createMainMenuState";
 import { createWorldState } from "../state/createWorldState";
 import { definableExists, getDefinable, getDefinables } from "definables";
-import { emotesWorldMenu } from "../../world-menus/emotesWorldMenu";
+import { duelInviteWorldMenu } from "../../world-menus/duelInviteWorldMenu";
 import { exitBattlers } from "../exitBattlers";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
-import { inventoryWorldMenu } from "../../world-menus/inventoryWorldMenu";
 import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./world/listenForWorldUpdates";
@@ -67,16 +67,17 @@ import { loadBattlerUpdate } from "../load-updates/loadBattlerUpdate";
 import { loadItemInstanceUpdate } from "../load-updates/loadItemInstanceUpdate";
 import { loadPartyUpdate } from "../load-updates/loadPartyUpdate";
 import { loadWorldCharacterUpdate } from "../load-updates/loadWorldCharacterUpdate";
+import { loadWorldInvitePromptsUpdate } from "../load-updates/loadWorldInvitePromptsUpdate";
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { musicFadeDuration } from "../../constants";
+import { partyInviteWorldMenu } from "../../world-menus/partyInviteWorldMenu";
 import { playMusic } from "../playMusic";
-import { questLogWorldMenu } from "../../world-menus/questLogWorldMenu";
+import { playerInvitedWorldMenu } from "../../world-menus/playerInvitedWorldMenu";
 import { resetParty } from "../resetParty";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
-import { spellbookWorldMenu } from "../../world-menus/spellbookWorldMenu";
-import { statsWorldMenu } from "../../world-menus/statsWorldMenu";
+import { tradeInviteWorldMenu } from "../../world-menus/tradeInviteWorldMenu";
 
 export const listenForUpdates = (): void => {
   listenForBattleUpdates();
@@ -230,11 +231,16 @@ export const listenForUpdates = (): void => {
         selectWorldCharacter(update.character.characterID);
         if (state.values.selectedPlayerID !== null) {
           selectedPlayerWorldMenu.open({});
-          addWorldCharacterMarker(
-            getDefinable(Player, state.values.selectedPlayerID)
-              .worldCharacterID,
-            MarkerType.Selected,
+          const selectedPlayer: Player = getDefinable(
+            Player,
+            state.values.selectedPlayerID,
           );
+          if (selectedPlayer.hasWorldCharacter()) {
+            addWorldCharacterMarker(
+              selectedPlayer.worldCharacterID,
+              MarkerType.Selected,
+            );
+          }
         }
       }
       for (const playerUpdate of update.players) {
@@ -260,6 +266,9 @@ export const listenForUpdates = (): void => {
         }
         for (const worldPartyUpdate of update.world.parties) {
           loadPartyUpdate(worldPartyUpdate);
+        }
+        if (typeof update.world.invites !== "undefined") {
+          loadWorldInvitePromptsUpdate(update.world.invites);
         }
       }
     },
@@ -401,6 +410,39 @@ export const listenForUpdates = (): void => {
       const player: Player = getDefinable(Player, update.playerID);
       if (state.values.selectedPlayerID === update.playerID) {
         selectedPlayerWorldMenu.close();
+      }
+      if (
+        playerInvitedWorldMenu.isOpen() &&
+        playerInvitedWorldMenu.openOptions.playerID === player.id
+      ) {
+        playerInvitedWorldMenu.close();
+      }
+      if (
+        duelInviteWorldMenu.isOpen() &&
+        duelInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
+      ) {
+        duelInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+        duelInviteWorldMenu.close();
+      }
+      if (
+        partyInviteWorldMenu.isOpen() &&
+        partyInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
+      ) {
+        partyInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+        partyInviteWorldMenu.close();
+      }
+      if (
+        tradeInviteWorldMenu.isOpen() &&
+        tradeInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
+      ) {
+        tradeInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+        tradeInviteWorldMenu.close();
       }
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
@@ -703,7 +745,7 @@ export const listenForUpdates = (): void => {
             const traderUpdate: InitialWorldTradeTraderUpdate | undefined =
               update.world.trade.traders.find(
                 (tradeTrader: InitialWorldTradeTraderUpdate): boolean =>
-                  tradeTrader.worldCharacterID ===
+                  tradeTrader.characterID ===
                   worldState.values.worldCharacterID,
               );
             if (typeof traderUpdate === "undefined") {
@@ -713,8 +755,7 @@ export const listenForUpdates = (): void => {
               | InitialWorldTradeTraderUpdate
               | undefined = update.world.trade.traders.find(
               (tradeTrader: InitialWorldTradeTraderUpdate): boolean =>
-                tradeTrader.worldCharacterID !==
-                worldState.values.worldCharacterID,
+                tradeTrader.characterID !== worldState.values.worldCharacterID,
             );
             if (typeof traderTraderUpdate === "undefined") {
               throw new Error("Trader not found");
@@ -748,60 +789,31 @@ export const listenForUpdates = (): void => {
                   itemInstanceID: itemUpdate.itemInstance.itemInstanceID,
                 }),
               ),
-              traderWorldCharacterID: traderTraderUpdate.worldCharacterID,
+              traderWorldCharacterID: traderTraderUpdate.characterID,
             });
+          }
+          if (typeof update.world.invite !== "undefined") {
+            closeWorldMenus();
+            switch (update.world.invite.type) {
+              case InviteType.Duel:
+                duelInviteWorldMenu.open({
+                  inviterPlayerID: update.world.invite.playerID,
+                });
+                break;
+              case InviteType.Party:
+                partyInviteWorldMenu.open({
+                  inviterPlayerID: update.world.invite.playerID,
+                });
+                break;
+              case InviteType.Trade:
+                tradeInviteWorldMenu.open({
+                  inviterPlayerID: update.world.invite.playerID,
+                });
+                break;
+            }
           }
         }
       }
-      playMusic();
-      listenToSocketioEvent({
-        event: "legacy/open-emotes",
-        onMessage: (): void => {
-          if (emotesWorldMenu.isOpen() === false) {
-            closeWorldMenus();
-            emotesWorldMenu.open({});
-          }
-        },
-      });
-      listenToSocketioEvent({
-        event: "legacy/open-stats",
-        onMessage: (): void => {
-          if (statsWorldMenu.isOpen() === false) {
-            closeWorldMenus();
-            statsWorldMenu.open({});
-          }
-        },
-      });
-      listenToSocketioEvent({
-        event: "legacy/open-quest-log",
-        onMessage: (): void => {
-          if (questLogWorldMenu.isOpen() === false) {
-            closeWorldMenus();
-            questLogWorldMenu.open({});
-          }
-        },
-      });
-      listenToSocketioEvent({
-        event: "legacy/open-spellbook",
-        onMessage: (): void => {
-          if (spellbookWorldMenu.isOpen() === false) {
-            closeWorldMenus();
-            spellbookWorldMenu.open({});
-          }
-        },
-      });
-      listenToSocketioEvent({
-        event: "legacy/open-inventory",
-        onMessage: (): void => {
-          if (inventoryWorldMenu.isOpen() === false) {
-            closeWorldMenus();
-            inventoryWorldMenu.open({});
-          }
-        },
-      });
-      state.setValues({
-        musicTrackID: null,
-      });
       playMusic();
     },
   });
@@ -825,6 +837,7 @@ export const listenForUpdates = (): void => {
           party.players.forEach(
             (partyPlayer: Player, partyPlayerIndex: number): void => {
               const partyWorldCharacterJoined: boolean =
+                oldPartyPlayerIDs.length > 0 &&
                 oldPartyPlayerIDs.includes(partyPlayer.id) === false;
               const partyWorldCharacterIsSelf: boolean =
                 partyPlayer.worldCharacterID ===
@@ -842,6 +855,10 @@ export const listenForUpdates = (): void => {
                 partyWorldCharacterJoined &&
                 partyWorldCharacterIsSelf
               ) {
+                partyInviteWorldMenu.state.setValues({
+                  isFinishing: true,
+                });
+                partyInviteWorldMenu.close();
                 worldState.setValues({
                   pianoSessionID: null,
                 });
@@ -852,7 +869,10 @@ export const listenForUpdates = (): void => {
                     }
                   },
                 );
-              } else if (party.playerIDs.length > oldPartyPlayerIDs.length) {
+              } else if (
+                oldPartyPlayerIDs.length > 0 &&
+                party.playerIDs.length > oldPartyPlayerIDs.length
+              ) {
                 if (partyPlayer.worldCharacter.hasMarkerEntity()) {
                   clearWorldCharacterMarker(partyPlayer.worldCharacter.id);
                 }

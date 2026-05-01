@@ -39,7 +39,7 @@ import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getItemVanityClassIDs } from "../functions/getItemVanityClassIDs";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import {
   targetWorldPartyCharacter1InputCollectionID,
   targetWorldPartyCharacter2InputCollectionID,
@@ -188,7 +188,7 @@ export const inventoryWorldMenu: WorldMenu<
         createPanel({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 184,
           imagePath: "panels/basic",
           width: 128,
@@ -203,7 +203,7 @@ export const inventoryWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 240,
             y: 193,
           },
@@ -270,7 +270,7 @@ export const inventoryWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 178,
             y: 26,
           },
@@ -281,7 +281,7 @@ export const inventoryWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "tab-icons/inventory/bag",
           width: 16,
@@ -293,7 +293,7 @@ export const inventoryWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "tab-icons/inventory/equipment",
           width: 16,
@@ -305,7 +305,7 @@ export const inventoryWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 16,
           imagePath: "tab-icons/inventory/vanity",
           width: 16,
@@ -319,7 +319,7 @@ export const inventoryWorldMenu: WorldMenu<
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
               bagTabCondition() === false &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 179,
             y: 27,
           },
@@ -340,7 +340,7 @@ export const inventoryWorldMenu: WorldMenu<
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
               equipmentTabCondition() === false &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 214,
             y: 27,
           },
@@ -361,7 +361,7 @@ export const inventoryWorldMenu: WorldMenu<
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
               vanityTabCondition() === false &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 249,
             y: 27,
           },
@@ -381,7 +381,7 @@ export const inventoryWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -401,7 +401,7 @@ export const inventoryWorldMenu: WorldMenu<
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
               inventoryWorldMenu.state.values.tab === InventoryTab.Bag &&
               i < worldState.values.bagItemInstanceIDs.length &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             icons: [
               {
                 imagePath: (): string =>
@@ -604,7 +604,7 @@ export const inventoryWorldMenu: WorldMenu<
             worldState.values.bagItemInstanceIDs.includes(
               inventoryWorldMenu.state.values.selectedBagItemInstanceID,
             ) &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           itemID: (): string => {
             if (
               inventoryWorldMenu.state.values.selectedBagItemInstanceID === null
@@ -628,7 +628,7 @@ export const inventoryWorldMenu: WorldMenu<
         createPanel({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 44,
           imagePath: "panels/basic",
           width: 147,
@@ -641,7 +641,7 @@ export const inventoryWorldMenu: WorldMenu<
         createSlot({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           icons: [
             {
               imagePath: (): string => {
@@ -672,7 +672,7 @@ export const inventoryWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt !== null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 27,
             y: 176,
           },
@@ -699,7 +699,7 @@ export const inventoryWorldMenu: WorldMenu<
         createImage({
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -719,7 +719,7 @@ export const inventoryWorldMenu: WorldMenu<
           coordinates: {
             condition: (): boolean =>
               inventoryWorldMenu.state.values.startedTargetingAt !== null &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             x: 74,
             y: 191,
           },
@@ -744,7 +744,7 @@ export const inventoryWorldMenu: WorldMenu<
                 inventoryWorldMenu.state.values.startedTargetingAt !== null &&
                 worldCharacter.player.character.party.playerIDs.length >
                   inputCollectionIndex &&
-                isWorldCombatInProgress() === false,
+                isForcedWorldUIVisible() === false,
               inputCollectionID,
               onInput: (): void => {
                 if (
@@ -795,7 +795,7 @@ export const inventoryWorldMenu: WorldMenu<
                   inventoryWorldMenu.state.values.startedTargetingAt === null &&
                   inventoryWorldMenu.state.values.tab ===
                     InventoryTab.Equipment &&
-                  isWorldCombatInProgress() === false,
+                  isForcedWorldUIVisible() === false,
                 x: 183,
                 y: 54 + equipmentSlotIndex * 36,
               },
@@ -822,7 +822,7 @@ export const inventoryWorldMenu: WorldMenu<
                 inventoryWorldMenu.state.values.tab ===
                   InventoryTab.Equipment &&
                 hasEquipmentItemInstance(equipmentSlot) &&
-                isWorldCombatInProgress() === false,
+                isForcedWorldUIVisible() === false,
               icons: [
                 {
                   imagePath: (): string =>
@@ -889,7 +889,7 @@ export const inventoryWorldMenu: WorldMenu<
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
             inventoryWorldMenu.state.values.selectedEquipmentSlot !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           itemID: (): string => {
             if (
               inventoryWorldMenu.state.values.selectedEquipmentSlot === null
@@ -921,7 +921,7 @@ export const inventoryWorldMenu: WorldMenu<
               condition: (): boolean =>
                 inventoryWorldMenu.state.values.startedTargetingAt === null &&
                 inventoryWorldMenu.state.values.tab === InventoryTab.Vanity &&
-                isWorldCombatInProgress() === false,
+                isForcedWorldUIVisible() === false,
               x: 183,
               y: 54 + vanitySlotIndex * 36,
             },
@@ -947,7 +947,7 @@ export const inventoryWorldMenu: WorldMenu<
               inventoryWorldMenu.state.values.startedTargetingAt === null &&
               inventoryWorldMenu.state.values.tab === InventoryTab.Vanity &&
               hasVanityItemInstance(vanitySlot) &&
-              isWorldCombatInProgress() === false,
+              isForcedWorldUIVisible() === false,
             icons: [
               {
                 imagePath: (): string =>
@@ -1012,7 +1012,7 @@ export const inventoryWorldMenu: WorldMenu<
           condition: (): boolean =>
             inventoryWorldMenu.state.values.startedTargetingAt === null &&
             inventoryWorldMenu.state.values.selectedVanitySlot !== null &&
-            isWorldCombatInProgress() === false,
+            isForcedWorldUIVisible() === false,
           itemID: (): string => {
             if (inventoryWorldMenu.state.values.selectedVanitySlot === null) {
               throw new Error("Selected vanity slot is null");
@@ -1046,6 +1046,5 @@ export const inventoryWorldMenu: WorldMenu<
       startedTargetingAt: null,
       tab: InventoryTab.Bag,
     },
-    preventsWalking: false,
   },
 );

@@ -16,7 +16,7 @@ import { createPressableButton } from "../functions/ui/components/createPressabl
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 export interface NPCInnWorldMenuOpenOptions {
   readonly npcID: string;
@@ -67,7 +67,7 @@ export const npcInnWorldMenu: WorldMenu<
     };
     hudElementReferences.push(
       createPanel({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: getHeight(),
         imagePath: "panels/basic",
         width,
@@ -77,7 +77,7 @@ export const npcInnWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => isWorldCombatInProgress() === false,
+        condition: (): boolean => isForcedWorldUIVisible() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -92,7 +92,7 @@ export const npcInnWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
-          condition: (): boolean => isWorldCombatInProgress() === false,
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           x: x + Math.round(width / 2),
           y: y + 10,
         },
@@ -109,7 +109,7 @@ export const npcInnWorldMenu: WorldMenu<
     hudElementReferences.push(
       createPressableButton({
         condition: (): boolean =>
-          canAffordInn() && isWorldCombatInProgress() === false,
+          canAffordInn() && isForcedWorldUIVisible() === false,
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
@@ -130,7 +130,7 @@ export const npcInnWorldMenu: WorldMenu<
     hudElementReferences.push(
       createPressableButton({
         condition: (): boolean =>
-          canAffordInn() && isWorldCombatInProgress() === false,
+          canAffordInn() && isForcedWorldUIVisible() === false,
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {

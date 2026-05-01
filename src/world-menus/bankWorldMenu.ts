@@ -33,7 +33,7 @@ import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import { postWindowMessage } from "../functions/postWindowMessage";
 import { sfxVolumeChannelID } from "../volumeChannels";
 
@@ -112,7 +112,7 @@ export const bankWorldMenu: WorldMenu<
     const maximumGold: number = constants["maximum-gold"];
     const isSubscribed: boolean = state.values.isSubscribed;
     const gameWidth: number = getGameWidth();
-    const condition = (): boolean => isWorldCombatInProgress() === false;
+    const condition = (): boolean => isForcedWorldUIVisible() === false;
     const storageCondition = (): boolean =>
       condition() && bankWorldMenu.state.values.section === BankSection.Items;
     const vaultCondition = (): boolean =>

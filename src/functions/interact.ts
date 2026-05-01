@@ -8,6 +8,7 @@ import {
 } from "pixel-pigeon";
 import {
   WorldChestInteractRequest,
+  WorldEnterableInteractRequest,
   WorldNPCInteractRequest,
 } from "retrommo-types";
 import { bankWorldMenu } from "../world-menus/bankWorldMenu";
@@ -36,7 +37,7 @@ export const interact = (): void => {
         playAudioSource("sfx/open-chest", {
           volumeChannelID: sfxVolumeChannelID,
         });
-        return;
+        break;
       }
       case "chest": {
         const chestID: unknown = getEntityFieldValue(
@@ -52,7 +53,23 @@ export const interact = (): void => {
           },
           event: "world/chest-interact",
         });
-        return;
+        break;
+      }
+      case "enterable": {
+        const enterableID: unknown = getEntityFieldValue(
+          entityCollidable.entityID,
+          "enterableID",
+        );
+        if (typeof enterableID !== "string") {
+          throw new Error("No enterable ID.");
+        }
+        emitToSocketioServer<WorldEnterableInteractRequest>({
+          data: {
+            enterableID,
+          },
+          event: "world/enterable-interact",
+        });
+        break;
       }
       case "npc": {
         const npcID: unknown = getEntityFieldValue(
@@ -68,7 +85,7 @@ export const interact = (): void => {
           },
           event: "world/npc-interact",
         });
-        return;
+        break;
       }
       case "piano": {
         const pianoID: unknown = getEntityFieldValue(
@@ -79,12 +96,8 @@ export const interact = (): void => {
           throw new Error("No piano ID.");
         }
         pianoWorldMenu.open({});
-        return;
+        break;
       }
     }
   }
-  emitToSocketioServer({
-    data: {},
-    event: "legacy/action",
-  });
 };
