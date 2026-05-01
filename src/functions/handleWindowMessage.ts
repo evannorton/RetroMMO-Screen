@@ -2,7 +2,10 @@ import {
   connectToSocketioServer,
   onError,
   setMainVolume,
+  setScreenshotClipboard,
+  setScreenshotScale,
   setVolumeChannelVolume,
+  takeScreenshot,
 } from "pixel-pigeon";
 import { handleError } from "./handleError";
 import { listenForUpdates } from "./listen-for-updates/listenForUpdates";
@@ -11,60 +14,96 @@ import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
   if (
-    typeof message === "object" &&
-    message !== null &&
-    "type" in message &&
-    "value" in message &&
-    typeof message.type === "string"
+    typeof message !== "object" ||
+    message === null ||
+    !("type" in message) ||
+    typeof message.type !== "string"
   ) {
-    switch (message.type) {
-      case "auth": {
-        if (typeof message.value !== "string") {
-          throw new Error("Invalid auth message value.");
-        }
-        const url: string | null = state.values.serverURL;
-        if (url === null) {
-          throw new Error(
-            "Attempted to connect to socket.io server with no server URL.",
-          );
-        }
-        connectToSocketioServer({
-          auth: { token: message.value },
-          url,
-        });
-        onError(handleError);
-        listenForUpdates();
-        break;
+    return;
+  }
+  switch (message.type) {
+    case "auth": {
+      if (!("value" in message)) {
+        return;
       }
-      case "main-volume": {
-        if (typeof message.value !== "number") {
-          throw new Error("Invalid main volume message value.");
-        }
-        setMainVolume({
-          volume: message.value,
-        });
-        break;
+      if (typeof message.value !== "string") {
+        return;
       }
-      case "music-volume": {
-        if (typeof message.value !== "number") {
-          throw new Error("Invalid music volume message value.");
-        }
-        setVolumeChannelVolume({
-          id: musicVolumeChannelID,
-          volume: message.value,
-        });
-        break;
+      const url: string | null = state.values.serverURL;
+      if (url === null) {
+        throw new Error(
+          "Attempted to connect to socket.io server with no server URL.",
+        );
       }
-      case "sfx-volume": {
-        if (typeof message.value !== "number") {
-          throw new Error("Invalid sfx volume message value.");
-        }
-        setVolumeChannelVolume({
-          id: sfxVolumeChannelID,
-          volume: message.value,
-        });
-        break;
+      connectToSocketioServer({
+        auth: { token: message.value },
+        url,
+      });
+      onError(handleError);
+      listenForUpdates();
+      break;
+    }
+    case "main-volume": {
+      if (!("value" in message)) {
+        return;
       }
+      if (typeof message.value !== "number") {
+        return;
+      }
+      setMainVolume({
+        volume: message.value,
+      });
+      break;
+    }
+    case "music-volume": {
+      if (!("value" in message)) {
+        return;
+      }
+      if (typeof message.value !== "number") {
+        return;
+      }
+      setVolumeChannelVolume({
+        id: musicVolumeChannelID,
+        volume: message.value,
+      });
+      break;
+    }
+    case "screenshot": {
+      takeScreenshot();
+      break;
+    }
+    case "screenshot-clipboard": {
+      if (!("value" in message)) {
+        return;
+      }
+      if (typeof message.value !== "boolean") {
+        return;
+      }
+      setScreenshotClipboard(message.value);
+      break;
+    }
+    case "screenshot-scale": {
+      if (!("value" in message)) {
+        return;
+      }
+      if (typeof message.value !== "boolean") {
+        return;
+      }
+      setScreenshotScale(message.value ? 3 : 1);
+      break;
+    }
+    case "sfx-volume": {
+      if (!("value" in message)) {
+        return;
+      }
+      if (typeof message.value !== "number") {
+        return;
+      }
+      setVolumeChannelVolume({
+        id: sfxVolumeChannelID,
+        volume: message.value,
+      });
+      break;
     }
   }
 };
