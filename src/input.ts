@@ -960,7 +960,7 @@ createInputPressHandler({
   inputCollectionID: globalChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
-      data: "global" as unknown as object,
+      data: "global",
       event: "open-chat",
     });
   },
@@ -970,7 +970,7 @@ createInputPressHandler({
   inputCollectionID: localChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
-      data: "local" as unknown as object,
+      data: "local",
       event: "open-chat",
     });
   },
@@ -980,7 +980,7 @@ createInputPressHandler({
   inputCollectionID: partyChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
-      data: "party" as unknown as object,
+      data: "party",
       event: "open-chat",
     });
   },
@@ -990,7 +990,7 @@ createInputPressHandler({
   inputCollectionID: tradeChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
-      data: "trade" as unknown as object,
+      data: "trade",
       event: "open-chat",
     });
   },
@@ -1000,7 +1000,7 @@ createInputPressHandler({
   inputCollectionID: modChatInputCollectionID,
   onInput: (): void => {
     postWindowMessage({
-      data: "mod" as unknown as object,
+      data: "mod",
       event: "open-chat",
     });
   },
