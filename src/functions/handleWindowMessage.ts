@@ -1,7 +1,9 @@
 import {
+  clearMaxFPS,
   connectToSocketioServer,
   onError,
   setMainVolume,
+  setMaxFPS,
   setScreenshotClipboard,
   setScreenshotScale,
   setVolumeChannelVolume,
@@ -41,6 +43,20 @@ export const handleWindowMessage = (message: unknown): void => {
       });
       onError(handleError);
       listenForUpdates();
+      break;
+    }
+    case "limit-fps": {
+      if (!("value" in message)) {
+        return;
+      }
+      if (typeof message.value !== "boolean") {
+        return;
+      }
+      if (message.value) {
+        setMaxFPS(60);
+      } else {
+        clearMaxFPS();
+      }
       break;
     }
     case "main-volume": {

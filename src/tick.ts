@@ -24,6 +24,7 @@ import {
   emitToSocketioServer,
   fadeOutAudioSourceVolume,
   getCurrentTime,
+  getFPS,
   playAudioSource,
   removeEntity,
   setEntityPosition,
@@ -35,6 +36,7 @@ import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick
 import { musicFadeDuration, serverTimeUpdateInterval } from "./constants";
 import { playCombatEventSFX } from "./functions/combat/playCombatEventSFX";
 import { playMusic } from "./functions/playMusic";
+import { postWindowMessage } from "./functions/postWindowMessage";
 import { sfxVolumeChannelID } from "./volumeChannels";
 import { state } from "./state";
 
@@ -572,6 +574,18 @@ export const tick = (): void => {
     emitToSocketioServer<ServerTimeRequest>({
       data: {},
       event: "server-time",
+    });
+  }
+  if (
+    state.values.fpsSentAt === null ||
+    currentTime - state.values.fpsSentAt >= 250
+  ) {
+    state.setValues({
+      fpsSentAt: currentTime,
+    });
+    postWindowMessage({
+      data: getFPS(),
+      event: "fps",
     });
   }
 };
