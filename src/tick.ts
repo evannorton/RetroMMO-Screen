@@ -29,11 +29,15 @@ import {
   removeEntity,
   setEntityPosition,
 } from "pixel-pigeon";
+import {
+  fpsUpdateInterval,
+  musicFadeDuration,
+  serverTimeUpdateInterval,
+} from "./constants";
 import { getBattlerResourcePool } from "./functions/battle/getBattlerResourcePool";
 import { getConstants } from "./functions/getConstants";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
-import { musicFadeDuration, serverTimeUpdateInterval } from "./constants";
 import { playCombatEventSFX } from "./functions/combat/playCombatEventSFX";
 import { playMusic } from "./functions/playMusic";
 import { postWindowMessage } from "./functions/postWindowMessage";
@@ -578,7 +582,7 @@ export const tick = (): void => {
   }
   if (
     state.values.fpsSentAt === null ||
-    currentTime - state.values.fpsSentAt >= 250
+    currentTime - state.values.fpsSentAt >= fpsUpdateInterval
   ) {
     state.setValues({
       fpsSentAt: currentTime,

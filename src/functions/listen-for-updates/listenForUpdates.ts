@@ -74,6 +74,7 @@ import { musicFadeDuration } from "../../constants";
 import { partyInviteWorldMenu } from "../../world-menus/partyInviteWorldMenu";
 import { playMusic } from "../playMusic";
 import { playerInvitedWorldMenu } from "../../world-menus/playerInvitedWorldMenu";
+import { postWindowMessage } from "../postWindowMessage";
 import { resetParty } from "../resetParty";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
@@ -938,10 +939,14 @@ export const listenForUpdates = (): void => {
           "Server time update received but server time requested at is null.",
         );
       }
+      const ping: number =
+        getCurrentTime() - state.values.serverTimeRequestedAt;
+      postWindowMessage({
+        data: ping,
+        event: "ping",
+      });
       state.setValues({
-        serverTime:
-          (getCurrentTime() - state.values.serverTimeRequestedAt) / 2 +
-          update.serverTime,
+        serverTime: ping / 2 + update.serverTime,
       });
     },
   });
