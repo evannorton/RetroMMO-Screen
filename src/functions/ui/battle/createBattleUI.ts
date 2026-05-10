@@ -489,6 +489,13 @@ export const createBattleUI = ({
   // Landscape BG
   hudElementReferences.push(
     createImage({
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        return (
+          battleState.values.phase === BattlePhase.Round ||
+          battleState.values.phase === BattlePhase.Selection
+        );
+      },
       height: gameHeight,
       imagePath: (): string =>
         getDefinable(Reachable, getBattleState().values.reachableID).landscape
@@ -496,6 +503,60 @@ export const createBattleUI = ({
       width: gameWidth,
       x: 0,
       y: 0,
+    }),
+  );
+  // Game over screen
+  const gameOverCondition = (): boolean => {
+    const battleState: State<BattleStateSchema> = getBattleState();
+    if (
+      battleState.values.phase === BattlePhase.GameOver &&
+      state.values.serverTime !== null
+    ) {
+      if (battleState.values.gameOverServerTime === null) {
+        throw new Error("gameOverServerTime is null");
+      }
+      const elapsedServerTime: number =
+        state.values.serverTime - battleState.values.gameOverServerTime;
+      return elapsedServerTime >= -1000;
+    }
+    return false;
+  };
+  hudElementReferences.push(
+    createImage({
+      condition: gameOverCondition,
+      height: gameHeight,
+      imagePath: "game-over",
+      width: gameWidth,
+      x: 0,
+      y: 0,
+    }),
+  );
+  const gameOverPanelWidth: number = 158;
+  hudElementReferences.push(
+    createPanel({
+      condition: gameOverCondition,
+      height: 25,
+      imagePath: "panels/basic",
+      width: gameOverPanelWidth,
+      x: Math.floor(getGameWidth() / 2 - gameOverPanelWidth / 2),
+      y: 196,
+    }),
+  );
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: gameOverCondition,
+        x: getGameWidth() / 2,
+        y: 205,
+      },
+      horizontalAlignment: "center",
+      maxLines: 1,
+      maxWidth: getGameWidth() - 20,
+      size: 1,
+      text: {
+        value: "It is not your time... yet.",
+      },
     }),
   );
   // Submitted actions panel
@@ -531,6 +592,13 @@ export const createBattleUI = ({
     // Battler panel
     hudElementReferences.push(
       createPanel({
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          return (
+            battleState.values.phase === BattlePhase.Round ||
+            battleState.values.phase === BattlePhase.Selection
+          );
+        },
         height: 40,
         imagePath: "panels/basic",
         width: 81,
@@ -543,6 +611,13 @@ export const createBattleUI = ({
       createLabel({
         color: Color.White,
         coordinates: {
+          condition: (): boolean => {
+            const battleState: State<BattleStateSchema> = getBattleState();
+            return (
+              battleState.values.phase === BattlePhase.Round ||
+              battleState.values.phase === BattlePhase.Selection
+            );
+          },
           x: 101 + i * 81,
           y: 206,
         },
@@ -577,6 +652,13 @@ export const createBattleUI = ({
           ).id;
         },
         coordinates: {
+          condition: (): boolean => {
+            const battleState: State<BattleStateSchema> = getBattleState();
+            return (
+              battleState.values.phase === BattlePhase.Round ||
+              battleState.values.phase === BattlePhase.Selection
+            );
+          },
           x: 73 + i * 81,
           y: 216,
         },
@@ -661,6 +743,13 @@ export const createBattleUI = ({
     // Battler HP bar
     hudElementReferences.push(
       createResourceBar({
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          return (
+            battleState.values.phase === BattlePhase.Round ||
+            battleState.values.phase === BattlePhase.Selection
+          );
+        },
         iconImagePath: "resource-bar-icons/hp",
         maxValue: (): number => friendlyBattler.resources.maxHP,
         primaryColor: Color.BrightRed,
@@ -673,9 +762,15 @@ export const createBattleUI = ({
     // Battler MP bar
     hudElementReferences.push(
       createResourceBar({
-        condition: (): boolean =>
-          friendlyBattler.battleCharacter.player.character.class
-            .resourcePool === ResourcePool.MP,
+        condition: (): boolean => {
+          const battleState: State<BattleStateSchema> = getBattleState();
+          return (
+            (battleState.values.phase === BattlePhase.Round ||
+              battleState.values.phase === BattlePhase.Selection) &&
+            friendlyBattler.battleCharacter.player.character.class
+              .resourcePool === ResourcePool.MP
+          );
+        },
         iconImagePath: "resource-bar-icons/mp",
         maxValue: (): number => {
           const maxMP: number | null = friendlyBattler.resources.maxMP;
@@ -1151,7 +1246,12 @@ export const createBattleUI = ({
     };
     const enemySpriteCondition = (): boolean => {
       const battleState: State<BattleStateSchema> = getBattleState();
-      if (enemyBattler.isAlive && state.values.serverTime !== null) {
+      if (
+        (battleState.values.phase === BattlePhase.Round ||
+          battleState.values.phase === BattlePhase.Selection) &&
+        enemyBattler.isAlive &&
+        state.values.serverTime !== null
+      ) {
         switch (battleState.values.phase) {
           case BattlePhase.Round: {
             if (battleState.values.round === null) {
@@ -1989,6 +2089,13 @@ export const createBattleUI = ({
   // Commands panel
   hudElementReferences.push(
     createPanel({
+      condition: (): boolean => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        return (
+          battleState.values.phase === BattlePhase.Round ||
+          battleState.values.phase === BattlePhase.Selection
+        );
+      },
       height: 100,
       imagePath: "panels/basic",
       width: 61,

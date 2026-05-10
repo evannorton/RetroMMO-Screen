@@ -575,6 +575,7 @@ export const listenForUpdates = (): void => {
               enemyBattlersCount: update.battle.enemyBattlersCount,
               friendlyBattlerIDs: update.battle.friendlyBattlerIDs,
               friendlyBattlersCount: update.battle.friendlyBattlersCount,
+              gameOverServerTime: update.battle.gameOverServerTime,
               hotkeys,
               hudElementReferences: createBattleUI({
                 enemyBattlerIDs: update.battle.enemyBattlerIDs,

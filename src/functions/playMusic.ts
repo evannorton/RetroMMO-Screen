@@ -1,5 +1,10 @@
+import {
+  BattlePhase,
+  BattleType,
+  CombatDefeatEvent,
+  CombatEventType,
+} from "retrommo-types";
 import { BattleStateRoundEventInstance, state } from "../state";
-import { BattleType, CombatDefeatEvent, CombatEventType } from "retrommo-types";
 import { Encounter } from "../classes/Encounter";
 import { MusicTrack } from "../classes/MusicTrack";
 import { Reachable } from "../classes/Reachable";
@@ -28,6 +33,9 @@ const getMusicPlayData = (): MusicPlayData | null => {
     };
   }
   if (state.values.battleState !== null) {
+    if (state.values.battleState.values.phase === BattlePhase.GameOver) {
+      return null;
+    }
     if (
       state.values.serverTime !== null &&
       state.values.battleState.values.round !== null

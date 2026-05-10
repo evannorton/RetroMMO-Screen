@@ -129,6 +129,7 @@ export interface BattleStateSchema {
   readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];
   readonly friendlyBattlersCount: number;
+  readonly gameOverServerTime: number | null;
   readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly impactAnimationSpriteIDs: readonly string[];

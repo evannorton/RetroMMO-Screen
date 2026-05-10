@@ -3,6 +3,7 @@ import {
   BattleBindItemUpdate,
   BattleCancelSubmittedMoveUpdate,
   BattleEndRoundUpdate,
+  BattleGameOverUpdate,
   BattlePhase,
   BattleStartRoundUpdate,
   BattleSubmitAbilityUpdate,
@@ -156,6 +157,16 @@ export const listenForBattleUpdates = (): void => {
           };
         }
       }
+    },
+  });
+  listenToSocketioEvent<BattleGameOverUpdate>({
+    event: "battle/game-over",
+    onMessage: (update: BattleGameOverUpdate): void => {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      battleState.setValues({
+        gameOverServerTime: update.serverTime,
+        phase: BattlePhase.GameOver,
+      });
     },
   });
   listenToSocketioEvent<BattleSubmitAbilityUpdate>({

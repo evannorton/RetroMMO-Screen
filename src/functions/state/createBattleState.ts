@@ -28,6 +28,7 @@ export interface CreateBattleStateOptions {
   readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];
   readonly friendlyBattlersCount: number;
+  readonly gameOverServerTime?: number;
   readonly hotkeys: readonly CreateBattleStateOptionsHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly itemInstanceIDs: readonly string[];
@@ -45,6 +46,7 @@ export const createBattleState = ({
   enemyBattlersCount,
   friendlyBattlerIDs,
   friendlyBattlersCount,
+  gameOverServerTime,
   hotkeys,
   hudElementReferences,
   itemInstanceIDs,
@@ -62,6 +64,7 @@ export const createBattleState = ({
     enemyBattlersCount,
     friendlyBattlerIDs,
     friendlyBattlersCount,
+    gameOverServerTime: gameOverServerTime ?? null,
     hotkeys: hotkeys.map(
       (hotkey: CreateBattleStateOptionsHotkey): BattleStateHotkey => ({
         hotkeyableDefinableReference: hotkey.hotkeyableDefinableReference,
