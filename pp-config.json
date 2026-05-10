@@ -1,5 +1,10 @@
 {
   "height": 240,
+  "joystick": {
+    "size": 80,
+    "x": 24,
+    "y": 104
+  },
   "name": "RetroMMO",
   "requireClickToFocus": false,
   "width": 304

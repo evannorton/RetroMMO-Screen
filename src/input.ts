@@ -182,6 +182,10 @@ const moveLeftNumpadInputCollectionID: string = createInputCollection({
   ],
   name: "Move left",
 });
+const moveLeftJoystickInputCollectionID: string = createInputCollection({
+  joystickDirections: ["left"],
+  name: "Move left",
+});
 const moveRightWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyD" }],
   name: "Move right",
@@ -197,6 +201,10 @@ const moveRightNumpadInputCollectionID: string = createInputCollection({
       value: "Numpad6",
     },
   ],
+  name: "Move right",
+});
+const moveRightJoystickInputCollectionID: string = createInputCollection({
+  joystickDirections: ["right"],
   name: "Move right",
 });
 const moveUpWASDInputCollectionID: string = createInputCollection({
@@ -216,6 +224,10 @@ const moveUpNumpadInputCollectionID: string = createInputCollection({
   ],
   name: "Move up",
 });
+const moveUpJoystickInputCollectionID: string = createInputCollection({
+  joystickDirections: ["up"],
+  name: "Move up",
+});
 const moveDownWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyS" }],
   name: "Move down",
@@ -231,6 +243,10 @@ const moveDownNumpadInputCollectionID: string = createInputCollection({
       value: "Numpad2",
     },
   ],
+  name: "Move down",
+});
+const moveDownJoystickInputCollectionID: string = createInputCollection({
+  joystickDirections: ["down"],
   name: "Move down",
 });
 const actionInputCollectionID: string = createInputCollection({
@@ -764,6 +780,26 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  inputCollectionID: moveLeftJoystickInputCollectionID,
+  onInput: (): void => {
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "JoystickLeft",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
+  },
+  onRelease: (): void => {
+    emitToSocketioServer({
+      data: "JoystickLeft" as unknown as object,
+      event: "keyup",
+    });
+  },
+});
+createInputPressHandler({
   inputCollectionID: moveRightWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -819,6 +855,26 @@ createInputPressHandler({
   onRelease: (): void => {
     emitToSocketioServer({
       data: "Numpad6" as unknown as object,
+      event: "keyup",
+    });
+  },
+});
+createInputPressHandler({
+  inputCollectionID: moveRightJoystickInputCollectionID,
+  onInput: (): void => {
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "JoystickRight",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
+  },
+  onRelease: (): void => {
+    emitToSocketioServer({
+      data: "JoystickRight" as unknown as object,
       event: "keyup",
     });
   },
@@ -884,6 +940,26 @@ createInputPressHandler({
   },
 });
 createInputPressHandler({
+  inputCollectionID: moveUpJoystickInputCollectionID,
+  onInput: (): void => {
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "JoystickUp",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
+  },
+  onRelease: (): void => {
+    emitToSocketioServer({
+      data: "JoystickUp" as unknown as object,
+      event: "keyup",
+    });
+  },
+});
+createInputPressHandler({
   inputCollectionID: moveDownWASDInputCollectionID,
   onInput: (): void => {
     if (canWalk()) {
@@ -939,6 +1015,26 @@ createInputPressHandler({
   onRelease: (): void => {
     emitToSocketioServer({
       data: "Numpad2" as unknown as object,
+      event: "keyup",
+    });
+  },
+});
+createInputPressHandler({
+  inputCollectionID: moveDownJoystickInputCollectionID,
+  onInput: (): void => {
+    if (canWalk()) {
+      emitToSocketioServer({
+        data: {
+          key: "JoystickDown",
+          numlock: false,
+        },
+        event: "keydown",
+      });
+    }
+  },
+  onRelease: (): void => {
+    emitToSocketioServer({
+      data: "JoystickDown" as unknown as object,
       event: "keyup",
     });
   },

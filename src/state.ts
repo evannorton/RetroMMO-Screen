@@ -155,6 +155,7 @@ export interface StateSchema {
   readonly initialNPCTilePositions: readonly InitialNPCTilePosition[];
   readonly initialPianoTilePositions: readonly InitialPianoTilePosition[];
   readonly isInitialUpdateReceived: boolean;
+  readonly isJoystickEnabled: boolean;
   readonly isSubscribed: boolean;
   readonly mainMenuState: State<MainMenuStateSchema> | null;
   readonly mapMusicPause: MapMusicPause | null;
@@ -181,6 +182,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialNPCTilePositions: [],
   initialPianoTilePositions: [],
   isInitialUpdateReceived: false,
+  isJoystickEnabled: false,
   isSubscribed: false,
   mainMenuState: null,
   mapMusicPause: null,

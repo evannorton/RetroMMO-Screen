@@ -45,6 +45,16 @@ export const handleWindowMessage = (message: unknown): void => {
       listenForUpdates();
       break;
     }
+    case "joystick": {
+      if (!("value" in message)) {
+        return;
+      }
+      if (typeof message.value !== "boolean") {
+        return;
+      }
+      state.setValues({ isJoystickEnabled: message.value });
+      break;
+    }
     case "limit-fps": {
       if (!("value" in message)) {
         return;

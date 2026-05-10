@@ -42,9 +42,11 @@ import {
   getCurrentTime,
   listenToSocketioEvent,
   removeHUDElements,
+  setJoystickCondition,
 } from "pixel-pigeon";
 import { TradeItem, tradeWorldMenu } from "../../world-menus/tradeWorldMenu";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { WorldMenu } from "../../classes/WorldMenu";
 import { addWorldCharacterMarker } from "../addWorldCharacterMarker";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../world-menus/closeWorldMenus";
@@ -57,6 +59,7 @@ import { exitBattlers } from "../exitBattlers";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
+import { isForcedWorldUIVisible } from "../isForcedWorldUIVisible";
 import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./world/listenForWorldUpdates";
@@ -816,6 +819,16 @@ export const listenForUpdates = (): void => {
         }
       }
       playMusic();
+      setJoystickCondition(
+        (): boolean =>
+          state.values.worldState !== null &&
+          state.values.isJoystickEnabled === true &&
+          isForcedWorldUIVisible() === false &&
+          Array.from(getDefinables(WorldMenu).values()).every(
+            (worldMenu: WorldMenu<unknown, object>): boolean =>
+              worldMenu.isOpen() === false,
+          ),
+      );
     },
   });
   listenToSocketioEvent<PartyChangesUpdate>({
