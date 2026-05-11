@@ -3120,10 +3120,10 @@ export const createBattleUI = ({
         }
         const elapsedServerTime: number =
           state.values.serverTime - battleState.values.selection.serverTime;
-        const milliseconds: number = Math.max(
+        const milliseconds: number = Math.min(Math.max(
           constants["battle-selection-duration"] - elapsedServerTime,
           0,
-        );
+        ), constants["battle-selection-duration"]);
         const seconds: number = Math.floor(milliseconds / 1000);
         return {
           value: `Round time: ${getFormattedInteger(seconds)}`,
