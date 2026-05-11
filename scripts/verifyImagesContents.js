@@ -168,7 +168,7 @@ const colorPalette = {
 };
 
 const defaultDirectoryOptions = {
-  colorCount: 8,
+  colorCount: Infinity,
   directoryPath: ["images"],
   isSpriteSheet: false,
   palette: colorPalette.famicube,
