@@ -38,6 +38,7 @@ import { ClassAbilityUnlock } from "../../../classes/Class";
 import {
   CreateLabelOptionsText,
   CreateLabelOptionsTextTrim,
+  CreateSpriteOptionsAnimation,
   HUDElementReferences,
   State,
   createButton,
@@ -503,60 +504,6 @@ export const createBattleUI = ({
       width: gameWidth,
       x: 0,
       y: 0,
-    }),
-  );
-  // Game over screen
-  const gameOverCondition = (): boolean => {
-    const battleState: State<BattleStateSchema> = getBattleState();
-    if (
-      battleState.values.phase === BattlePhase.GameOver &&
-      state.values.serverTime !== null
-    ) {
-      if (battleState.values.gameOverServerTime === null) {
-        throw new Error("gameOverServerTime is null");
-      }
-      const elapsedServerTime: number =
-        state.values.serverTime - battleState.values.gameOverServerTime;
-      return elapsedServerTime >= -1000;
-    }
-    return false;
-  };
-  hudElementReferences.push(
-    createImage({
-      condition: gameOverCondition,
-      height: gameHeight,
-      imagePath: "game-over",
-      width: gameWidth,
-      x: 0,
-      y: 0,
-    }),
-  );
-  const gameOverPanelWidth: number = 158;
-  hudElementReferences.push(
-    createPanel({
-      condition: gameOverCondition,
-      height: 25,
-      imagePath: "panels/basic",
-      width: gameOverPanelWidth,
-      x: Math.floor(getGameWidth() / 2 - gameOverPanelWidth / 2),
-      y: 196,
-    }),
-  );
-  labelIDs.push(
-    createLabel({
-      color: Color.White,
-      coordinates: {
-        condition: gameOverCondition,
-        x: getGameWidth() / 2,
-        y: 205,
-      },
-      horizontalAlignment: "center",
-      maxLines: 1,
-      maxWidth: getGameWidth() - 20,
-      size: 1,
-      text: {
-        value: "It is not your time... yet.",
-      },
     }),
   );
   // Submitted actions panel
@@ -3181,6 +3128,143 @@ export const createBattleUI = ({
         return {
           value: `Round time: ${getFormattedInteger(seconds)}`,
         };
+      },
+    }),
+  );
+  // Game over screen
+  const gameOverCondition = (): boolean => {
+    const battleState: State<BattleStateSchema> = getBattleState();
+    return (
+      battleState.values.phase === BattlePhase.GameOver &&
+      state.values.serverTime !== null
+    );
+  };
+  const gameOverFrames: number = 4;
+  const gameOverMiddlePercent: number = 0.25;
+  const gameOverSideSegmentPercent: number = (1 - gameOverMiddlePercent) / 2;
+  const gameOverPaddingPercent: number = 0.05;
+  const gameOverActiveSegmentPercent: number = 1 - 2 * gameOverPaddingPercent;
+  spriteIDs.push(
+    createSprite({
+      animationID: (): string => {
+        const battleState: State<BattleStateSchema> = getBattleState();
+        if (battleState.values.gameOverServerTime === null) {
+          throw new Error("gameOverServerTime is null");
+        }
+        if (state.values.serverTime === null) {
+          throw new Error("serverTime is null");
+        }
+        const elapsedServerTime: number =
+          state.values.serverTime - battleState.values.gameOverServerTime;
+        const timePercent: number =
+          elapsedServerTime / constants["game-over-duration"];
+        if (timePercent <= gameOverPaddingPercent) {
+          return "1";
+        }
+        if (timePercent >= 1 - gameOverPaddingPercent) {
+          return "1";
+        }
+        const activeTimePercent: number =
+          (timePercent - gameOverPaddingPercent) / gameOverActiveSegmentPercent;
+        if (activeTimePercent <= gameOverSideSegmentPercent) {
+          const forwardProgress: number =
+            activeTimePercent / gameOverSideSegmentPercent;
+          for (let i: number = gameOverFrames - 1; i >= 0; i--) {
+            const framePercent: number = i / gameOverFrames;
+            if (forwardProgress >= framePercent) {
+              return String(i + 1);
+            }
+          }
+        } else if (
+          activeTimePercent <=
+          gameOverSideSegmentPercent + gameOverMiddlePercent
+        ) {
+          return String(gameOverFrames);
+        } else {
+          const reverseProgress: number =
+            (activeTimePercent -
+              (gameOverSideSegmentPercent + gameOverMiddlePercent)) /
+            gameOverSideSegmentPercent;
+          for (let i: number = gameOverFrames - 1; i >= 0; i--) {
+            const framePercent: number = i / gameOverFrames;
+            if (reverseProgress >= framePercent) {
+              return String(gameOverFrames - i);
+            }
+          }
+        }
+        return "1";
+      },
+      animations: Array.from(
+        { length: gameOverFrames },
+        (_: unknown, index: number): CreateSpriteOptionsAnimation => ({
+          frames: [
+            {
+              height: gameHeight,
+              sourceHeight: gameHeight,
+              sourceWidth: gameWidth,
+              sourceX: index * gameWidth,
+              sourceY: 0,
+              width: gameWidth,
+            },
+          ],
+          id: String(index + 1),
+        }),
+      ),
+      coordinates: {
+        condition: gameOverCondition,
+        x: 0,
+        y: 0,
+      },
+      imagePath: "game-over",
+    }),
+  );
+  const gameOverDialogueCondition = (): boolean => {
+    if (gameOverCondition()) {
+      const battleState: State<BattleStateSchema> = getBattleState();
+      if (state.values.serverTime === null) {
+        throw new Error("serverTime is null");
+      }
+      if (battleState.values.gameOverServerTime === null) {
+        throw new Error("gameOverServerTime is null");
+      }
+      const elapsedServerTime: number =
+        state.values.serverTime - battleState.values.gameOverServerTime;
+      const timePercent: number =
+        elapsedServerTime / constants["game-over-duration"];
+      if (
+        timePercent >= gameOverSideSegmentPercent &&
+        timePercent <= gameOverMiddlePercent + gameOverSideSegmentPercent
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const gameOverPanelWidth: number = 158;
+  hudElementReferences.push(
+    createPanel({
+      condition: gameOverDialogueCondition,
+      height: 25,
+      imagePath: "panels/basic",
+      width: gameOverPanelWidth,
+      x: Math.floor(getGameWidth() / 2 - gameOverPanelWidth / 2),
+      y: 196,
+    }),
+  );
+  labelIDs.push(
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: gameOverDialogueCondition,
+        x: getGameWidth() / 2,
+        y: 205,
+      },
+      horizontalAlignment: "center",
+      maxLines: 1,
+      maxWidth: getGameWidth() - 20,
+      size: 1,
+      text: {
+        value: "It is not your time... yet.",
       },
     }),
   );
