@@ -335,7 +335,7 @@ export const tick = (): void => {
         startBattleFromWorld(queuedBattle.update);
       } else if (
         currentTime >=
-        queuedBattle.queuedAt + animatedDuration * (animatedDuration * (3 / 4))
+        queuedBattle.queuedAt + animatedDuration * (3 / 4)
       ) {
         setTilemapDownsampleScale(16);
       } else if (currentTime >= queuedBattle.queuedAt + animatedDuration / 2) {
@@ -345,7 +345,7 @@ export const tick = (): void => {
         if (queuedBattle.isScattering === false) {
           queuedBattle.isScattering = true;
           startPixelScatter({
-            duration: animatedDuration / 2,
+            duration: animatedDuration * (3 / 4),
             offsetY: -16,
             size: 16,
           });
