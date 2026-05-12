@@ -77,6 +77,7 @@ export const createWorldState = ({
     outfitItemInstanceID: outfitItemInstanceID ?? null,
     pianoNotes: [],
     pianoSessionID: null,
+    queuedBattle: null,
     reachableID,
     strength,
     timePlayed: {

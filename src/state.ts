@@ -4,6 +4,7 @@ import {
   CombatEvent,
   Constants,
   Direction,
+  WorldStartBattleUpdate,
 } from "retrommo-types";
 import { DefinableReference } from "definables";
 import { HUDElementReferences, State } from "pixel-pigeon";
@@ -52,6 +53,11 @@ export interface WorldStateCombatRound {
   readonly eventInstances: readonly WorldStateCombatRoundEventInstance[];
   readonly serverTime: number;
 }
+export interface WorldStateQueuedBattle {
+  isScattering: boolean;
+  readonly queuedAt: number;
+  readonly update: WorldStartBattleUpdate;
+}
 export interface WorldStateSchema {
   readonly agility: number;
   readonly bagItemInstanceIDs: readonly string[];
@@ -76,6 +82,7 @@ export interface WorldStateSchema {
   readonly outfitItemInstanceID: string | null;
   readonly pianoNotes: readonly PianoNote[];
   readonly pianoSessionID: string | null;
+  readonly queuedBattle: WorldStateQueuedBattle | null;
   readonly reachableID: string;
   readonly strength: number;
   readonly timePlayed: TimePlayed;

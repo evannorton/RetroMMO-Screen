@@ -18,6 +18,7 @@ import {
   BattleStateHotkey,
   BattleStateRoundEventInstance,
   BattleStateSchema,
+  state,
 } from "../../../state";
 import { Battler } from "../../../classes/Battler";
 import { ItemInstance } from "../../../classes/ItemInstance";
@@ -27,6 +28,7 @@ import { getDefinable, getDefinables } from "definables";
 import { loadBattleSubmittedAbilityUpdate } from "../../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattleSubmittedItemUpdate } from "../../load-updates/loadBattleSubmittedItemUpdate";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
+import { startBattleFromWorld } from "../../startBattleFromWorld";
 
 export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleBindAbilityUpdate>({
@@ -100,6 +102,14 @@ export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleEndRoundUpdate>({
     event: "battle/end-round",
     onMessage: (update: BattleEndRoundUpdate): void => {
+      if (
+        state.values.worldState !== null &&
+        state.values.worldState.values.queuedBattle !== null
+      ) {
+        startBattleFromWorld(
+          state.values.worldState.values.queuedBattle.update,
+        );
+      }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
       }

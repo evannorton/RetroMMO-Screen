@@ -7,7 +7,9 @@ import { state } from "../../../state";
 
 export const createWorldLogoutUI = (): void => {
   const condition = (): boolean =>
-    state.values.worldState !== null && isWorldCombatInProgress() === false;
+    state.values.worldState !== null &&
+    isWorldCombatInProgress() === false &&
+    state.values.worldState.values.queuedBattle === null;
   createPanel({
     condition,
     height: 24,

@@ -49,7 +49,9 @@ import { targetBlinkDuration } from "../../../constants";
 
 export const createWorldBottomBarUI = (): void => {
   const tileSize: number = getConstants()["tile-size"];
-  const condition = (): boolean => state.values.worldState !== null;
+  const condition = (): boolean =>
+    state.values.worldState !== null &&
+    state.values.worldState.values.queuedBattle === null;
   const constants: Constants = getConstants();
   const gameWidth: number = getGameWidth();
   // Bottom bar background

@@ -19,6 +19,7 @@ import {
 import { MusicTrack } from "./classes/MusicTrack";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
+import { WorldStateQueuedBattle, state } from "./state";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import {
   emitToSocketioServer,
@@ -28,6 +29,8 @@ import {
   playAudioSource,
   removeEntity,
   setEntityPosition,
+  setTilemapDownsampleScale,
+  startPixelScatter,
 } from "pixel-pigeon";
 import {
   fpsUpdateInterval,
@@ -42,7 +45,7 @@ import { playCombatEventSFX } from "./functions/combat/playCombatEventSFX";
 import { playMusic } from "./functions/playMusic";
 import { postWindowMessage } from "./functions/postWindowMessage";
 import { sfxVolumeChannelID } from "./volumeChannels";
-import { state } from "./state";
+import { startBattleFromWorld } from "./functions/startBattleFromWorld";
 
 export const tick = (): void => {
   const constants: Constants = getConstants();
@@ -178,7 +181,7 @@ export const tick = (): void => {
     }
     const updatedPianoNotes: PianoNote[] = [];
     for (const pianoNote of state.values.worldState.values.pianoNotes) {
-      if (pianoNote.playAt <= currentTime) {
+      if (pianoNote.playAt < currentTime) {
         playAudioSource(getPianoKeyAudioPath(pianoNote.index, pianoNote.type), {
           volumeChannelID: sfxVolumeChannelID,
         });
@@ -317,6 +320,38 @@ export const tick = (): void => {
             eventInstance.isProcessed = true;
           }
         }
+      }
+    }
+    if (state.values.worldState.values.queuedBattle !== null) {
+      const queuedBattle: WorldStateQueuedBattle =
+        state.values.worldState.values.queuedBattle;
+      const blackDuration: number = constants["battle-intro-duration"] / 10;
+      const animatedDuration: number =
+        constants["battle-intro-duration"] - blackDuration;
+      if (
+        currentTime >=
+        queuedBattle.queuedAt + constants["battle-intro-duration"]
+      ) {
+        startBattleFromWorld(queuedBattle.update);
+      } else if (
+        currentTime >=
+        queuedBattle.queuedAt + animatedDuration * (animatedDuration * (3 / 4))
+      ) {
+        setTilemapDownsampleScale(16);
+      } else if (currentTime >= queuedBattle.queuedAt + animatedDuration / 2) {
+        setTilemapDownsampleScale(8);
+      } else if (currentTime >= queuedBattle.queuedAt + animatedDuration / 4) {
+        setTilemapDownsampleScale(4);
+        if (queuedBattle.isScattering === false) {
+          queuedBattle.isScattering = true;
+          startPixelScatter({
+            duration: animatedDuration / 2,
+            offsetY: -16,
+            size: 16,
+          });
+        }
+      } else {
+        setTilemapDownsampleScale(2);
       }
     }
   }

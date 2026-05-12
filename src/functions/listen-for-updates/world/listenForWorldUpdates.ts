@@ -1,6 +1,5 @@
-import { Ability } from "../../../classes/Ability";
+import { Chest } from "../../../classes/Chest";
 import {
-  BattlePhase,
   CombatEvent,
   Direction,
   EquipmentSlot,
@@ -29,17 +28,11 @@ import {
   WorldTurnNPCUpdate,
   WorldVanityUpdate,
 } from "retrommo-types";
-import { Chest } from "../../../classes/Chest";
-import {
-  CreateBattleStateOptionsHotkey,
-  createBattleState,
-} from "../../state/createBattleState";
 import { Enterable } from "../../../classes/Enterable";
 import {
   InventoryTab,
   inventoryWorldMenu,
 } from "../../../world-menus/inventoryWorldMenu";
-import { Item } from "../../../classes/Item";
 import { ItemInstance } from "../../../classes/ItemInstance";
 import { MainMenuCharacter } from "../../../classes/MainMenuCharacter";
 import { MarkerType } from "../../../types/MarkerType";
@@ -67,7 +60,6 @@ import { addWorldCharacterMarker } from "../../addWorldCharacterMarker";
 import { bagFullWorldMenu } from "../../../world-menus/bagFullWorldMenu";
 import { clearWorldCharacterMarker } from "../../clearWorldCharacterMarker";
 import { closeWorldMenus } from "../../world-menus/closeWorldMenus";
-import { createBattleUI } from "../../ui/battle/createBattleUI";
 import { createMainMenuState } from "../../state/main-menu/createMainMenuState";
 import { duelInviteWorldMenu } from "../../../world-menus/duelInviteWorldMenu";
 import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSource";
@@ -736,6 +728,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldStartBattleUpdate>({
     event: "world/start-battle",
     onMessage: (update: WorldStartBattleUpdate): void => {
+      const worldState: State<WorldStateSchema> = getWorldState();
       if (state.values.musicTrackID === null) {
         throw new Error("musicTrackID is null");
       }
@@ -743,10 +736,6 @@ export const listenForWorldUpdates = (): void => {
         MusicTrack,
         state.values.musicTrackID,
       );
-      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
-        worldCharacter.player.worldCharacterID = null;
-        worldCharacter.remove();
-      }
       for (const itemInstance of getDefinables(ItemInstance).values()) {
         itemInstance.remove();
       }
@@ -765,61 +754,12 @@ export const listenForWorldUpdates = (): void => {
       for (const battlerUpdate of update.battlers) {
         loadBattlerUpdate(battlerUpdate);
       }
-      const hotkeys: CreateBattleStateOptionsHotkey[] = [];
-      for (const abilityHotkey of update.abilityHotkeys) {
-        hotkeys.push({
-          hotkeyableDefinableReference: getDefinable(
-            Ability,
-            abilityHotkey.abilityID,
-          ).getReference(),
-          index: abilityHotkey.index,
-        });
-      }
-      for (const itemHotkey of update.itemHotkeys) {
-        hotkeys.push({
-          hotkeyableDefinableReference: getDefinable(
-            Item,
-            itemHotkey.itemID,
-          ).getReference(),
-          index: itemHotkey.index,
-        });
-      }
       state.setValues({
-        battleState: createBattleState({
-          battlerID: update.battlerID,
-          encounterID: update.encounterID,
-          enemyBattlerIDs: update.enemyBattlerIDs,
-          enemyBattlersCount: update.enemyBattlersCount,
-          friendlyBattlerIDs: update.friendlyBattlerIDs,
-          friendlyBattlersCount: update.friendlyBattlersCount,
-          hotkeys,
-          hudElementReferences: createBattleUI({
-            enemyBattlerIDs: update.enemyBattlerIDs,
-            friendlyBattlerIDs: update.friendlyBattlerIDs,
-          }),
-          itemInstanceIDs: update.itemInstances.map(
-            (itemInstanceUpdate: ItemInstanceUpdate): string =>
-              itemInstanceUpdate.itemInstanceID,
-          ),
-          phase: BattlePhase.Round,
-          reachableID: update.reachableID,
-          round: {
-            duration: update.round.duration,
-            events: update.round.events,
-            isFinal: update.round.isFinal ?? false,
-            serverTime: update.round.serverTime,
-          },
-          teamIndex: update.teamIndex,
-          type: update.battleType,
-        }),
         mapMusicPause: {
           musicTrackID: state.values.musicTrackID,
           resumePoint: getAudioSourceCurrentPosition(musicTrack.audioPath),
         },
-        worldState: null,
       });
-      playMusic();
-      exitLevel();
       if (selectedPlayerWorldMenu.isOpen()) {
         selectedPlayerWorldMenu.state.setValues({
           isBattleStarting: true,
@@ -831,6 +771,14 @@ export const listenForWorldUpdates = (): void => {
         });
       }
       closeWorldMenus();
+      worldState.setValues({
+        queuedBattle: {
+          isScattering: false,
+          queuedAt: getCurrentTime(),
+          update,
+        },
+      });
+      playMusic();
     },
   });
   listenToSocketioEvent<WorldTurnCharactersUpdate>({

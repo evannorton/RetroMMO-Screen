@@ -18,6 +18,25 @@ interface MusicPlayData {
 }
 const getMusicPlayData = (): MusicPlayData | null => {
   if (state.values.worldState !== null) {
+    if (state.values.worldState.values.queuedBattle !== null) {
+      const reachable: Reachable = getDefinable(
+        Reachable,
+        state.values.worldState.values.queuedBattle.update.reachableID,
+      );
+      switch (state.values.worldState.values.queuedBattle.update.battleType) {
+        case BattleType.Boss:
+        case BattleType.Encounter:
+          return {
+            musicTrackID: reachable.pveMusicTrackID,
+            resumePoint: 0,
+          };
+        case BattleType.Duel:
+          return {
+            musicTrackID: "square-up-adventurer-showdown",
+            resumePoint: 0,
+          };
+      }
+    }
     const reachable: Reachable = getDefinable(
       Reachable,
       state.values.worldState.values.reachableID,

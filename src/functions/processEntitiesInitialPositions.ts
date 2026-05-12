@@ -367,7 +367,9 @@ export const processEntitiesInitialPositions = (): void => {
       },
       sprites: [
         {
-          condition: (): boolean => state.values.worldState !== null,
+          condition: (): boolean =>
+            state.values.worldState !== null &&
+            state.values.worldState.values.queuedBattle === null,
           spriteID: createSprite({
             animationID: "default",
             animations: [
