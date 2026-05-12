@@ -3251,7 +3251,7 @@ export const createBattleUI = ({
       imagePath: "panels/basic",
       width: gameOverPanelWidth,
       x: Math.floor(getGameWidth() / 2 - gameOverPanelWidth / 2),
-      y: 196,
+      y: 195,
     }),
   );
   labelIDs.push(
@@ -3260,7 +3260,7 @@ export const createBattleUI = ({
       coordinates: {
         condition: gameOverDialogueCondition,
         x: getGameWidth() / 2,
-        y: 205,
+        y: 204,
       },
       horizontalAlignment: "center",
       maxLines: 1,
