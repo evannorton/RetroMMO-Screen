@@ -9,6 +9,7 @@ import {
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
+import { getWorldState } from "./state/getWorldState";
 
 export const addWorldCharacterEmote = (
   worldCharacterID: string,
@@ -26,6 +27,7 @@ export const addWorldCharacterEmote = (
   const emote: Emote = getDefinable(Emote, emoteID);
   const sprites: EntitySprite[] = [
     {
+      condition: (): boolean => getWorldState().values.queuedBattle === null,
       spriteID: createSprite({
         animationID: "default",
         animations: [
@@ -49,6 +51,7 @@ export const addWorldCharacterEmote = (
   ];
   if (emote.hasForegroundImagePath()) {
     sprites.push({
+      condition: (): boolean => getWorldState().values.queuedBattle === null,
       spriteID: createSprite({
         animationID: "default",
         animations: [
