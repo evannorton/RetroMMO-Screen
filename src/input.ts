@@ -676,6 +676,7 @@ createInputPressHandler({
 createInputPressHandler({
   condition: (): boolean =>
     state.values.worldState !== null &&
+    state.values.worldState.values.queuedBattle === null &&
     pianoWorldMenu.isOpen() === false &&
     isWorldCombatInProgress() === false,
   inputCollectionID: emotesInputCollectionID,

@@ -1,10 +1,16 @@
+import {
+  BattleCharacterUpdate,
+  Constants,
+  Direction,
+  Step,
+} from "retrommo-types";
 import { ClothesDye } from "../../../classes/ClothesDye";
-import { Constants, Direction, Step } from "retrommo-types";
 import {
   CreateSpriteOptionsAnimation,
   CreateSpriteOptionsRecolor,
   HUDElementReferences,
   Scriptable,
+  State,
   addEntitySprite,
   createSprite,
   getCurrentTime,
@@ -13,8 +19,11 @@ import { HairDye } from "../../../classes/HairDye";
 import { Mask } from "../../../classes/Mask";
 import { Outfit } from "../../../classes/Outfit";
 import { SkinColor } from "../../../classes/SkinColor";
+import { WorldStateSchema } from "../../../state";
 import { getConstants } from "../../getConstants";
 import { getDefinable } from "definables";
+import { getWorldDownsampleScale } from "../../getWorldDownsampleScale";
+import { getWorldState } from "../../state/getWorldState";
 
 export interface CreatePlayerSpriteOptionsCoordinates {
   readonly condition?: () => boolean;
@@ -39,6 +48,7 @@ export interface CreatePlayerSpriteOptions {
   readonly scale?: number;
   readonly skinColorID: Scriptable<string>;
   readonly statusIconImagePaths?: Scriptable<readonly string[]>;
+  readonly worldCharacterID?: string;
 }
 export const createCharacterSprite = ({
   coordinates,
@@ -52,6 +62,7 @@ export const createCharacterSprite = ({
   scale = 1,
   skinColorID,
   statusIconImagePaths,
+  worldCharacterID,
 }: CreatePlayerSpriteOptions): HUDElementReferences => {
   if (
     (typeof entity === "undefined") ===
@@ -85,6 +96,22 @@ export const createCharacterSprite = ({
       SkinColor,
       typeof skinColorID === "function" ? skinColorID() : skinColorID,
     );
+  const downsampleScale = (): number => {
+    if (typeof worldCharacterID !== "undefined") {
+      const worldState: State<WorldStateSchema> = getWorldState();
+      if (
+        worldState.values.queuedBattle !== null &&
+        worldState.values.queuedBattle.update.characters.some(
+          (battleCharacter: BattleCharacterUpdate): boolean =>
+            battleCharacter.characterID === worldCharacterID,
+        )
+      ) {
+        return 1;
+      }
+      return getWorldDownsampleScale();
+    }
+    return 1;
+  };
   const recolors = (): CreateSpriteOptionsRecolor[] => {
     const clothesDye: ClothesDye = getClothesDye();
     const hairDye: HairDye = getHairDye();
@@ -680,6 +707,7 @@ export const createCharacterSprite = ({
             y: coordinates.y,
           }
         : undefined,
+    downsampleScale,
     imagePath: (): string =>
       getMask().headCosmetic.backImagePaths[
         typeof figureID === "function" ? figureID() : figureID
@@ -712,6 +740,7 @@ export const createCharacterSprite = ({
             y: coordinates.y,
           }
         : undefined,
+    downsampleScale,
     imagePath: (): string =>
       getOutfit().bodyCosmetic.imagePaths[
         typeof figureID === "function" ? figureID() : figureID
@@ -744,6 +773,7 @@ export const createCharacterSprite = ({
             y: coordinates.y,
           }
         : undefined,
+    downsampleScale,
     imagePath: (): string =>
       getMask().headCosmetic.frontImagePaths[
         typeof figureID === "function" ? figureID() : figureID

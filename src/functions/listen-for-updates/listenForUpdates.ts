@@ -912,27 +912,35 @@ export const listenForUpdates = (): void => {
     onMessage: (update: RemovePlayerUpdate): void => {
       const player: Player = getDefinable(Player, update.playerID);
       if (
-        state.values.worldState !== null &&
-        state.values.selectedPlayerID === update.playerID
+        (state.values.worldState !== null &&
+          state.values.worldState.values.queuedBattle !== null) ||
+        state.values.battleState !== null
       ) {
-        selectedPlayerWorldMenu.close();
-      }
-      if (player.hasWorldCharacter()) {
-        exitWorldCharacters([player.worldCharacterID]);
-      } else if (player.hasBattleCharacter()) {
-        const battlerID: string = player.battleCharacter.battlerID;
-        exitBattlers([battlerID]);
-        for (const battler of getDefinables(Battler).values()) {
-          switch (battler.type) {
-            case CombatantType.Player:
-              if (
-                battler.battleCharacter.hasSubmittedMove() &&
-                battler.battleCharacter.submittedMove.battlerID === battlerID
-              ) {
-                battler.battleCharacter.submittedMove = null;
-              }
-              break;
+        if (player.hasBattleCharacter()) {
+          const battlerID: string = player.battleCharacter.battlerID;
+          exitBattlers([battlerID]);
+          for (const battler of getDefinables(Battler).values()) {
+            switch (battler.type) {
+              case CombatantType.Player:
+                if (
+                  battler.battleCharacter.hasSubmittedMove() &&
+                  battler.battleCharacter.submittedMove.battlerID === battlerID
+                ) {
+                  battler.battleCharacter.submittedMove = null;
+                }
+                break;
+            }
           }
+        }
+      } else {
+        if (
+          state.values.worldState !== null &&
+          state.values.selectedPlayerID === update.playerID
+        ) {
+          selectedPlayerWorldMenu.close();
+        }
+        if (player.hasWorldCharacter()) {
+          exitWorldCharacters([player.worldCharacterID]);
         }
       }
       player.remove();

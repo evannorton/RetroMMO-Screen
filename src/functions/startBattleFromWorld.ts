@@ -5,6 +5,7 @@ import {
   WorldStartBattleUpdate,
 } from "retrommo-types";
 import { BattleStateSchema, state } from "../state";
+import { Battler } from "../classes/Battler";
 import {
   CreateBattleStateOptionsHotkey,
   createBattleState,
@@ -18,7 +19,7 @@ import {
 } from "pixel-pigeon";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { createBattleUI } from "./ui/battle/createBattleUI";
-import { getDefinable, getDefinables } from "definables";
+import { definableExists, getDefinable, getDefinables } from "definables";
 
 export const startBattleFromWorld = (
   worldStartBattleUpdate: WorldStartBattleUpdate,
@@ -53,8 +54,12 @@ export const startBattleFromWorld = (
     friendlyBattlersCount: worldStartBattleUpdate.friendlyBattlersCount,
     hotkeys,
     hudElementReferences: createBattleUI({
-      enemyBattlerIDs: worldStartBattleUpdate.enemyBattlerIDs,
-      friendlyBattlerIDs: worldStartBattleUpdate.friendlyBattlerIDs,
+      enemyBattlerIDs: worldStartBattleUpdate.enemyBattlerIDs.filter(
+        (battlerID: string): boolean => definableExists(Battler, battlerID),
+      ),
+      friendlyBattlerIDs: worldStartBattleUpdate.friendlyBattlerIDs.filter(
+        (battlerID: string): boolean => definableExists(Battler, battlerID),
+      ),
     }),
     itemInstanceIDs: worldStartBattleUpdate.itemInstances.map(
       (itemInstanceUpdate: ItemInstanceUpdate): string =>

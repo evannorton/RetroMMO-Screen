@@ -200,6 +200,14 @@ export const listenForBattleUpdates = (): void => {
   listenToSocketioEvent<BattleStartRoundUpdate>({
     event: "battle/start-round",
     onMessage: (update: BattleStartRoundUpdate): void => {
+      if (state.values.worldState !== null) {
+        if (state.values.worldState.values.queuedBattle === null) {
+          throw new Error("BattleStartRoundUpdate: Queued battle is null");
+        }
+        startBattleFromWorld(
+          state.values.worldState.values.queuedBattle.update,
+        );
+      }
       for (const battleCharacter of getDefinables(BattleCharacter).values()) {
         battleCharacter.submittedMove = null;
       }

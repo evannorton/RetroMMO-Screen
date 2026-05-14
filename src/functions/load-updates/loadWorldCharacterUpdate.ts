@@ -19,6 +19,7 @@ import { getDefaultedHairDye } from "../defaulted-cosmetics/getDefaultedHairDye"
 import { getDefaultedMask } from "../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../defaulted-cosmetics/getDefaultedOutfit";
 import { getInviteMarkerType } from "../getInviteMarkerType";
+import { getWorldState } from "../state/getWorldState";
 
 export const loadWorldCharacterUpdate = (
   worldCharacterUpdate: WorldCharacterUpdate,
@@ -78,6 +79,7 @@ export const loadWorldCharacterUpdate = (
           height: tileSize,
           width: tileSize,
         }),
+        condition: (): boolean => getWorldState().values.queuedBattle === null,
         onClick: (): void => {
           worldCharacter.wasClicked = true;
         },
@@ -125,6 +127,7 @@ export const loadWorldCharacterUpdate = (
           : undefined,
       ).id,
     skinColorID: (): string => worldCharacter.skinColorID,
+    worldCharacterID: worldCharacter.id,
   });
   if (typeof worldCharacterUpdate.invite !== "undefined") {
     addWorldCharacterMarker(

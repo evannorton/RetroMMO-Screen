@@ -34,7 +34,9 @@ export const createWorldInteractUI = (): void => {
             constants["movement-duration"]
         ) {
           if (getInteractableEntityCollidable() !== null) {
-            return isWorldCombatInProgress() === false;
+            if (state.values.worldState.values.queuedBattle === null) {
+              return isWorldCombatInProgress() === false;
+            }
           }
         }
       }

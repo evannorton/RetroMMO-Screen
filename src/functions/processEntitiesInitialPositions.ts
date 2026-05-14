@@ -4,13 +4,15 @@ import { Constants, Direction } from "retrommo-types";
 import { Enterable } from "../classes/Enterable";
 import { NPC } from "../classes/NPC";
 import { Piano } from "../classes/Piano";
+import { State, createEntity, createSprite } from "pixel-pigeon";
+import { WorldStateSchema, state } from "../state";
 import { bankToggleDuration, chestOpenDuration } from "../constants";
-import { createEntity, createSprite } from "pixel-pigeon";
 import { getConstants } from "./getConstants";
 import { getDefinable } from "definables";
 import { getNPCIndicatorImagePath } from "./getNPCIndicatorImagePath";
+import { getWorldDownsampleScale } from "./getWorldDownsampleScale";
+import { getWorldState } from "./state/getWorldState";
 import { hasOpenedChest } from "./hasOpenedChest";
-import { state } from "../state";
 
 export const processEntitiesInitialPositions = (): void => {
   const constants: Constants = getConstants();
@@ -133,6 +135,7 @@ export const processEntitiesInitialPositions = (): void => {
                 id: "opening",
               },
             ],
+            downsampleScale: getWorldDownsampleScale,
             imagePath: bank.imagePath,
           }),
         },
@@ -226,6 +229,7 @@ export const processEntitiesInitialPositions = (): void => {
                 id: "opening",
               },
             ],
+            downsampleScale: getWorldDownsampleScale,
             imagePath: chest.imagePath,
           }),
         },
@@ -350,6 +354,18 @@ export const processEntitiesInitialPositions = (): void => {
                 id: "IdleUp",
               },
             ],
+            downsampleScale: (): number => {
+              const worldState: State<WorldStateSchema> = getWorldState();
+              if (worldState.values.queuedBattle !== null) {
+                if (
+                  npc.hasEncounter() &&
+                  worldState.values.queuedBattle.update.encounterID === npc.id
+                ) {
+                  return 1;
+                }
+              }
+              return getWorldDownsampleScale();
+            },
             imagePath: npc.actorImagePath,
           }),
         },

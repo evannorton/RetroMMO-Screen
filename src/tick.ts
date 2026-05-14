@@ -20,6 +20,12 @@ import { MusicTrack } from "./classes/MusicTrack";
 import { PianoNote } from "./types/PianoNote";
 import { WorldCharacter } from "./classes/WorldCharacter";
 import { WorldStateQueuedBattle, state } from "./state";
+import {
+  battleIntroBlackDurationPercentage,
+  fpsUpdateInterval,
+  musicFadeDuration,
+  serverTimeUpdateInterval,
+} from "./constants";
 import { definableExists, getDefinable, getDefinables } from "definables";
 import {
   emitToSocketioServer,
@@ -32,14 +38,10 @@ import {
   setTilemapDownsampleScale,
   startPixelScatter,
 } from "pixel-pigeon";
-import {
-  fpsUpdateInterval,
-  musicFadeDuration,
-  serverTimeUpdateInterval,
-} from "./constants";
 import { getBattlerResourcePool } from "./functions/battle/getBattlerResourcePool";
 import { getConstants } from "./functions/getConstants";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
+import { getWorldDownsampleScale } from "./functions/getWorldDownsampleScale";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
 import { playCombatEventSFX } from "./functions/combat/playCombatEventSFX";
 import { playMusic } from "./functions/playMusic";
@@ -325,33 +327,26 @@ export const tick = (): void => {
     if (state.values.worldState.values.queuedBattle !== null) {
       const queuedBattle: WorldStateQueuedBattle =
         state.values.worldState.values.queuedBattle;
-      const blackDuration: number = constants["battle-intro-duration"] / 10;
+      const blackDuration: number =
+        constants["battle-intro-duration"] * battleIntroBlackDurationPercentage;
       const animatedDuration: number =
         constants["battle-intro-duration"] - blackDuration;
+      setTilemapDownsampleScale(getWorldDownsampleScale());
       if (
         currentTime >=
         queuedBattle.queuedAt + constants["battle-intro-duration"]
       ) {
         startBattleFromWorld(queuedBattle.update);
       } else if (
-        currentTime >=
-        queuedBattle.queuedAt + animatedDuration * (3 / 4)
+        currentTime >= queuedBattle.queuedAt + animatedDuration / 4 &&
+        queuedBattle.isScattering === false
       ) {
-        setTilemapDownsampleScale(16);
-      } else if (currentTime >= queuedBattle.queuedAt + animatedDuration / 2) {
-        setTilemapDownsampleScale(8);
-      } else if (currentTime >= queuedBattle.queuedAt + animatedDuration / 4) {
-        setTilemapDownsampleScale(4);
-        if (queuedBattle.isScattering === false) {
-          queuedBattle.isScattering = true;
-          startPixelScatter({
-            duration: animatedDuration * (3 / 4),
-            offsetY: -16,
-            size: 16,
-          });
-        }
-      } else {
-        setTilemapDownsampleScale(2);
+        queuedBattle.isScattering = true;
+        startPixelScatter({
+          duration: animatedDuration * (3 / 4),
+          offsetY: -16,
+          size: 16,
+        });
       }
     }
   }
