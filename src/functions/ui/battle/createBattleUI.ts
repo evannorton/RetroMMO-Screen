@@ -3000,7 +3000,10 @@ export const createBattleUI = ({
   // Selected item instance bind button
   hudElementReferences.push(
     createPressableButton({
-      condition: selectedItemInstanceCondition,
+      condition: (): boolean =>
+        selectedItemInstanceCondition() &&
+        getSelectedItemInstance().item.hasAbility() &&
+        getSelectedItemInstance().item.ability.canBeUsedInBattle,
       height: 16,
       imagePath: "pressable-buttons/gray",
       onClick: (): void => {
