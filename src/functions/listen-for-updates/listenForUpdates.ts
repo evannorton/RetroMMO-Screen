@@ -820,16 +820,31 @@ export const listenForUpdates = (): void => {
         }
       }
       playMusic();
-      setJoystickCondition(
-        (): boolean =>
-          state.values.worldState !== null &&
+      setJoystickCondition((): boolean => {
+        if (state.values.worldState === null) {
+          return false;
+        }
+        const worldCharacter: WorldCharacter = getDefinable(
+          WorldCharacter,
+          state.values.worldState.values.worldCharacterID,
+        );
+        const partyLeaderWorldPlayerID: string | undefined =
+          worldCharacter.player.character.party.playerIDs[0];
+        if (typeof partyLeaderWorldPlayerID === "undefined") {
+          throw new Error("No party leader.");
+        }
+        if (partyLeaderWorldPlayerID !== worldCharacter.playerID) {
+          return false;
+        }
+        return (
           state.values.isJoystickEnabled === true &&
           isForcedWorldUIVisible() === false &&
           Array.from(getDefinables(WorldMenu).values()).every(
             (worldMenu: WorldMenu<unknown, object>): boolean =>
               worldMenu.isOpen() === false,
-          ),
-      );
+          )
+        );
+      });
     },
   });
   listenToSocketioEvent<PartyChangesUpdate>({
