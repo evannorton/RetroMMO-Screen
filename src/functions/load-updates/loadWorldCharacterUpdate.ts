@@ -20,6 +20,7 @@ import { getDefaultedMask } from "../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../defaulted-cosmetics/getDefaultedOutfit";
 import { getInviteMarkerType } from "../getInviteMarkerType";
 import { getWorldState } from "../state/getWorldState";
+import { isWorldCombatInProgress } from "../isWorldCombatInProgress";
 
 export const loadWorldCharacterUpdate = (
   worldCharacterUpdate: WorldCharacterUpdate,
@@ -80,7 +81,9 @@ export const loadWorldCharacterUpdate = (
           height: tileSize,
           width: tileSize,
         }),
-        condition: (): boolean => getWorldState().values.queuedBattle === null,
+        condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
+          getWorldState().values.queuedBattle === null,
         onClick: (): void => {
           worldCharacter.wasClicked = true;
         },
