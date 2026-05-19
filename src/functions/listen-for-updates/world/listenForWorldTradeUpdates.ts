@@ -223,11 +223,6 @@ export const listenForWorldTradeUpdates = (): void => {
     event: "world/trade/start",
     onMessage: (update: WorldTradeStartUpdate): void => {
       const worldState: State<WorldStateSchema> = getWorldState();
-      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
-        if (worldCharacter.hasMarkerEntity()) {
-          clearWorldCharacterMarker(worldCharacter.id);
-        }
-      }
       const traderWorldCharacterID: string | undefined =
         update.characterIDs.find(
           (worldCharacterID: string): boolean =>
@@ -242,6 +237,11 @@ export const listenForWorldTradeUpdates = (): void => {
         });
       }
       closeWorldMenus();
+      for (const worldCharacter of getDefinables(WorldCharacter).values()) {
+        if (worldCharacter.hasMarkerEntity()) {
+          clearWorldCharacterMarker(worldCharacter.id);
+        }
+      }
       tradeWorldMenu.open({
         doesTraderHaveRoomForGold: true,
         doesTraderHaveRoomForItems: true,
