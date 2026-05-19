@@ -804,6 +804,7 @@ export const listenForWorldUpdates = (): void => {
       }
       closeWorldMenus();
       worldState.setValues({
+        combatRound: null,
         queuedBattle: {
           isScattering: false,
           queuedAt: getCurrentTime(),
