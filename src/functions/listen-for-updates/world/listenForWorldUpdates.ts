@@ -669,6 +669,13 @@ export const listenForWorldUpdates = (): void => {
     onMessage: (update: WorldPlayerBusyUpdate): void => {
       closeWorldMenus();
       playerBusyWorldMenu.open({ playerID: update.playerID });
+      const player: Player = getDefinable(Player, update.playerID);
+      if (
+        player.hasWorldCharacter() &&
+        player.worldCharacter.hasMarkerEntity()
+      ) {
+        clearWorldCharacterMarker(player.worldCharacterID);
+      }
     },
   });
   listenToSocketioEvent<WorldPositionUpdate>({

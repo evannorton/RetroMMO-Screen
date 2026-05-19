@@ -39,15 +39,15 @@ export const loadWorldInvitePromptsUpdate = (
         WorldCharacter,
         invitePrompt.inviterCharacterID,
       );
+      if (promptInviteeCharacter.hasMarkerEntity()) {
+        clearWorldCharacterMarker(invitePrompt.inviteeCharacterID);
+      }
       if (
         playerInvitedWorldMenu.isOpen() &&
         playerInvitedWorldMenu.openOptions.playerID ===
           promptInviteeCharacter.playerID
       ) {
         playerInvitedWorldMenu.close();
-        if (promptInviteeCharacter.hasMarkerEntity()) {
-          clearWorldCharacterMarker(invitePrompt.inviteeCharacterID);
-        }
       } else if (
         invitePrompt.inviteeCharacterID === worldState.values.worldCharacterID
       ) {
