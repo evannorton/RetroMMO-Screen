@@ -485,6 +485,7 @@ export const listenForWorldUpdates = (): void => {
             maxMP: partyPlayer.worldCharacter.resources.maxMP ?? null,
             mp: partyPlayer.worldCharacter.resources.maxMP ?? null,
           };
+          partyPlayer.worldCharacter.isPoisoned = false;
         },
       );
       if (
@@ -519,7 +520,10 @@ export const listenForWorldUpdates = (): void => {
               }
             : null;
         worldCharacter.direction = worldMoveCharacterUpdate.direction;
-        worldCharacter.isRenewing = worldMoveCharacterUpdate.isRenewing ?? null;
+        worldCharacter.isPoisoned =
+          worldMoveCharacterUpdate.isPoisoned ?? false;
+        worldCharacter.isRenewing =
+          worldMoveCharacterUpdate.isRenewing ?? false;
         worldCharacter.step = worldMoveCharacterUpdate.step;
         updateWorldCharacterOrder(
           worldCharacter.id,

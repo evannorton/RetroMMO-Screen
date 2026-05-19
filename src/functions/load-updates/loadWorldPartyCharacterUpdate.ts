@@ -32,6 +32,7 @@ export const loadWorldPartyCharacterUpdate = (
     }
   }
   worldCharacter.questInstances = questInstances;
+  worldCharacter.isPoisoned = worldPartyCharacterUpdate.isPoisoned;
   worldCharacter.isRenewing = worldPartyCharacterUpdate.isRenewing;
   worldCharacter.openedChestIDs = worldPartyCharacterUpdate.openedChestIDs;
   worldCharacter.resources = {

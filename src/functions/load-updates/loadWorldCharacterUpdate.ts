@@ -46,6 +46,7 @@ export const loadWorldCharacterUpdate = (
     figureID: worldCharacterUpdate.figureID,
     hairDyeItemID: worldCharacterUpdate.hairDyeItemID,
     id: worldCharacterUpdate.characterID,
+    isPoisoned: worldCharacterUpdate.isPoisoned,
     isRenewing: worldCharacterUpdate.isRenewing,
     maskItemID: worldCharacterUpdate.maskItemID,
     openedChestIDs: worldCharacterUpdate.openedChestIDs,

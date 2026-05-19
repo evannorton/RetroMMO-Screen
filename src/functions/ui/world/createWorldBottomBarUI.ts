@@ -144,13 +144,14 @@ export const createWorldBottomBarUI = (): void => {
       skinColorID: (): string => getPlayer().worldCharacter.skinColor.id,
       statusIconImagePaths: (): string[] => {
         const player: Player = getPlayer();
-        if (
-          player.worldCharacter.hasIsRenewing() &&
-          player.worldCharacter.isRenewing
-        ) {
-          return ["status-icons/renew"];
+        const statusIconImagePaths: string[] = [];
+        if (player.worldCharacter.isPoisoned) {
+          statusIconImagePaths.push("status-icons/poison");
         }
-        return [];
+        if (player.worldCharacter.isRenewing) {
+          statusIconImagePaths.push("status-icons/renew");
+        }
+        return statusIconImagePaths;
       },
     });
     createButton({
