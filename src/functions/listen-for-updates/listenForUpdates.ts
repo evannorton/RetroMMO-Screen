@@ -412,7 +412,10 @@ export const listenForUpdates = (): void => {
     event: "exit-player",
     onMessage: (update: ExitPlayerUpdate): void => {
       const player: Player = getDefinable(Player, update.playerID);
-      if (state.values.selectedPlayerID === update.playerID) {
+      if (
+        state.values.worldState !== null &&
+        state.values.selectedPlayerID === update.playerID
+      ) {
         selectedPlayerWorldMenu.close();
       }
       if (
