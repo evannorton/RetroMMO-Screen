@@ -37,6 +37,7 @@ import { getTradeBagItemInstance } from "../functions/trade/const getTradeBagIte
 import { getTradeBagItemInstances } from "../functions/trade/getTradeBagItemInstances";
 import { getWorldState } from "../functions/state/getWorldState";
 import { grayColors } from "../constants";
+import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 
 enum TradeTab {
   Items = "items",
@@ -111,6 +112,7 @@ export const tradeWorldMenu: WorldMenu<
     // Bag panel
     hudElementReferences.push(
       createPanel({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 184,
         imagePath: "panels/basic",
         width: 128,
@@ -121,6 +123,7 @@ export const tradeWorldMenu: WorldMenu<
     // Trade panel
     hudElementReferences.push(
       createPanel({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 132,
         imagePath: "panels/basic",
         width: 176,
@@ -133,6 +136,7 @@ export const tradeWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 88,
           y: 7,
         },
@@ -167,6 +171,7 @@ export const tradeWorldMenu: WorldMenu<
           return Color.LightYellow;
         },
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 164,
           y: 18,
         },
@@ -233,6 +238,7 @@ export const tradeWorldMenu: WorldMenu<
             },
           },
           condition: (): boolean =>
+            isWorldCombatInProgress() === false &&
             i < tradeWorldMenu.state.values.offeredItems.length,
           icons: [
             {
@@ -270,6 +276,7 @@ export const tradeWorldMenu: WorldMenu<
     // Offered gold
     hudElementReferences.push(
       createSlot({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         icons: [{ imagePath: "gold" }],
         imagePath: "slots/basic",
         x: 30,
@@ -280,6 +287,7 @@ export const tradeWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 51,
           y: 54,
         },
@@ -297,7 +305,9 @@ export const tradeWorldMenu: WorldMenu<
     // Cancel gold
     hudElementReferences.push(
       createImage({
-        condition: (): boolean => tradeWorldMenu.state.values.offeredGold > 0,
+        condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
+          tradeWorldMenu.state.values.offeredGold > 0,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -317,6 +327,7 @@ export const tradeWorldMenu: WorldMenu<
     hudElementReferences.push(
       createPressableButton({
         condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
           tradeWorldMenu.state.values.isTraderOfferedGoldIdentified &&
           tradeWorldMenu.state.values.traderOfferedItems.every(
             (tradeItem: TradeItem): boolean => tradeItem.isIdentified,
@@ -341,7 +352,9 @@ export const tradeWorldMenu: WorldMenu<
     // Cancel button
     hudElementReferences.push(
       createPressableButton({
-        condition: (): boolean => tradeWorldMenu.state.values.hasAccepted,
+        condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
+          tradeWorldMenu.state.values.hasAccepted,
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
@@ -361,6 +374,7 @@ export const tradeWorldMenu: WorldMenu<
       createLabel({
         color: Color.White,
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 88,
           y: 68,
         },
@@ -394,6 +408,7 @@ export const tradeWorldMenu: WorldMenu<
           return Color.LightYellow;
         },
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 164,
           y: 79,
         },
@@ -469,6 +484,7 @@ export const tradeWorldMenu: WorldMenu<
             },
           },
           condition: (): boolean =>
+            isWorldCombatInProgress() === false &&
             i < tradeWorldMenu.state.values.traderOfferedItems.length,
           icons: [
             {
@@ -536,6 +552,7 @@ export const tradeWorldMenu: WorldMenu<
             });
           },
         },
+        condition: (): boolean => isWorldCombatInProgress() === false,
         icons: [
           {
             imagePath: "gold",
@@ -561,6 +578,7 @@ export const tradeWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean =>
+            isWorldCombatInProgress() === false &&
             tradeWorldMenu.state.values.isTraderOfferedGoldIdentified,
           x: 51,
           y: 115,
@@ -581,6 +599,7 @@ export const tradeWorldMenu: WorldMenu<
       createLabel({
         color: Color.LightYellow,
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 240,
           y: 193,
         },
@@ -622,6 +641,7 @@ export const tradeWorldMenu: WorldMenu<
           },
         ],
         condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
           tradeWorldMenu.state.values.selectedOfferedItemInstanceID !== null &&
           tradeWorldMenu.state.values.offeredItems.some(
             (tradeItem: TradeItem): boolean =>
@@ -651,6 +671,7 @@ export const tradeWorldMenu: WorldMenu<
     hudElementReferences.push(
       createItemDisplay({
         condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
           tradeWorldMenu.state.values.selectedTraderOfferedItemInstanceID !==
             null &&
           tradeWorldMenu.state.values.traderOfferedItems.some(
@@ -718,6 +739,7 @@ export const tradeWorldMenu: WorldMenu<
           },
         ],
         coordinates: {
+          condition: (): boolean => isWorldCombatInProgress() === false,
           x: 178,
           y: 26,
         },
@@ -726,6 +748,7 @@ export const tradeWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 16,
         imagePath: "tab-icons/trade/items",
         width: 16,
@@ -735,6 +758,7 @@ export const tradeWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 16,
         imagePath: "tab-icons/trade/gold",
         width: 16,
@@ -745,7 +769,9 @@ export const tradeWorldMenu: WorldMenu<
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: (): boolean => itemsTabCondition() === false,
+          condition: (): boolean =>
+            isWorldCombatInProgress() === false &&
+            itemsTabCondition() === false,
           x: 179,
           y: 27,
         },
@@ -762,7 +788,8 @@ export const tradeWorldMenu: WorldMenu<
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: (): boolean => goldTabCondition() === false,
+          condition: (): boolean =>
+            isWorldCombatInProgress() === false && goldTabCondition() === false,
           x: 233,
           y: 27,
         },
@@ -777,6 +804,7 @@ export const tradeWorldMenu: WorldMenu<
     );
     hudElementReferences.push(
       createImage({
+        condition: (): boolean => isWorldCombatInProgress() === false,
         height: 11,
         imagePath: "x",
         onClick: (): void => {
@@ -793,7 +821,9 @@ export const tradeWorldMenu: WorldMenu<
       hudElementReferences.push(
         createIconListItem({
           condition: (): boolean =>
-            itemsTabCondition() && i < getTradeBagItemInstances().length,
+            isWorldCombatInProgress() === false &&
+            itemsTabCondition() &&
+            i < getTradeBagItemInstances().length,
           icons: [
             {
               imagePath: (): string =>
@@ -881,6 +911,7 @@ export const tradeWorldMenu: WorldMenu<
           },
         ],
         condition: (): boolean =>
+          isWorldCombatInProgress() === false &&
           itemsTabCondition() &&
           tradeWorldMenu.state.values.selectedBagItemInstanceID !== null &&
           getTradeBagItemInstances().some(
@@ -910,7 +941,8 @@ export const tradeWorldMenu: WorldMenu<
     tradeGoldIncrements.forEach((increment: number, key: number): void => {
       hudElementReferences.push(
         createImage({
-          condition: goldTabCondition,
+          condition: (): boolean =>
+            isWorldCombatInProgress() === false && goldTabCondition(),
           height: 10,
           imagePath: "minus",
           onClick: (): void => {
@@ -929,7 +961,8 @@ export const tradeWorldMenu: WorldMenu<
         createLabel({
           color: Color.White,
           coordinates: {
-            condition: goldTabCondition,
+            condition: (): boolean =>
+              isWorldCombatInProgress() === false && goldTabCondition(),
             x: tradeBagGoldPanelX + 86,
             y: 62 + key * 18,
           },
@@ -944,7 +977,8 @@ export const tradeWorldMenu: WorldMenu<
       );
       hudElementReferences.push(
         createImage({
-          condition: goldTabCondition,
+          condition: (): boolean =>
+            isWorldCombatInProgress() === false && goldTabCondition(),
           height: 10,
           imagePath: "plus",
           onClick: (): void => {
@@ -965,7 +999,8 @@ export const tradeWorldMenu: WorldMenu<
     });
     hudElementReferences.push(
       createPressableButton({
-        condition: goldTabCondition,
+        condition: (): boolean =>
+          isWorldCombatInProgress() === false && goldTabCondition(),
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
