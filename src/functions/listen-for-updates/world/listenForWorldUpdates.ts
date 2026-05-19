@@ -89,6 +89,7 @@ import { sfxVolumeChannelID } from "../../../volumeChannels";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
 import { tradeInviteWorldMenu } from "../../../world-menus/tradeInviteWorldMenu";
+import { tradeWorldMenu } from "../../../world-menus/tradeWorldMenu";
 import { updateWorldCharacterOrder } from "../../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
@@ -428,6 +429,26 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitToMainMenuUpdate>({
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
+      if (tradeWorldMenu.isOpen()) {
+        tradeWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+      }
+      if (tradeInviteWorldMenu.isOpen()) {
+        tradeInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+      }
+      if (partyInviteWorldMenu.isOpen()) {
+        partyInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+      }
+      if (duelInviteWorldMenu.isOpen()) {
+        duelInviteWorldMenu.state.setValues({
+          isFinishing: true,
+        });
+      }
       closeWorldMenus();
       const worldState: State<WorldStateSchema> = getWorldState();
       const selfWorldCharacter: WorldCharacter = getDefinable(
