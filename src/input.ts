@@ -6,6 +6,7 @@ import {
   emitToSocketioServer,
   takeScreenshot,
 } from "pixel-pigeon";
+import { OpenChatUpstreamWindowMessage } from "retrommo-types";
 import { WorldStateSchema, state } from "./state";
 import { canWalk } from "./functions/canWalk";
 import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
@@ -1056,8 +1057,10 @@ createInputPressHandler({
   condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: globalChatInputCollectionID,
   onInput: (): void => {
-    postWindowMessage({
-      data: "global",
+    postWindowMessage<OpenChatUpstreamWindowMessage>({
+      data: {
+        chatChannelID: "global",
+      },
       event: "open-chat",
     });
   },
@@ -1066,8 +1069,10 @@ createInputPressHandler({
   condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: localChatInputCollectionID,
   onInput: (): void => {
-    postWindowMessage({
-      data: "local",
+    postWindowMessage<OpenChatUpstreamWindowMessage>({
+      data: {
+        chatChannelID: "local",
+      },
       event: "open-chat",
     });
   },
@@ -1076,8 +1081,10 @@ createInputPressHandler({
   condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: partyChatInputCollectionID,
   onInput: (): void => {
-    postWindowMessage({
-      data: "party",
+    postWindowMessage<OpenChatUpstreamWindowMessage>({
+      data: {
+        chatChannelID: "party",
+      },
       event: "open-chat",
     });
   },
@@ -1086,8 +1093,10 @@ createInputPressHandler({
   condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: tradeChatInputCollectionID,
   onInput: (): void => {
-    postWindowMessage({
-      data: "trade",
+    postWindowMessage<OpenChatUpstreamWindowMessage>({
+      data: {
+        chatChannelID: "trade",
+      },
       event: "open-chat",
     });
   },
@@ -1096,8 +1105,10 @@ createInputPressHandler({
   condition: (): boolean => pianoWorldMenu.isOpen() === false,
   inputCollectionID: modChatInputCollectionID,
   onInput: (): void => {
-    postWindowMessage({
-      data: "mod",
+    postWindowMessage<OpenChatUpstreamWindowMessage>({
+      data: {
+        chatChannelID: "mod",
+      },
       event: "open-chat",
     });
   },

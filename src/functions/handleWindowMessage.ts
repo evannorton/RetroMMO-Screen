@@ -1,4 +1,14 @@
 import {
+  AuthDownstreamWindowMessage,
+  JoystickDownstreamWindowMessage,
+  LimitFpsDownstreamWindowMessage,
+  MainVolumeDownstreamWindowMessage,
+  MusicVolumeDownstreamWindowMessage,
+  SFXVolumeDownstreamWindowMessage,
+  ScreenshotClipboardDownstreamWindowMessage,
+  ScreenshotScaleDownstreamWindowMessage,
+} from "retrommo-types";
+import {
   clearMaxFPS,
   connectToSocketioServer,
   onError,
@@ -15,22 +25,31 @@ import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
 
 export const handleWindowMessage = (message: unknown): void => {
-  if (
-    typeof message !== "object" ||
-    message === null ||
-    !("type" in message) ||
-    typeof message.type !== "string"
-  ) {
+  if (typeof message !== "object" || message === null) {
     return;
   }
-  switch (message.type) {
-    case "auth": {
-      if (!("value" in message)) {
+  if ("event" in message === false) {
+    return;
+  }
+  if (typeof message.event !== "string") {
+    return;
+  }
+  if ("data" in message === false) {
+    return;
+  }
+  const data: unknown = message.data;
+  switch (message.event) {
+    case "retrommo/auth": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "string") {
+      if ("token" in data === false) {
         return;
       }
+      if (typeof data.token !== "string") {
+        return;
+      }
+      const authData: AuthDownstreamWindowMessage = { token: data.token };
       const url: string | null = state.values.serverURL;
       if (url === null) {
         throw new Error(
@@ -38,96 +57,137 @@ export const handleWindowMessage = (message: unknown): void => {
         );
       }
       connectToSocketioServer({
-        auth: { token: message.value },
+        auth: { token: authData.token },
         url,
       });
       onError(handleError);
       listenForUpdates();
       break;
     }
-    case "joystick": {
-      if (!("value" in message)) {
+    case "retrommo/joystick": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "boolean") {
+      if ("isJoystickEnabled" in data === false) {
         return;
       }
-      state.setValues({ isJoystickEnabled: message.value });
+      if (typeof data.isJoystickEnabled !== "boolean") {
+        return;
+      }
+      const joystickData: JoystickDownstreamWindowMessage = {
+        isJoystickEnabled: data.isJoystickEnabled,
+      };
+      state.setValues({ isJoystickEnabled: joystickData.isJoystickEnabled });
       break;
     }
-    case "limit-fps": {
-      if (!("value" in message)) {
+    case "retrommo/limit-fps": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "boolean") {
+      if ("limitFps" in data === false) {
         return;
       }
-      if (message.value) {
+      if (typeof data.limitFps !== "boolean") {
+        return;
+      }
+      const limitFpsData: LimitFpsDownstreamWindowMessage = {
+        limitFps: data.limitFps,
+      };
+      if (limitFpsData.limitFps) {
         setMaxFPS(60);
       } else {
         clearMaxFPS();
       }
       break;
     }
-    case "main-volume": {
-      if (!("value" in message)) {
+    case "retrommo/main-volume": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "number") {
+      if ("volume" in data === false) {
         return;
       }
+      if (typeof data.volume !== "number") {
+        return;
+      }
+      const mainVolumeData: MainVolumeDownstreamWindowMessage = {
+        volume: data.volume,
+      };
       setMainVolume({
-        volume: message.value,
+        volume: mainVolumeData.volume,
       });
       break;
     }
-    case "music-volume": {
-      if (!("value" in message)) {
+    case "retrommo/music-volume": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "number") {
+      if ("volume" in data === false) {
         return;
       }
+      if (typeof data.volume !== "number") {
+        return;
+      }
+      const musicVolumeData: MusicVolumeDownstreamWindowMessage = {
+        volume: data.volume,
+      };
       setVolumeChannelVolume({
         id: musicVolumeChannelID,
-        volume: message.value,
+        volume: musicVolumeData.volume,
       });
       break;
     }
-    case "screenshot": {
+    case "retrommo/screenshot": {
       takeScreenshot();
       break;
     }
-    case "screenshot-clipboard": {
-      if (!("value" in message)) {
+    case "retrommo/screenshot-clipboard": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "boolean") {
+      if ("saveToClipboard" in data === false) {
         return;
       }
-      setScreenshotClipboard(message.value);
+      if (typeof data.saveToClipboard !== "boolean") {
+        return;
+      }
+      const screenshotClipboardData: ScreenshotClipboardDownstreamWindowMessage =
+        { saveToClipboard: data.saveToClipboard };
+      setScreenshotClipboard(screenshotClipboardData.saveToClipboard);
       break;
     }
-    case "screenshot-scale": {
-      if (!("value" in message)) {
+    case "retrommo/screenshot-scale": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "boolean") {
+      if ("scaleOutput" in data === false) {
         return;
       }
-      setScreenshotScale(message.value ? 3 : 1);
+      if (typeof data.scaleOutput !== "boolean") {
+        return;
+      }
+      const screenshotScaleData: ScreenshotScaleDownstreamWindowMessage = {
+        scaleOutput: data.scaleOutput,
+      };
+      setScreenshotScale(screenshotScaleData.scaleOutput ? 3 : 1);
       break;
     }
-    case "sfx-volume": {
-      if (!("value" in message)) {
+    case "retrommo/sfx-volume": {
+      if (typeof data !== "object" || data === null) {
         return;
       }
-      if (typeof message.value !== "number") {
+      if ("volume" in data === false) {
         return;
       }
+      if (typeof data.volume !== "number") {
+        return;
+      }
+      const sfxVolumeData: SFXVolumeDownstreamWindowMessage = {
+        volume: data.volume,
+      };
       setVolumeChannelVolume({
         id: sfxVolumeChannelID,
-        volume: message.value,
+        volume: sfxVolumeData.volume,
       });
       break;
     }

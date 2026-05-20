@@ -13,6 +13,7 @@ import {
   CombatUseAbilityEvent,
   Constants,
   Direction,
+  FPSUpstreamWindowMessage,
   ResourcePool,
   ServerTimeRequest,
 } from "retrommo-types";
@@ -617,8 +618,10 @@ export const tick = (): void => {
     state.setValues({
       fpsSentAt: currentTime,
     });
-    postWindowMessage({
-      data: getFPS(),
+    postWindowMessage<FPSUpstreamWindowMessage>({
+      data: {
+        fps: getFPS(),
+      },
       event: "fps",
     });
   }

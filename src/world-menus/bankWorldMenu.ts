@@ -2,6 +2,7 @@ import { Bank } from "../classes/Bank";
 import {
   Color,
   Constants,
+  SubscribeItemStorageUpstreamWindowMessage,
   WorldBankDepositGoldRequest,
   WorldBankDepositItemRequest,
   WorldBankWithdrawGoldRequest,
@@ -870,7 +871,10 @@ export const bankWorldMenu: WorldMenu<
                 (currentPageIsSubscriberOnly ||
                   hasFreePageWithRoom() === false);
               if (needsSubscription) {
-                postWindowMessage({ event: "subscribe/item-storage" });
+                postWindowMessage<SubscribeItemStorageUpstreamWindowMessage>({
+                  data: {},
+                  event: "subscribe/item-storage",
+                });
               } else {
                 emitToSocketioServer<WorldBankDepositItemRequest>({
                   data: {

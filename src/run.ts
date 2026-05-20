@@ -1,3 +1,4 @@
+import { RunUpstreamWindowMessage } from "retrommo-types";
 import { createUI } from "./functions/ui/createUI";
 import { handleError, onTick, onWindowMessage } from "pixel-pigeon";
 import { handleWindowMessage } from "./functions/handleWindowMessage";
@@ -13,7 +14,10 @@ export const run = (): void => {
     .then((): void => {
       processEntitiesInitialPositions();
       createUI();
-      postWindowMessage({ event: "run" });
+      postWindowMessage<RunUpstreamWindowMessage>({
+        data: {},
+        event: "run",
+      });
       onWindowMessage(handleWindowMessage);
       onTick(tick);
     })

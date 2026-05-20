@@ -1,4 +1,4 @@
-import { Color } from "retrommo-types";
+import { Color, SubscribeEmoteUpstreamWindowMessage } from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
@@ -7,8 +7,8 @@ import {
   createLabel,
   createSprite,
   mergeHUDElementReferences,
-  postWindowMessage,
 } from "pixel-pigeon";
+import { postWindowMessage } from "../functions/postWindowMessage";
 import { Emote } from "../classes/Emote";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema, state } from "../state";
@@ -240,7 +240,10 @@ export const emotesWorldMenu: WorldMenu<
                   lastUsedEmoteID: emote.id,
                 });
               } else {
-                postWindowMessage({ event: "subscribe/emote" });
+                postWindowMessage<SubscribeEmoteUpstreamWindowMessage>({
+                  data: {},
+                  event: "subscribe/emote",
+                });
               }
             },
           },

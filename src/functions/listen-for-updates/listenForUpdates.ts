@@ -13,6 +13,7 @@ import {
   ItemInstanceUpdate,
   MainState,
   PartyChangesUpdate,
+  PingUpstreamWindowMessage,
   RemovePlayerUpdate,
   RenamePlayerUpdate,
   ServerTimeUpdate,
@@ -981,8 +982,10 @@ export const listenForUpdates = (): void => {
       }
       const ping: number =
         getCurrentTime() - state.values.serverTimeRequestedAt;
-      postWindowMessage({
-        data: ping,
+      postWindowMessage<PingUpstreamWindowMessage>({
+        data: {
+          ping,
+        },
         event: "ping",
       });
       state.setValues({

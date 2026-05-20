@@ -6,6 +6,7 @@ import {
   MainMenuCharacterSelectSelectCharacterRequest,
   MainMenuCharacterSelectSortCharacterLeftRequest,
   MainMenuCharacterSelectSortCharacterRightRequest,
+  SubscribeCharacterLimitUpstreamWindowMessage,
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
@@ -107,7 +108,10 @@ export const createMainMenuCharacterSelectUI = (): void => {
       if (
         mainMenuState.values.mainMenuCharacterIDs.length >= getMaxCharacters()
       ) {
-        postWindowMessage({ event: "subscribe/character-limit" });
+        postWindowMessage<SubscribeCharacterLimitUpstreamWindowMessage>({
+          data: {},
+          event: "subscribe/character-limit",
+        });
       } else {
         getMainMenuState().setValues({
           characterCreateState: createMainMenuCharacterCreateState(),
@@ -327,7 +331,10 @@ export const createMainMenuCharacterSelectUI = (): void => {
             event: "main-menu/character-select/select-character",
           });
         } else {
-          postWindowMessage({ event: "subscribe/character-limit" });
+          postWindowMessage<SubscribeCharacterLimitUpstreamWindowMessage>({
+            data: {},
+            event: "subscribe/character-limit",
+          });
         }
       },
       width: playWidth,
