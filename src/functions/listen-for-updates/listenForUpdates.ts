@@ -1,6 +1,7 @@
 import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
+  ChatUpdate,
   CombatEvent,
   CombatantType,
   EndPlayerBattlesUpdate,
@@ -95,6 +96,17 @@ export const listenForUpdates = (): void => {
         id: update.playerID,
         userID: update.userID,
         username: update.username,
+      });
+    },
+  });
+  listenToSocketioEvent<ChatUpdate>({
+    event: "chat",
+    onMessage: (update: ChatUpdate): void => {
+      postWindowMessage({
+        data: {
+          chat: update.chat,
+        },
+        event: "chat",
       });
     },
   });

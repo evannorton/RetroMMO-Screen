@@ -40,16 +40,8 @@ export const handleWindowMessage = (message: unknown): void => {
   const data: unknown = message.data;
   switch (message.event) {
     case "retrommo/auth": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("token" in data === false) {
-        return;
-      }
-      if (typeof data.token !== "string") {
-        return;
-      }
-      const authData: AuthDownstreamWindowMessage = { token: data.token };
+      const authData: AuthDownstreamWindowMessage =
+        data as AuthDownstreamWindowMessage;
       const url: string | null = state.values.serverURL;
       if (url === null) {
         throw new Error(
@@ -65,34 +57,14 @@ export const handleWindowMessage = (message: unknown): void => {
       break;
     }
     case "retrommo/joystick": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("isJoystickEnabled" in data === false) {
-        return;
-      }
-      if (typeof data.isJoystickEnabled !== "boolean") {
-        return;
-      }
-      const joystickData: JoystickDownstreamWindowMessage = {
-        isJoystickEnabled: data.isJoystickEnabled,
-      };
+      const joystickData: JoystickDownstreamWindowMessage =
+        data as JoystickDownstreamWindowMessage;
       state.setValues({ isJoystickEnabled: joystickData.isJoystickEnabled });
       break;
     }
     case "retrommo/limit-fps": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("limitFps" in data === false) {
-        return;
-      }
-      if (typeof data.limitFps !== "boolean") {
-        return;
-      }
-      const limitFpsData: LimitFpsDownstreamWindowMessage = {
-        limitFps: data.limitFps,
-      };
+      const limitFpsData: LimitFpsDownstreamWindowMessage =
+        data as LimitFpsDownstreamWindowMessage;
       if (limitFpsData.limitFps) {
         setMaxFPS(60);
       } else {
@@ -101,36 +73,16 @@ export const handleWindowMessage = (message: unknown): void => {
       break;
     }
     case "retrommo/main-volume": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("volume" in data === false) {
-        return;
-      }
-      if (typeof data.volume !== "number") {
-        return;
-      }
-      const mainVolumeData: MainVolumeDownstreamWindowMessage = {
-        volume: data.volume,
-      };
+      const mainVolumeData: MainVolumeDownstreamWindowMessage =
+        data as MainVolumeDownstreamWindowMessage;
       setMainVolume({
         volume: mainVolumeData.volume,
       });
       break;
     }
     case "retrommo/music-volume": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("volume" in data === false) {
-        return;
-      }
-      if (typeof data.volume !== "number") {
-        return;
-      }
-      const musicVolumeData: MusicVolumeDownstreamWindowMessage = {
-        volume: data.volume,
-      };
+      const musicVolumeData: MusicVolumeDownstreamWindowMessage =
+        data as MusicVolumeDownstreamWindowMessage;
       setVolumeChannelVolume({
         id: musicVolumeChannelID,
         volume: musicVolumeData.volume,
@@ -142,49 +94,20 @@ export const handleWindowMessage = (message: unknown): void => {
       break;
     }
     case "retrommo/screenshot-clipboard": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("saveToClipboard" in data === false) {
-        return;
-      }
-      if (typeof data.saveToClipboard !== "boolean") {
-        return;
-      }
       const screenshotClipboardData: ScreenshotClipboardDownstreamWindowMessage =
-        { saveToClipboard: data.saveToClipboard };
+        data as ScreenshotClipboardDownstreamWindowMessage;
       setScreenshotClipboard(screenshotClipboardData.saveToClipboard);
       break;
     }
     case "retrommo/screenshot-scale": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("scaleOutput" in data === false) {
-        return;
-      }
-      if (typeof data.scaleOutput !== "boolean") {
-        return;
-      }
-      const screenshotScaleData: ScreenshotScaleDownstreamWindowMessage = {
-        scaleOutput: data.scaleOutput,
-      };
+      const screenshotScaleData: ScreenshotScaleDownstreamWindowMessage =
+        data as ScreenshotScaleDownstreamWindowMessage;
       setScreenshotScale(screenshotScaleData.scaleOutput ? 3 : 1);
       break;
     }
     case "retrommo/sfx-volume": {
-      if (typeof data !== "object" || data === null) {
-        return;
-      }
-      if ("volume" in data === false) {
-        return;
-      }
-      if (typeof data.volume !== "number") {
-        return;
-      }
-      const sfxVolumeData: SFXVolumeDownstreamWindowMessage = {
-        volume: data.volume,
-      };
+      const sfxVolumeData: SFXVolumeDownstreamWindowMessage =
+        data as SFXVolumeDownstreamWindowMessage;
       setVolumeChannelVolume({
         id: sfxVolumeChannelID,
         volume: sfxVolumeData.volume,
