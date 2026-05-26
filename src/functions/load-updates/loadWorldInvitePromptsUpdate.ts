@@ -6,6 +6,7 @@ import {
 } from "retrommo-types";
 import { WorldStateSchema } from "../../state";
 import { clearWorldCharacterMarker } from "../clearWorldCharacterMarker";
+import { closeWorldMenus } from "../world-menus/closeWorldMenus";
 import { duelInviteWorldMenu } from "../../world-menus/duelInviteWorldMenu";
 import { getDefinable } from "definables";
 import { getWorldState } from "../state/getWorldState";
@@ -51,6 +52,7 @@ export const loadWorldInvitePromptsUpdate = (
       } else if (
         invitePrompt.inviteeCharacterID === worldState.values.worldCharacterID
       ) {
+        closeWorldMenus();
         worldMenu.open({
           inviterPlayerID: promptInviterCharacter.playerID,
         });
