@@ -15,6 +15,7 @@ import {
   InitialNPCExtenderPosition,
   InitialNPCTilePosition,
   InitialPianoTilePosition,
+  InitialReadableTilePosition,
 } from "./types/TilePosition";
 import { MapMusicPause } from "./types/MapMusicPause";
 import { PianoNote } from "./types/PianoNote";
@@ -162,6 +163,7 @@ export interface StateSchema {
   readonly initialNPCExtenderPositions: readonly InitialNPCExtenderPosition[];
   readonly initialNPCTilePositions: readonly InitialNPCTilePosition[];
   readonly initialPianoTilePositions: readonly InitialPianoTilePosition[];
+  readonly initialReadableTilePositions: readonly InitialReadableTilePosition[];
   readonly isInitialUpdateReceived: boolean;
   readonly isJoystickEnabled: boolean;
   readonly subscriptionOverAt: number | null;
@@ -189,6 +191,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialNPCExtenderPositions: [],
   initialNPCTilePositions: [],
   initialPianoTilePositions: [],
+  initialReadableTilePositions: [],
   isInitialUpdateReceived: false,
   isJoystickEnabled: false,
   mainMenuState: null,

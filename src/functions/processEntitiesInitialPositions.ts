@@ -4,6 +4,7 @@ import { Constants, Direction } from "retrommo-types";
 import { Enterable } from "../classes/Enterable";
 import { NPC } from "../classes/NPC";
 import { Piano } from "../classes/Piano";
+import { Readable } from "../classes/Readable";
 import { State, createEntity, createSprite } from "pixel-pigeon";
 import { WorldStateSchema, state } from "../state";
 import { bankToggleDuration, chestOpenDuration } from "../constants";
@@ -424,6 +425,24 @@ export const processEntitiesInitialPositions = (): void => {
         y: position.position.y * constants["tile-size"],
       },
       type: "piano",
+      width: constants["tile-size"],
+    });
+  }
+  for (const position of state.values.initialReadableTilePositions) {
+    const readable: Readable = getDefinable(Readable, position.readableID);
+    const fieldValues: Map<string, unknown> = new Map();
+    fieldValues.set("readableID", readable.id);
+    createEntity({
+      fieldValues,
+      height: constants["tile-size"],
+      layerID: "readables",
+      levelID: position.levelID,
+      position: {
+        x: position.position.x * constants["tile-size"],
+        y: position.position.y * constants["tile-size"],
+      },
+      sprites: [],
+      type: "readable",
       width: constants["tile-size"],
     });
   }

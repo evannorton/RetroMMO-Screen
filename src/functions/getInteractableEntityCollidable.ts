@@ -79,7 +79,7 @@ export const getInteractableEntityCollidable = (): EntityCollidable | null => {
       break;
   }
   const collisionData: CollisionData = getRectangleCollisionData({
-    entityTypes: ["bank", "chest", "enterable", "piano"],
+    entityTypes: ["bank", "chest", "enterable", "piano", "readable"],
     rectangle: {
       height: constants["tile-size"],
       width: constants["tile-size"],

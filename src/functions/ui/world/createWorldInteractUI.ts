@@ -6,6 +6,7 @@ import {
   getEntityFieldValue,
 } from "pixel-pigeon";
 import { NPC } from "../../../classes/NPC";
+import { Readable } from "../../../classes/Readable";
 import { WorldCharacter } from "../../../classes/WorldCharacter";
 import { createPanel } from "../components/createPanel";
 import { createPressableButton } from "../components/createPressableButton";
@@ -105,6 +106,18 @@ export const createWorldInteractUI = (): void => {
         case "piano":
           value = "Play";
           break;
+        case "readable": {
+          const readableID: unknown = getEntityFieldValue(
+            entityCollidable.entityID,
+            "readableID",
+          );
+          if (typeof readableID !== "string") {
+            throw new Error("No Readable ID.");
+          }
+          const readable: Readable = getDefinable(Readable, readableID);
+          value = readable.interactText;
+          break;
+        }
       }
       if (typeof value === "undefined") {
         throw new Error("No value.");

@@ -2,6 +2,7 @@ import { Color } from "retrommo-types";
 import {
   HUDElementReferences,
   createLabel,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { WorldMenu } from "../classes/WorldMenu";
@@ -21,6 +22,7 @@ export const outOfRangeWorldMenu: WorldMenu<
   create: (): HUDElementReferences => {
     const hudElementReferences: HUDElementReferences[] = [];
     const labelIDs: string[] = [];
+    const gameWidth: number = getGameWidth();
     const shouldShowMenu = (): boolean => isForcedWorldUIVisible() === false;
     hudElementReferences.push(
       createPanel({
@@ -55,7 +57,7 @@ export const outOfRangeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: {
           value: "Invite Cancelled",

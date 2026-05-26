@@ -30,6 +30,7 @@ import {
   QuestDefinition,
   QuestExchangerDefinition,
   ReachableDefinition,
+  ReadableDefinition,
   ShopDefinition,
   SkinColorDefinition,
   TilemapDefinition,
@@ -75,6 +76,7 @@ import { Piano } from "../classes/Piano";
 import { Quest } from "../classes/Quest";
 import { QuestExchanger } from "../classes/QuestExchanger";
 import { Reachable } from "../classes/Reachable";
+import { Readable } from "../classes/Readable";
 import { Shop } from "../classes/Shop";
 import { SkinColor } from "../classes/SkinColor";
 import { Transport } from "../classes/Transport";
@@ -281,8 +283,6 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "ImageSource":
-          break;
         case "Item": {
           const definition: ItemDefinition = (
             gameData[className] as Record<string, ItemDefinition>
@@ -293,8 +293,6 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Label":
-          break;
         case "Landscape": {
           const definition: LandscapeDefinition = (
             gameData[className] as Record<string, LandscapeDefinition>
@@ -345,8 +343,6 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Noise":
-          break;
         case "Outfit": {
           const definition: OutfitDefinition = (
             gameData[className] as Record<string, OutfitDefinition>
@@ -357,8 +353,6 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Panel":
-          break;
         case "Piano": {
           const definition: PianoDefinition = (
             gameData[className] as Record<string, PianoDefinition>
@@ -369,8 +363,6 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Picture":
-          break;
         case "Quest": {
           const definition: QuestDefinition = (
             gameData[className] as Record<string, QuestDefinition>
@@ -401,10 +393,16 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Rectangle":
+        case "Readable": {
+          const definition: ReadableDefinition = (
+            gameData[className] as Record<string, ReadableDefinition>
+          )[id] as ReadableDefinition;
+          new Readable({
+            definition,
+            id,
+          });
           break;
-        case "ResourceBar":
-          break;
+        }
         case "Shop": {
           const definition: ShopDefinition = (
             gameData[className] as Record<string, ShopDefinition>
@@ -425,8 +423,6 @@ export const loadGameData = async (): Promise<void> => {
           });
           break;
         }
-        case "Switch":
-          break;
         case "Tilemap": {
           const definition: TilemapDefinition = (
             gameData[className] as Record<string, TilemapDefinition>
@@ -545,6 +541,10 @@ export const loadGameData = async (): Promise<void> => {
             tiles: [],
           });
           layers.push({
+            id: "readables",
+            tiles: [],
+          });
+          layers.push({
             id: "npc-indicators",
             tiles: [],
           });
@@ -572,7 +572,8 @@ export const loadGameData = async (): Promise<void> => {
                   tile.chestIndex ??
                   tile.enterableIndex ??
                   tile.npcIndex ??
-                  tile.pianoIndex;
+                  tile.pianoIndex ??
+                  tile.readableIndex;
                 if (typeof index === "undefined") {
                   return;
                 }
@@ -663,6 +664,21 @@ export const loadGameData = async (): Promise<void> => {
                             x,
                             y,
                           },
+                        },
+                      ],
+                    });
+                  }
+                  if (typeof tilesetTile.readableID !== "undefined") {
+                    state.setValues({
+                      initialReadableTilePositions: [
+                        ...state.values.initialReadableTilePositions,
+                        {
+                          levelID: id,
+                          position: {
+                            x,
+                            y,
+                          },
+                          readableID: tilesetTile.readableID,
                         },
                       ],
                     });

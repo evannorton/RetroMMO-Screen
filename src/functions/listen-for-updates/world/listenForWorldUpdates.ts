@@ -23,6 +23,7 @@ import {
   WorldPianoKeyUpdate,
   WorldPlayerBusyUpdate,
   WorldPositionUpdate,
+  WorldReadableUpdate,
   WorldStartBattleUpdate,
   WorldTurnCharactersUpdate,
   WorldTurnNPCUpdate,
@@ -84,6 +85,7 @@ import { partyInviteWorldMenu } from "../../../world-menus/partyInviteWorldMenu"
 import { playMusic } from "../../playMusic";
 import { playerBusyWorldMenu } from "../../../world-menus/playerBusyWorldMenu";
 import { playerInvitedWorldMenu } from "../../../world-menus/playerInvitedWorldMenu";
+import { readableWorldMenu } from "../../../world-menus/readableWorldMenu";
 import { selectedPlayerWorldMenu } from "../../../world-menus/selectedPlayerWorldMenu";
 import { sfxVolumeChannelID } from "../../../volumeChannels";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
@@ -755,6 +757,13 @@ export const listenForWorldUpdates = (): void => {
       if (typeof update.invites !== "undefined") {
         loadWorldInvitePromptsUpdate(update.invites);
       }
+    },
+  });
+  listenToSocketioEvent<WorldReadableUpdate>({
+    event: "world/readable",
+    onMessage: (update: WorldReadableUpdate): void => {
+      closeWorldMenus();
+      readableWorldMenu.open({ readableID: update.readableID });
     },
   });
   listenToSocketioEvent<WorldStartBattleUpdate>({

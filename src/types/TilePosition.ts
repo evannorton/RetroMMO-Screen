@@ -31,3 +31,8 @@ export interface InitialPianoTilePosition {
   readonly pianoID: string;
   readonly position: TilePosition;
 }
+export interface InitialReadableTilePosition {
+  readonly levelID: string;
+  readonly position: TilePosition;
+  readonly readableID: string;
+}

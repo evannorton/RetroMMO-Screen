@@ -8,6 +8,7 @@ import {
   HUDElementReferences,
   createLabel,
   emitToSocketioServer,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Player } from "../classes/Player";
@@ -34,6 +35,7 @@ export const partyInviteWorldMenu: WorldMenu<
   create: (options: PartyInviteWorldMenuOpenOptions): HUDElementReferences => {
     const hudElementReferences: HUDElementReferences[] = [];
     const labelIDs: string[] = [];
+    const gameWidth: number = getGameWidth();
     const inviterPlayer: Player = getDefinable(Player, options.inviterPlayerID);
     const shouldShowMenu = (): boolean => isWorldCombatInProgress() === false;
     hudElementReferences.push(
@@ -74,7 +76,7 @@ export const partyInviteWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: inviterPlayer.username,
@@ -91,7 +93,7 @@ export const partyInviteWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: {
           value: "Party Invite:",

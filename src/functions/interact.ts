@@ -10,6 +10,7 @@ import {
   WorldChestInteractRequest,
   WorldEnterableInteractRequest,
   WorldNPCInteractRequest,
+  WorldReadableRequest,
 } from "retrommo-types";
 import { bankWorldMenu } from "../world-menus/bankWorldMenu";
 import { getDefinable } from "definables";
@@ -96,6 +97,22 @@ export const interact = (): void => {
           throw new Error("No piano ID.");
         }
         pianoWorldMenu.open({});
+        break;
+      }
+      case "readable": {
+        const readableID: unknown = getEntityFieldValue(
+          entityCollidable.entityID,
+          "readableID",
+        );
+        if (typeof readableID !== "string") {
+          throw new Error("No Readable ID.");
+        }
+        emitToSocketioServer<WorldReadableRequest>({
+          data: {
+            readableID,
+          },
+          event: "world/readable",
+        });
         break;
       }
     }

@@ -8,6 +8,7 @@ import {
   HUDElementReferences,
   createLabel,
   emitToSocketioServer,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { Player } from "../classes/Player";
@@ -35,6 +36,7 @@ export const duelInviteWorldMenu: WorldMenu<
     const hudElementReferences: HUDElementReferences[] = [];
     const labelIDs: string[] = [];
     const inviterPlayer: Player = getDefinable(Player, options.inviterPlayerID);
+    const gameWidth: number = getGameWidth();
     const shouldShowMenu = (): boolean => isWorldCombatInProgress() === false;
     hudElementReferences.push(
       createPanel({
@@ -74,7 +76,7 @@ export const duelInviteWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: inviterPlayer.username,
@@ -91,7 +93,7 @@ export const duelInviteWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: {
           value: "Duel Invite:",

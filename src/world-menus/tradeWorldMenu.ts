@@ -18,6 +18,7 @@ import {
   createLabel,
   createSprite,
   emitToSocketioServer,
+  getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { ItemInstance } from "../classes/ItemInstance";
@@ -95,6 +96,7 @@ export const tradeWorldMenu: WorldMenu<
     const hudElementReferences: HUDElementReferences[] = [];
     const labelIDs: string[] = [];
     const spriteIDs: string[] = [];
+    const gameWidth: number = getGameWidth();
     const worldState: State<WorldStateSchema> = getWorldState();
     const maximumBagItems: number = getConstants()["maximum-bag-items"];
     const itemsTabCondition = (): boolean =>
@@ -142,7 +144,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: worldCharacter.player.username,
@@ -177,7 +179,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "right",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => {
           if (
@@ -293,7 +295,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "left",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(
@@ -380,7 +382,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: traderWorldCharacter.player.username,
@@ -414,7 +416,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "right",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => {
           if (
@@ -585,7 +587,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "left",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(
@@ -605,7 +607,7 @@ export const tradeWorldMenu: WorldMenu<
         },
         horizontalAlignment: "center",
         maxLines: 1,
-        maxWidth: 304,
+        maxWidth: gameWidth,
         size: 1,
         text: (): CreateLabelOptionsText => ({
           value: `${getFormattedInteger(
@@ -968,7 +970,7 @@ export const tradeWorldMenu: WorldMenu<
           },
           horizontalAlignment: "right",
           maxLines: 1,
-          maxWidth: 304,
+          maxWidth: gameWidth,
           size: 1,
           text: (): CreateLabelOptionsText => ({
             value: getFormattedInteger(increment),
