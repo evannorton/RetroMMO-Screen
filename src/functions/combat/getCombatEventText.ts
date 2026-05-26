@@ -169,7 +169,7 @@ export const getCombatEventText = (
       }
       return {
         trims,
-        value: `${combatantName} is defeated!`,
+        value: `${combatantName} is defeated.`,
       };
     }
     case CombatEventType.Defeat: {
