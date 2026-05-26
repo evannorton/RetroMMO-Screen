@@ -164,7 +164,7 @@ export interface StateSchema {
   readonly initialPianoTilePositions: readonly InitialPianoTilePosition[];
   readonly isInitialUpdateReceived: boolean;
   readonly isJoystickEnabled: boolean;
-  readonly isSubscribed: boolean;
+  readonly subscriptionOverAt: number | null;
   readonly mainMenuState: State<MainMenuStateSchema> | null;
   readonly mapMusicPause: MapMusicPause | null;
   readonly musicTrackID: string | null;
@@ -191,7 +191,6 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialPianoTilePositions: [],
   isInitialUpdateReceived: false,
   isJoystickEnabled: false,
-  isSubscribed: false,
   mainMenuState: null,
   mapMusicPause: null,
   musicTrackID: null,
@@ -200,5 +199,6 @@ export const state: State<StateSchema> = new State<StateSchema>({
   serverTime: null,
   serverTimeRequestedAt: null,
   serverURL: null,
+  subscriptionOverAt: null,
   worldState: null,
 });

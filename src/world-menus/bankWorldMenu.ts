@@ -111,7 +111,7 @@ export const bankWorldMenu: WorldMenu<
     const worldState: State<WorldStateSchema> = getWorldState();
     const maximumBagItems: number = constants["maximum-bag-items"];
     const maximumGold: number = constants["maximum-gold"];
-    const isSubscribed: boolean = state.values.isSubscribed;
+    const isSubscribed: boolean = state.values.subscriptionOverAt !== null;
     const gameWidth: number = getGameWidth();
     const condition = (): boolean => isForcedWorldUIVisible() === false;
     const storageCondition = (): boolean =>

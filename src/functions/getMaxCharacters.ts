@@ -4,7 +4,7 @@ export const getMaxCharacters = (): number => {
   if (state.values.constants === null) {
     throw new Error("Attempted to create character with no constants.");
   }
-  return state.values.isSubscribed
+  return state.values.subscriptionOverAt !== null
     ? state.values.constants["subscriber-character-slots"]
     : state.values.constants["free-character-slots"];
 };

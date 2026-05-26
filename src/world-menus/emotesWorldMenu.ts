@@ -8,7 +8,6 @@ import {
   createSprite,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
-import { postWindowMessage } from "../functions/postWindowMessage";
 import { Emote } from "../classes/Emote";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema, state } from "../state";
@@ -20,6 +19,7 @@ import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinables } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
+import { postWindowMessage } from "../functions/postWindowMessage";
 import { useEmote } from "../functions/useEmote";
 
 enum EmotesTab {
@@ -232,7 +232,7 @@ export const emotesWorldMenu: WorldMenu<
               }
               if (
                 emote.requiresSubscription === false ||
-                state.values.isSubscribed
+                state.values.subscriptionOverAt !== null
               ) {
                 emotesWorldMenu.close();
                 useEmote(emote.id);

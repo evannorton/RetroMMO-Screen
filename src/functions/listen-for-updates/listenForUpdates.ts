@@ -2,6 +2,7 @@ import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
   ChatUpdate,
+  ChatUpstreamWindowMessage,
   CombatEvent,
   CombatantType,
   EndPlayerBattlesUpdate,
@@ -18,6 +19,7 @@ import {
   RemovePlayerUpdate,
   RenamePlayerUpdate,
   ServerTimeUpdate,
+  SubscriptionUpstreamWindowMessage,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import {
@@ -102,7 +104,7 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<ChatUpdate>({
     event: "chat",
     onMessage: (update: ChatUpdate): void => {
-      postWindowMessage({
+      postWindowMessage<ChatUpstreamWindowMessage>({
         data: {
           chat: update.chat,
         },
@@ -530,7 +532,6 @@ export const listenForUpdates = (): void => {
       state.setValues({
         battleState: null,
         isInitialUpdateReceived: true,
-        isSubscribed: update.isSubscribed,
         mainMenuState: null,
         mapMusicPause: null,
         musicTrackID: null,
@@ -538,6 +539,7 @@ export const listenForUpdates = (): void => {
         selectedPlayerID: null,
         serverTime: null,
         serverTimeRequestedAt: null,
+        subscriptionOverAt: update.subscriptionOverAt ?? null,
         worldState: null,
       });
       switch (update.mainState) {
@@ -860,6 +862,13 @@ export const listenForUpdates = (): void => {
               worldMenu.isOpen() === false,
           )
         );
+      });
+      postWindowMessage<SubscriptionUpstreamWindowMessage>({
+        data: {
+          isCanceled: update.isSubscriptionCanceled,
+          overAt: update.subscriptionOverAt,
+        },
+        event: "subscription",
       });
     },
   });
