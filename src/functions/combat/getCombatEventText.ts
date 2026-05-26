@@ -482,7 +482,7 @@ export const getCombatEventText = (
             length: renewCombatEvent.username.length,
           },
         ],
-        value: `${renewCombatEvent.username} begins renewing HP.`,
+        value: `${renewCombatEvent.username} begins to renew.`,
       };
     }
     case CombatEventType.UseAbility: {
