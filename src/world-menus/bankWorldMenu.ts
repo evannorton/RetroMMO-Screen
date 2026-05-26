@@ -949,7 +949,7 @@ export const bankWorldMenu: WorldMenu<
     );
     labelIDs.push(
       createLabel({
-        color:
+        color: (): Color =>
           isSubscribed ||
           bankWorldMenu.state.values.storagePage <
             constants["bank-storage-free-pages"]
