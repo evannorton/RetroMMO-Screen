@@ -345,8 +345,8 @@ export const tick = (): void => {
         queuedBattle.isScattering = true;
         startPixelScatter({
           duration: animatedDuration * (3 / 4),
-          offsetY: -16,
-          size: 16,
+          offsetY: -constants["tile-size"],
+          size: constants["tile-size"],
         });
       }
     }
