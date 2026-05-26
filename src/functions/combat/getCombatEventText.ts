@@ -2,6 +2,7 @@ import { Ability } from "../../classes/Ability";
 import { BattleStateSchema } from "../../state";
 import { Battler } from "../../classes/Battler";
 import {
+  Color,
   CombatAmbushEvent,
   CombatBleedStartEvent,
   CombatBoostEvent,
@@ -16,6 +17,7 @@ import {
   CombatFriendlyTargetFailureEvent,
   CombatGainStatEvent,
   CombatGoldEvent,
+  CombatHealEvent,
   CombatInstakillEvent,
   CombatInstakillFinishEvent,
   CombatInventoryFullEvent,
@@ -30,6 +32,7 @@ import {
 } from "retrommo-types";
 import {
   CreateLabelOptionsText,
+  CreateLabelOptionsTextColor,
   CreateLabelOptionsTextTrim,
   State,
 } from "pixel-pigeon";
@@ -39,6 +42,9 @@ import { getCombatantName } from "./getCombatantName";
 import { getDefinable } from "definables";
 import { getFormattedInteger } from "../getFormattedInteger";
 import { getStatName } from "../stats/getStatName";
+
+const positiveColor: Color = Color.StrongLimeGreen;
+const negativeColor: Color = Color.SoftRed;
 
 export const getCombatEventText = (
   combatEvent: CombatEvent,
@@ -67,18 +73,29 @@ export const getCombatEventText = (
     case CombatEventType.BleedStart: {
       const bleedStartCombatEvent: CombatBleedStartEvent =
         combatEvent as CombatBleedStartEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
       const combatantName: string = getCombatantName({
         monsterName: bleedStartCombatEvent.target.monsterName,
         username: bleedStartCombatEvent.target.username,
       });
+      trims.push({
+        index: 0,
+        length: combatantName.length,
+      });
+      value += `${combatantName} begins to `;
+      const verb: string = "bleed";
+      colors.push({
+        color: negativeColor,
+        index: value.length,
+        length: verb.length,
+      });
+      value += `${verb}.`;
       return {
-        trims: [
-          {
-            index: 0,
-            length: combatantName.length,
-          },
-        ],
-        value: `${combatantName} begins to bleed.`,
+        colors,
+        trims,
+        value,
       };
     }
     case CombatEventType.Boost: {
@@ -103,14 +120,13 @@ export const getCombatEventText = (
     case CombatEventType.BoostFailure: {
       const boostFailureCombatEvent: CombatBoostFailureEvent =
         combatEvent as CombatBoostFailureEvent;
-      const combatantName: string = boostFailureCombatEvent.username;
       let value: string = "...but ";
-      const trims: CreateLabelOptionsTextTrim[] = [
-        {
-          index: value.length,
-          length: combatantName.length,
-        },
-      ];
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const combatantName: string = boostFailureCombatEvent.username;
+      trims.push({
+        index: value.length,
+        length: combatantName.length,
+      });
       value += `${combatantName} already has the maximum amount of boosts.`;
       return {
         trims,
@@ -125,9 +141,9 @@ export const getCombatEventText = (
     case CombatEventType.Damage: {
       const damageCombatEvent: CombatDamageEvent =
         combatEvent as CombatDamageEvent;
-      const damageAmount: string = getFormattedInteger(
-        damageCombatEvent.amount,
-      );
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
       const combatantName: string = getCombatantName({
         monsterName: damageCombatEvent.target.monsterName,
         username: damageCombatEvent.target.username,
@@ -140,15 +156,22 @@ export const getCombatEventText = (
             : damageCombatEvent.isRedirected === true
               ? "guards for"
               : "takes";
-      const trims: CreateLabelOptionsTextTrim[] = [];
+      value += `${combatantName} ${verb} `;
       if (typeof damageCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
           length: combatantName.length,
         });
       }
-      const value: string = `${combatantName} ${verb} ${damageAmount} damage.`;
+      const amount: string = getFormattedInteger(damageCombatEvent.amount);
+      colors.push({
+        color: negativeColor,
+        index: value.length,
+        length: amount.length,
+      });
+      value += `${amount} damage.`;
       return {
+        colors,
         trims,
         value,
       };
@@ -156,20 +179,31 @@ export const getCombatEventText = (
     case CombatEventType.Death: {
       const deathCombatEvent: CombatDeathEvent =
         combatEvent as CombatDeathEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
       const combatantName: string = getCombatantName({
         monsterName: deathCombatEvent.target.monsterName,
         username: deathCombatEvent.target.username,
       });
-      const trims: CreateLabelOptionsTextTrim[] = [];
       if (typeof deathCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
           length: combatantName.length,
         });
       }
+      value += `${combatantName} is `;
+      const verb: string = "defeated";
+      colors.push({
+        color: negativeColor,
+        index: value.length,
+        length: verb.length,
+      });
+      value += `${verb}.`;
       return {
+        colors,
         trims,
-        value: `${combatantName} is defeated.`,
+        value,
       };
     }
     case CombatEventType.Defeat: {
@@ -221,12 +255,12 @@ export const getCombatEventText = (
     case CombatEventType.FriendlyTargetFailure: {
       const friendlyTargetFailureCombatEvent: CombatFriendlyTargetFailureEvent =
         combatEvent as CombatFriendlyTargetFailureEvent;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [];
       const combatantName: string = getCombatantName({
         monsterName: friendlyTargetFailureCombatEvent.target.monsterName,
         username: friendlyTargetFailureCombatEvent.target.username,
       });
-      let value: string = "...but ";
-      const trims: CreateLabelOptionsTextTrim[] = [];
       if (
         typeof friendlyTargetFailureCombatEvent.target.username !== "undefined"
       ) {
@@ -276,24 +310,32 @@ export const getCombatEventText = (
       };
     }
     case CombatEventType.Heal: {
-      const damageCombatEvent: CombatDamageEvent =
-        combatEvent as CombatDamageEvent;
-      const combatantName: string = getCombatantName({
-        monsterName: damageCombatEvent.target.monsterName,
-        username: damageCombatEvent.target.username,
-      });
+      const healCombatEvent: CombatHealEvent = combatEvent as CombatHealEvent;
+      let value: string = "";
       const trims: CreateLabelOptionsTextTrim[] = [];
-      if (typeof damageCombatEvent.target.username !== "undefined") {
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: healCombatEvent.target.monsterName,
+        username: healCombatEvent.target.username,
+      });
+      if (typeof healCombatEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
           length: combatantName.length,
         });
       }
+      value += `${combatantName} recovers `;
+      const amount: string = getFormattedInteger(healCombatEvent.amount);
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: amount.length,
+      });
+      value += `${amount} HP.`;
       return {
+        colors,
         trims,
-        value: `${combatantName} recovers ${getFormattedInteger(
-          damageCombatEvent.amount,
-        )} HP.`,
+        value,
       };
     }
     case CombatEventType.Instakill: {
@@ -338,17 +380,17 @@ export const getCombatEventText = (
       const inventoryFullEvent: CombatInventoryFullEvent =
         combatEvent as CombatInventoryFullEvent;
       let value: string = "...but ";
-      const nameIndex: number = value.length;
+      const trims: CreateLabelOptionsTextTrim[] = [
+        {
+          index: value.length,
+          length: inventoryFullEvent.username.length,
+        },
+      ];
       value += `${inventoryFullEvent.username} has no space for ${
         getDefinable(Item, inventoryFullEvent.itemID).name
       }.`;
       return {
-        trims: [
-          {
-            index: nameIndex,
-            length: inventoryFullEvent.username.length,
-          },
-        ],
+        trims,
         value,
       };
     }
@@ -414,39 +456,59 @@ export const getCombatEventText = (
     case CombatEventType.PoisonStart: {
       const poisonStartCombatEvent: CombatPoisonStartEvent =
         combatEvent as CombatPoisonStartEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
       const combatantName: string = getCombatantName({
         monsterName: poisonStartCombatEvent.target.monsterName,
         username: poisonStartCombatEvent.target.username,
       });
+      trims.push({
+        index: 0,
+        length: combatantName.length,
+      });
+      value += `${combatantName} begins to `;
+      const verb: string = "sicken";
+      colors.push({
+        color: negativeColor,
+        index: value.length,
+        length: verb.length,
+      });
+      value += `${verb}.`;
       return {
-        trims: [
-          {
-            index: 0,
-            length: combatantName.length,
-          },
-        ],
-        value: `${combatantName} begins to sicken.`,
+        colors,
+        trims,
+        value,
       };
     }
     case CombatEventType.Rejuvenate: {
       const rejuvenateEvent: CombatRejuvenateEvent =
         combatEvent as CombatRejuvenateEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
       const combatantName: string = getCombatantName({
         monsterName: rejuvenateEvent.target.monsterName,
         username: rejuvenateEvent.target.username,
       });
-      const trims: CreateLabelOptionsTextTrim[] = [];
       if (typeof rejuvenateEvent.target.username !== "undefined") {
         trims.push({
           index: 0,
           length: combatantName.length,
         });
       }
+      value += `${combatantName} recovers `;
+      const amount: string = getFormattedInteger(rejuvenateEvent.amount);
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: amount.length,
+      });
+      value += `${amount} MP.`;
       return {
+        colors,
         trims,
-        value: `${combatantName} recovers ${getFormattedInteger(
-          rejuvenateEvent.amount,
-        )} MP.`,
+        value,
       };
     }
     case CombatEventType.RejuvenateFailure: {
@@ -475,29 +537,41 @@ export const getCombatEventText = (
     case CombatEventType.Renew: {
       const renewCombatEvent: CombatRenewEvent =
         combatEvent as CombatRenewEvent;
+      let value: string = `${renewCombatEvent.username} begins to `;
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const trims: CreateLabelOptionsTextTrim[] = [
+        {
+          index: 0,
+          length: renewCombatEvent.username.length,
+        },
+      ];
+      const verb: string = "renew";
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: verb.length,
+      });
+      value += `${verb}.`;
       return {
-        trims: [
-          {
-            index: 0,
-            length: renewCombatEvent.username.length,
-          },
-        ],
-        value: `${renewCombatEvent.username} begins to renew.`,
+        colors,
+        trims,
+        value,
       };
     }
     case CombatEventType.UseAbility: {
       const useAbilityCombatEvent: CombatUseAbilityEvent =
         combatEvent as CombatUseAbilityEvent;
-      const ability: Ability = getDefinable(
-        Ability,
-        useAbilityCombatEvent.abilityID,
-      );
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
       const casterName: string = getCombatantName({
         monsterName: useAbilityCombatEvent.caster.monsterName,
         username: useAbilityCombatEvent.caster.username,
       });
-      let value: string = `${casterName} uses ${ability.name}`;
-      const trims: CreateLabelOptionsTextTrim[] = [];
+      const ability: Ability = getDefinable(
+        Ability,
+        useAbilityCombatEvent.abilityID,
+      );
+      value += `${casterName} uses ${ability.name}`;
       if (typeof useAbilityCombatEvent.caster.username !== "undefined") {
         trims.push({
           index: 0,
@@ -527,13 +601,14 @@ export const getCombatEventText = (
     case CombatEventType.UseItem: {
       const useItemCombatEvent: CombatUseItemEvent =
         combatEvent as CombatUseItemEvent;
-      const item: Item = getDefinable(Item, useItemCombatEvent.itemID);
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
       const casterName: string = getCombatantName({
         monsterName: useItemCombatEvent.caster.monsterName,
         username: useItemCombatEvent.caster.username,
       });
-      let value: string = `${casterName} uses ${item.name}`;
-      const trims: CreateLabelOptionsTextTrim[] = [];
+      const item: Item = getDefinable(Item, useItemCombatEvent.itemID);
+      value += `${casterName} uses ${item.name}`;
       if (typeof useItemCombatEvent.caster.username !== "undefined") {
         trims.push({
           index: 0,
