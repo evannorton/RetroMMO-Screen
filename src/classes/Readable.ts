@@ -1,11 +1,12 @@
+import { Color, ReadableDefinition } from "retrommo-types";
 import { Definable } from "definables";
-import { ReadableDefinition } from "retrommo-types";
 
 export interface ReadableOptions {
   readonly definition: ReadableDefinition;
   readonly id: string;
 }
 export class Readable extends Definable {
+  private readonly _color: Color;
   private readonly _contents: string;
   private readonly _height: number;
   private readonly _horizontalAlignment: "center" | "left" | "right";
@@ -14,11 +15,16 @@ export class Readable extends Definable {
 
   public constructor(options: ReadableOptions) {
     super(options.id);
+    this._color = options.definition.color;
     this._contents = options.definition.contents;
     this._height = options.definition.height;
     this._horizontalAlignment = options.definition.horizontalAlignment;
     this._imagePath = options.definition.imagePath;
     this._interactText = options.definition.interactText;
+  }
+
+  public get color(): Color {
+    return this._color;
   }
 
   public get contents(): string {

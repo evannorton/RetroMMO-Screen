@@ -1,4 +1,3 @@
-import { Color } from "retrommo-types";
 import {
   HUDElementReferences,
   createLabel,
@@ -47,12 +46,24 @@ export const readableWorldMenu: WorldMenu<
         y: 143,
       }),
     );
+    let labelX: number;
+    switch (readable.horizontalAlignment) {
+      case "center":
+        labelX = 152;
+        break;
+      case "left":
+        labelX = 58;
+        break;
+      case "right":
+        labelX = 246;
+        break;
+    }
     labelIDs.push(
       createLabel({
-        color: Color.White,
+        color: readable.color,
         coordinates: {
           condition: shouldShowMenu,
-          x: 152,
+          x: labelX,
           y: 151,
         },
         horizontalAlignment: readable.horizontalAlignment,
