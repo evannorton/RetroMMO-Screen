@@ -27,6 +27,8 @@ import {
   RenamePlayerUpdate,
   RenamePlayerUpstreamWindowMessage,
   ServerTimeUpdate,
+  UnlinkDiscordUpdate,
+  UnlinkDiscordUpstreamWindowMessage,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import {
@@ -886,6 +888,7 @@ export const listenForUpdates = (): void => {
       const player: Player = getDefinable(Player, update.playerID);
       postWindowMessage<InitialUpstreamWindowMessage>({
         data: {
+          discordID: update.discordID,
           isSubscriptionCanceled: update.isSubscriptionCanceled,
           players: update.players.map(
             (
@@ -1083,6 +1086,15 @@ export const listenForUpdates = (): void => {
       });
       state.setValues({
         serverTime: ping / 2 + update.serverTime,
+      });
+    },
+  });
+  listenToSocketioEvent<UnlinkDiscordUpdate>({
+    event: "unlink-discord",
+    onMessage: (): void => {
+      postWindowMessage<UnlinkDiscordUpstreamWindowMessage>({
+        data: {},
+        event: "unlink-discord",
       });
     },
   });
