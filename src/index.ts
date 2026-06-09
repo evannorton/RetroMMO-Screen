@@ -1,4 +1,5 @@
-import "./input";
+import "./chatChannels";
+import "./inputCollections";
 import "./volumeChannels";
 import { initialize, onRun } from "pixel-pigeon";
 import { run } from "./run";

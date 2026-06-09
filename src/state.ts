@@ -1,6 +1,7 @@
 import {
   BattlePhase,
   BattleType,
+  ChatChannel,
   CombatEvent,
   Constants,
   Direction,
@@ -151,6 +152,7 @@ export interface BattleStateSchema {
 }
 export interface StateSchema {
   readonly battleState: State<BattleStateSchema> | null;
+  readonly chatChannels: readonly ChatChannel[];
   readonly constants: Constants | null;
   readonly defaultClothesDyeID: string | null;
   readonly defaultHairDyeID: string | null;
@@ -171,6 +173,7 @@ export interface StateSchema {
   readonly mapMusicPause: MapMusicPause | null;
   readonly musicTrackID: string | null;
   readonly pianoStartedAt: number | null;
+  readonly playerID: string | null;
   readonly selectedPlayerID: string | null;
   readonly serverTime: number | null;
   readonly serverTimeRequestedAt: number | null;
@@ -179,6 +182,7 @@ export interface StateSchema {
 }
 export const state: State<StateSchema> = new State<StateSchema>({
   battleState: null,
+  chatChannels: [],
   constants: null,
   defaultClothesDyeID: null,
   defaultHairDyeID: null,
@@ -198,6 +202,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   mapMusicPause: null,
   musicTrackID: null,
   pianoStartedAt: null,
+  playerID: null,
   selectedPlayerID: null,
   serverTime: null,
   serverTimeRequestedAt: null,

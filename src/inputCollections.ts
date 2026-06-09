@@ -1,23 +1,4 @@
-import {
-  NumLock,
-  State,
-  createInputCollection,
-  createInputPressHandler,
-  emitToSocketioServer,
-  takeScreenshot,
-} from "pixel-pigeon";
-import { OpenChatUpstreamWindowMessage } from "retrommo-types";
-import { WorldStateSchema, state } from "./state";
-import { canWalk } from "./functions/canWalk";
-import { closeWorldMenus } from "./functions/world-menus/closeWorldMenus";
-import { emotesWorldMenu } from "./world-menus/emotesWorldMenu";
-import { getWorldState } from "./functions/state/getWorldState";
-import { interact } from "./functions/interact";
-import { isAWorldMenuOpen } from "./functions/world-menus/isAWorldMenuOpen";
-import { isWorldCombatInProgress } from "./functions/isWorldCombatInProgress";
-import { pianoWorldMenu } from "./world-menus/pianoWorldMenu";
-import { postWindowMessage } from "./functions/postWindowMessage";
-import { useEmote } from "./functions/useEmote";
+import { NumLock, createInputCollection } from "pixel-pigeon";
 
 export const whitePianoKeyInputCollectionIDs: readonly string[] = [
   createInputCollection({
@@ -158,23 +139,23 @@ export const targetWorldPartyCharacter3InputCollectionID: string =
     ],
     name: "Target world party character 3",
   });
-const screenshotInputCollectionID: string = createInputCollection({
+export const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
   name: "Screenshot",
 });
-const spinInputCollectionID: string = createInputCollection({
+export const spinInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "ShiftLeft" }],
   name: "Spin",
 });
-const moveLeftWASDInputCollectionID: string = createInputCollection({
+export const moveLeftWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyA" }],
   name: "Move left",
 });
-const moveLeftArrowInputCollectionID: string = createInputCollection({
+export const moveLeftArrowInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "ArrowLeft" }],
   name: "Move left",
 });
-const moveLeftNumpadInputCollectionID: string = createInputCollection({
+export const moveLeftNumpadInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       numLock: NumLock.Without,
@@ -183,19 +164,19 @@ const moveLeftNumpadInputCollectionID: string = createInputCollection({
   ],
   name: "Move left",
 });
-const moveLeftJoystickInputCollectionID: string = createInputCollection({
+export const moveLeftJoystickInputCollectionID: string = createInputCollection({
   joystickDirections: ["left"],
   name: "Move left",
 });
-const moveRightWASDInputCollectionID: string = createInputCollection({
+export const moveRightWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyD" }],
   name: "Move right",
 });
-const moveRightArrowInputCollectionID: string = createInputCollection({
+export const moveRightArrowInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "ArrowRight" }],
   name: "Move right",
 });
-const moveRightNumpadInputCollectionID: string = createInputCollection({
+export const moveRightNumpadInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       numLock: NumLock.Without,
@@ -204,19 +185,21 @@ const moveRightNumpadInputCollectionID: string = createInputCollection({
   ],
   name: "Move right",
 });
-const moveRightJoystickInputCollectionID: string = createInputCollection({
-  joystickDirections: ["right"],
-  name: "Move right",
-});
-const moveUpWASDInputCollectionID: string = createInputCollection({
+export const moveRightJoystickInputCollectionID: string = createInputCollection(
+  {
+    joystickDirections: ["right"],
+    name: "Move right",
+  },
+);
+export const moveUpWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyW" }],
   name: "Move up",
 });
-const moveUpArrowInputCollectionID: string = createInputCollection({
+export const moveUpArrowInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "ArrowUp" }],
   name: "Move up",
 });
-const moveUpNumpadInputCollectionID: string = createInputCollection({
+export const moveUpNumpadInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       numLock: NumLock.Without,
@@ -225,19 +208,19 @@ const moveUpNumpadInputCollectionID: string = createInputCollection({
   ],
   name: "Move up",
 });
-const moveUpJoystickInputCollectionID: string = createInputCollection({
+export const moveUpJoystickInputCollectionID: string = createInputCollection({
   joystickDirections: ["up"],
   name: "Move up",
 });
-const moveDownWASDInputCollectionID: string = createInputCollection({
+export const moveDownWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyS" }],
   name: "Move down",
 });
-const moveDownArrowInputCollectionID: string = createInputCollection({
+export const moveDownArrowInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "ArrowDown" }],
   name: "Move down",
 });
-const moveDownNumpadInputCollectionID: string = createInputCollection({
+export const moveDownNumpadInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       numLock: NumLock.Without,
@@ -246,11 +229,11 @@ const moveDownNumpadInputCollectionID: string = createInputCollection({
   ],
   name: "Move down",
 });
-const moveDownJoystickInputCollectionID: string = createInputCollection({
+export const moveDownJoystickInputCollectionID: string = createInputCollection({
   joystickDirections: ["down"],
   name: "Move down",
 });
-const actionInputCollectionID: string = createInputCollection({
+export const actionInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       value: "Space",
@@ -262,7 +245,6 @@ const actionInputCollectionID: string = createInputCollection({
   ],
   name: "Action",
 });
-
 export const statsInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyZ" }],
   name: "Toggle stats menu",
@@ -279,35 +261,34 @@ export const inventoryInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyV" }],
   name: "Toggle inventory menu",
 });
-const emotesInputCollectionID: string = createInputCollection({
+export const emotesInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyM" }],
   name: "Toggle emotes menu",
 });
-const lastEmoteInputCollectionID: string = createInputCollection({
+export const lastEmoteInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyL" }],
   name: "Use last emote",
 });
-const globalChatInputCollectionID: string = createInputCollection({
+export const globalChatInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyY" }],
   name: "Global chat",
 });
-const localChatInputCollectionID: string = createInputCollection({
+export const localChatInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyU" }],
   name: "Local chat",
 });
-const partyChatInputCollectionID: string = createInputCollection({
+export const partyChatInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyH" }],
   name: "Party chat",
 });
-const tradeChatInputCollectionID: string = createInputCollection({
+export const tradeChatInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyT" }],
   name: "Trade chat",
 });
-const modChatInputCollectionID: string = createInputCollection({
+export const modChatInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyG" }],
   name: "Mod chat",
 });
-
 export const useAttackInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
@@ -667,449 +648,3 @@ export const targetBattleFriendlyCharacter3InputCollectionID: string =
     ],
     name: "Target battle friendly character 3",
   });
-createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
-  inputCollectionID: screenshotInputCollectionID,
-  onInput: (): void => {
-    takeScreenshot();
-  },
-});
-createInputPressHandler({
-  condition: (): boolean =>
-    state.values.worldState !== null &&
-    state.values.worldState.values.queuedBattle === null &&
-    pianoWorldMenu.isOpen() === false &&
-    isWorldCombatInProgress() === false,
-  inputCollectionID: emotesInputCollectionID,
-  onInput: (): void => {
-    if (emotesWorldMenu.isOpen()) {
-      emotesWorldMenu.close();
-    } else {
-      closeWorldMenus();
-      emotesWorldMenu.open({});
-    }
-  },
-});
-createInputPressHandler({
-  condition: (): boolean =>
-    state.values.worldState !== null && pianoWorldMenu.isOpen() === false,
-  inputCollectionID: lastEmoteInputCollectionID,
-  onInput: (): void => {
-    const worldState: State<WorldStateSchema> = getWorldState();
-    if (worldState.values.lastUsedEmoteID !== null) {
-      useEmote(worldState.values.lastUsedEmoteID);
-    }
-  },
-});
-createInputPressHandler({
-  inputCollectionID: spinInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "ShiftLeft",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "ShiftLeft" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveLeftWASDInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "KeyA",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "KeyA" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveLeftArrowInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "ArrowLeft",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "ArrowLeft" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveLeftNumpadInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "Numpad4",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "Numpad4" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveLeftJoystickInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "JoystickLeft",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "JoystickLeft" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveRightWASDInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "KeyD",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "KeyD" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveRightArrowInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "ArrowRight",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "ArrowRight" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveRightNumpadInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "Numpad6",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "Numpad6" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveRightJoystickInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "JoystickRight",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "JoystickRight" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveUpWASDInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "KeyW",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "KeyW" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveUpArrowInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "ArrowUp",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "ArrowUp" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveUpNumpadInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "Numpad8",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "Numpad8" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveUpJoystickInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "JoystickUp",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "JoystickUp" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveDownWASDInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "KeyS",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "KeyS" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveDownArrowInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "ArrowDown",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "ArrowDown" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveDownNumpadInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "Numpad2",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "Numpad2" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  inputCollectionID: moveDownJoystickInputCollectionID,
-  onInput: (): void => {
-    if (canWalk()) {
-      emitToSocketioServer({
-        data: {
-          key: "JoystickDown",
-          numlock: false,
-        },
-        event: "keydown",
-      });
-    }
-  },
-  onRelease: (): void => {
-    emitToSocketioServer({
-      data: "JoystickDown" as unknown as object,
-      event: "keyup",
-    });
-  },
-});
-createInputPressHandler({
-  condition: (): boolean =>
-    state.values.worldState !== null && isWorldCombatInProgress() === false,
-  inputCollectionID: actionInputCollectionID,
-  onInput: (): void => {
-    if (isAWorldMenuOpen()) {
-      closeWorldMenus();
-    } else {
-      interact();
-    }
-  },
-});
-createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
-  inputCollectionID: globalChatInputCollectionID,
-  onInput: (): void => {
-    postWindowMessage<OpenChatUpstreamWindowMessage>({
-      data: {
-        chatChannelID: "global",
-      },
-      event: "open-chat",
-    });
-  },
-});
-createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
-  inputCollectionID: localChatInputCollectionID,
-  onInput: (): void => {
-    postWindowMessage<OpenChatUpstreamWindowMessage>({
-      data: {
-        chatChannelID: "local",
-      },
-      event: "open-chat",
-    });
-  },
-});
-createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
-  inputCollectionID: partyChatInputCollectionID,
-  onInput: (): void => {
-    postWindowMessage<OpenChatUpstreamWindowMessage>({
-      data: {
-        chatChannelID: "party",
-      },
-      event: "open-chat",
-    });
-  },
-});
-createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
-  inputCollectionID: tradeChatInputCollectionID,
-  onInput: (): void => {
-    postWindowMessage<OpenChatUpstreamWindowMessage>({
-      data: {
-        chatChannelID: "trade",
-      },
-      event: "open-chat",
-    });
-  },
-});
-createInputPressHandler({
-  condition: (): boolean => pianoWorldMenu.isOpen() === false,
-  inputCollectionID: modChatInputCollectionID,
-  onInput: (): void => {
-    postWindowMessage<OpenChatUpstreamWindowMessage>({
-      data: {
-        chatChannelID: "mod",
-      },
-      event: "open-chat",
-    });
-  },
-});

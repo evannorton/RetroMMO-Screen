@@ -99,7 +99,7 @@ import {
   useBattleHotkey9InputCollectionID,
   useEscapeInputCollectionID,
   usePassInputCollectionID,
-} from "../../../input";
+} from "../../../inputCollections";
 import { createCharacterSprite } from "../components/createCharacterSprite";
 import { createIconListItem } from "../components/createIconListItem";
 import { createImage } from "../components/createImage";

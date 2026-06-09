@@ -39,7 +39,7 @@ import {
   questLogInputCollectionID,
   spellbookInputCollectionID,
   statsInputCollectionID,
-} from "../../../input";
+} from "../../../inputCollections";
 import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";

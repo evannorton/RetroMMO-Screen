@@ -1,6 +1,9 @@
 import { Ability } from "./classes/Ability";
 import { Battler } from "./classes/Battler";
+import { ChatChannel } from "./classes/ChatChannel";
 import {
+  ChatChannel as ChatChannelEnum,
+  ChatChannelsUpstreamWindowMessage,
   CombatBleedStartEvent,
   CombatDamageEvent,
   CombatDeathEvent,
@@ -624,5 +627,33 @@ export const tick = (): void => {
       },
       event: "fps",
     });
+  }
+  if (state.values.isInitialUpdateReceived) {
+    const chatChannels: readonly ChatChannelEnum[] = Array.from(
+      getDefinables(ChatChannel).values(),
+    )
+      .filter((chatChannel: ChatChannel): boolean =>
+        typeof chatChannel.condition === "function"
+          ? chatChannel.condition()
+          : chatChannel.condition,
+      )
+      .map((chatChannel: ChatChannel): ChatChannelEnum => chatChannel.id);
+    if (
+      chatChannels.length !== state.values.chatChannels.length ||
+      chatChannels.some(
+        (chatChannel: ChatChannelEnum): boolean =>
+          state.values.chatChannels.includes(chatChannel) === false,
+      )
+    ) {
+      postWindowMessage<ChatChannelsUpstreamWindowMessage>({
+        data: {
+          chatChannels,
+        },
+        event: "chat-channels",
+      });
+      state.setValues({
+        chatChannels,
+      });
+    }
   }
 };

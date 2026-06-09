@@ -44,7 +44,7 @@ import {
   targetWorldPartyCharacter1InputCollectionID,
   targetWorldPartyCharacter2InputCollectionID,
   targetWorldPartyCharacter3InputCollectionID,
-} from "../input";
+} from "../inputCollections";
 
 export enum InventoryTab {
   Bag = "bag",

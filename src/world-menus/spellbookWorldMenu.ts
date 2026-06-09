@@ -28,7 +28,7 @@ import {
   targetWorldPartyCharacter1InputCollectionID,
   targetWorldPartyCharacter2InputCollectionID,
   targetWorldPartyCharacter3InputCollectionID,
-} from "../input";
+} from "../inputCollections";
 
 export interface SpellbookWorldMenuOpenOptions {}
 export interface SpellbookWorldMenuStateSchema {

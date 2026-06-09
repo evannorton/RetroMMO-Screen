@@ -11,7 +11,7 @@ import { WorldMenu } from "../classes/WorldMenu";
 import {
   blackPianoKeyInputCollectionIDs,
   whitePianoKeyInputCollectionIDs,
-} from "../input";
+} from "../inputCollections";
 import { createBlackPianoKey } from "../functions/ui/components/createBlackPianoKey";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";

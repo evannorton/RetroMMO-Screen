@@ -13,6 +13,8 @@ export interface PlayerOptions {
   readonly battleCharacterID?: string;
   readonly character?: PlayerOptionsCharacter;
   readonly id: string;
+  readonly monthsSubscribed?: number;
+  readonly permission: number;
   readonly userID: number;
   readonly username: string;
   readonly worldCharacterID?: string;
@@ -33,6 +35,8 @@ export interface PlayerModification {
 export class Player extends Definable {
   private _battleCharacterID: string | null;
   private _character: PlayerCharacter | null;
+  private readonly _monthsSubscribed?: number;
+  private _permission: number;
   private readonly _userID: number;
   private _username: string;
   private _worldCharacterID: string | null;
@@ -47,6 +51,8 @@ export class Player extends Definable {
             partyID: options.character.partyID,
           }
         : null;
+    this._monthsSubscribed = options.monthsSubscribed;
+    this._permission = options.permission;
     this._userID = options.userID;
     this._username = options.username;
     this._worldCharacterID = options.worldCharacterID ?? null;
@@ -94,6 +100,17 @@ export class Player extends Definable {
     throw new Error(this.getAccessorErrorMessage("character"));
   }
 
+  public get monthsSubscribed(): number {
+    if (typeof this._monthsSubscribed !== "undefined") {
+      return this._monthsSubscribed;
+    }
+    throw new Error(this.getAccessorErrorMessage("monthsSubscribed"));
+  }
+
+  public get permission(): number {
+    return this._permission;
+  }
+
   public get userID(): number {
     return this._userID;
   }
@@ -124,6 +141,10 @@ export class Player extends Definable {
     this._character = character;
   }
 
+  public set permission(permission: number) {
+    this._permission = permission;
+  }
+
   public set username(username: string) {
     this._username = username;
   }
@@ -138,6 +159,10 @@ export class Player extends Definable {
 
   public hasCharacter(): boolean {
     return this._character !== null;
+  }
+
+  public hasMonthsSubscribed(): boolean {
+    return typeof this._monthsSubscribed !== "undefined";
   }
 
   public hasWorldCharacter(): boolean {

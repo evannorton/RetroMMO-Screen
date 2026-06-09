@@ -1,6 +1,7 @@
 import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
+  AddPlayerUpstreamWindowMessage,
   ChatUpdate,
   ChatUpstreamWindowMessage,
   CombatEvent,
@@ -8,18 +9,24 @@ import {
   EndPlayerBattlesUpdate,
   EnterPlayerUpdate,
   ExitPlayerUpdate,
+  InitialPlayerUpdate,
   InitialUpdate,
+  InitialUpstreamWindowMessage,
+  InitialUpstreamWindowMessagePlayer,
   InitialWorldTradeTraderItemUpdate,
   InitialWorldTradeTraderUpdate,
   InviteType,
   ItemInstanceUpdate,
   MainState,
   PartyChangesUpdate,
+  PermitPlayerUpdate,
+  PermitPlayerUpstreamWindowMessage,
   PingUpstreamWindowMessage,
   RemovePlayerUpdate,
+  RemovePlayerUpstreamWindowMessage,
   RenamePlayerUpdate,
+  RenamePlayerUpstreamWindowMessage,
   ServerTimeUpdate,
-  SubscriptionUpstreamWindowMessage,
 } from "retrommo-types";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import {
@@ -96,8 +103,18 @@ export const listenForUpdates = (): void => {
     onMessage: (update: AddPlayerUpdate): void => {
       new Player({
         id: update.playerID,
+        monthsSubscribed: update.monthsSubscribed,
+        permission: update.permission,
         userID: update.userID,
         username: update.username,
+      });
+      postWindowMessage<AddPlayerUpstreamWindowMessage>({
+        data: {
+          monthsSubscribed: update.monthsSubscribed,
+          permission: update.permission,
+          username: update.username,
+        },
+        event: "add-player",
       });
     },
   });
@@ -515,6 +532,8 @@ export const listenForUpdates = (): void => {
                 }
               : undefined,
           id: playerUpdate.playerID,
+          monthsSubscribed: playerUpdate.monthsSubscribed,
+          permission: playerUpdate.permission,
           userID: playerUpdate.userID,
           username: playerUpdate.username,
           worldCharacterID:
@@ -536,6 +555,7 @@ export const listenForUpdates = (): void => {
         mapMusicPause: null,
         musicTrackID: null,
         pianoStartedAt: null,
+        playerID: update.playerID,
         selectedPlayerID: null,
         serverTime: null,
         serverTimeRequestedAt: null,
@@ -863,12 +883,31 @@ export const listenForUpdates = (): void => {
           )
         );
       });
-      postWindowMessage<SubscriptionUpstreamWindowMessage>({
+      const player: Player = getDefinable(Player, update.playerID);
+      postWindowMessage<InitialUpstreamWindowMessage>({
         data: {
-          isCanceled: update.isSubscriptionCanceled,
-          overAt: update.subscriptionOverAt,
+          isSubscriptionCanceled: update.isSubscriptionCanceled,
+          players: update.players.map(
+            (
+              playerUpdate: InitialPlayerUpdate,
+            ): InitialUpstreamWindowMessagePlayer => {
+              const initialPlayer: Player = getDefinable(
+                Player,
+                playerUpdate.playerID,
+              );
+              return {
+                monthsSubscribed: initialPlayer.hasMonthsSubscribed()
+                  ? initialPlayer.monthsSubscribed
+                  : undefined,
+                permission: initialPlayer.permission,
+                username: playerUpdate.username,
+              };
+            },
+          ),
+          subscriptionOverAt: update.subscriptionOverAt,
+          username: player.username,
         },
-        event: "subscription",
+        event: "initial",
       });
     },
   });
@@ -947,6 +986,22 @@ export const listenForUpdates = (): void => {
       }
     },
   });
+  listenToSocketioEvent<PermitPlayerUpdate>({
+    event: "permit-player",
+    onMessage: (update: PermitPlayerUpdate): void => {
+      if (typeof update.playerID !== "undefined") {
+        const player: Player = getDefinable(Player, update.playerID);
+        player.permission = update.permission;
+      }
+      postWindowMessage<PermitPlayerUpstreamWindowMessage>({
+        data: {
+          permission: update.permission,
+          username: update.username,
+        },
+        event: "permit-player",
+      });
+    },
+  });
   listenToSocketioEvent<RemovePlayerUpdate>({
     event: "remove-player",
     onMessage: (update: RemovePlayerUpdate): void => {
@@ -983,14 +1038,31 @@ export const listenForUpdates = (): void => {
           exitWorldCharacters([player.worldCharacterID]);
         }
       }
+      postWindowMessage<RemovePlayerUpstreamWindowMessage>({
+        data: {
+          username: player.username,
+        },
+        event: "remove-player",
+      });
       player.remove();
     },
   });
   listenToSocketioEvent<RenamePlayerUpdate>({
     event: "rename-player",
     onMessage: (update: RenamePlayerUpdate): void => {
-      const player: Player = getDefinable(Player, update.playerID);
-      player.username = update.username;
+      const oldUsername: string = update.oldUsername;
+      const newUsername: string = update.newUsername;
+      if (typeof update.playerID !== "undefined") {
+        const player: Player = getDefinable(Player, update.playerID);
+        player.username = newUsername;
+      }
+      postWindowMessage<RenamePlayerUpstreamWindowMessage>({
+        data: {
+          newUsername,
+          oldUsername,
+        },
+        event: "rename-player",
+      });
     },
   });
   listenToSocketioEvent<ServerTimeUpdate>({
