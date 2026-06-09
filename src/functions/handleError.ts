@@ -1,8 +1,8 @@
-import { ErrorRequest } from "retrommo-types";
+import { ScreenErrorRequest } from "retrommo-types";
 import { emitToSocketioServer } from "pixel-pigeon";
 
 export const handleError = (error: Error): void => {
-  emitToSocketioServer<ErrorRequest>({
+  emitToSocketioServer<ScreenErrorRequest>({
     data: {
       message: error.message,
       stack: error.stack,
