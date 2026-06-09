@@ -27,6 +27,8 @@ import {
   RenamePlayerUpdate,
   RenamePlayerUpstreamWindowMessage,
   ServerTimeUpdate,
+  ShutdownUpdate,
+  ShutdownUpstreamWindowMessage,
   UnlinkDiscordUpdate,
   UnlinkDiscordUpstreamWindowMessage,
 } from "retrommo-types";
@@ -908,6 +910,7 @@ export const listenForUpdates = (): void => {
             },
           ),
           subscriptionOverAt: update.subscriptionOverAt,
+          untilShutdown: update.untilShutdown,
           username: player.username,
         },
         event: "initial",
@@ -1086,6 +1089,17 @@ export const listenForUpdates = (): void => {
       });
       state.setValues({
         serverTime: ping / 2 + update.serverTime,
+      });
+    },
+  });
+  listenToSocketioEvent<ShutdownUpdate>({
+    event: "shutdown",
+    onMessage: (update: ShutdownUpdate): void => {
+      postWindowMessage<ShutdownUpstreamWindowMessage>({
+        data: {
+          untilShutdown: update.untilShutdown,
+        },
+        event: "shutdown",
       });
     },
   });
