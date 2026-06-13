@@ -2,13 +2,27 @@ import { Ability } from "../../classes/Ability";
 import {
   AddPlayerUpdate,
   AddPlayerUpstreamWindowMessage,
+  BanNoticeUpdate,
+  BanNoticeUpstreamWindowMessage,
+  BannedUpdate,
+  BannedUpstreamWindowMessage,
   ChatUpdate,
   ChatUpstreamWindowMessage,
+  CheckoutSessionUpdate,
+  CheckoutSessionUpstreamWindowMessage,
   CombatEvent,
   CombatantType,
+  CustomerPortalUpdate,
+  CustomerPortalUpstreamWindowMessage,
   EndPlayerBattlesUpdate,
   EnterPlayerUpdate,
   ExitPlayerUpdate,
+  ExpiredSessionNoticeUpdate,
+  ExpiredSessionNoticeUpstreamWindowMessage,
+  IPBanNoticeUpdate,
+  IPBanNoticeUpstreamWindowMessage,
+  IPBannedUpdate,
+  IPBannedUpstreamWindowMessage,
   InitialPlayerUpdate,
   InitialUpdate,
   InitialUpstreamWindowMessage,
@@ -17,15 +31,31 @@ import {
   InitialWorldTradeTraderUpdate,
   InviteType,
   ItemInstanceUpdate,
+  KickedUpdate,
+  KickedUpstreamWindowMessage,
   MainState,
+  MaximumPlayersCountUpdate,
+  MaximumPlayersCountUpstreamWindowMessage,
+  MessagesLimitNoticeUpdate,
+  MessagesLimitNoticeUpstreamWindowMessage,
+  MuteNoticeUpdate,
+  MuteNoticeUpstreamWindowMessage,
   PartyChangesUpdate,
   PermitPlayerUpdate,
   PermitPlayerUpstreamWindowMessage,
   PingUpstreamWindowMessage,
+  PurgedUpdate,
+  PurgedUpstreamWindowMessage,
+  RemoveAllUpdate,
+  RemoveAllUpstreamWindowMessage,
   RemovePlayerUpdate,
   RemovePlayerUpstreamWindowMessage,
+  RemoveUpdate,
+  RemoveUpstreamWindowMessage,
   RenamePlayerUpdate,
   RenamePlayerUpstreamWindowMessage,
+  ReplacedUpdate,
+  ReplacedUpstreamWindowMessage,
   ServerTimeUpdate,
   ShutdownUpdate,
   ShutdownUpstreamWindowMessage,
@@ -122,6 +152,27 @@ export const listenForUpdates = (): void => {
       });
     },
   });
+  listenToSocketioEvent<BanNoticeUpdate>({
+    event: "ban-notice",
+    onMessage: (update: BanNoticeUpdate): void => {
+      postWindowMessage<BanNoticeUpstreamWindowMessage>({
+        data: {
+          expiredAt: update.expiredAt,
+          reason: update.reason,
+        },
+        event: "ban-notice",
+      });
+    },
+  });
+  listenToSocketioEvent<BannedUpdate>({
+    event: "banned",
+    onMessage: (): void => {
+      postWindowMessage<BannedUpstreamWindowMessage>({
+        data: {},
+        event: "banned",
+      });
+    },
+  });
   listenToSocketioEvent<ChatUpdate>({
     event: "chat",
     onMessage: (update: ChatUpdate): void => {
@@ -131,6 +182,34 @@ export const listenForUpdates = (): void => {
         },
         event: "chat",
       });
+    },
+  });
+  listenToSocketioEvent<CheckoutSessionUpdate>({
+    event: "checkout-session",
+    onMessage: (update: CheckoutSessionUpdate): void => {
+      postWindowMessage<CheckoutSessionUpstreamWindowMessage>({
+        data: {
+          sessionID: update.sessionID,
+        },
+        event: "checkout-session",
+      });
+    },
+  });
+  listenToSocketioEvent<CustomerPortalUpdate>({
+    event: "customer-portal",
+    onMessage: (update: CustomerPortalUpdate): void => {
+      postWindowMessage<CustomerPortalUpstreamWindowMessage>({
+        data: {
+          url: update.url,
+        },
+        event: "customer-portal",
+      });
+    },
+  });
+  listenToSocketioEvent<object>({
+    event: "disconnect",
+    onMessage: (): void => {
+      console.log("hi");
     },
   });
   listenToSocketioEvent<EndPlayerBattlesUpdate>({
@@ -493,6 +572,15 @@ export const listenForUpdates = (): void => {
         player.worldCharacterID = null;
         player.battleCharacterID = null;
       }
+    },
+  });
+  listenToSocketioEvent<ExpiredSessionNoticeUpdate>({
+    event: "expired-session-notice",
+    onMessage: (): void => {
+      postWindowMessage<ExpiredSessionNoticeUpstreamWindowMessage>({
+        data: {},
+        event: "expired-session-notice",
+      });
     },
   });
   listenToSocketioEvent<InitialUpdate>({
@@ -917,6 +1005,63 @@ export const listenForUpdates = (): void => {
       });
     },
   });
+  listenToSocketioEvent<IPBanNoticeUpdate>({
+    event: "ip-ban-notice",
+    onMessage: (): void => {
+      postWindowMessage<IPBanNoticeUpstreamWindowMessage>({
+        data: {},
+        event: "ip-ban-notice",
+      });
+    },
+  });
+  listenToSocketioEvent<IPBannedUpdate>({
+    event: "ip-banned",
+    onMessage: (): void => {
+      postWindowMessage<IPBannedUpstreamWindowMessage>({
+        data: {},
+        event: "ip-banned",
+      });
+    },
+  });
+  listenToSocketioEvent<KickedUpdate>({
+    event: "kicked",
+    onMessage: (): void => {
+      postWindowMessage<KickedUpstreamWindowMessage>({
+        data: {},
+        event: "kicked",
+      });
+    },
+  });
+  listenToSocketioEvent<MaximumPlayersCountUpdate>({
+    event: "maximum-players-count",
+    onMessage: (): void => {
+      postWindowMessage<MaximumPlayersCountUpstreamWindowMessage>({
+        data: {},
+        event: "maximum-players-count",
+      });
+    },
+  });
+  listenToSocketioEvent<MessagesLimitNoticeUpdate>({
+    event: "messages-limit-notice",
+    onMessage: (): void => {
+      postWindowMessage<MessagesLimitNoticeUpstreamWindowMessage>({
+        data: {},
+        event: "messages-limit-notice",
+      });
+    },
+  });
+  listenToSocketioEvent<MuteNoticeUpdate>({
+    event: "mute-notice",
+    onMessage: (update: MuteNoticeUpdate): void => {
+      postWindowMessage<MuteNoticeUpstreamWindowMessage>({
+        data: {
+          expiredAt: update.expiredAt,
+          reason: update.reason,
+        },
+        event: "mute-notice",
+      });
+    },
+  });
   listenToSocketioEvent<PartyChangesUpdate>({
     event: "party-change",
     onMessage: (update: PartyChangesUpdate): void => {
@@ -992,6 +1137,15 @@ export const listenForUpdates = (): void => {
       }
     },
   });
+  listenToSocketioEvent<PurgedUpdate>({
+    event: "purged",
+    onMessage: (): void => {
+      postWindowMessage<PurgedUpstreamWindowMessage>({
+        data: {},
+        event: "purged",
+      });
+    },
+  });
   listenToSocketioEvent<PermitPlayerUpdate>({
     event: "permit-player",
     onMessage: (update: PermitPlayerUpdate): void => {
@@ -1005,6 +1159,28 @@ export const listenForUpdates = (): void => {
           username: update.username,
         },
         event: "permit-player",
+      });
+    },
+  });
+  listenToSocketioEvent<RemoveUpdate>({
+    event: "remove",
+    onMessage: (update: RemoveUpdate): void => {
+      postWindowMessage<RemoveUpstreamWindowMessage>({
+        data: {
+          messageID: update.messageID,
+        },
+        event: "remove",
+      });
+    },
+  });
+  listenToSocketioEvent<RemoveAllUpdate>({
+    event: "remove-all",
+    onMessage: (update: RemoveAllUpdate): void => {
+      postWindowMessage<RemoveAllUpstreamWindowMessage>({
+        data: {
+          username: update.username,
+        },
+        event: "remove-all",
       });
     },
   });
@@ -1068,6 +1244,15 @@ export const listenForUpdates = (): void => {
           oldUsername,
         },
         event: "rename-player",
+      });
+    },
+  });
+  listenToSocketioEvent<ReplacedUpdate>({
+    event: "replaced",
+    onMessage: (): void => {
+      postWindowMessage<ReplacedUpstreamWindowMessage>({
+        data: {},
+        event: "replaced",
       });
     },
   });
