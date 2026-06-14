@@ -17,6 +17,7 @@ import {
   Constants,
   Direction,
   FPSUpstreamWindowMessage,
+  ReconnectionFailedUpstreamWindowMessage,
   ResourcePool,
   ServerTimeRequest,
 } from "retrommo-types";
@@ -655,5 +656,19 @@ export const tick = (): void => {
         chatChannels,
       });
     }
+  }
+  if (
+    state.values.reconnectionFailed === false &&
+    state.values.disconnectedAt !== null &&
+    currentTime - state.values.disconnectedAt >=
+      constants["reconnection-duration"]
+  ) {
+    state.setValues({
+      reconnectionFailed: true,
+    });
+    postWindowMessage<ReconnectionFailedUpstreamWindowMessage>({
+      data: {},
+      event: "reconnection-failed",
+    });
   }
 };

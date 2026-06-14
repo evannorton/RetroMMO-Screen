@@ -20,6 +20,7 @@ import {
   clearMaxFPS,
   connectToSocketioServer,
   emitToSocketioServer,
+  getCurrentTime,
   onError,
   setMainVolume,
   setMaxFPS,
@@ -59,6 +60,16 @@ export const handleWindowMessage = (message: unknown): void => {
       }
       connectToSocketioServer({
         auth: { token: authData.token },
+        onConnect: (): void => {
+          state.setValues({
+            disconnectedAt: null,
+          });
+        },
+        onDisconnect: (): void => {
+          state.setValues({
+            disconnectedAt: getCurrentTime(),
+          });
+        },
         url,
       });
       onError(handleError);

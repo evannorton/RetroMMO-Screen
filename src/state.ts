@@ -158,6 +158,7 @@ export interface StateSchema {
   readonly defaultHairDyeID: string | null;
   readonly defaultMaskID: string | null;
   readonly defaultOutfitID: string | null;
+  readonly disconnectedAt: number | null;
   readonly fpsSentAt: number | null;
   readonly initialBankTilePositions: readonly InitialBankTilePosition[];
   readonly initialChestTilePositions: readonly InitialChestTilePosition[];
@@ -174,6 +175,7 @@ export interface StateSchema {
   readonly musicTrackID: string | null;
   readonly pianoStartedAt: number | null;
   readonly playerID: string | null;
+  readonly reconnectionFailed: boolean;
   readonly selectedPlayerID: string | null;
   readonly serverTime: number | null;
   readonly serverTimeRequestedAt: number | null;
@@ -188,6 +190,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultHairDyeID: null,
   defaultMaskID: null,
   defaultOutfitID: null,
+  disconnectedAt: null,
   fpsSentAt: null,
   initialBankTilePositions: [],
   initialChestTilePositions: [],
@@ -203,6 +206,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   musicTrackID: null,
   pianoStartedAt: null,
   playerID: null,
+  reconnectionFailed: false,
   selectedPlayerID: null,
   serverTime: null,
   serverTimeRequestedAt: null,
