@@ -580,6 +580,19 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<InitialUpdate>({
     event: "initial-update",
     onMessage: (update: InitialUpdate): void => {
+      if (tradeWorldMenu.isOpen()) {
+        tradeWorldMenu.state.setValues({ isFinishing: true });
+      }
+      if (duelInviteWorldMenu.isOpen()) {
+        duelInviteWorldMenu.state.setValues({ isFinishing: true });
+      }
+      if (partyInviteWorldMenu.isOpen()) {
+        partyInviteWorldMenu.state.setValues({ isFinishing: true });
+      }
+      if (tradeInviteWorldMenu.isOpen()) {
+        tradeInviteWorldMenu.state.setValues({ isFinishing: true });
+      }
+      closeWorldMenus();
       for (const mainMenuCharacter of getDefinables(
         MainMenuCharacter,
       ).values()) {
@@ -922,7 +935,6 @@ export const listenForUpdates = (): void => {
             });
           }
           if (typeof update.world.invite !== "undefined") {
-            closeWorldMenus();
             switch (update.world.invite.type) {
               case InviteType.Duel:
                 duelInviteWorldMenu.open({
