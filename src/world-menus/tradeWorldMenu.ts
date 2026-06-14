@@ -74,7 +74,6 @@ export interface TradeWorldMenuStateSchema {
   hasRoomForGold: boolean;
   hasRoomForItems: boolean;
   hasTraderAccepted: boolean;
-  isFinishing: boolean;
   isOfferedGoldIdentified: boolean;
   isTraderOfferedGoldIdentified: boolean;
   offeredGold: number;
@@ -810,7 +809,7 @@ export const tradeWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          tradeWorldMenu.close();
+          tradeWorldMenu.close({});
         },
         width: 10,
         x: 287,
@@ -1044,7 +1043,7 @@ export const tradeWorldMenu: WorldMenu<
     hasRoomForGold: options.hasRoomForGold ?? false,
     hasRoomForItems: options.hasRoomForItems ?? false,
     hasTraderAccepted: options.hasTraderAccepted ?? false,
-    isFinishing: false,
+
     isOfferedGoldIdentified: options.isOfferedGoldIdentified ?? false,
     isTraderOfferedGoldIdentified:
       options.isTraderOfferedGoldIdentified ?? false,
@@ -1059,9 +1058,6 @@ export const tradeWorldMenu: WorldMenu<
     traderOfferedItems: options.traderOfferedItems ?? [],
   }),
   onClose: (): boolean => {
-    if (tradeWorldMenu.state.values.isFinishing) {
-      return true;
-    }
     emitToSocketioServer<WorldTradeCancelRequest>({
       data: {},
       event: "world/trade/cancel",

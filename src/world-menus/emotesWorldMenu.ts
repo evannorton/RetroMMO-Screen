@@ -165,7 +165,7 @@ export const emotesWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          emotesWorldMenu.close();
+          emotesWorldMenu.close({});
         },
         width: 10,
         x: 287,
@@ -234,7 +234,7 @@ export const emotesWorldMenu: WorldMenu<
                 emote.requiresSubscription === false ||
                 state.values.subscriptionOverAt !== null
               ) {
-                emotesWorldMenu.close();
+                emotesWorldMenu.close({});
                 useEmote(emote.id);
                 worldState.setValues({
                   lastUsedEmoteID: emote.id,

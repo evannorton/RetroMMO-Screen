@@ -179,7 +179,7 @@ export const pianoWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          pianoWorldMenu.close();
+          pianoWorldMenu.close({});
         },
         width: xWidth,
         x: panelX + panelWidth - xWidth - 8,

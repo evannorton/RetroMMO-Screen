@@ -57,9 +57,7 @@ export class Chest extends Definable {
   }
 
   public set openedAt(openedAt: number | null) {
-    if (this._openedAt === null) {
-      this._openedAt = openedAt;
-    }
+    this._openedAt = openedAt;
   }
 
   public hasGold(): boolean {

@@ -62,6 +62,7 @@ import {
   UnlinkDiscordUpdate,
   UnlinkDiscordUpstreamWindowMessage,
 } from "retrommo-types";
+import { Bank } from "../../classes/Bank";
 import { BattleCharacter } from "../../classes/BattleCharacter";
 import {
   BattleStateSchema,
@@ -70,6 +71,7 @@ import {
   state,
 } from "../../state";
 import { Battler } from "../../classes/Battler";
+import { Chest } from "../../classes/Chest";
 import {
   CreateBattleStateOptionsHotkey,
   createBattleState,
@@ -88,6 +90,8 @@ import {
   listenToSocketioEvent,
   removeHUDElements,
   setJoystickCondition,
+  setTilemapDownsampleScale,
+  stopPixelScatter,
 } from "pixel-pigeon";
 import { TradeItem, tradeWorldMenu } from "../../world-menus/tradeWorldMenu";
 import { WorldCharacter } from "../../classes/WorldCharacter";
@@ -525,40 +529,31 @@ export const listenForUpdates = (): void => {
         state.values.worldState !== null &&
         state.values.selectedPlayerID === update.playerID
       ) {
-        selectedPlayerWorldMenu.close();
+        selectedPlayerWorldMenu.close({});
       }
       if (
         playerInvitedWorldMenu.isOpen() &&
         playerInvitedWorldMenu.openOptions.playerID === player.id
       ) {
-        playerInvitedWorldMenu.close();
+        playerInvitedWorldMenu.close({});
       }
       if (
         duelInviteWorldMenu.isOpen() &&
         duelInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
       ) {
-        duelInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
-        duelInviteWorldMenu.close();
+        duelInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (
         partyInviteWorldMenu.isOpen() &&
         partyInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
       ) {
-        partyInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
-        partyInviteWorldMenu.close();
+        partyInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (
         tradeInviteWorldMenu.isOpen() &&
         tradeInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
       ) {
-        tradeInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
-        tradeInviteWorldMenu.close();
+        tradeInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (player.hasWorldCharacter()) {
         exitWorldCharacters([player.worldCharacterID]);
@@ -580,19 +575,9 @@ export const listenForUpdates = (): void => {
   listenToSocketioEvent<InitialUpdate>({
     event: "initial-update",
     onMessage: (update: InitialUpdate): void => {
-      if (tradeWorldMenu.isOpen()) {
-        tradeWorldMenu.state.setValues({ isFinishing: true });
-      }
-      if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.state.setValues({ isFinishing: true });
-      }
-      if (partyInviteWorldMenu.isOpen()) {
-        partyInviteWorldMenu.state.setValues({ isFinishing: true });
-      }
-      if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.state.setValues({ isFinishing: true });
-      }
-      closeWorldMenus();
+      closeWorldMenus({ bypassOnClose: true });
+      stopPixelScatter();
+      setTilemapDownsampleScale(1);
       for (const mainMenuCharacter of getDefinables(
         MainMenuCharacter,
       ).values()) {
@@ -643,6 +628,13 @@ export const listenForUpdates = (): void => {
       }
       for (const partyUpdate of update.parties) {
         loadPartyUpdate(partyUpdate);
+      }
+      for (const bank of getDefinables(Bank).values()) {
+        bank.isOpen = false;
+        bank.toggledAt = null;
+      }
+      for (const chest of getDefinables(Chest).values()) {
+        chest.openedAt = null;
       }
       if (state.values.battleState !== null) {
         removeHUDElements(state.values.battleState.values.hudElementReferences);
@@ -1098,7 +1090,7 @@ export const listenForUpdates = (): void => {
                   selectedPlayerWorldMenu.isOpen()) ||
                 state.values.selectedPlayerID === partyPlayer.id
               ) {
-                selectedPlayerWorldMenu.close();
+                selectedPlayerWorldMenu.close({});
               }
               // If self is joining a party
               if (
@@ -1106,10 +1098,7 @@ export const listenForUpdates = (): void => {
                 partyWorldCharacterJoined &&
                 partyWorldCharacterIsSelf
               ) {
-                partyInviteWorldMenu.state.setValues({
-                  isFinishing: true,
-                });
-                partyInviteWorldMenu.close();
+                partyInviteWorldMenu.close({ bypassOnClose: true });
                 worldState.setValues({
                   pianoSessionID: null,
                 });
@@ -1220,7 +1209,7 @@ export const listenForUpdates = (): void => {
           state.values.worldState !== null &&
           state.values.selectedPlayerID === update.playerID
         ) {
-          selectedPlayerWorldMenu.close();
+          selectedPlayerWorldMenu.close({});
         }
         if (player.hasWorldCharacter()) {
           exitWorldCharacters([player.worldCharacterID]);

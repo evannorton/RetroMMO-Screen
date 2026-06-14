@@ -328,9 +328,9 @@ export const createWorldBottomBarUI = (): void => {
     isSelected: (): boolean => statsWorldMenu.isOpen(),
     onClick: (): void => {
       if (statsWorldMenu.isOpen()) {
-        statsWorldMenu.close();
+        statsWorldMenu.close({});
       } else {
-        closeWorldMenus();
+        closeWorldMenus({});
         statsWorldMenu.open({});
       }
     },
@@ -346,9 +346,9 @@ export const createWorldBottomBarUI = (): void => {
     isSelected: (): boolean => questLogWorldMenu.isOpen(),
     onClick: (): void => {
       if (questLogWorldMenu.isOpen()) {
-        questLogWorldMenu.close();
+        questLogWorldMenu.close({});
       } else {
-        closeWorldMenus();
+        closeWorldMenus({});
         questLogWorldMenu.open({});
       }
     },
@@ -364,9 +364,9 @@ export const createWorldBottomBarUI = (): void => {
     isSelected: (): boolean => spellbookWorldMenu.isOpen(),
     onClick: (): void => {
       if (spellbookWorldMenu.isOpen()) {
-        spellbookWorldMenu.close();
+        spellbookWorldMenu.close({});
       } else {
-        closeWorldMenus();
+        closeWorldMenus({});
         spellbookWorldMenu.open({});
       }
     },
@@ -382,9 +382,9 @@ export const createWorldBottomBarUI = (): void => {
     isSelected: (): boolean => inventoryWorldMenu.isOpen(),
     onClick: (): void => {
       if (inventoryWorldMenu.isOpen()) {
-        inventoryWorldMenu.close();
+        inventoryWorldMenu.close({});
       } else {
-        closeWorldMenus();
+        closeWorldMenus({});
         inventoryWorldMenu.open({});
       }
     },

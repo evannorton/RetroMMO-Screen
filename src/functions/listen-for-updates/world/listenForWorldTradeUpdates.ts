@@ -50,10 +50,7 @@ export const listenForWorldTradeUpdates = (): void => {
         );
         traderOfferedItemInstance.remove();
       }
-      tradeWorldMenu.state.setValues({
-        isFinishing: true,
-      });
-      tradeWorldMenu.close();
+      tradeWorldMenu.close({ bypassOnClose: true });
     },
   });
   listenToSocketioEvent<WorldTradeCompleteUpdate>({
@@ -66,10 +63,7 @@ export const listenForWorldTradeUpdates = (): void => {
         );
         traderOfferedItemInstance.remove();
       }
-      tradeWorldMenu.state.setValues({
-        isFinishing: true,
-      });
-      tradeWorldMenu.close();
+      tradeWorldMenu.close({ bypassOnClose: true });
       const worldState: State<WorldStateSchema> = getWorldState();
       for (const bagItemInstanceID of worldState.values.bagItemInstanceIDs) {
         const bagItemInstance: ItemInstance = getDefinable(
@@ -232,11 +226,9 @@ export const listenForWorldTradeUpdates = (): void => {
         throw new Error("Trader world character ID not found");
       }
       if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        tradeInviteWorldMenu.close({ bypassOnClose: true });
       }
-      closeWorldMenus();
+      closeWorldMenus({});
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         if (worldCharacter.hasMarkerEntity()) {
           clearWorldCharacterMarker(worldCharacter.id);

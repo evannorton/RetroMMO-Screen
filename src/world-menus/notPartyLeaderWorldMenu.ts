@@ -40,7 +40,7 @@ export const notPartyLeaderWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          notPartyLeaderWorldMenu.close();
+          notPartyLeaderWorldMenu.close({});
         },
         width: 10,
         x: 239,

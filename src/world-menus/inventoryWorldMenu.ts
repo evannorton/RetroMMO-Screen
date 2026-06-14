@@ -385,7 +385,7 @@ export const inventoryWorldMenu: WorldMenu<
           height: 11,
           imagePath: "x",
           onClick: (): void => {
-            inventoryWorldMenu.close();
+            inventoryWorldMenu.close({});
           },
           width: 10,
           x: 287,

@@ -49,7 +49,7 @@ export const bagFullWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          bagFullWorldMenu.close();
+          bagFullWorldMenu.close({});
         },
         width: 10,
         x: 239,

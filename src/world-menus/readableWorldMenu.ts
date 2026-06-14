@@ -39,7 +39,7 @@ export const readableWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          readableWorldMenu.close();
+          readableWorldMenu.close({});
         },
         width: 10,
         x: 239,

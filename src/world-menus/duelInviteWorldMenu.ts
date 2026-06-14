@@ -22,9 +22,7 @@ import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 export interface DuelInviteWorldMenuOpenOptions {
   readonly inviterPlayerID: string;
 }
-export interface DuelInviteWorldMenuStateSchema {
-  isFinishing: boolean;
-}
+export interface DuelInviteWorldMenuStateSchema {}
 export const duelInviteWorldMenu: WorldMenu<
   DuelInviteWorldMenuOpenOptions,
   DuelInviteWorldMenuStateSchema
@@ -140,13 +138,8 @@ export const duelInviteWorldMenu: WorldMenu<
     );
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
-  initialStateValues: {
-    isFinishing: false,
-  },
+  initialStateValues: {},
   onClose: (): boolean => {
-    if (duelInviteWorldMenu.state.values.isFinishing) {
-      return true;
-    }
     emitToSocketioServer<WorldDeclineDuelInviteRequest>({
       data: {
         playerID: duelInviteWorldMenu.openOptions.inviterPlayerID,

@@ -14,14 +14,14 @@ export const handleWorldCharacterClick = (worldCharacterID: string): void => {
     worldCharacterID,
   );
   if (state.values.selectedPlayerID === worldCharacter.playerID) {
-    selectedPlayerWorldMenu.close();
+    selectedPlayerWorldMenu.close({});
   } else if (worldCharacter.hasMarkerEntity()) {
     emitToSocketioServer<WorldCancelInviteRequest>({
       data: { playerID: worldCharacter.playerID },
       event: "world/cancel-invite",
     });
   } else {
-    closeWorldMenus();
+    closeWorldMenus({});
     state.setValues({ selectedPlayerID: worldCharacter.playerID });
     selectedPlayerWorldMenu.open({ playerID: worldCharacter.playerID });
     addWorldCharacterMarker(worldCharacter.id, MarkerType.Selected);

@@ -81,7 +81,7 @@ export const npcInnWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          npcInnWorldMenu.close();
+          npcInnWorldMenu.close({});
         },
         width: 10,
         x: x + width - 17,
@@ -134,7 +134,7 @@ export const npcInnWorldMenu: WorldMenu<
         height: 16,
         imagePath: "pressable-buttons/gray",
         onClick: (): void => {
-          npcInnWorldMenu.close();
+          npcInnWorldMenu.close({});
         },
         text: {
           value: "No",

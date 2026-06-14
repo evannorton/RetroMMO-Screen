@@ -22,9 +22,7 @@ import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
 export interface TradeInviteWorldMenuOpenOptions {
   readonly inviterPlayerID: string;
 }
-export interface TradeInviteWorldMenuStateSchema {
-  isFinishing: boolean;
-}
+export interface TradeInviteWorldMenuStateSchema {}
 export const tradeInviteWorldMenu: WorldMenu<
   TradeInviteWorldMenuOpenOptions,
   TradeInviteWorldMenuStateSchema
@@ -140,13 +138,8 @@ export const tradeInviteWorldMenu: WorldMenu<
     );
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
-  initialStateValues: {
-    isFinishing: false,
-  },
+  initialStateValues: {},
   onClose: (): boolean => {
-    if (tradeInviteWorldMenu.state.values.isFinishing) {
-      return true;
-    }
     emitToSocketioServer<WorldDeclineTradeInviteRequest>({
       data: {
         playerID: tradeInviteWorldMenu.openOptions.inviterPlayerID,

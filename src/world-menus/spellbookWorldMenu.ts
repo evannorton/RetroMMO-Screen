@@ -99,7 +99,7 @@ export const spellbookWorldMenu: WorldMenu<
           height: 11,
           imagePath: "x",
           onClick: (): void => {
-            spellbookWorldMenu.close();
+            spellbookWorldMenu.close({});
           },
           width: 10,
           x: 287,

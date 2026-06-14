@@ -59,9 +59,9 @@ export const handleInput = (): void => {
     inputCollectionID: emotesInputCollectionID,
     onInput: (): void => {
       if (emotesWorldMenu.isOpen()) {
-        emotesWorldMenu.close();
+        emotesWorldMenu.close({});
       } else {
-        closeWorldMenus();
+        closeWorldMenus({});
         emotesWorldMenu.open({});
       }
     },
@@ -423,7 +423,7 @@ export const handleInput = (): void => {
     inputCollectionID: actionInputCollectionID,
     onInput: (): void => {
       if (isAWorldMenuOpen()) {
-        closeWorldMenus();
+        closeWorldMenus({});
       } else {
         interact();
       }

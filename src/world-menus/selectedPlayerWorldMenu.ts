@@ -73,7 +73,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          selectedPlayerWorldMenu.close();
+          selectedPlayerWorldMenu.close({});
         },
         width: 10,
         x: 239,
@@ -118,7 +118,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
-            selectedPlayerWorldMenu.close();
+            selectedPlayerWorldMenu.close({});
             emotesWorldMenu.open({});
           },
           text: { value: "Emote" },
@@ -186,7 +186,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
-            selectedPlayerWorldMenu.close();
+            selectedPlayerWorldMenu.close({});
             emitToSocketioServer<WorldDuelInviteRequest>({
               data: {
                 playerID: selectedPlayer.id,
@@ -208,7 +208,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
-            selectedPlayerWorldMenu.close();
+            selectedPlayerWorldMenu.close({});
             emitToSocketioServer<WorldPartyInviteRequest>({
               data: {
                 playerID: selectedPlayer.id,
@@ -230,7 +230,7 @@ export const selectedPlayerWorldMenu: WorldMenu<
           height: 16,
           imagePath: "pressable-buttons/gray",
           onClick: (): void => {
-            selectedPlayerWorldMenu.close();
+            selectedPlayerWorldMenu.close({});
             emitToSocketioServer<WorldTradeInviteRequest>({
               data: {
                 playerID: selectedPlayer.id,

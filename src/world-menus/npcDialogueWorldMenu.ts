@@ -116,10 +116,10 @@ export const npcDialogueWorldMenu: WorldMenu<
                 questCompletion: null,
               });
             } else {
-              npcDialogueWorldMenu.close();
+              npcDialogueWorldMenu.close({});
             }
           } else {
-            npcDialogueWorldMenu.close();
+            npcDialogueWorldMenu.close({});
           }
         },
         width: 10,
@@ -236,7 +236,7 @@ export const npcDialogueWorldMenu: WorldMenu<
             height: 11,
             imagePath: "x",
             onClick: (): void => {
-              npcDialogueWorldMenu.close();
+              npcDialogueWorldMenu.close({});
             },
             width: 10,
             x: questsX + questsWidth - 17,

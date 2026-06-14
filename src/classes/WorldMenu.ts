@@ -9,6 +9,9 @@ export interface WorldMenuOptions<OpenOptions, StateSchema> {
   readonly onClose?: () => boolean;
   readonly preventsWalking?: boolean;
 }
+export interface CloseWorldMenuOptions {
+  readonly bypassOnClose?: boolean;
+}
 export class WorldMenu<
   OpenOptions,
   StateSchema extends object,
@@ -49,7 +52,7 @@ export class WorldMenu<
     throw new Error(this.getAccessorErrorMessage("state"));
   }
 
-  public close(): void {
+  public close(options: CloseWorldMenuOptions): void {
     if (this.isOpen() === false) {
       throw new Error(
         "Attempted to close a world menu that is already closed.",
@@ -58,8 +61,9 @@ export class WorldMenu<
     if (this._hudElementReferences === null) {
       throw new Error("HUDElementReferences is null.");
     }
+    const bypassOnClose: boolean = options.bypassOnClose ?? false;
     let shouldClose: boolean = true;
-    if (typeof this._onClose !== "undefined") {
+    if (bypassOnClose === false && typeof this._onClose !== "undefined") {
       if (this._openOptions === null) {
         throw new Error("Open options is null.");
       }

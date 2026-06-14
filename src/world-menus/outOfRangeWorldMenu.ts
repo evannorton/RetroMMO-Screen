@@ -40,7 +40,7 @@ export const outOfRangeWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          outOfRangeWorldMenu.close();
+          outOfRangeWorldMenu.close({});
         },
         width: 10,
         x: 239,

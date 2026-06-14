@@ -48,7 +48,7 @@ export const playerBusyWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          playerBusyWorldMenu.close();
+          playerBusyWorldMenu.close({});
         },
         width: 10,
         x: 239,

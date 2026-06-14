@@ -67,7 +67,7 @@ export const statsWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          statsWorldMenu.close();
+          statsWorldMenu.close({});
         },
         width: 10,
         x: 276,

@@ -48,11 +48,11 @@ export const loadWorldInvitePromptsUpdate = (
         playerInvitedWorldMenu.openOptions.playerID ===
           promptInviteeCharacter.playerID
       ) {
-        playerInvitedWorldMenu.close();
+        playerInvitedWorldMenu.close({});
       } else if (
         invitePrompt.inviteeCharacterID === worldState.values.worldCharacterID
       ) {
-        closeWorldMenus();
+        closeWorldMenus({});
         worldMenu.open({
           inviterPlayerID: promptInviterCharacter.playerID,
         });

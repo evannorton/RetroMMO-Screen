@@ -59,7 +59,7 @@ export const openedChestWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          openedChestWorldMenu.close();
+          openedChestWorldMenu.close({});
         },
         width: 10,
         x: 205,

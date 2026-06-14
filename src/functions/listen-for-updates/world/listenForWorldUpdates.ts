@@ -103,7 +103,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldBagFullUpdate>({
     event: "world/bag-full",
     onMessage: (): void => {
-      closeWorldMenus();
+      closeWorldMenus({});
       bagFullWorldMenu.open({});
       playAudioSource("sfx/fail", {
         volumeChannelID: sfxVolumeChannelID,
@@ -167,13 +167,13 @@ export const listenForWorldUpdates = (): void => {
         spellbookWorldMenu.isOpen() &&
         spellbookWorldMenu.state.values.isAwaitingWorldCombat
       ) {
-        spellbookWorldMenu.close();
+        spellbookWorldMenu.close({});
       }
       if (
         inventoryWorldMenu.isOpen() &&
         inventoryWorldMenu.state.values.isAwaitingWorldCombat
       ) {
-        inventoryWorldMenu.close();
+        inventoryWorldMenu.close({});
       }
       for (const worldCharacter of getDefinables(WorldCharacter).values()) {
         if (
@@ -184,35 +184,26 @@ export const listenForWorldUpdates = (): void => {
         }
       }
       if (playerInvitedWorldMenu.isOpen()) {
-        playerInvitedWorldMenu.close();
+        playerInvitedWorldMenu.close({});
       }
     },
   });
   listenToSocketioEvent<WorldDeclineDuelInviteUpdate>({
     event: "world/decline-duel-invite",
     onMessage: (): void => {
-      duelInviteWorldMenu.state.setValues({
-        isFinishing: true,
-      });
-      duelInviteWorldMenu.close();
+      duelInviteWorldMenu.close({ bypassOnClose: true });
     },
   });
   listenToSocketioEvent<WorldDeclinePartyInviteUpdate>({
     event: "world/decline-party-invite",
     onMessage: (): void => {
-      partyInviteWorldMenu.state.setValues({
-        isFinishing: true,
-      });
-      partyInviteWorldMenu.close();
+      partyInviteWorldMenu.close({ bypassOnClose: true });
     },
   });
   listenToSocketioEvent<WorldDeclineTradeInviteUpdate>({
     event: "world/decline-trade-invite",
     onMessage: (): void => {
-      tradeInviteWorldMenu.state.setValues({
-        isFinishing: true,
-      });
-      tradeInviteWorldMenu.close();
+      tradeInviteWorldMenu.close({ bypassOnClose: true });
     },
   });
   listenToSocketioEvent<WorldDestroyBoostUpdate>({
@@ -432,26 +423,18 @@ export const listenForWorldUpdates = (): void => {
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
       if (tradeWorldMenu.isOpen()) {
-        tradeWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        tradeWorldMenu.close({ bypassOnClose: true });
       }
       if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        tradeInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (partyInviteWorldMenu.isOpen()) {
-        partyInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        partyInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        duelInviteWorldMenu.close({ bypassOnClose: true });
       }
-      closeWorldMenus();
+      closeWorldMenus({});
       const worldState: State<WorldStateSchema> = getWorldState();
       const selfWorldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
@@ -516,7 +499,7 @@ export const listenForWorldUpdates = (): void => {
         worldCharacter.playerID
       ) {
         if (npcInnWorldMenu.isOpen()) {
-          npcInnWorldMenu.close();
+          npcInnWorldMenu.close({});
         }
         worldState.setValues({
           inventoryGold: worldState.values.inventoryGold - npc.innCost,
@@ -629,7 +612,7 @@ export const listenForWorldUpdates = (): void => {
         ),
         inventoryGold: update.inventoryGold,
       });
-      closeWorldMenus();
+      closeWorldMenus({});
       openedChestWorldMenu.open({
         chestID: update.chestID,
       });
@@ -669,7 +652,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldPlayerBusyUpdate>({
     event: "world/player-busy",
     onMessage: (update: WorldPlayerBusyUpdate): void => {
-      closeWorldMenus();
+      closeWorldMenus({});
       playerBusyWorldMenu.open({ playerID: update.playerID });
       const player: Player = getDefinable(Player, update.playerID);
       if (
@@ -762,7 +745,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldReadableUpdate>({
     event: "world/readable",
     onMessage: (update: WorldReadableUpdate): void => {
-      closeWorldMenus();
+      closeWorldMenus({});
       readableWorldMenu.open({ readableID: update.readableID });
     },
   });
@@ -807,11 +790,9 @@ export const listenForWorldUpdates = (): void => {
         });
       }
       if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        duelInviteWorldMenu.close({ bypassOnClose: true });
       }
-      closeWorldMenus();
+      closeWorldMenus({});
       worldState.setValues({
         combatRound: null,
         queuedBattle: {
@@ -849,7 +830,7 @@ export const listenForWorldUpdates = (): void => {
       const npc: NPC = getDefinable(NPC, update.npcID);
       npc.direction = update.direction;
       if (update.wasInteracted === true) {
-        closeWorldMenus();
+        closeWorldMenus({});
         if (npc.hasDialogue() || npc.hasQuestExchanger()) {
           npcDialogueWorldMenu.open({
             isLeader,

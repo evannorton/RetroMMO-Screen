@@ -213,7 +213,7 @@ export const npcShopWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          npcShopWorldMenu.close();
+          npcShopWorldMenu.close({});
         },
         width: 10,
         x: x + width - 17,

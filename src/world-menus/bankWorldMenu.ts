@@ -273,7 +273,7 @@ export const bankWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          bankWorldMenu.close();
+          bankWorldMenu.close({});
         },
         width: 10,
         x: 127,
@@ -403,7 +403,7 @@ export const bankWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          bankWorldMenu.close();
+          bankWorldMenu.close({});
         },
         width: 10,
         x: 271,
@@ -641,7 +641,7 @@ export const bankWorldMenu: WorldMenu<
         height: 11,
         imagePath: "x",
         onClick: (): void => {
-          bankWorldMenu.close();
+          bankWorldMenu.close({});
         },
         width: 10,
         x: 287,

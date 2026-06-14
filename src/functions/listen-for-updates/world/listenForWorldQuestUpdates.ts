@@ -32,7 +32,7 @@ export const listenForWorldQuestUpdates = (): void => {
         worldCharacter.player.character.party.playerIDs[0] ===
         worldCharacter.id;
       if (npcDialogueWorldMenu.isOpen() === false) {
-        closeWorldMenus();
+        closeWorldMenus({});
         npcDialogueWorldMenu.open({
           isLeader,
           npcID: update.npcID,
@@ -83,7 +83,7 @@ export const listenForWorldQuestUpdates = (): void => {
         worldCharacter.player.character.party.playerIDs[0] ===
         worldCharacter.playerID;
       if (npcDialogueWorldMenu.isOpen() === false) {
-        closeWorldMenus();
+        closeWorldMenus({});
         npcDialogueWorldMenu.open({
           isLeader,
           npcID: update.npcID,
@@ -121,7 +121,7 @@ export const listenForWorldQuestUpdates = (): void => {
           worldCharacter.player.character.party.playerIDs[0] ===
           worldCharacter.playerID;
         if (npcDialogueWorldMenu.isOpen() === false) {
-          closeWorldMenus();
+          closeWorldMenus({});
           npcDialogueWorldMenu.open({
             isLeader,
             npcID: worldUpdate.npcID,

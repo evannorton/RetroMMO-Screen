@@ -33,7 +33,7 @@ export const listenForWorldInviteUpdates = (): void => {
         playerInvitedWorldMenu.isOpen() &&
         playerInvitedWorldMenu.openOptions.playerID === worldCharacter.playerID
       ) {
-        playerInvitedWorldMenu.close();
+        playerInvitedWorldMenu.close({});
       }
       clearWorldCharacterMarker(update.characterID);
     },
@@ -42,21 +42,15 @@ export const listenForWorldInviteUpdates = (): void => {
     event: "world/invite/full-party",
     onMessage: (): void => {
       if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        duelInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (partyInviteWorldMenu.isOpen()) {
-        partyInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        partyInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        tradeInviteWorldMenu.close({ bypassOnClose: true });
       }
-      closeWorldMenus();
+      closeWorldMenus({});
       partyFullWorldMenu.open({});
     },
   });
@@ -64,21 +58,15 @@ export const listenForWorldInviteUpdates = (): void => {
     event: "world/invite/not-party-leader",
     onMessage: (): void => {
       if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        duelInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (partyInviteWorldMenu.isOpen()) {
-        partyInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        partyInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        tradeInviteWorldMenu.close({ bypassOnClose: true });
       }
-      closeWorldMenus();
+      closeWorldMenus({});
       notPartyLeaderWorldMenu.open({});
     },
   });
@@ -86,21 +74,15 @@ export const listenForWorldInviteUpdates = (): void => {
     event: "world/invite/out-of-range",
     onMessage: (): void => {
       if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        duelInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (partyInviteWorldMenu.isOpen()) {
-        partyInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        partyInviteWorldMenu.close({ bypassOnClose: true });
       }
       if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.state.setValues({
-          isFinishing: true,
-        });
+        tradeInviteWorldMenu.close({ bypassOnClose: true });
       }
-      closeWorldMenus();
+      closeWorldMenus({});
       outOfRangeWorldMenu.open({});
     },
   });
