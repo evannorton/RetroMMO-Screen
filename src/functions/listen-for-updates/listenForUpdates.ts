@@ -206,12 +206,6 @@ export const listenForUpdates = (): void => {
       });
     },
   });
-  listenToSocketioEvent<object>({
-    event: "disconnect",
-    onMessage: (): void => {
-      console.log("hi");
-    },
-  });
   listenToSocketioEvent<EndPlayerBattlesUpdate>({
     event: "end-player-battles",
     onMessage: (update: EndPlayerBattlesUpdate): void => {
