@@ -173,7 +173,14 @@ export const listenForWorldQuestUpdates = (): void => {
           }
         }
         worldState.setValues({
+          agility: worldUpdate.agility,
+          defense: worldUpdate.defense,
           experienceUntilLevel: worldUpdate.experienceUntilLevel,
+          intelligence: worldUpdate.intelligence,
+          inventoryGold: worldUpdate.inventoryGold,
+          luck: worldUpdate.luck,
+          strength: worldUpdate.strength,
+          wisdom: worldUpdate.wisdom,
         });
       }
     },
