@@ -53,23 +53,23 @@ const getMusicPlayData = (): MusicPlayData | null => {
   }
   if (state.values.battleState !== null) {
     if (state.values.battleState.values.phase === BattlePhase.GameOver) {
-      if (state.values.serverTime !== null) {
-        if (state.values.battleState.values.gameOverServerTime === null) {
-          throw new Error("gameOverServerTime is null");
-        }
-        return {
-          musicTrackID: "the-face-of-finality",
-          resumePoint:
-            state.values.serverTime -
-            state.values.battleState.values.gameOverServerTime,
-        };
+      if (state.values.serverTime === null) {
+        return null;
       }
-      return null;
+      if (state.values.battleState.values.gameOverServerTime === null) {
+        throw new Error("gameOverServerTime is null");
+      }
+      return {
+        musicTrackID: "the-face-of-finality",
+        resumePoint:
+          state.values.serverTime -
+          state.values.battleState.values.gameOverServerTime,
+      };
     }
-    if (
-      state.values.serverTime !== null &&
-      state.values.battleState.values.round !== null
-    ) {
+    if (state.values.battleState.values.round !== null) {
+      if (state.values.serverTime === null) {
+        return null;
+      }
       const elapsedServerTime: number =
         state.values.serverTime -
         state.values.battleState.values.round.serverTime;

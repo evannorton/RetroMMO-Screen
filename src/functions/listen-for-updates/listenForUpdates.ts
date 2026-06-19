@@ -1267,9 +1267,13 @@ export const listenForUpdates = (): void => {
         },
         event: "ping",
       });
+      const previousServerTime: number | null = state.values.serverTime;
       state.setValues({
         serverTime: ping / 2 + update.serverTime,
       });
+      if (previousServerTime === null) {
+        playMusic();
+      }
     },
   });
   listenToSocketioEvent<ShutdownUpdate>({
