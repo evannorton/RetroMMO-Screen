@@ -28,6 +28,7 @@ import { getDefinable, getDefinables } from "definables";
 import { loadBattleSubmittedAbilityUpdate } from "../../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattleSubmittedItemUpdate } from "../../load-updates/loadBattleSubmittedItemUpdate";
 import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdate";
+import { playMusic } from "../../playMusic";
 import { startBattleFromWorld } from "../../startBattleFromWorld";
 
 export const listenForBattleUpdates = (): void => {
@@ -177,6 +178,7 @@ export const listenForBattleUpdates = (): void => {
         gameOverServerTime: update.serverTime,
         phase: BattlePhase.GameOver,
       });
+      playMusic();
     },
   });
   listenToSocketioEvent<BattleSubmitAbilityUpdate>({

@@ -53,6 +53,17 @@ const getMusicPlayData = (): MusicPlayData | null => {
   }
   if (state.values.battleState !== null) {
     if (state.values.battleState.values.phase === BattlePhase.GameOver) {
+      if (state.values.serverTime !== null) {
+        if (state.values.battleState.values.gameOverServerTime === null) {
+          throw new Error("gameOverServerTime is null");
+        }
+        return {
+          musicTrackID: "the-face-of-finality",
+          resumePoint:
+            state.values.serverTime -
+            state.values.battleState.values.gameOverServerTime,
+        };
+      }
       return null;
     }
     if (
