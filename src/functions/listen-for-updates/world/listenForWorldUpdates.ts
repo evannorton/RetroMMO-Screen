@@ -422,19 +422,7 @@ export const listenForWorldUpdates = (): void => {
   listenToSocketioEvent<WorldExitToMainMenuUpdate>({
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
-      if (tradeWorldMenu.isOpen()) {
-        tradeWorldMenu.close({ bypassOnClose: true });
-      }
-      if (tradeInviteWorldMenu.isOpen()) {
-        tradeInviteWorldMenu.close({ bypassOnClose: true });
-      }
-      if (partyInviteWorldMenu.isOpen()) {
-        partyInviteWorldMenu.close({ bypassOnClose: true });
-      }
-      if (duelInviteWorldMenu.isOpen()) {
-        duelInviteWorldMenu.close({ bypassOnClose: true });
-      }
-      closeWorldMenus({});
+      closeWorldMenus({ bypassOnClose: true });
       const worldState: State<WorldStateSchema> = getWorldState();
       const selfWorldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
