@@ -1211,6 +1211,30 @@ export const listenForUpdates = (): void => {
         ) {
           selectedPlayerWorldMenu.close({});
         }
+        if (
+          playerInvitedWorldMenu.isOpen() &&
+          playerInvitedWorldMenu.openOptions.playerID === player.id
+        ) {
+          playerInvitedWorldMenu.close({});
+        }
+        if (
+          duelInviteWorldMenu.isOpen() &&
+          duelInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
+        ) {
+          duelInviteWorldMenu.close({ bypassOnClose: true });
+        }
+        if (
+          partyInviteWorldMenu.isOpen() &&
+          partyInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
+        ) {
+          partyInviteWorldMenu.close({ bypassOnClose: true });
+        }
+        if (
+          tradeInviteWorldMenu.isOpen() &&
+          tradeInviteWorldMenu.openOptions.inviterPlayerID === update.playerID
+        ) {
+          tradeInviteWorldMenu.close({ bypassOnClose: true });
+        }
         if (player.hasWorldCharacter()) {
           exitWorldCharacters([player.worldCharacterID]);
         }
