@@ -77,4 +77,5 @@ export const readableWorldMenu: WorldMenu<
     return mergeHUDElementReferences([{ labelIDs }, ...hudElementReferences]);
   },
   initialStateValues: {},
+  preventsWalking: true,
 });
