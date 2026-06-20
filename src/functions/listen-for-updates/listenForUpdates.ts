@@ -85,6 +85,7 @@ import { Party } from "../../classes/Party";
 import { Player } from "../../classes/Player";
 import {
   State,
+  exitLevel,
   fadeInAudioSourceVolume,
   getCurrentTime,
   listenToSocketioEvent,
@@ -653,6 +654,7 @@ export const listenForUpdates = (): void => {
         subscriptionOverAt: update.subscriptionOverAt ?? null,
         worldState: null,
       });
+      exitLevel();
       switch (update.mainState) {
         case MainState.Battle: {
           if (typeof update.battle === "undefined") {
