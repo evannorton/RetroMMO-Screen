@@ -599,6 +599,18 @@ export const tick = (): void => {
           }
         }
       }
+    } else if (
+      state.values.battleState.values.gameOver !== null &&
+      state.values.serverTime !== null
+    ) {
+      const elapsedServerTime: number =
+        state.values.serverTime -
+        state.values.battleState.values.gameOver.serverTime;
+      if (elapsedServerTime >= constants["game-over-duration"] - 1000) {
+        playAudioSource("sfx/respawn", {
+          volumeChannelID: sfxVolumeChannelID,
+        });
+      }
     }
   }
   if (

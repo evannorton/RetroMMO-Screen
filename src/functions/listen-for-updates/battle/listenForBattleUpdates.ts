@@ -175,7 +175,9 @@ export const listenForBattleUpdates = (): void => {
     onMessage: (update: BattleGameOverUpdate): void => {
       const battleState: State<BattleStateSchema> = getBattleState();
       battleState.setValues({
-        gameOverServerTime: update.serverTime,
+        gameOver: {
+          serverTime: update.serverTime,
+        },
         phase: BattlePhase.GameOver,
       });
       playMusic();

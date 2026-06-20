@@ -64,7 +64,12 @@ export const createBattleState = ({
     enemyBattlersCount,
     friendlyBattlerIDs,
     friendlyBattlersCount,
-    gameOverServerTime: gameOverServerTime ?? null,
+    gameOver:
+      typeof gameOverServerTime !== "undefined"
+        ? {
+            serverTime: gameOverServerTime,
+          }
+        : null,
     hotkeys: hotkeys.map(
       (hotkey: CreateBattleStateOptionsHotkey): BattleStateHotkey => ({
         hotkeyableDefinableReference: hotkey.hotkeyableDefinableReference,

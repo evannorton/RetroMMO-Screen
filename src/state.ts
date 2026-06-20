@@ -101,6 +101,9 @@ export interface BattleStateRound {
   readonly eventInstances: readonly BattleStateRoundEventInstance[];
   readonly serverTime: number;
 }
+export interface BattleStateGameOver {
+  readonly serverTime: number;
+}
 export interface BattleStateSelection {
   abilitiesPage: number;
   bindAction: BattleStateBindAction | null;
@@ -138,7 +141,7 @@ export interface BattleStateSchema {
   readonly enemyBattlersCount: number;
   readonly friendlyBattlerIDs: readonly string[];
   readonly friendlyBattlersCount: number;
-  readonly gameOverServerTime: number | null;
+  readonly gameOver: BattleStateGameOver | null;
   readonly hotkeys: readonly BattleStateHotkey[];
   readonly hudElementReferences: HUDElementReferences;
   readonly impactAnimationSpriteIDs: readonly string[];

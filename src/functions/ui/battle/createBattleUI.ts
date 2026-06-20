@@ -3154,14 +3154,14 @@ export const createBattleUI = ({
     createSprite({
       animationID: (): string => {
         const battleState: State<BattleStateSchema> = getBattleState();
-        if (battleState.values.gameOverServerTime === null) {
-          throw new Error("gameOverServerTime is null");
+        if (battleState.values.gameOver === null) {
+          throw new Error("gameOver is null");
         }
         if (state.values.serverTime === null) {
           throw new Error("serverTime is null");
         }
         const elapsedServerTime: number =
-          state.values.serverTime - battleState.values.gameOverServerTime;
+          state.values.serverTime - battleState.values.gameOver.serverTime;
         const timePercent: number =
           elapsedServerTime / constants["game-over-duration"];
         if (timePercent <= gameOverPaddingPercent) {
@@ -3230,11 +3230,11 @@ export const createBattleUI = ({
       if (state.values.serverTime === null) {
         throw new Error("serverTime is null");
       }
-      if (battleState.values.gameOverServerTime === null) {
-        throw new Error("gameOverServerTime is null");
+      if (battleState.values.gameOver === null) {
+        throw new Error("gameOver is null");
       }
       const elapsedServerTime: number =
-        state.values.serverTime - battleState.values.gameOverServerTime;
+        state.values.serverTime - battleState.values.gameOver.serverTime;
       const timePercent: number =
         elapsedServerTime / constants["game-over-duration"];
       if (
