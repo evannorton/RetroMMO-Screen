@@ -1,3 +1,4 @@
+import { Bank } from "../../../classes/Bank";
 import { Chest } from "../../../classes/Chest";
 import {
   CombatEvent,
@@ -422,6 +423,10 @@ export const listenForWorldUpdates = (): void => {
     event: "world/exit-to-main-menu",
     onMessage: (update: WorldExitToMainMenuUpdate): void => {
       closeWorldMenus({ bypassOnClose: true });
+      for (const bank of getDefinables(Bank).values()) {
+        bank.isOpen = false;
+        bank.toggledAt = null;
+      }
       const worldState: State<WorldStateSchema> = getWorldState();
       const selfWorldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
