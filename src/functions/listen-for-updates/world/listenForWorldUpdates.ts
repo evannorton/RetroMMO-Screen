@@ -91,7 +91,6 @@ import { sfxVolumeChannelID } from "../../../volumeChannels";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
 import { tradeInviteWorldMenu } from "../../../world-menus/tradeInviteWorldMenu";
-import { tradeWorldMenu } from "../../../world-menus/tradeWorldMenu";
 import { updateWorldCharacterOrder } from "../../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
