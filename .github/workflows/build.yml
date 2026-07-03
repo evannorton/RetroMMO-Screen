@@ -46,6 +46,7 @@ jobs:
         npm run zip
       env:
         GITHUB_ENV_VARS: ${{ toJSON(vars) }}
+        PP_ENV: ${{ vars.PP_ENV }}
 
     - name: Setup Pages
       uses: actions/configure-pages@v4
