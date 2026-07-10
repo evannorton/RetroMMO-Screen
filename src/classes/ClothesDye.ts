@@ -9,13 +9,13 @@ export interface ClothesDyeOptions {
 }
 export class ClothesDye extends Definable {
   private readonly _classIDs: readonly string[];
-  private readonly _isDefault?: boolean;
+  private readonly _isDefault: boolean;
   private readonly _primaryClothesColorID: string;
   private readonly _secondaryClothesColorID: string;
   public constructor(options: ClothesDyeOptions) {
     super(options.id);
     this._classIDs = options.definition.classIDs;
-    this._isDefault = options.definition.isDefault;
+    this._isDefault = options.definition.isDefault ?? false;
     this._primaryClothesColorID = options.definition.primaryClothesColorID;
     this._secondaryClothesColorID = options.definition.secondaryClothesColorID;
   }
@@ -31,7 +31,7 @@ export class ClothesDye extends Definable {
   }
 
   public get isDefault(): boolean {
-    return this._isDefault ?? false;
+    return this._isDefault;
   }
 
   public get primaryClothesColor(): ClothesColor {

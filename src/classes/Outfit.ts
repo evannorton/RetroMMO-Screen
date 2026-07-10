@@ -10,12 +10,12 @@ export interface OutfitOptions {
 export class Outfit extends Definable {
   private readonly _bodyCosmeticID: string;
   private readonly _classIDs: readonly string[];
-  private readonly _isDefault?: boolean;
+  private readonly _isDefault: boolean;
   public constructor(options: OutfitOptions) {
     super(options.id);
     this._bodyCosmeticID = options.definition.bodyCosmeticID;
     this._classIDs = options.definition.classIDs;
-    this._isDefault = options.definition.isDefault;
+    this._isDefault = options.definition.isDefault ?? false;
   }
 
   public get bodyCosmetic(): BodyCosmetic {
@@ -36,7 +36,7 @@ export class Outfit extends Definable {
   }
 
   public get isDefault(): boolean {
-    return this._isDefault ?? false;
+    return this._isDefault;
   }
 
   public canClassEquip(classID: string): boolean {

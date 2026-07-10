@@ -22,6 +22,7 @@ export class Item extends Definable {
   private readonly _equipmentPieceID?: string;
   private readonly _hairDyeID?: string;
   private readonly _iconImagePath: string;
+  private readonly _isTradable: boolean;
   private readonly _maskID?: string;
   private readonly _name: string;
   private readonly _outfitID?: string;
@@ -42,6 +43,7 @@ export class Item extends Definable {
     this._equipmentPieceID = options.definition.equipmentPieceID;
     this._hairDyeID = options.definition.hairDyeID;
     this._iconImagePath = options.definition.iconImagePath;
+    this._isTradable = options.definition.isTradable ?? false;
     this._maskID = options.definition.maskID;
     this._name = options.definition.name;
     this._outfitID = options.definition.outfitID;
@@ -129,6 +131,10 @@ export class Item extends Definable {
 
   public get iconImagePath(): string {
     return this._iconImagePath;
+  }
+
+  public get isTradable(): boolean {
+    return this._isTradable;
   }
 
   public get mask(): Mask {

@@ -10,12 +10,12 @@ export interface MaskOptions {
 export class Mask extends Definable {
   private readonly _classIDs: readonly string[];
   private readonly _headCosmeticID: string;
-  private readonly _isDefault?: boolean;
+  private readonly _isDefault: boolean;
   public constructor(options: MaskOptions) {
     super(options.id);
     this._classIDs = options.definition.classIDs;
     this._headCosmeticID = options.definition.headCosmeticID;
-    this._isDefault = options.definition.isDefault;
+    this._isDefault = options.definition.isDefault ?? false;
   }
 
   public get classIDs(): readonly string[] {
@@ -36,7 +36,7 @@ export class Mask extends Definable {
   }
 
   public get isDefault(): boolean {
-    return this._isDefault ?? false;
+    return this._isDefault;
   }
 
   public canClassEquip(classID: string): boolean {

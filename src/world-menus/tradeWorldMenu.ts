@@ -882,6 +882,18 @@ export const tradeWorldMenu: WorldMenu<
       createItemDisplay({
         buttons: [
           {
+            condition: (): boolean => {
+              if (
+                tradeWorldMenu.state.values.selectedBagItemInstanceID === null
+              ) {
+                throw new Error("Selected bag item instance ID is null");
+              }
+              const itemInstance: ItemInstance = getDefinable(
+                ItemInstance,
+                tradeWorldMenu.state.values.selectedBagItemInstanceID,
+              );
+              return itemInstance.item.isTradable;
+            },
             onClick: (): void => {
               if (
                 tradeWorldMenu.state.values.selectedBagItemInstanceID === null

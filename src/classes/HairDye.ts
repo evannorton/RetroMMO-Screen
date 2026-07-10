@@ -10,12 +10,12 @@ export interface HairDyeOptions {
 export class HairDye extends Definable {
   private readonly _classIDs: readonly string[];
   private readonly _hairColorID: string;
-  private readonly _isDefault?: boolean;
+  private readonly _isDefault: boolean;
   public constructor(options: HairDyeOptions) {
     super(options.id);
     this._classIDs = options.definition.classIDs;
     this._hairColorID = options.definition.hairColorID;
-    this._isDefault = options.definition.isDefault;
+    this._isDefault = options.definition.isDefault ?? false;
   }
 
   public get classIDs(): readonly string[] {
@@ -33,6 +33,6 @@ export class HairDye extends Definable {
   }
 
   public get isDefault(): boolean {
-    return this._isDefault ?? false;
+    return this._isDefault;
   }
 }
