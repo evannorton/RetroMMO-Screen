@@ -27,6 +27,8 @@ import {
   setScreenshotClipboard,
   setScreenshotScale,
   setVolumeChannelVolume,
+  startVideoRecording,
+  stopVideoRecording,
   takeScreenshot,
 } from "pixel-pigeon";
 import { handleError } from "./handleError";
@@ -177,6 +179,14 @@ export const handleWindowMessage = (message: unknown): void => {
         id: sfxVolumeChannelID,
         volume: sfxVolumeData.volume,
       });
+      break;
+    }
+    case "retrommo/start-recording": {
+      startVideoRecording({});
+      break;
+    }
+    case "retrommo/stop-recording": {
+      stopVideoRecording();
       break;
     }
     case "retrommo/unlink-discord": {
