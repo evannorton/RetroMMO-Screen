@@ -15,6 +15,7 @@ import {
   ScreenshotClipboardDownstreamWindowMessage,
   ScreenshotScaleDownstreamWindowMessage,
   UnlinkDiscordRequest,
+  VideoRecordingScaleDownstreamWindowMessage,
 } from "retrommo-types";
 import {
   clearMaxFPS,
@@ -26,6 +27,7 @@ import {
   setMaxFPS,
   setScreenshotClipboard,
   setScreenshotScale,
+  setVideoRecordingScale,
   setVolumeChannelVolume,
   startVideoRecording,
   stopVideoRecording,
@@ -194,6 +196,12 @@ export const handleWindowMessage = (message: unknown): void => {
         data: {},
         event: "unlink-discord",
       });
+      break;
+    }
+    case "retrommo/video-recording-scale": {
+      const videoRecordingScaleData: VideoRecordingScaleDownstreamWindowMessage =
+        data as VideoRecordingScaleDownstreamWindowMessage;
+      setVideoRecordingScale(videoRecordingScaleData.scaleOutput ? 3 : 1);
       break;
     }
   }
