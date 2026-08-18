@@ -162,6 +162,7 @@ export interface StateSchema {
   readonly defaultMaskID: string | null;
   readonly defaultOutfitID: string | null;
   readonly disconnectedAt: number | null;
+  readonly fpsRequestedAt: number | null;
   readonly fpsSentAt: number | null;
   readonly initialBankTilePositions: readonly InitialBankTilePosition[];
   readonly initialChestTilePositions: readonly InitialChestTilePosition[];
@@ -194,6 +195,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultMaskID: null,
   defaultOutfitID: null,
   disconnectedAt: null,
+  fpsRequestedAt: null,
   fpsSentAt: null,
   initialBankTilePositions: [],
   initialChestTilePositions: [],
