@@ -33,10 +33,12 @@ import {
   stopVideoRecording,
   takeScreenshot,
 } from "pixel-pigeon";
+import { getStarwatchLevel } from "./starwatch/getStarwatchLevel";
 import { handleError } from "./handleError";
 import { listenForUpdates } from "./listen-for-updates/listenForUpdates";
 import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
+import { submitChatEvent } from "starwatch-sdk";
 
 export const handleWindowMessage = (message: unknown): void => {
   if (typeof message !== "object" || message === null) {
@@ -147,6 +149,23 @@ export const handleWindowMessage = (message: unknown): void => {
         },
         event: "message",
       });
+      if (state.values.isStarwatchInitialized) {
+        if (state.values.starwatchUserID === null) {
+          throw new Error("StarWatch user ID is null");
+        }
+        submitChatEvent({
+          level: getStarwatchLevel(),
+          message: messageData.contents,
+          tag: `${messageData.channel}:${
+            state.values.worldState !== null
+              ? "world"
+              : state.values.battleState !== null
+                ? "battle"
+                : "main-menu"
+          }`,
+          userID: state.values.starwatchUserID,
+        });
+      }
       break;
     }
     case "retrommo/music-volume": {
