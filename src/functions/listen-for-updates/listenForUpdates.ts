@@ -1016,8 +1016,8 @@ export const listenForUpdates = (): void => {
               reportFirstLogin({
                 userID: update.starwatchUserID,
               });
+              isFirstLoginReported = true;
             }
-            isFirstLoginReported = true;
           });
         }
       }
