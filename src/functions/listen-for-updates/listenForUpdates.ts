@@ -129,6 +129,7 @@ import { partyInviteWorldMenu } from "../../world-menus/partyInviteWorldMenu";
 import { playMusic } from "../playMusic";
 import { playerInvitedWorldMenu } from "../../world-menus/playerInvitedWorldMenu";
 import { postWindowMessage } from "../postWindowMessage";
+import { reportFirstLogin } from "starwatch-sdk";
 import { resetParty } from "../resetParty";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
@@ -1005,9 +1006,11 @@ export const listenForUpdates = (): void => {
       });
       if (state.values.isStarwatchInitialized === false) {
         initializeStarwatch();
-        state.setValues({
-          isStarwatchInitialized: true,
-        });
+        if (state.values.isStarwatchInitialized && update.isFirstLogin) {
+          reportFirstLogin({
+            userID: update.starwatchUserID,
+          });
+        }
       }
     },
   });

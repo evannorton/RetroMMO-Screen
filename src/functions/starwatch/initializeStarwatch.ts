@@ -107,7 +107,7 @@ export const initializeStarwatch = (): void => {
     initialize({
       appKey: starwatchAppKey,
       gameServerID: "retrommo",
-      getUser: (): User => {
+      getUsers: (): User[] => {
         let position: Position | undefined;
         let tilemapID: string | undefined;
         if (state.values.worldState !== null) {
@@ -133,17 +133,22 @@ export const initializeStarwatch = (): void => {
           };
           tilemapID = battler.battleCharacter.tilemapID;
         }
-        return {
-          levelName: tilemapID ?? "main-menu",
-          position: position ?? {
-            x: 0,
-            y: 0,
-            z: 0,
+        return [
+          {
+            levelName: tilemapID ?? "main-menu",
+            position: position ?? {
+              x: 0,
+              y: 0,
+              z: 0,
+            },
+            userID: starwatchUserID,
           },
-          userID: starwatchUserID,
-        };
+        ];
       },
       serverURL: starwatchServerURL,
+    });
+    state.setValues({
+      isStarwatchInitialized: true,
     });
   }
 };
