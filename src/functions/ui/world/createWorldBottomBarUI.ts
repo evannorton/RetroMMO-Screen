@@ -45,6 +45,7 @@ import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
 import { statsWorldMenu } from "../../../world-menus/statsWorldMenu";
+import { submitStarwatchEvent } from "../../starwatch/submitStarwatchEvent";
 import { targetBlinkDuration } from "../../../constants";
 
 export const createWorldBottomBarUI = (): void => {
@@ -184,6 +185,12 @@ export const createWorldBottomBarUI = (): void => {
             },
             event: "world/use-item-instance",
           });
+          submitStarwatchEvent({
+            eventName: "item",
+            extraDetails: {
+              itemID: itemInstance.itemID,
+            },
+          });
           inventoryWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
         } else if (
           spellbookWorldMenu.isOpen() &&
@@ -202,6 +209,12 @@ export const createWorldBottomBarUI = (): void => {
               playerID: partyMemberWorldPlayer.id,
             },
             event: "world/use-ability",
+          });
+          submitStarwatchEvent({
+            eventName: "ability",
+            extraDetails: {
+              abilityID: ability.id,
+            },
           });
           spellbookWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
         } else {

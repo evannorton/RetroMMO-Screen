@@ -1,6 +1,6 @@
-import { Battler } from "../classes/Battler";
+import { Battler } from "../../classes/Battler";
 import { Constants } from "retrommo-types";
-import { Player } from "../classes/Player";
+import { Player } from "../../classes/Player";
 import {
   Position,
   User,
@@ -11,13 +11,13 @@ import {
   removeGauge,
   setGauge,
 } from "starwatch-sdk";
-import { WorldCharacter } from "../classes/WorldCharacter";
-import { getBattleState } from "./state/getBattleState";
-import { getConstants } from "./getConstants";
+import { WorldCharacter } from "../../classes/WorldCharacter";
+import { getBattleState } from "../state/getBattleState";
+import { getConstants } from "../getConstants";
 import { getDefinable } from "definables";
 import { getEnvironmentVariable } from "pixel-pigeon";
-import { getWorldState } from "./state/getWorldState";
-import { state } from "../state";
+import { getWorldState } from "../state/getWorldState";
+import { state } from "../../state";
 
 export const initializeStarwatch = (): void => {
   const starwatchUserID: string | null = state.values.starwatchUserID;

@@ -109,7 +109,7 @@ import { exitBattlers } from "../exitBattlers";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
-import { initializeStarwatch } from "../initializeStarwatch";
+import { initializeStarwatch } from "../starwatch/initializeStarwatch";
 import { isForcedWorldUIVisible } from "../isForcedWorldUIVisible";
 import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
