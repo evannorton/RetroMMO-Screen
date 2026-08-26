@@ -13,7 +13,7 @@ export const useEmote = (emoteID: string): void => {
     event: "world/emote",
   });
   submitStarwatchEvent({
-    eventName: "emote",
+    event: "emote",
     extraDetails: {
       emoteID: emote.id,
     },

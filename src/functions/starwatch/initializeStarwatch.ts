@@ -16,6 +16,7 @@ import { getBattleState } from "../state/getBattleState";
 import { getConstants } from "../getConstants";
 import { getDefinable } from "definables";
 import { getEnvironmentVariable } from "pixel-pigeon";
+import { getStarwatchLevel } from "./getStarwatchLevel";
 import { getWorldState } from "../state/getWorldState";
 import { state } from "../../state";
 
@@ -57,7 +58,7 @@ export const initializeStarwatch = (): void => {
           getWorldState().values.worldCharacterID,
         );
         setGauge({
-          gaugeName: "hp",
+          gauge: "hp",
           userID: starwatchUserID,
           value:
             (worldCharacter.resources.hp / worldCharacter.resources.maxHP) *
@@ -69,13 +70,13 @@ export const initializeStarwatch = (): void => {
           getBattleState().values.battlerID,
         );
         setGauge({
-          gaugeName: "hp",
+          gauge: "hp",
           userID: starwatchUserID,
           value: (battler.resources.hp / battler.resources.maxHP) * 100,
         });
       } else {
         removeGauge({
-          gaugeName: "hp",
+          gauge: "hp",
           userID: starwatchUserID,
         });
       }
@@ -83,22 +84,22 @@ export const initializeStarwatch = (): void => {
         const player: Player = getDefinable(Player, state.values.playerID);
         if (player.hasCharacter()) {
           setGauge({
-            gaugeName: "level",
+            gauge: "level",
             userID: starwatchUserID,
             value: player.character.level,
           });
           setGauge({
-            gaugeName: "class",
+            gauge: "class",
             userID: starwatchUserID,
             value: player.character.classID,
           });
         } else {
           removeGauge({
-            gaugeName: "level",
+            gauge: "level",
             userID: starwatchUserID,
           });
           removeGauge({
-            gaugeName: "class",
+            gauge: "class",
             userID: starwatchUserID,
           });
         }
@@ -109,7 +110,6 @@ export const initializeStarwatch = (): void => {
       gameServerID: "retrommo",
       getUsers: (): User[] => {
         let position: Position | undefined;
-        let tilemapID: string | undefined;
         if (state.values.worldState !== null) {
           const worldCharacter: WorldCharacter = getDefinable(
             WorldCharacter,
@@ -120,7 +120,6 @@ export const initializeStarwatch = (): void => {
             y: 0,
             z: worldCharacter.position.y,
           };
-          tilemapID = worldCharacter.tilemapID;
         } else if (state.values.battleState !== null) {
           const battler: Battler = getDefinable(
             Battler,
@@ -131,11 +130,10 @@ export const initializeStarwatch = (): void => {
             y: 0,
             z: battler.battleCharacter.position.y * constants["tile-size"],
           };
-          tilemapID = battler.battleCharacter.tilemapID;
         }
         return [
           {
-            levelName: tilemapID ?? "main-menu",
+            level: getStarwatchLevel(),
             position: position ?? {
               x: 0,
               y: 0,

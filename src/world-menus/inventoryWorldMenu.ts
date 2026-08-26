@@ -488,7 +488,7 @@ export const inventoryWorldMenu: WorldMenu<
                       event: "world/use-item-instance",
                     });
                     submitStarwatchEvent({
-                      eventName: "item",
+                      event: "item",
                       extraDetails: {
                         itemID: itemInstance.itemID,
                       },
@@ -505,7 +505,7 @@ export const inventoryWorldMenu: WorldMenu<
                       event: "world/use-item-instance",
                     });
                     submitStarwatchEvent({
-                      eventName: "item",
+                      event: "item",
                       extraDetails: {
                         itemID: itemInstance.itemID,
                       },
@@ -785,7 +785,7 @@ export const inventoryWorldMenu: WorldMenu<
                   event: "world/use-item-instance",
                 });
                 submitStarwatchEvent({
-                  eventName: "item",
+                  event: "item",
                   extraDetails: {
                     itemID: itemInstance.itemID,
                   },

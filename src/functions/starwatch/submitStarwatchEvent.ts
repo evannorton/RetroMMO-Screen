@@ -2,7 +2,7 @@ import { state } from "../../state";
 import { submitEvent } from "starwatch-sdk";
 
 export interface SubmitStarwatchEventOptions {
-  eventName: string;
+  event: string;
   extraDetails: Record<string, unknown> | undefined;
 }
 export const submitStarwatchEvent = (
@@ -14,7 +14,7 @@ export const submitStarwatchEvent = (
   }
   if (state.values.isStarwatchInitialized) {
     submitEvent({
-      eventName: options.eventName,
+      event: options.event,
       extraDetails: options.extraDetails,
       userID: starwatchUserID,
     });

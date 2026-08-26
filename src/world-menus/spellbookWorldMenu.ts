@@ -337,7 +337,7 @@ export const spellbookWorldMenu: WorldMenu<
                   event: "world/use-ability",
                 });
                 submitStarwatchEvent({
-                  eventName: "ability",
+                  event: "ability",
                   extraDetails: {
                     abilityID: ability.id,
                   },
@@ -354,7 +354,7 @@ export const spellbookWorldMenu: WorldMenu<
                   event: "world/use-ability",
                 });
                 submitStarwatchEvent({
-                  eventName: "ability",
+                  event: "ability",
                   extraDetails: {
                     abilityID: ability.id,
                   },
@@ -519,7 +519,7 @@ export const spellbookWorldMenu: WorldMenu<
                   event: "world/use-ability",
                 });
                 submitStarwatchEvent({
-                  eventName: "ability",
+                  event: "ability",
                   extraDetails: {
                     abilityID: ability.id,
                   },

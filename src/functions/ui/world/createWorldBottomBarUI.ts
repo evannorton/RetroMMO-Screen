@@ -186,7 +186,7 @@ export const createWorldBottomBarUI = (): void => {
             event: "world/use-item-instance",
           });
           submitStarwatchEvent({
-            eventName: "item",
+            event: "item",
             extraDetails: {
               itemID: itemInstance.itemID,
             },
@@ -211,7 +211,7 @@ export const createWorldBottomBarUI = (): void => {
             event: "world/use-ability",
           });
           submitStarwatchEvent({
-            eventName: "ability",
+            event: "ability",
             extraDetails: {
               abilityID: ability.id,
             },
