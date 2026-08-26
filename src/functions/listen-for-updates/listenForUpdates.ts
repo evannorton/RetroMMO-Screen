@@ -1006,7 +1006,10 @@ export const listenForUpdates = (): void => {
       });
       if (state.values.isStarwatchInitialized === false) {
         initializeStarwatch();
-        if (state.values.isStarwatchInitialized && update.isFirstLogin) {
+        if (
+          state.values.isStarwatchInitialized &&
+          update.isFirstLogin === true
+        ) {
           reportFirstLogin({
             userID: update.starwatchUserID,
           });
