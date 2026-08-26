@@ -125,11 +125,11 @@ import { loadWorldInvitePromptsUpdate } from "../load-updates/loadWorldInvitePro
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { musicFadeDuration } from "../../constants";
+import { onAuthStateChanged, reportFirstLogin } from "starwatch-sdk";
 import { partyInviteWorldMenu } from "../../world-menus/partyInviteWorldMenu";
 import { playMusic } from "../playMusic";
 import { playerInvitedWorldMenu } from "../../world-menus/playerInvitedWorldMenu";
 import { postWindowMessage } from "../postWindowMessage";
-import { reportFirstLogin } from "starwatch-sdk";
 import { resetParty } from "../resetParty";
 import { selectWorldCharacter } from "../selectWorldCharacter";
 import { selectedPlayerWorldMenu } from "../../world-menus/selectedPlayerWorldMenu";
@@ -1010,8 +1010,14 @@ export const listenForUpdates = (): void => {
           state.values.isStarwatchInitialized &&
           update.isFirstLogin === true
         ) {
-          reportFirstLogin({
-            userID: update.starwatchUserID,
+          let isFirstLoginReported: boolean = false;
+          onAuthStateChanged((isAuthed: boolean): void => {
+            if (isFirstLoginReported === false && isAuthed) {
+              reportFirstLogin({
+                userID: update.starwatchUserID,
+              });
+            }
+            isFirstLoginReported = true;
           });
         }
       }
