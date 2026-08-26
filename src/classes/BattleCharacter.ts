@@ -4,6 +4,7 @@ import { Definable, DefinableReference, getDefinable } from "definables";
 import { Item } from "./Item";
 import { Player } from "./Player";
 import { SkinColor } from "./SkinColor";
+import { TilePosition } from "../types/TilePosition";
 
 export interface BattleCharacterMove {
   readonly actionDefinableReference: DefinableReference;
@@ -18,7 +19,9 @@ export interface BattleCharacterOptions {
   readonly maskItemID?: string;
   readonly outfitItemID?: string;
   readonly playerID: string;
+  readonly position: TilePosition;
   readonly skinColorID: string;
+  readonly tilemapID: string;
 }
 export class BattleCharacter extends Definable {
   private readonly _battlerID: string;
@@ -29,8 +32,10 @@ export class BattleCharacter extends Definable {
   private readonly _maskItemID?: string;
   private readonly _outfitItemID?: string;
   private readonly _playerID: string;
+  private readonly _position: TilePosition;
   private readonly _skinColorID: string;
   private _submittedMove: BattleCharacterMove | null = null;
+  private readonly _tilemapID: string;
   public constructor(id: string, options: BattleCharacterOptions) {
     super(id);
     this._battlerID = options.battlerID;
@@ -41,7 +46,9 @@ export class BattleCharacter extends Definable {
     this._maskItemID = options.maskItemID;
     this._outfitItemID = options.outfitItemID;
     this._playerID = options.playerID;
+    this._position = options.position;
     this._skinColorID = options.skinColorID;
+    this._tilemapID = options.tilemapID;
   }
 
   public get battler(): Battler {
@@ -128,6 +135,10 @@ export class BattleCharacter extends Definable {
     return this._playerID;
   }
 
+  public get position(): TilePosition {
+    return this._position;
+  }
+
   public get skinColor(): SkinColor {
     return getDefinable(SkinColor, this._skinColorID);
   }
@@ -141,6 +152,10 @@ export class BattleCharacter extends Definable {
       return this._submittedMove;
     }
     throw new Error(this.getAccessorErrorMessage("submittedMove"));
+  }
+
+  public get tilemapID(): string {
+    return this._tilemapID;
   }
 
   public set submittedMove(submittedMove: BattleCharacterMove | null) {
