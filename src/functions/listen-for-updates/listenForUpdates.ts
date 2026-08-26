@@ -109,6 +109,7 @@ import { exitBattlers } from "../exitBattlers";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
+import { initializeStarwatch } from "../initializeStarwatch";
 import { isForcedWorldUIVisible } from "../isForcedWorldUIVisible";
 import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
@@ -144,7 +145,6 @@ export const listenForUpdates = (): void => {
         id: update.playerID,
         monthsSubscribed: update.monthsSubscribed,
         permission: update.permission,
-        userID: update.userID,
         username: update.username,
       });
       postWindowMessage<AddPlayerUpstreamWindowMessage>({
@@ -619,7 +619,6 @@ export const listenForUpdates = (): void => {
           id: playerUpdate.playerID,
           monthsSubscribed: playerUpdate.monthsSubscribed,
           permission: playerUpdate.permission,
-          userID: playerUpdate.userID,
           username: playerUpdate.username,
           worldCharacterID:
             update.mainState === MainState.World
@@ -651,6 +650,7 @@ export const listenForUpdates = (): void => {
         selectedPlayerID: null,
         serverTime: null,
         serverTimeRequestedAt: null,
+        starwatchUserID: update.starwatchUserID,
         subscriptionOverAt: update.subscriptionOverAt ?? null,
         worldState: null,
       });
@@ -1003,6 +1003,12 @@ export const listenForUpdates = (): void => {
         },
         event: "initial",
       });
+      if (state.values.isStarwatchInitialized === false) {
+        initializeStarwatch();
+        state.setValues({
+          isStarwatchInitialized: true,
+        });
+      }
     },
   });
   listenToSocketioEvent<IPBanNoticeUpdate>({
