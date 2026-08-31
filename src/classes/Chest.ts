@@ -9,15 +9,17 @@ export interface ChestOptions {
 export class Chest extends Definable {
   private readonly _countsTowardTotal: boolean;
   private readonly _gold?: number;
-  private readonly _imagePath: string;
   private readonly _itemID?: string;
+  private readonly _mapImagePath: string;
   private _openedAt: number | null = null;
+  private readonly _panelImagePath: string;
   public constructor(options: ChestOptions) {
     super(options.id);
     this._countsTowardTotal = options.definition.countsTowardTotal ?? false;
     this._gold = options.definition.gold;
-    this._imagePath = options.definition.imagePath;
     this._itemID = options.definition.itemID;
+    this._mapImagePath = options.definition.mapImagePath;
+    this._panelImagePath = options.definition.panelImagePath;
   }
 
   public get countsTowardTotal(): boolean {
@@ -29,10 +31,6 @@ export class Chest extends Definable {
       return this._gold;
     }
     throw new Error(this.getAccessorErrorMessage("gold"));
-  }
-
-  public get imagePath(): string {
-    return this._imagePath;
   }
 
   public get item(): Item {
@@ -49,11 +47,19 @@ export class Chest extends Definable {
     throw new Error(this.getAccessorErrorMessage("itemID"));
   }
 
+  public get mapImagePath(): string {
+    return this._mapImagePath;
+  }
+
   public get openedAt(): number {
     if (this._openedAt !== null) {
       return this._openedAt;
     }
     throw new Error(this.getAccessorErrorMessage("openedAt"));
+  }
+
+  public get panelImagePath(): string {
+    return this._panelImagePath;
   }
 
   public set openedAt(openedAt: number | null) {

@@ -47,7 +47,7 @@ export const openedChestWorldMenu: WorldMenu<
       createPanel({
         condition: shouldShowMenu,
         height: 64,
-        imagePath: "panels/chest",
+        imagePath: chest.panelImagePath,
         width: 144,
         x: 80,
         y: 136,

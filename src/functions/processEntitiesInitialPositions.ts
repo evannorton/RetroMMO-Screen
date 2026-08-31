@@ -231,7 +231,7 @@ export const processEntitiesInitialPositions = (): void => {
               },
             ],
             downsampleScale: getWorldDownsampleScale,
-            imagePath: chest.imagePath,
+            imagePath: chest.mapImagePath,
           }),
         },
       ],
