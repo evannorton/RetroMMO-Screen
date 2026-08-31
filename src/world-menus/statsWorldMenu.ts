@@ -626,13 +626,20 @@ export const statsWorldMenu: WorldMenu<
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
-          const completedCount: number = Object.values(
+          const completedCount: number = Object.keys(
             worldCharacter.questInstances,
-          ).filter(
-            (questInstance: WorldCharacterQuestInstance): boolean =>
-              questInstance.isCompleted,
+          ).filter((questID: string): boolean => {
+            const questInstance: WorldCharacterQuestInstance | undefined =
+              worldCharacter.questInstances[questID];
+            if (typeof questInstance === "undefined") {
+              throw new Error("Quest instance is undefined");
+            }
+            const quest: Quest = getDefinable(Quest, questID);
+            return quest.countsTowardTotal && questInstance.isCompleted;
+          }).length;
+          const totalCount: number = Array.from(getDefinables(Quest)).filter(
+            ([, quest]: [string, Quest]): boolean => quest.countsTowardTotal,
           ).length;
-          const totalCount: number = getDefinablesCount(Quest);
           return {
             value: `Quests: ${getFormattedInteger(
               completedCount,

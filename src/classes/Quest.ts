@@ -12,6 +12,7 @@ export interface QuestOptions {
 }
 export class Quest extends Definable {
   private readonly _availableText: string;
+  private readonly _countsTowardTotal: boolean;
   private readonly _experience: number;
   private readonly _giverNPCID: string;
   private readonly _gold: number;
@@ -23,6 +24,7 @@ export class Quest extends Definable {
   public constructor(options: QuestOptions) {
     super(options.id);
     this._availableText = options.definition.availableText;
+    this._countsTowardTotal = options.definition.countsTowardTotal ?? false;
     this._experience = options.definition.experience;
     this._giverNPCID = options.definition.giverNPCID;
     this._gold = options.definition.gold;
@@ -41,6 +43,10 @@ export class Quest extends Definable {
 
   public get availableText(): string {
     return this._availableText;
+  }
+
+  public get countsTowardTotal(): boolean {
+    return this._countsTowardTotal;
   }
 
   public get experience(): number {
