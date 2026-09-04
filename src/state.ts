@@ -185,6 +185,10 @@ export interface StateSchema {
   readonly serverTime: number | null;
   readonly serverTimeRequestedAt: number | null;
   readonly serverURL: string | null;
+  readonly starwatchBearer: {
+    readonly expiresAtSeconds: number;
+    readonly token: string;
+  } | null;
   readonly starwatchUserID: string | null;
   readonly worldState: State<WorldStateSchema> | null;
 }
@@ -219,6 +223,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   serverTime: null,
   serverTimeRequestedAt: null,
   serverURL: null,
+  starwatchBearer: null,
   starwatchUserID: null,
   subscriptionOverAt: null,
   worldState: null,

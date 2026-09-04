@@ -651,6 +651,13 @@ export const listenForUpdates = (): void => {
         selectedPlayerID: null,
         serverTime: null,
         serverTimeRequestedAt: null,
+        starwatchBearer:
+          typeof update.starwatchBearer !== "undefined"
+            ? {
+                expiresAtSeconds: update.starwatchBearer.expiresAtSeconds,
+                token: update.starwatchBearer.token,
+              }
+            : null,
         starwatchUserID: update.starwatchUserID,
         subscriptionOverAt: update.subscriptionOverAt ?? null,
         worldState: null,
