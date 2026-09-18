@@ -46,6 +46,7 @@ import {
   PingUpstreamWindowMessage,
   PurgedUpdate,
   PurgedUpstreamWindowMessage,
+  RefreshStarwatchBearerUpdate,
   RemoveAllUpdate,
   RemoveAllUpstreamWindowMessage,
   RemovePlayerUpdate,
@@ -125,7 +126,11 @@ import { loadWorldInvitePromptsUpdate } from "../load-updates/loadWorldInvitePro
 import { loadWorldNPCUpdate } from "../load-updates/loadWorldNPCUpdate";
 import { loadWorldPartyCharacterUpdate } from "../load-updates/loadWorldPartyCharacterUpdate";
 import { musicFadeDuration } from "../../constants";
-import { onAuthStateChanged, reportFirstLogin } from "starwatch-sdk";
+import {
+  onAuthStateChanged,
+  reportFirstLogin,
+  updateAuthorization,
+} from "starwatch-sdk";
 import { partyInviteWorldMenu } from "../../world-menus/partyInviteWorldMenu";
 import { playMusic } from "../playMusic";
 import { playerInvitedWorldMenu } from "../../world-menus/playerInvitedWorldMenu";
@@ -1181,6 +1186,15 @@ export const listenForUpdates = (): void => {
           username: update.username,
         },
         event: "permit-player",
+      });
+    },
+  });
+  listenToSocketioEvent<RefreshStarwatchBearerUpdate>({
+    event: "refresh-starwatch-bearer",
+    onMessage: (update: RefreshStarwatchBearerUpdate): void => {
+      updateAuthorization({
+        bearer: update.token,
+        expiresAtSeconds: update.expiresAtSeconds,
       });
     },
   });

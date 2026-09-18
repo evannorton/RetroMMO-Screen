@@ -1,11 +1,12 @@
 import { Battler } from "../../classes/Battler";
-import { Constants } from "retrommo-types";
+import { Constants, RefreshStarwatchBearerRequest } from "retrommo-types";
 import { Player } from "../../classes/Player";
 import {
   Position,
   User,
   initialize,
   onAuthStateChanged,
+  onAuthorizationExpiringSoon,
   onErrorLog,
   onFlush,
   removeGauge,
@@ -13,10 +14,10 @@ import {
 } from "starwatch-sdk";
 import { StateSchema, state } from "../../state";
 import { WorldCharacter } from "../../classes/WorldCharacter";
+import { emitToSocketioServer, getEnvironmentVariable } from "pixel-pigeon";
 import { getBattleState } from "../state/getBattleState";
 import { getConstants } from "../getConstants";
 import { getDefinable } from "definables";
-import { getEnvironmentVariable } from "pixel-pigeon";
 import { getStarwatchLevel } from "./getStarwatchLevel";
 import { getWorldState } from "../state/getWorldState";
 
@@ -157,6 +158,12 @@ export const initializeStarwatch = (): void => {
         gameServerID: "retrommo",
         getUsers,
         serverURL: starwatchServerURL,
+      });
+      onAuthorizationExpiringSoon((): void => {
+        emitToSocketioServer<RefreshStarwatchBearerRequest>({
+          data: {},
+          event: "refresh-starwatch-bearer",
+        });
       });
     } else if (typeof starwatchAppKey === "string") {
       initialize({
