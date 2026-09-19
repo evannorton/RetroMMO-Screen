@@ -59,6 +59,8 @@ import {
   ServerTimeUpdate,
   ShutdownUpdate,
   ShutdownUpstreamWindowMessage,
+  SubscribeToEmailsUpdate,
+  SubscribeToEmailsUpstreamWindowMessage,
   UnlinkDiscordUpdate,
   UnlinkDiscordUpstreamWindowMessage,
 } from "retrommo-types";
@@ -979,6 +981,7 @@ export const listenForUpdates = (): void => {
       postWindowMessage<InitialUpstreamWindowMessage>({
         data: {
           discordID: update.discordID,
+          isSubscribedToEmails: update.isSubscribedToEmails,
           isSubscriptionCanceled: update.isSubscriptionCanceled,
           players: update.players.map(
             (
@@ -1310,6 +1313,17 @@ export const listenForUpdates = (): void => {
           untilShutdown: update.untilShutdown,
         },
         event: "shutdown",
+      });
+    },
+  });
+  listenToSocketioEvent<SubscribeToEmailsUpdate>({
+    event: "subscribe-to-emails",
+    onMessage: (update: SubscribeToEmailsUpdate): void => {
+      postWindowMessage<SubscribeToEmailsUpstreamWindowMessage>({
+        data: {
+          isSubscribedToEmails: update.isSubscribedToEmails,
+        },
+        event: "subscribe-to-emails",
       });
     },
   });
