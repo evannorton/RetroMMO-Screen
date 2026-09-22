@@ -964,14 +964,19 @@ export const createBattleUI = ({
       getAliveBattlerIDs().indexOf(enemyBattler.id);
     const getX = (): number => {
       const width: number = getBattlerWidth(enemyBattlerID);
+      const aliveBattlerIDs: readonly string[] = getAliveBattlerIDs();
       const leftWidths: number[] = [];
       const rightWidths: number[] = [];
       const aliveBattlerIndex: number = getAliveBattlerIndex();
-      for (let j: number = 0; j < getAliveBattlerIDs().length; j++) {
+      for (let j: number = 0; j < aliveBattlerIDs.length; j++) {
+        const aliveBattlerID: string | undefined = aliveBattlerIDs[j];
+        if (typeof aliveBattlerID === "undefined") {
+          throw new Error(`Alive battler ID not found at index "${j}".`);
+        }
         if (j < aliveBattlerIndex) {
-          leftWidths.push(width);
+          leftWidths.push(getBattlerWidth(aliveBattlerID));
         } else if (j > aliveBattlerIndex) {
-          rightWidths.push(width);
+          rightWidths.push(getBattlerWidth(aliveBattlerID));
         }
       }
       const leftWidth: number =
