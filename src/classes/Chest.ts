@@ -13,6 +13,7 @@ export class Chest extends Definable {
   private readonly _mapImagePath: string;
   private _openedAt: number | null = null;
   private readonly _panelImagePath: string;
+  private readonly _slotImagePath: string;
   public constructor(options: ChestOptions) {
     super(options.id);
     this._countsTowardTotal = options.definition.countsTowardTotal ?? false;
@@ -20,6 +21,7 @@ export class Chest extends Definable {
     this._itemID = options.definition.itemID;
     this._mapImagePath = options.definition.mapImagePath;
     this._panelImagePath = options.definition.panelImagePath;
+    this._slotImagePath = options.definition.slotImagePath;
   }
 
   public get countsTowardTotal(): boolean {
@@ -60,6 +62,10 @@ export class Chest extends Definable {
 
   public get panelImagePath(): string {
     return this._panelImagePath;
+  }
+
+  public get slotImagePath(): string {
+    return this._slotImagePath;
   }
 
   public set openedAt(openedAt: number | null) {

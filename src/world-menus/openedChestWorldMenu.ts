@@ -99,7 +99,7 @@ export const openedChestWorldMenu: WorldMenu<
             },
           },
         ],
-        imagePath: "slots/chest",
+        imagePath: chest.slotImagePath,
         x: 95,
         y: 166,
       }),
