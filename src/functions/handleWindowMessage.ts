@@ -11,6 +11,8 @@ import {
   MessageDownstreamWindowMessage,
   MessageRequest,
   MusicVolumeDownstreamWindowMessage,
+  ReportIssueDownstreamWindowMessage,
+  ReportIssueRequest,
   SFXVolumeDownstreamWindowMessage,
   ScreenshotClipboardDownstreamWindowMessage,
   ScreenshotScaleDownstreamWindowMessage,
@@ -38,7 +40,7 @@ import { handleError } from "./handleError";
 import { listenForUpdates } from "./listen-for-updates/listenForUpdates";
 import { musicVolumeChannelID, sfxVolumeChannelID } from "../volumeChannels";
 import { state } from "../state";
-import { submitChatEvent } from "starwatch-sdk";
+import { submitChatEvent, submitIssueReport } from "starwatch-sdk";
 
 export const handleWindowMessage = (message: unknown): void => {
   if (typeof message !== "object" || message === null) {
@@ -175,6 +177,28 @@ export const handleWindowMessage = (message: unknown): void => {
         id: musicVolumeChannelID,
         volume: musicVolumeData.volume,
       });
+      break;
+    }
+    case "retrommo/report-issue": {
+      const reportIssueData: ReportIssueDownstreamWindowMessage =
+        data as ReportIssueDownstreamWindowMessage;
+      emitToSocketioServer<ReportIssueRequest>({
+        data: {
+          description: reportIssueData.description,
+          subject: reportIssueData.subject,
+        },
+        event: "report-issue",
+      });
+      if (state.values.isStarwatchInitialized) {
+        if (state.values.starwatchUserID === null) {
+          throw new Error("StarWatch user ID is null");
+        }
+        submitIssueReport({
+          description: reportIssueData.description,
+          subject: reportIssueData.subject,
+          userID: state.values.starwatchUserID,
+        }).catch(handleError);
+      }
       break;
     }
     case "retrommo/screenshot": {
