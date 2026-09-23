@@ -1,3 +1,4 @@
+import { getStarwatchLevel } from "./getStarwatchLevel";
 import { state } from "../../state";
 import { submitEvent } from "starwatch-sdk";
 
@@ -16,6 +17,7 @@ export const submitStarwatchEvent = (
     submitEvent({
       event: options.event,
       extraDetails: options.extraDetails,
+      level: getStarwatchLevel(),
       userID: starwatchUserID,
     });
   }
