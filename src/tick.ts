@@ -16,6 +16,7 @@ import {
   CombatUseAbilityEvent,
   Constants,
   Direction,
+  FPSRequest,
   FPSUpstreamWindowMessage,
   ReconnectionFailedUpstreamWindowMessage,
   ResourcePool,
@@ -27,6 +28,7 @@ import { WorldCharacter } from "./classes/WorldCharacter";
 import { WorldStateQueuedBattle, state } from "./state";
 import {
   battleIntroBlackDurationPercentage,
+  fpsRequestUpdateInterval,
   fpsUpdateInterval,
   musicFadeDuration,
   serverTimeUpdateInterval,
@@ -625,6 +627,21 @@ export const tick = (): void => {
     emitToSocketioServer<ServerTimeRequest>({
       data: {},
       event: "server-time",
+    });
+  }
+  if (
+    state.values.isInitialUpdateReceived &&
+    (state.values.fpsRequestedAt === null ||
+      currentTime - state.values.fpsRequestedAt >= fpsRequestUpdateInterval)
+  ) {
+    state.setValues({
+      fpsRequestedAt: currentTime,
+    });
+    emitToSocketioServer<FPSRequest>({
+      data: {
+        fps: getFPS(),
+      },
+      event: "fps",
     });
   }
   if (

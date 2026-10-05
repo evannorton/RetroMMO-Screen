@@ -13,6 +13,11 @@ export const loadBattleCharacterUpdate = (
     maskItemID: battleCharacterUpdate.maskItemID,
     outfitItemID: battleCharacterUpdate.outfitItemID,
     playerID: battleCharacterUpdate.playerID,
+    position: {
+      x: battleCharacterUpdate.x,
+      y: battleCharacterUpdate.y,
+    },
     skinColorID: battleCharacterUpdate.skinColorID,
+    tilemapID: battleCharacterUpdate.tilemapID,
   });
 };

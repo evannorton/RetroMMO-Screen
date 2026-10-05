@@ -162,6 +162,7 @@ export interface StateSchema {
   readonly defaultMaskID: string | null;
   readonly defaultOutfitID: string | null;
   readonly disconnectedAt: number | null;
+  readonly fpsRequestedAt: number | null;
   readonly fpsSentAt: number | null;
   readonly initialBankTilePositions: readonly InitialBankTilePosition[];
   readonly initialChestTilePositions: readonly InitialChestTilePosition[];
@@ -172,6 +173,7 @@ export interface StateSchema {
   readonly initialReadableTilePositions: readonly InitialReadableTilePosition[];
   readonly isInitialUpdateReceived: boolean;
   readonly isJoystickEnabled: boolean;
+  readonly isStarwatchInitialized: boolean;
   readonly subscriptionOverAt: number | null;
   readonly mainMenuState: State<MainMenuStateSchema> | null;
   readonly mapMusicPause: MapMusicPause | null;
@@ -183,6 +185,11 @@ export interface StateSchema {
   readonly serverTime: number | null;
   readonly serverTimeRequestedAt: number | null;
   readonly serverURL: string | null;
+  readonly starwatchBearer: {
+    readonly expiresAtSeconds: number;
+    readonly token: string;
+  } | null;
+  readonly starwatchUserID: string | null;
   readonly worldState: State<WorldStateSchema> | null;
 }
 export const state: State<StateSchema> = new State<StateSchema>({
@@ -194,6 +201,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   defaultMaskID: null,
   defaultOutfitID: null,
   disconnectedAt: null,
+  fpsRequestedAt: null,
   fpsSentAt: null,
   initialBankTilePositions: [],
   initialChestTilePositions: [],
@@ -204,6 +212,7 @@ export const state: State<StateSchema> = new State<StateSchema>({
   initialReadableTilePositions: [],
   isInitialUpdateReceived: false,
   isJoystickEnabled: false,
+  isStarwatchInitialized: false,
   mainMenuState: null,
   mapMusicPause: null,
   musicTrackID: null,
@@ -214,6 +223,8 @@ export const state: State<StateSchema> = new State<StateSchema>({
   serverTime: null,
   serverTimeRequestedAt: null,
   serverURL: null,
+  starwatchBearer: null,
+  starwatchUserID: null,
   subscriptionOverAt: null,
   worldState: null,
 });

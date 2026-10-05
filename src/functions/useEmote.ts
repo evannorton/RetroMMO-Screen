@@ -2,6 +2,7 @@ import { Emote } from "../classes/Emote";
 import { WorldEmoteRequest } from "retrommo-types";
 import { emitToSocketioServer } from "pixel-pigeon";
 import { getDefinable } from "definables";
+import { submitStarwatchEvent } from "./starwatch/submitStarwatchEvent";
 
 export const useEmote = (emoteID: string): void => {
   const emote: Emote = getDefinable(Emote, emoteID);
@@ -10,5 +11,11 @@ export const useEmote = (emoteID: string): void => {
       emoteID: emote.id,
     },
     event: "world/emote",
+  });
+  submitStarwatchEvent({
+    event: "emote",
+    extraDetails: {
+      emoteID: emote.id,
+    },
   });
 };

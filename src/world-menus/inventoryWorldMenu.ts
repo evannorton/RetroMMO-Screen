@@ -40,6 +40,7 @@ import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getItemVanityClassIDs } from "../functions/getItemVanityClassIDs";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
+import { submitStarwatchEvent } from "../functions/starwatch/submitStarwatchEvent";
 import {
   targetWorldPartyCharacter1InputCollectionID,
   targetWorldPartyCharacter2InputCollectionID,
@@ -486,6 +487,12 @@ export const inventoryWorldMenu: WorldMenu<
                       },
                       event: "world/use-item-instance",
                     });
+                    submitStarwatchEvent({
+                      event: "item",
+                      extraDetails: {
+                        itemID: itemInstance.itemID,
+                      },
+                    });
                     inventoryWorldMenu.state.setValues({
                       isAwaitingWorldCombat: true,
                     });
@@ -496,6 +503,12 @@ export const inventoryWorldMenu: WorldMenu<
                         itemInstanceID: itemInstance.id,
                       },
                       event: "world/use-item-instance",
+                    });
+                    submitStarwatchEvent({
+                      event: "item",
+                      extraDetails: {
+                        itemID: itemInstance.itemID,
+                      },
                     });
                     inventoryWorldMenu.state.setValues({
                       isAwaitingWorldCombat: true,
@@ -770,6 +783,12 @@ export const inventoryWorldMenu: WorldMenu<
                     playerID: partyMemberPlayerID,
                   },
                   event: "world/use-item-instance",
+                });
+                submitStarwatchEvent({
+                  event: "item",
+                  extraDetails: {
+                    itemID: itemInstance.itemID,
+                  },
                 });
                 inventoryWorldMenu.state.setValues({
                   isAwaitingWorldCombat: true,

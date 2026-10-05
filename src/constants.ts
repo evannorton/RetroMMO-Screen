@@ -8,6 +8,7 @@ export const battleIntroBlackDurationPercentage: number = 0.1;
 export const battleItemsPerPage: number = 5;
 export const chestOpenDuration: number = 267 / 2;
 export const emotesPerPage: number = 25;
+export const fpsRequestUpdateInterval: number = 2000;
 export const fpsUpdateInterval: number = 100;
 export const grayColors: Color[] = [
   Color.Black,

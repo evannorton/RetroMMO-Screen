@@ -24,6 +24,7 @@ import { getDefinable } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import { spellbookAbilitiesPerPage } from "../constants";
+import { submitStarwatchEvent } from "../functions/starwatch/submitStarwatchEvent";
 import {
   targetWorldPartyCharacter1InputCollectionID,
   targetWorldPartyCharacter2InputCollectionID,
@@ -335,6 +336,12 @@ export const spellbookWorldMenu: WorldMenu<
                   },
                   event: "world/use-ability",
                 });
+                submitStarwatchEvent({
+                  event: "ability",
+                  extraDetails: {
+                    abilityID: ability.id,
+                  },
+                });
                 spellbookWorldMenu.state.setValues({
                   isAwaitingWorldCombat: true,
                 });
@@ -345,6 +352,12 @@ export const spellbookWorldMenu: WorldMenu<
                     abilityID: ability.id,
                   },
                   event: "world/use-ability",
+                });
+                submitStarwatchEvent({
+                  event: "ability",
+                  extraDetails: {
+                    abilityID: ability.id,
+                  },
                 });
                 spellbookWorldMenu.state.setValues({
                   isAwaitingWorldCombat: true,
@@ -504,6 +517,12 @@ export const spellbookWorldMenu: WorldMenu<
                     playerID: partyMemberPlayerID,
                   },
                   event: "world/use-ability",
+                });
+                submitStarwatchEvent({
+                  event: "ability",
+                  extraDetails: {
+                    abilityID: ability.id,
+                  },
                 });
                 spellbookWorldMenu.state.setValues({
                   isAwaitingWorldCombat: true,

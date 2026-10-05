@@ -15,7 +15,6 @@ export interface PlayerOptions {
   readonly id: string;
   readonly monthsSubscribed?: number;
   readonly permission: number;
-  readonly userID: number;
   readonly username: string;
   readonly worldCharacterID?: string;
 }
@@ -37,7 +36,6 @@ export class Player extends Definable {
   private _character: PlayerCharacter | null;
   private readonly _monthsSubscribed?: number;
   private _permission: number;
-  private readonly _userID: number;
   private _username: string;
   private _worldCharacterID: string | null;
   public constructor(options: PlayerOptions) {
@@ -53,7 +51,6 @@ export class Player extends Definable {
         : null;
     this._monthsSubscribed = options.monthsSubscribed;
     this._permission = options.permission;
-    this._userID = options.userID;
     this._username = options.username;
     this._worldCharacterID = options.worldCharacterID ?? null;
   }
@@ -109,10 +106,6 @@ export class Player extends Definable {
 
   public get permission(): number {
     return this._permission;
-  }
-
-  public get userID(): number {
-    return this._userID;
   }
 
   public get username(): string {
