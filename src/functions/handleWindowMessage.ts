@@ -16,6 +16,8 @@ import {
   SFXVolumeDownstreamWindowMessage,
   ScreenshotClipboardDownstreamWindowMessage,
   ScreenshotScaleDownstreamWindowMessage,
+  SubscribeToEmailsDownstreamWindowMessage,
+  SubscribeToEmailsRequest,
   UnlinkDiscordRequest,
   VideoRecordingScaleDownstreamWindowMessage,
 } from "retrommo-types";
@@ -232,6 +234,17 @@ export const handleWindowMessage = (message: unknown): void => {
     }
     case "retrommo/stop-recording": {
       stopVideoRecording();
+      break;
+    }
+    case "retrommo/subscribe-to-emails": {
+      const subscribeToEmailsData: SubscribeToEmailsDownstreamWindowMessage =
+        data as SubscribeToEmailsDownstreamWindowMessage;
+      emitToSocketioServer<SubscribeToEmailsRequest>({
+        data: {
+          isSubscribedToEmails: subscribeToEmailsData.isSubscribedToEmails,
+        },
+        event: "subscribe-to-emails",
+      });
       break;
     }
     case "retrommo/unlink-discord": {

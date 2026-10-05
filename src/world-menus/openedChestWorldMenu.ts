@@ -47,7 +47,7 @@ export const openedChestWorldMenu: WorldMenu<
       createPanel({
         condition: shouldShowMenu,
         height: 64,
-        imagePath: "panels/chest",
+        imagePath: chest.panelImagePath,
         width: 144,
         x: 80,
         y: 136,
@@ -99,7 +99,7 @@ export const openedChestWorldMenu: WorldMenu<
             },
           },
         ],
-        imagePath: "slots/chest",
+        imagePath: chest.slotImagePath,
         x: 95,
         y: 166,
       }),
