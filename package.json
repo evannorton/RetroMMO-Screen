@@ -12,7 +12,8 @@
     "dependencies": {
         "definables": "evannorton/Definables",
         "pixel-pigeon": "evannorton/Pixel-Pigeon",
-        "retrommo-types": "evannorton/RetroMMO-Types"
+        "retrommo-types": "evannorton/RetroMMO-Types",
+        "starwatch-sdk": "1.0.1"
     },
     "engines": {
         "npm": "10.9.2",
