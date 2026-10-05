@@ -13,7 +13,7 @@
         "definables": "evannorton/Definables",
         "pixel-pigeon": "evannorton/Pixel-Pigeon",
         "retrommo-types": "evannorton/RetroMMO-Types",
-        "starwatch-sdk": "1.0.1"
+        "starwatch-sdk": "1.1.0"
     },
     "engines": {
         "npm": "10.9.2",
