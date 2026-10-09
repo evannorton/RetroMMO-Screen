@@ -1,4 +1,5 @@
 import { Ability } from "../../classes/Ability";
+import { Achievement } from "../../classes/Achievement";
 import {
   AddPlayerUpdate,
   AddPlayerUpstreamWindowMessage,
@@ -963,6 +964,14 @@ export const listenForUpdates = (): void => {
             }
           }
         }
+      }
+      for (const unlockedAchievementUpdate of update.unlockedAchievements) {
+        const achievement: Achievement = getDefinable(
+          Achievement,
+          unlockedAchievementUpdate.achievementID,
+        );
+        achievement.unlockedAtServerTime =
+          unlockedAchievementUpdate.unlockedAtServerTime;
       }
       playMusic();
       setJoystickCondition((): boolean => {

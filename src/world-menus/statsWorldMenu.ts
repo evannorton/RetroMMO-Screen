@@ -1,3 +1,4 @@
+import { Achievement } from "../classes/Achievement";
 import { Boost } from "../classes/Boost";
 import { Chest } from "../classes/Chest";
 import { Color, Constants, ResourcePool, Stat } from "retrommo-types";
@@ -591,6 +592,26 @@ export const statsWorldMenu: WorldMenu<
         y: 167,
       }),
     );
+    // Achievements
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => isForcedWorldUIVisible() === false,
+          x: 20,
+          y: 172,
+        },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => ({
+          value: `Achievements: ${getFormattedInteger(
+            Array.from(getDefinables(Achievement)).filter(
+              ([, achievement]: [string, Achievement]): boolean =>
+                achievement.hasUnlockedAtServerTime(),
+            ).length,
+          )}/${getDefinablesCount(Achievement)}`,
+        }),
+      }),
+    );
     // Time played
     labelIDs.push(
       createLabel({
@@ -598,7 +619,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 177,
+          y: 183,
         },
         horizontalAlignment: "left",
         text: (): CreateLabelOptionsText => {

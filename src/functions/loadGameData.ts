@@ -1,6 +1,7 @@
 import { Ability } from "../classes/Ability";
 import {
   AbilityDefinition,
+  AchievementDefinition,
   BankDefinition,
   BattleImpactAnimationDefinition,
   BodyCosmeticDefinition,
@@ -41,6 +42,7 @@ import {
   TilesetTileDefinition,
   TransportDefinition,
 } from "retrommo-types";
+import { Achievement } from "../classes/Achievement";
 import { Bank } from "../classes/Bank";
 import { BattleImpactAnimation } from "../classes/BattleImpactAnimation";
 import { BodyCosmetic } from "../classes/BodyCosmetic";
@@ -113,6 +115,16 @@ export const loadGameData = async (): Promise<void> => {
             gameData[className] as Record<string, AbilityDefinition>
           )[id] as AbilityDefinition;
           new Ability({
+            definition,
+            id,
+          });
+          break;
+        }
+        case "Achievement": {
+          const definition: AchievementDefinition = (
+            gameData[className] as Record<string, AchievementDefinition>
+          )[id] as AchievementDefinition;
+          new Achievement({
             definition,
             id,
           });

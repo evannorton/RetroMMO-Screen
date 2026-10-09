@@ -1,3 +1,4 @@
+import { Achievement } from "../classes/Achievement";
 import { Color } from "retrommo-types";
 import {
   CreateLabelOptionsText,
@@ -25,25 +26,33 @@ import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createSlot } from "../functions/ui/components/createSlot";
 import { createUnderstrike } from "../functions/ui/components/createUnderstrike";
-import { getDefinable } from "definables";
+import { getCyclicIndex } from "../functions/getCyclicIndex";
+import { getDefinable, getDefinables } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getQuestIconImagePath } from "../functions/getQuestIconImagePath";
 import { getQuestIconRecolors } from "../functions/getQuestIconRecolors";
 import { getQuestState } from "../functions/getQuestState";
 import { getWorldState } from "../functions/state/getWorldState";
-import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 import {
+  grayColors,
+  questLogAchievementsPerPage,
   questLogCompletedQuestsPerPage,
   questLogInProgressQuestsPerPage,
 } from "../constants";
+import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
 
 enum QuestLogTab {
+  Achievements = "achievements",
   Completed = "completed",
   InProgress = "in-progress",
 }
 
 export interface QuestLogWorldMenuOpenOptions {}
 export interface QuestLogWorldMenuStateSchema {
+  achievementsPage: number;
+  completedQuestsPage: number;
+  inProgressQuestsPage: number;
+  selectedAchievementID: string | null;
   selectedCompletedQuestID: string | null;
   selectedInProgressQuestID: string | null;
   selectedQuestDialoguePage: number | null;
@@ -67,6 +76,8 @@ export const questLogWorldMenu: WorldMenu<
       questLogWorldMenu.state.values.tab === QuestLogTab.InProgress;
     const completedTabCondition = (): boolean =>
       questLogWorldMenu.state.values.tab === QuestLogTab.Completed;
+    const achievementsTabCondition = (): boolean =>
+      questLogWorldMenu.state.values.tab === QuestLogTab.Achievements;
     // Background panel
     hudElementReferences.push(
       createPanel({
@@ -87,6 +98,8 @@ export const questLogWorldMenu: WorldMenu<
               return "1";
             case QuestLogTab.Completed:
               return "2";
+            case QuestLogTab.Achievements:
+              return "3";
           }
         },
         animations: [
@@ -116,13 +129,26 @@ export const questLogWorldMenu: WorldMenu<
             ],
             id: "2",
           },
+          {
+            frames: [
+              {
+                height: 21,
+                sourceHeight: 21,
+                sourceWidth: 124,
+                sourceX: 248,
+                sourceY: 0,
+                width: 124,
+              },
+            ],
+            id: "3",
+          },
         ],
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 178,
           y: 26,
         },
-        imagePath: "tabs/2",
+        imagePath: "tabs/3",
       }),
     );
     hudElementReferences.push(
@@ -131,7 +157,7 @@ export const questLogWorldMenu: WorldMenu<
         height: 16,
         imagePath: "tab-icons/quest-log/in-progress",
         width: 16,
-        x: 197,
+        x: 188,
         y: 29,
       }),
     );
@@ -141,7 +167,17 @@ export const questLogWorldMenu: WorldMenu<
         height: 16,
         imagePath: "tab-icons/quest-log/completed",
         width: 16,
-        x: 250,
+        x: 223,
+        y: 29,
+      }),
+    );
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean => isForcedWorldUIVisible() === false,
+        height: 16,
+        imagePath: "tab-icons/quest-log/achievements",
+        width: 16,
+        x: 258,
         y: 29,
       }),
     );
@@ -149,37 +185,69 @@ export const questLogWorldMenu: WorldMenu<
       createButton({
         coordinates: {
           condition: (): boolean =>
-            completedTabCondition() && isForcedWorldUIVisible() === false,
+            inProgressTabCondition() === false &&
+            isForcedWorldUIVisible() === false,
           x: 179,
           y: 27,
         },
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
+            achievementsPage: 0,
+            completedQuestsPage: 0,
+            selectedAchievementID: null,
             selectedCompletedQuestID: null,
             selectedQuestDialoguePage: null,
             tab: QuestLogTab.InProgress,
           });
         },
-        width: 52,
+        width: 34,
       }),
     );
     buttonIDs.push(
       createButton({
         coordinates: {
-          condition: inProgressTabCondition,
-          x: 232,
+          condition: (): boolean =>
+            completedTabCondition() === false &&
+            isForcedWorldUIVisible() === false,
+          x: 214,
           y: 27,
         },
         height: 20,
         onClick: (): void => {
           questLogWorldMenu.state.setValues({
+            achievementsPage: 0,
+            inProgressQuestsPage: 0,
+            selectedAchievementID: null,
             selectedInProgressQuestID: null,
             selectedQuestDialoguePage: null,
             tab: QuestLogTab.Completed,
           });
         },
-        width: 51,
+        width: 34,
+      }),
+    );
+    buttonIDs.push(
+      createButton({
+        coordinates: {
+          condition: (): boolean =>
+            achievementsTabCondition() === false &&
+            isForcedWorldUIVisible() === false,
+          x: 249,
+          y: 27,
+        },
+        height: 20,
+        onClick: (): void => {
+          questLogWorldMenu.state.setValues({
+            completedQuestsPage: 0,
+            inProgressQuestsPage: 0,
+            selectedCompletedQuestID: null,
+            selectedInProgressQuestID: null,
+            selectedQuestDialoguePage: null,
+            tab: QuestLogTab.Achievements,
+          });
+        },
+        width: 34,
       }),
     );
     // X button
@@ -213,11 +281,38 @@ export const questLogWorldMenu: WorldMenu<
         });
     const getInProgressQuest = (i: number): Quest => {
       const inProgressQuestIDs: string[] = getInProgressQuestIDs();
-      const inProgressQuestID: string | undefined = inProgressQuestIDs[i];
+      const pageOffset: number =
+        questLogWorldMenu.state.values.inProgressQuestsPage *
+        questLogInProgressQuestsPerPage;
+      const inProgressQuestID: string | undefined =
+        inProgressQuestIDs[i + pageOffset];
       if (typeof inProgressQuestID === "undefined") {
         throw new Error("Quest ID not found");
       }
       return getDefinable(Quest, inProgressQuestID);
+    };
+    const getInProgressQuestsLastPage = (): number =>
+      Math.max(
+        Math.floor(
+          (getInProgressQuestIDs().length - 1) /
+            questLogInProgressQuestsPerPage,
+        ),
+        0,
+      );
+    const isInProgressQuestsPaginated = (): boolean =>
+      getInProgressQuestIDs().length > questLogInProgressQuestsPerPage;
+    const pageInProgressQuests = (offset: number): void => {
+      const pages: number[] = [];
+      for (let i: number = 0; i < getInProgressQuestsLastPage() + 1; i++) {
+        pages.push(i);
+      }
+      questLogWorldMenu.state.setValues({
+        inProgressQuestsPage: getCyclicIndex(
+          pages.indexOf(questLogWorldMenu.state.values.inProgressQuestsPage) +
+            offset,
+          pages,
+        ),
+      });
     };
     const getCompletedQuestIDs = (): string[] =>
       Object.keys(worldCharacter.questInstances)
@@ -236,20 +331,52 @@ export const questLogWorldMenu: WorldMenu<
         });
     const getCompletedQuest = (i: number): Quest => {
       const completedQuestIDs: string[] = getCompletedQuestIDs();
-      const completedQuestID: string | undefined = completedQuestIDs[i];
+      const pageOffset: number =
+        questLogWorldMenu.state.values.completedQuestsPage *
+        questLogCompletedQuestsPerPage;
+      const completedQuestID: string | undefined =
+        completedQuestIDs[i + pageOffset];
       if (typeof completedQuestID === "undefined") {
         throw new Error("Quest ID not found");
       }
       return getDefinable(Quest, completedQuestID);
     };
+    const getCompletedQuestsLastPage = (): number =>
+      Math.max(
+        Math.floor(
+          (getCompletedQuestIDs().length - 1) / questLogCompletedQuestsPerPage,
+        ),
+        0,
+      );
+    const isCompletedQuestsPaginated = (): boolean =>
+      getCompletedQuestIDs().length > questLogCompletedQuestsPerPage;
+    const pageCompletedQuests = (offset: number): void => {
+      const pages: number[] = [];
+      for (let i: number = 0; i < getCompletedQuestsLastPage() + 1; i++) {
+        pages.push(i);
+      }
+      questLogWorldMenu.state.setValues({
+        completedQuestsPage: getCyclicIndex(
+          pages.indexOf(questLogWorldMenu.state.values.completedQuestsPage) +
+            offset,
+          pages,
+        ),
+      });
+    };
     for (let i: number = 0; i < questLogInProgressQuestsPerPage; i++) {
       const y: number = 49 + i * 18;
       hudElementReferences.push(
         createIconListItem({
-          condition: (): boolean =>
-            inProgressTabCondition() &&
-            i < getInProgressQuestIDs().length &&
-            isForcedWorldUIVisible() === false,
+          condition: (): boolean => {
+            const pageOffset: number =
+              questLogWorldMenu.state.values.inProgressQuestsPage *
+              questLogInProgressQuestsPerPage;
+            return (
+              inProgressTabCondition() &&
+              i + pageOffset < getInProgressQuestIDs().length &&
+              isForcedWorldUIVisible() === false
+            );
+          },
           icons: [
             {
               imagePath: (): string =>
@@ -304,14 +431,74 @@ export const questLogWorldMenu: WorldMenu<
         }),
       );
     }
+    // In-progress quests page left arrow
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          inProgressTabCondition() &&
+          isInProgressQuestsPaginated() &&
+          isForcedWorldUIVisible() === false,
+        height: 14,
+        imagePath: "arrows/left",
+        onClick: (): void => {
+          pageInProgressQuests(-1);
+        },
+        width: 14,
+        x: 190,
+        y: 176,
+      }),
+    );
+    // In-progress quests page right arrow
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          inProgressTabCondition() &&
+          isInProgressQuestsPaginated() &&
+          isForcedWorldUIVisible() === false,
+        height: 14,
+        imagePath: "arrows/right",
+        onClick: (): void => {
+          pageInProgressQuests(1);
+        },
+        width: 14,
+        x: 275,
+        y: 176,
+      }),
+    );
+    // In-progress quests page number
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            inProgressTabCondition() &&
+            isInProgressQuestsPaginated() &&
+            isForcedWorldUIVisible() === false,
+          x: 296,
+          y: 193,
+        },
+        horizontalAlignment: "right",
+        text: (): CreateLabelOptionsText => ({
+          value: String(
+            questLogWorldMenu.state.values.inProgressQuestsPage + 1,
+          ),
+        }),
+      }),
+    );
     for (let i: number = 0; i < questLogCompletedQuestsPerPage; i++) {
       const y: number = 49 + i * 18;
       hudElementReferences.push(
         createIconListItem({
-          condition: (): boolean =>
-            completedTabCondition() &&
-            i < getCompletedQuestIDs().length &&
-            isForcedWorldUIVisible() === false,
+          condition: (): boolean => {
+            const pageOffset: number =
+              questLogWorldMenu.state.values.completedQuestsPage *
+              questLogCompletedQuestsPerPage;
+            return (
+              completedTabCondition() &&
+              i + pageOffset < getCompletedQuestIDs().length &&
+              isForcedWorldUIVisible() === false
+            );
+          },
           icons: [
             {
               imagePath: (): string =>
@@ -366,6 +553,208 @@ export const questLogWorldMenu: WorldMenu<
         }),
       );
     }
+    // Completed quests page left arrow
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          completedTabCondition() &&
+          isCompletedQuestsPaginated() &&
+          isForcedWorldUIVisible() === false,
+        height: 14,
+        imagePath: "arrows/left",
+        onClick: (): void => {
+          pageCompletedQuests(-1);
+        },
+        width: 14,
+        x: 190,
+        y: 176,
+      }),
+    );
+    // Completed quests page right arrow
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          completedTabCondition() &&
+          isCompletedQuestsPaginated() &&
+          isForcedWorldUIVisible() === false,
+        height: 14,
+        imagePath: "arrows/right",
+        onClick: (): void => {
+          pageCompletedQuests(1);
+        },
+        width: 14,
+        x: 275,
+        y: 176,
+      }),
+    );
+    // Completed quests page number
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            completedTabCondition() &&
+            isCompletedQuestsPaginated() &&
+            isForcedWorldUIVisible() === false,
+          x: 296,
+          y: 193,
+        },
+        horizontalAlignment: "right",
+        text: (): CreateLabelOptionsText => ({
+          value: String(questLogWorldMenu.state.values.completedQuestsPage + 1),
+        }),
+      }),
+    );
+    const getAchievementIDs = (): string[] =>
+      Array.from(getDefinables(Achievement).keys()).sort(
+        (a: string, b: string): number => {
+          const achievementA: Achievement = getDefinable(Achievement, a);
+          const achievementB: Achievement = getDefinable(Achievement, b);
+          return achievementA.name.localeCompare(achievementB.name);
+        },
+      );
+    const getAchievement = (i: number): Achievement => {
+      const achievementIDs: string[] = getAchievementIDs();
+      const pageOffset: number =
+        questLogWorldMenu.state.values.achievementsPage *
+        questLogAchievementsPerPage;
+      const achievementID: string | undefined = achievementIDs[i + pageOffset];
+      if (typeof achievementID === "undefined") {
+        throw new Error("Achievement ID not found");
+      }
+      return getDefinable(Achievement, achievementID);
+    };
+    const getAchievementsLastPage = (): number =>
+      Math.max(
+        Math.floor(
+          (getAchievementIDs().length - 1) / questLogAchievementsPerPage,
+        ),
+        0,
+      );
+    const isAchievementsPaginated = (): boolean =>
+      getAchievementIDs().length > questLogAchievementsPerPage;
+    const pageAchievements = (offset: number): void => {
+      const pages: number[] = [];
+      for (let i: number = 0; i < getAchievementsLastPage() + 1; i++) {
+        pages.push(i);
+      }
+      questLogWorldMenu.state.setValues({
+        achievementsPage: getCyclicIndex(
+          pages.indexOf(questLogWorldMenu.state.values.achievementsPage) +
+            offset,
+          pages,
+        ),
+      });
+    };
+    for (let i: number = 0; i < questLogAchievementsPerPage; i++) {
+      const y: number = 49 + i * 18;
+      hudElementReferences.push(
+        createIconListItem({
+          color: (): Color =>
+            getAchievement(i).hasUnlockedAtServerTime()
+              ? Color.White
+              : Color.Gray,
+          condition: (): boolean => {
+            const pageOffset: number =
+              questLogWorldMenu.state.values.achievementsPage *
+              questLogAchievementsPerPage;
+            return (
+              achievementsTabCondition() &&
+              i + pageOffset < getAchievementIDs().length &&
+              isForcedWorldUIVisible() === false
+            );
+          },
+          icons: [
+            {
+              imagePath: (): string => getAchievement(i).imagePath,
+              palette: (): string[] =>
+                getAchievement(i).hasUnlockedAtServerTime() ? [] : grayColors,
+            },
+          ],
+          isSelected: (): boolean => {
+            const slotAchievementID: string = getAchievement(i).id;
+            return (
+              questLogWorldMenu.state.values.selectedAchievementID ===
+              slotAchievementID
+            );
+          },
+          onClick: (): void => {
+            const slotAchievementID: string = getAchievement(i).id;
+            if (
+              questLogWorldMenu.state.values.selectedAchievementID ===
+              slotAchievementID
+            ) {
+              questLogWorldMenu.state.setValues({
+                selectedAchievementID: null,
+              });
+            } else {
+              questLogWorldMenu.state.setValues({
+                selectedAchievementID: slotAchievementID,
+              });
+            }
+          },
+          slotImagePath: "slots/basic",
+          text: (): CreateLabelOptionsText => ({
+            value: getAchievement(i).name,
+          }),
+          width: 116,
+          x: 182,
+          y,
+        }),
+      );
+    }
+    // Achievements page left arrow
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          achievementsTabCondition() &&
+          isAchievementsPaginated() &&
+          isForcedWorldUIVisible() === false,
+        height: 14,
+        imagePath: "arrows/left",
+        onClick: (): void => {
+          pageAchievements(-1);
+        },
+        width: 14,
+        x: 190,
+        y: 176,
+      }),
+    );
+    // Achievements page right arrow
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          achievementsTabCondition() &&
+          isAchievementsPaginated() &&
+          isForcedWorldUIVisible() === false,
+        height: 14,
+        imagePath: "arrows/right",
+        onClick: (): void => {
+          pageAchievements(1);
+        },
+        width: 14,
+        x: 275,
+        y: 176,
+      }),
+    );
+    // Achievements page number
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            achievementsTabCondition() &&
+            isAchievementsPaginated() &&
+            isForcedWorldUIVisible() === false,
+          x: 296,
+          y: 193,
+        },
+        horizontalAlignment: "right",
+        text: (): CreateLabelOptionsText => ({
+          value: String(questLogWorldMenu.state.values.achievementsPage + 1),
+        }),
+      }),
+    );
     const getSelectedQuest = (): Quest => {
       switch (questLogWorldMenu.state.values.tab) {
         case QuestLogTab.InProgress:
@@ -388,6 +777,8 @@ export const questLogWorldMenu: WorldMenu<
             Quest,
             questLogWorldMenu.state.values.selectedCompletedQuestID,
           );
+        case QuestLogTab.Achievements:
+          throw new Error("No selected quest on achievements tab");
       }
     };
     const getSelectedQuestInstance = (): WorldCharacterQuestInstance => {
@@ -407,12 +798,15 @@ export const questLogWorldMenu: WorldMenu<
           questLogWorldMenu.state.values.selectedInProgressQuestID,
         );
       }
-      if (questLogWorldMenu.state.values.selectedCompletedQuestID === null) {
-        return false;
+      if (questLogWorldMenu.state.values.tab === QuestLogTab.Completed) {
+        if (questLogWorldMenu.state.values.selectedCompletedQuestID === null) {
+          return false;
+        }
+        return getCompletedQuestIDs().includes(
+          questLogWorldMenu.state.values.selectedCompletedQuestID,
+        );
       }
-      return getCompletedQuestIDs().includes(
-        questLogWorldMenu.state.values.selectedCompletedQuestID,
-      );
+      return false;
     };
     const getSelectedQuestDialogueLastPage = (): number => {
       const selectedQuestInstance: WorldCharacterQuestInstance =
@@ -430,6 +824,134 @@ export const questLogWorldMenu: WorldMenu<
       }
       return quest.giverNPC;
     };
+    const isAchievementSelected = (): boolean =>
+      achievementsTabCondition() &&
+      questLogWorldMenu.state.values.selectedAchievementID !== null;
+    const getSelectedAchievement = (): Achievement => {
+      if (questLogWorldMenu.state.values.selectedAchievementID === null) {
+        throw new Error("No selected achievement ID");
+      }
+      return getDefinable(
+        Achievement,
+        questLogWorldMenu.state.values.selectedAchievementID,
+      );
+    };
+    // Selected achievement panel
+    hudElementReferences.push(
+      createPanel({
+        condition: (): boolean =>
+          isAchievementSelected() && isForcedWorldUIVisible() === false,
+        height: 76,
+        imagePath: "panels/basic",
+        width: 176,
+        x: 0,
+        y: 132,
+      }),
+    );
+    // Selected achievement icon
+    hudElementReferences.push(
+      createSlot({
+        condition: (): boolean =>
+          isAchievementSelected() && isForcedWorldUIVisible() === false,
+        icons: [
+          {
+            imagePath: (): string => getSelectedAchievement().imagePath,
+            palette: (): string[] =>
+              getSelectedAchievement().hasUnlockedAtServerTime()
+                ? []
+                : grayColors,
+          },
+        ],
+        imagePath: "slots/basic",
+        x: 7,
+        y: 139,
+      }),
+    );
+    // Selected achievement name
+    labelIDs.push(
+      createLabel({
+        color: (): Color =>
+          getSelectedAchievement().hasUnlockedAtServerTime()
+            ? Color.White
+            : Color.Gray,
+        coordinates: {
+          condition: (): boolean =>
+            isAchievementSelected() && isForcedWorldUIVisible() === false,
+          x: 27,
+          y: 144,
+        },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => ({
+          value: getSelectedAchievement().name,
+        }),
+      }),
+    );
+    // Selected achievement close button
+    hudElementReferences.push(
+      createImage({
+        condition: (): boolean =>
+          isAchievementSelected() && isForcedWorldUIVisible() === false,
+        height: 11,
+        imagePath: "x",
+        onClick: (): void => {
+          questLogWorldMenu.state.setValues({
+            selectedAchievementID: null,
+          });
+        },
+        width: 10,
+        x: 159,
+        y: 139,
+      }),
+    );
+    // Selected achievement description
+    labelIDs.push(
+      createLabel({
+        color: (): Color =>
+          getSelectedAchievement().hasUnlockedAtServerTime()
+            ? Color.White
+            : Color.Gray,
+        coordinates: {
+          condition: (): boolean =>
+            isAchievementSelected() && isForcedWorldUIVisible() === false,
+          x: 8,
+          y: 159,
+        },
+        horizontalAlignment: "left",
+        maxLines: 3,
+        maxWidth: 160,
+        text: (): CreateLabelOptionsText => ({
+          value: getSelectedAchievement().description,
+        }),
+      }),
+    );
+    // Selected achievement unlock date
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean =>
+            isAchievementSelected() &&
+            getSelectedAchievement().hasUnlockedAtServerTime() &&
+            isForcedWorldUIVisible() === false,
+          x: 169,
+          y: 194,
+        },
+        horizontalAlignment: "right",
+        maxLines: 1,
+        maxWidth: 160,
+        text: (): CreateLabelOptionsText => {
+          const date: Date = new Date(
+            getSelectedAchievement().unlockedAtServerTime,
+          );
+          const year: string = String(date.getFullYear());
+          const month: string = String(date.getMonth() + 1).padStart(2, "0");
+          const day: string = String(date.getDate()).padStart(2, "0");
+          return {
+            value: `Unlocked on: ${year}-${month}-${day}`,
+          };
+        },
+      }),
+    );
     const selectedQuestY: number = 24;
     const selectedQuestWidth: number = 176;
     // Selected quest panel
@@ -751,6 +1273,10 @@ export const questLogWorldMenu: WorldMenu<
     ]);
   },
   initialStateValues: {
+    achievementsPage: 0,
+    completedQuestsPage: 0,
+    inProgressQuestsPage: 0,
+    selectedAchievementID: null,
     selectedCompletedQuestID: null,
     selectedInProgressQuestID: null,
     selectedQuestDialoguePage: null,

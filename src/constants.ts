@@ -24,6 +24,7 @@ export const mainMenuCharactersPerPage: number = 7;
 export const markerDuration: number = 267 * 2;
 export const musicFadeDuration: number = 750;
 export const npcQuestsPerPage: number = 3;
+export const questLogAchievementsPerPage: number = 7;
 export const questLogCompletedQuestsPerPage: number = 7;
 export const questLogInProgressQuestsPerPage: number = 7;
 export const serverTimeUpdateInterval: number = 100;

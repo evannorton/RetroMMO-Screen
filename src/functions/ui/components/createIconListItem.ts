@@ -10,6 +10,7 @@ import {
 import { CreateSlotOptionsIcon, createSlot } from "./createSlot";
 
 interface CreateIconListItemOptions {
+  readonly color?: Scriptable<Color>;
   readonly condition?: () => boolean;
   readonly icons: CreateSlotOptionsIcon[];
   readonly isSelected?: Scriptable<boolean>;
@@ -22,6 +23,7 @@ interface CreateIconListItemOptions {
 }
 
 export const createIconListItem = ({
+  color,
   condition,
   icons,
   isSelected,
@@ -47,7 +49,7 @@ export const createIconListItem = ({
   );
   labelIDs.push(
     createLabel({
-      color: Color.White,
+      color: color ?? Color.White,
       coordinates: {
         condition,
         x: x + 20,
