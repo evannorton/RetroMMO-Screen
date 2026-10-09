@@ -947,7 +947,7 @@ export const questLogWorldMenu: WorldMenu<
           const month: string = String(date.getMonth() + 1).padStart(2, "0");
           const day: string = String(date.getDate()).padStart(2, "0");
           return {
-            value: `Unlocked on: ${year}-${month}-${day}`,
+            value: `Unlocked: ${year}-${month}-${day}`,
           };
         },
       }),
