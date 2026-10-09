@@ -1,6 +1,6 @@
 import { Ability } from "../../classes/Ability";
-import { Achievement } from "../../classes/Achievement";
 import {
+  AchievementUpdate,
   AddPlayerUpdate,
   AddPlayerUpstreamWindowMessage,
   BanNoticeUpdate,
@@ -118,6 +118,7 @@ import { isForcedWorldUIVisible } from "../isForcedWorldUIVisible";
 import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
 import { listenForMainMenuUpdates } from "./main-menu/listenForMainMenuUpdates";
 import { listenForWorldUpdates } from "./world/listenForWorldUpdates";
+import { loadAchievementUpdate } from "../load-updates/loadAchievementUpdate";
 import { loadBattleCharacterUpdate } from "../load-updates/loadBattleCharacterUpdate";
 import { loadBattleSubmittedAbilityUpdate } from "../load-updates/loadBattleSubmittedAbilityUpdate";
 import { loadBattleSubmittedItemUpdate } from "../load-updates/loadBattleSubmittedItemUpdate";
@@ -147,6 +148,12 @@ export const listenForUpdates = (): void => {
   listenForBattleUpdates();
   listenForMainMenuUpdates();
   listenForWorldUpdates();
+  listenToSocketioEvent<AchievementUpdate>({
+    event: "achievement",
+    onMessage: (update: AchievementUpdate): void => {
+      loadAchievementUpdate(update);
+    },
+  });
   listenToSocketioEvent<AddPlayerUpdate>({
     event: "add-player",
     onMessage: (update: AddPlayerUpdate): void => {
@@ -638,6 +645,9 @@ export const listenForUpdates = (): void => {
       for (const partyUpdate of update.parties) {
         loadPartyUpdate(partyUpdate);
       }
+      for (const achievementUpdate of update.unlockedAchievements) {
+        loadAchievementUpdate(achievementUpdate);
+      }
       for (const bank of getDefinables(Bank).values()) {
         bank.isOpen = false;
         bank.toggledAt = null;
@@ -964,14 +974,6 @@ export const listenForUpdates = (): void => {
             }
           }
         }
-      }
-      for (const unlockedAchievementUpdate of update.unlockedAchievements) {
-        const achievement: Achievement = getDefinable(
-          Achievement,
-          unlockedAchievementUpdate.achievementID,
-        );
-        achievement.unlockedAtServerTime =
-          unlockedAchievementUpdate.unlockedAtServerTime;
       }
       playMusic();
       setJoystickCondition((): boolean => {
