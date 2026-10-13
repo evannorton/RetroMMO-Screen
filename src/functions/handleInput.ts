@@ -35,6 +35,12 @@ import { closeWorldMenus } from "../functions/world-menus/closeWorldMenus";
 import { emotesWorldMenu } from "../world-menus/emotesWorldMenu";
 import { getDefinables } from "definables";
 import { getWorldState } from "../functions/state/getWorldState";
+import {
+  holdJoystickDirection,
+  pressKeyboardShift,
+  releaseJoystickDirection,
+  releaseKeyboardShift,
+} from "../functions/syncShiftKey";
 import { interact } from "../functions/interact";
 import { isAWorldMenuOpen } from "../functions/world-menus/isAWorldMenuOpen";
 import { isWorldCombatInProgress } from "../functions/isWorldCombatInProgress";
@@ -80,21 +86,10 @@ export const handleInput = (): void => {
   createInputPressHandler({
     inputCollectionID: spinInputCollectionID,
     onInput: (): void => {
-      if (canWalk()) {
-        emitToSocketioServer({
-          data: {
-            key: "ShiftLeft",
-            numlock: false,
-          },
-          event: "keydown",
-        });
-      }
+      pressKeyboardShift();
     },
     onRelease: (): void => {
-      emitToSocketioServer({
-        data: "ShiftLeft" as unknown as object,
-        event: "keyup",
-      });
+      releaseKeyboardShift();
     },
   });
   createInputPressHandler({
@@ -160,21 +155,10 @@ export const handleInput = (): void => {
   createInputPressHandler({
     inputCollectionID: moveLeftJoystickInputCollectionID,
     onInput: (): void => {
-      if (canWalk()) {
-        emitToSocketioServer({
-          data: {
-            key: "JoystickLeft",
-            numlock: false,
-          },
-          event: "keydown",
-        });
-      }
+      holdJoystickDirection("JoystickLeft");
     },
     onRelease: (): void => {
-      emitToSocketioServer({
-        data: "JoystickLeft" as unknown as object,
-        event: "keyup",
-      });
+      releaseJoystickDirection("JoystickLeft");
     },
   });
   createInputPressHandler({
@@ -240,21 +224,10 @@ export const handleInput = (): void => {
   createInputPressHandler({
     inputCollectionID: moveRightJoystickInputCollectionID,
     onInput: (): void => {
-      if (canWalk()) {
-        emitToSocketioServer({
-          data: {
-            key: "JoystickRight",
-            numlock: false,
-          },
-          event: "keydown",
-        });
-      }
+      holdJoystickDirection("JoystickRight");
     },
     onRelease: (): void => {
-      emitToSocketioServer({
-        data: "JoystickRight" as unknown as object,
-        event: "keyup",
-      });
+      releaseJoystickDirection("JoystickRight");
     },
   });
   createInputPressHandler({
@@ -320,21 +293,10 @@ export const handleInput = (): void => {
   createInputPressHandler({
     inputCollectionID: moveUpJoystickInputCollectionID,
     onInput: (): void => {
-      if (canWalk()) {
-        emitToSocketioServer({
-          data: {
-            key: "JoystickUp",
-            numlock: false,
-          },
-          event: "keydown",
-        });
-      }
+      holdJoystickDirection("JoystickUp");
     },
     onRelease: (): void => {
-      emitToSocketioServer({
-        data: "JoystickUp" as unknown as object,
-        event: "keyup",
-      });
+      releaseJoystickDirection("JoystickUp");
     },
   });
   createInputPressHandler({
@@ -400,21 +362,10 @@ export const handleInput = (): void => {
   createInputPressHandler({
     inputCollectionID: moveDownJoystickInputCollectionID,
     onInput: (): void => {
-      if (canWalk()) {
-        emitToSocketioServer({
-          data: {
-            key: "JoystickDown",
-            numlock: false,
-          },
-          event: "keydown",
-        });
-      }
+      holdJoystickDirection("JoystickDown");
     },
     onRelease: (): void => {
-      emitToSocketioServer({
-        data: "JoystickDown" as unknown as object,
-        event: "keyup",
-      });
+      releaseJoystickDirection("JoystickDown");
     },
   });
   createInputPressHandler({

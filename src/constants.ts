@@ -20,6 +20,8 @@ export const grayColors: Color[] = [
   Color.White,
 ];
 export const hotkeyLabelBlinkDuration: number = 750;
+export const joystickTurnMaximumForce: number = 0.65;
+export const joystickTurnMinimumForce: number = 0.2;
 export const mainMenuCharactersPerPage: number = 7;
 export const markerDuration: number = 267 * 2;
 export const musicFadeDuration: number = 750;

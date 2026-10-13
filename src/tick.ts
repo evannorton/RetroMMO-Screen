@@ -55,8 +55,10 @@ import { playMusic } from "./functions/playMusic";
 import { postWindowMessage } from "./functions/postWindowMessage";
 import { sfxVolumeChannelID } from "./volumeChannels";
 import { startBattleFromWorld } from "./functions/startBattleFromWorld";
+import { updateJoystickShift } from "./functions/syncShiftKey";
 
 export const tick = (): void => {
+  updateJoystickShift();
   const constants: Constants = getConstants();
   const currentTime: number = getCurrentTime();
   if (state.values.worldState !== null) {
