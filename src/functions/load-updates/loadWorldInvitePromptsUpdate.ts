@@ -40,22 +40,24 @@ export const loadWorldInvitePromptsUpdate = (
         WorldCharacter,
         invitePrompt.inviterCharacterID,
       );
-      if (promptInviteeCharacter.hasMarkerEntity()) {
-        clearWorldCharacterMarker(invitePrompt.inviteeCharacterID);
-      }
-      if (
+      const isPlayerInvitedMenuOpenForInvitee: boolean =
         playerInvitedWorldMenu.isOpen() &&
         playerInvitedWorldMenu.openOptions.playerID ===
-          promptInviteeCharacter.playerID
-      ) {
+          promptInviteeCharacter.playerID;
+      const isInviteeLocalCharacter: boolean =
+        invitePrompt.inviteeCharacterID === worldState.values.worldCharacterID;
+      if (isPlayerInvitedMenuOpenForInvitee) {
+        if (promptInviteeCharacter.hasMarkerEntity()) {
+          clearWorldCharacterMarker(invitePrompt.inviteeCharacterID);
+        }
         playerInvitedWorldMenu.close({});
-      } else if (
-        invitePrompt.inviteeCharacterID === worldState.values.worldCharacterID
-      ) {
+      } else if (isInviteeLocalCharacter) {
         closeWorldMenus({});
         worldMenu.open({
           inviterPlayerID: promptInviterCharacter.playerID,
         });
+      } else if (promptInviteeCharacter.hasMarkerEntity()) {
+        clearWorldCharacterMarker(invitePrompt.inviteeCharacterID);
       }
     }
   }
