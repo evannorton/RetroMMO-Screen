@@ -425,6 +425,8 @@ export const tick = (): void => {
                     deathEvent.target.battlerID,
                   );
                   battler.isAlive = false;
+                  battler.bleed = null;
+                  battler.poison = null;
                 }
                 break;
               }
