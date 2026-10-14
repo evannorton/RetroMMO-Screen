@@ -858,15 +858,7 @@ export const tradeWorldMenu: WorldMenu<
           },
           slotImagePath: "slots/basic",
           text: (): CreateLabelOptionsText => {
-            const itemInstanceID: string | undefined =
-              worldState.values.bagItemInstanceIDs[i];
-            if (typeof itemInstanceID === "undefined") {
-              throw new Error("Item instance ID not found");
-            }
-            const itemInstance: ItemInstance = getDefinable(
-              ItemInstance,
-              itemInstanceID,
-            );
+            const itemInstance: ItemInstance = getTradeBagItemInstance(i);
             return {
               value: itemInstance.item.name,
             };
