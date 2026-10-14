@@ -10,6 +10,7 @@ import {
   CombatInstakillFinishEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
+  CombatReviveEvent,
   CombatUseAbilityEvent,
   CombatUseItemEvent,
   CombatantType,
@@ -121,6 +122,14 @@ const getCombatEventSFXAudioPath = (
       const renewEvent: CombatRenewEvent = combatEvent as CombatRenewEvent;
       const ability: Ability = getDefinable(Ability, renewEvent.abilityID);
       return ability.impactAudioPath;
+    }
+    case CombatEventType.Revive: {
+      const reviveEvent: CombatReviveEvent = combatEvent as CombatReviveEvent;
+      const ability: Ability = getDefinable(Ability, reviveEvent.abilityID);
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.ReviveFailure: {
+      return "sfx/fail";
     }
     case CombatEventType.UseAbility: {
       const useAbilityEvent: CombatUseAbilityEvent =

@@ -17,6 +17,7 @@ import {
   CombatInstakillFinishEvent,
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
+  CombatReviveEvent,
   CombatantType,
   Constants,
   Direction,
@@ -1051,6 +1052,11 @@ export const createBattleUI = ({
                   eventInstance.event as CombatHealEvent;
                 return healEvent.target.battlerID === enemyBattlerID;
               }
+              case CombatEventType.Revive: {
+                const reviveEvent: CombatReviveEvent =
+                  eventInstance.event as CombatReviveEvent;
+                return reviveEvent.target.battlerID === enemyBattlerID;
+              }
               case CombatEventType.InstakillFinish: {
                 const instakillFinishEvent: CombatInstakillFinishEvent =
                   eventInstance.event as CombatInstakillFinishEvent;
@@ -1104,6 +1110,11 @@ export const createBattleUI = ({
                 const healEvent: CombatHealEvent =
                   eventInstance.event as CombatHealEvent;
                 return healEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.Revive: {
+                const reviveEvent: CombatReviveEvent =
+                  eventInstance.event as CombatReviveEvent;
+                return reviveEvent.target.battlerID === enemyBattlerID;
               }
               case CombatEventType.InstakillFinish: {
                 const instakillFinishEvent: CombatInstakillEvent =
@@ -1176,6 +1187,12 @@ export const createBattleUI = ({
           const healEvent: CombatHealEvent =
             matchedEventInstance.event as CombatHealEvent;
           return getDefinable(Ability, healEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case CombatEventType.Revive: {
+          const reviveEvent: CombatReviveEvent =
+            matchedEventInstance.event as CombatReviveEvent;
+          return getDefinable(Ability, reviveEvent.abilityID)
             .battleImpactAnimation;
         }
         case CombatEventType.InstakillFinish: {

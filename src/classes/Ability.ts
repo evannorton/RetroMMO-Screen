@@ -23,6 +23,7 @@ export class Ability extends Definable {
   private readonly _impactInstakillAudioPath?: string;
   private readonly _mpCost: number;
   private readonly _name: string;
+  private readonly _revives: boolean;
   private readonly _targetType: TargetType;
   private readonly _willCost: number;
   public constructor(options: AbilityOptions) {
@@ -45,6 +46,7 @@ export class Ability extends Definable {
       options.definition.impactInstakillAudioPath;
     this._mpCost = options.definition.mpCost ?? 0;
     this._name = options.definition.name;
+    this._revives = options.definition.revives ?? false;
     this._targetType = options.definition.targetType;
     this._willCost = options.definition.willCost ?? 0;
   }
@@ -174,6 +176,10 @@ export class Ability extends Definable {
 
   public get name(): string {
     return this._name;
+  }
+
+  public get revives(): boolean {
+    return this._revives;
   }
 
   public get targetType(): TargetType {

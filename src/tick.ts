@@ -13,6 +13,7 @@ import {
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
+  CombatReviveEvent,
   CombatUseAbilityEvent,
   Constants,
   Direction,
@@ -451,6 +452,31 @@ export const tick = (): void => {
                     battler.resources.maxHP,
                     battler.resources.hp + healEvent.amount,
                   );
+                }
+                break;
+              }
+              case CombatEventType.Revive: {
+                const reviveEvent: CombatReviveEvent =
+                  eventInstance.event as CombatReviveEvent;
+                if (typeof reviveEvent.target.battlerID === "undefined") {
+                  throw new Error("No revive event target battler ID");
+                }
+                if (definableExists(Battler, reviveEvent.target.battlerID)) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    reviveEvent.target.battlerID,
+                  );
+                  battler.isAlive = true;
+                  if (
+                    state.values.battleState.values.friendlyBattlerIDs.includes(
+                      reviveEvent.target.battlerID,
+                    )
+                  ) {
+                    battler.resources.hp = Math.min(
+                      battler.resources.maxHP,
+                      battler.resources.hp + reviveEvent.amount,
+                    );
+                  }
                 }
                 break;
               }

@@ -27,6 +27,8 @@ import {
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
+  CombatReviveEvent,
+  CombatReviveFailureEvent,
   CombatUseAbilityEvent,
   CombatUseItemEvent,
 } from "retrommo-types";
@@ -554,6 +556,57 @@ export const getCombatEventText = (
       value += `${verb}.`;
       return {
         colors,
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.Revive: {
+      const reviveCombatEvent: CombatReviveEvent =
+        combatEvent as CombatReviveEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: reviveCombatEvent.target.monsterName,
+        username: reviveCombatEvent.target.username,
+      });
+      if (typeof reviveCombatEvent.target.username !== "undefined") {
+        trims.push({
+          index: 0,
+          length: combatantName.length,
+        });
+      }
+      const verb: string = "revived";
+      value += `${combatantName} is ${verb}`;
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: verb.length,
+      });
+      value += ".";
+      return {
+        colors,
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.ReviveFailure: {
+      const reviveFailureCombatEvent: CombatReviveFailureEvent =
+        combatEvent as CombatReviveFailureEvent;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: reviveFailureCombatEvent.target.monsterName,
+        username: reviveFailureCombatEvent.target.username,
+      });
+      if (typeof reviveFailureCombatEvent.target.username !== "undefined") {
+        trims.push({
+          index: value.length,
+          length: combatantName.length,
+        });
+      }
+      value += `${combatantName} is already alive.`;
+      return {
         trims,
         value,
       };
