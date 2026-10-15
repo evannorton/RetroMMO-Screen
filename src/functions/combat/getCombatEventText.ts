@@ -21,6 +21,7 @@ import {
   CombatInstakillEvent,
   CombatInstakillFinishEvent,
   CombatInventoryFullEvent,
+  CombatLearnAbilityEvent,
   CombatLevelUpEvent,
   CombatNewLevelEvent,
   CombatObtainEvent,
@@ -394,6 +395,23 @@ export const getCombatEventText = (
       return {
         trims,
         value,
+      };
+    }
+    case CombatEventType.LearnAbility: {
+      const learnAbilityEvent: CombatLearnAbilityEvent =
+        combatEvent as CombatLearnAbilityEvent;
+      const ability: Ability = getDefinable(
+        Ability,
+        learnAbilityEvent.abilityID,
+      );
+      return {
+        trims: [
+          {
+            index: 0,
+            length: learnAbilityEvent.username.length,
+          },
+        ],
+        value: `${learnAbilityEvent.username} learns ${ability.name}.`,
       };
     }
     case CombatEventType.LevelUp: {
