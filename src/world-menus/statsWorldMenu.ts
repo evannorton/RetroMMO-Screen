@@ -485,6 +485,7 @@ export const statsWorldMenu: WorldMenu<
               });
             },
           },
+          condition: (): boolean => isForcedWorldUIVisible() === false,
           icons: [
             {
               condition: (): boolean =>
@@ -529,7 +530,8 @@ export const statsWorldMenu: WorldMenu<
             statsWorldMenu.state.values.selectedBoostItemInstanceID !== null &&
             worldState.values.boostItemInstanceIDs.includes(
               statsWorldMenu.state.values.selectedBoostItemInstanceID,
-            ),
+            ) &&
+            isForcedWorldUIVisible() === false,
           x: 257,
           y: 136,
         },
@@ -560,7 +562,8 @@ export const statsWorldMenu: WorldMenu<
           statsWorldMenu.state.values.selectedBoostItemInstanceID !== null &&
           worldState.values.boostItemInstanceIDs.includes(
             statsWorldMenu.state.values.selectedBoostItemInstanceID,
-          ),
+          ) &&
+          isForcedWorldUIVisible() === false,
         height: 16,
         imagePath: "pressable-buttons/red",
         onClick: (): void => {
