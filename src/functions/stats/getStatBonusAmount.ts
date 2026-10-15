@@ -180,7 +180,7 @@ export const getStatBonusAmount = (stat: Stat): number => {
       }
     },
   );
-  const milestoneStatIncreaseProportion: number = 0.1;
+  const milestoneStatIncreaseProportion: number = 0.2;
   amount += Math.round(
     baseStat * milestoneStatIncreaseProportion * milestoneStatIncreaseCount,
   );
