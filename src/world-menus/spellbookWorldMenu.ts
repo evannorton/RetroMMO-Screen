@@ -5,8 +5,10 @@ import {
   CreateLabelOptionsText,
   HUDElementReferences,
   State,
+  createButton,
   createInputPressHandler,
   createLabel,
+  createSprite,
   emitToSocketioServer,
   getCurrentTime,
   getGameWidth,
@@ -31,11 +33,17 @@ import {
   targetWorldPartyCharacter3InputCollectionID,
 } from "../inputCollections";
 
+enum SpellbookTab {
+  Abilities = "abilities",
+  Milestones = "milestones",
+}
+
 export interface SpellbookWorldMenuOpenOptions {}
 export interface SpellbookWorldMenuStateSchema {
   isAwaitingWorldCombat: boolean;
   selectedAbilityID: string | null;
   startedTargetingAt: number | null;
+  tab: SpellbookTab;
 }
 const getAbilityIDs = (): string[] => {
   const worldState: State<WorldStateSchema> = getWorldState();
@@ -78,12 +86,17 @@ export const spellbookWorldMenu: WorldMenu<
         worldState.values.worldCharacterID,
       );
       const gameWidth: number = getGameWidth();
+      const menuCondition = (): boolean =>
+        spellbookWorldMenu.state.values.startedTargetingAt === null &&
+        isForcedWorldUIVisible() === false;
+      const abilitiesTabCondition = (): boolean =>
+        spellbookWorldMenu.state.values.tab === SpellbookTab.Abilities;
+      const milestonesTabCondition = (): boolean =>
+        spellbookWorldMenu.state.values.tab === SpellbookTab.Milestones;
       // Background panel
       hudElementReferences.push(
         createPanel({
-          condition: (): boolean =>
-            spellbookWorldMenu.state.values.startedTargetingAt === null &&
-            isForcedWorldUIVisible() === false,
+          condition: menuCondition,
           height: 184,
           imagePath: "panels/basic",
           width: 128,
@@ -91,12 +104,112 @@ export const spellbookWorldMenu: WorldMenu<
           y: 24,
         }),
       );
+      // Tabs
+      spriteIDs.push(
+        createSprite({
+          animationID: (): string => {
+            switch (spellbookWorldMenu.state.values.tab) {
+              case SpellbookTab.Abilities:
+                return "1";
+              case SpellbookTab.Milestones:
+                return "2";
+            }
+          },
+          animations: [
+            {
+              frames: [
+                {
+                  height: 21,
+                  sourceHeight: 21,
+                  sourceWidth: 124,
+                  sourceX: 0,
+                  sourceY: 0,
+                  width: 124,
+                },
+              ],
+              id: "1",
+            },
+            {
+              frames: [
+                {
+                  height: 21,
+                  sourceHeight: 21,
+                  sourceWidth: 124,
+                  sourceX: 124,
+                  sourceY: 0,
+                  width: 124,
+                },
+              ],
+              id: "2",
+            },
+          ],
+          coordinates: {
+            condition: menuCondition,
+            x: 178,
+            y: 26,
+          },
+          imagePath: "tabs/2",
+        }),
+      );
+      hudElementReferences.push(
+        createImage({
+          condition: menuCondition,
+          height: 16,
+          imagePath: "tab-icons/spellbook/abilities",
+          width: 16,
+          x: 197,
+          y: 29,
+        }),
+      );
+      hudElementReferences.push(
+        createImage({
+          condition: menuCondition,
+          height: 16,
+          imagePath: "tab-icons/spellbook/milestones",
+          width: 16,
+          x: 250,
+          y: 29,
+        }),
+      );
+      buttonIDs.push(
+        createButton({
+          coordinates: {
+            condition: (): boolean =>
+              menuCondition() && milestonesTabCondition(),
+            x: 179,
+            y: 27,
+          },
+          height: 20,
+          onClick: (): void => {
+            spellbookWorldMenu.state.setValues({
+              tab: SpellbookTab.Abilities,
+            });
+          },
+          width: 52,
+        }),
+      );
+      buttonIDs.push(
+        createButton({
+          coordinates: {
+            condition: (): boolean =>
+              menuCondition() && abilitiesTabCondition(),
+            x: 232,
+            y: 27,
+          },
+          height: 20,
+          onClick: (): void => {
+            spellbookWorldMenu.state.setValues({
+              selectedAbilityID: null,
+              tab: SpellbookTab.Milestones,
+            });
+          },
+          width: 51,
+        }),
+      );
       // X button
       hudElementReferences.push(
         createImage({
-          condition: (): boolean =>
-            spellbookWorldMenu.state.values.startedTargetingAt === null &&
-            isForcedWorldUIVisible() === false,
+          condition: menuCondition,
           height: 11,
           imagePath: "x",
           onClick: (): void => {
@@ -108,6 +221,7 @@ export const spellbookWorldMenu: WorldMenu<
         }),
       );
       const selectedAbilityCondition = (): boolean =>
+        abilitiesTabCondition() &&
         spellbookWorldMenu.state.values.selectedAbilityID !== null &&
         getAbilityIDs().includes(
           spellbookWorldMenu.state.values.selectedAbilityID,
@@ -120,6 +234,7 @@ export const spellbookWorldMenu: WorldMenu<
         hudElementReferences.push(
           createIconListItem({
             condition: (): boolean =>
+              abilitiesTabCondition() &&
               spellbookWorldMenu.state.values.startedTargetingAt === null &&
               i < getAbilityIDs().length &&
               isForcedWorldUIVisible() === false,
@@ -546,6 +661,7 @@ export const spellbookWorldMenu: WorldMenu<
       isAwaitingWorldCombat: false,
       selectedAbilityID: null,
       startedTargetingAt: null,
+      tab: SpellbookTab.Abilities,
     },
   },
 );
