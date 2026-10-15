@@ -27,6 +27,8 @@ import { createUnderstrike } from "../functions/ui/components/createUnderstrike"
 import { getConstants } from "../functions/getConstants";
 import { getDefinable, getDefinables, getDefinablesCount } from "definables";
 import { getFormattedInteger } from "../functions/getFormattedInteger";
+import { getMilestoneMaxHPBonusAmount } from "../functions/stats/getMilestoneMaxHPBonusAmount";
+import { getMilestoneMaxMPBonusAmount } from "../functions/stats/getMilestoneMaxMPBonusAmount";
 import { getStatAbbreviation } from "../functions/stats/getStatAbbreviation";
 import { getStatBonusAmount } from "../functions/stats/getStatBonusAmount";
 import { getStatName } from "../functions/stats/getStatName";
@@ -139,11 +141,18 @@ export const statsWorldMenu: WorldMenu<
           y: 50,
         },
         horizontalAlignment: "right",
-        text: (): CreateLabelOptionsText => ({
-          value: `${getFormattedInteger(
+        text: (): CreateLabelOptionsText => {
+          const bonusMaxHP: number = getMilestoneMaxHPBonusAmount();
+          const hpText: string = `${getFormattedInteger(
             worldCharacter.resources.hp,
-          )}/${getFormattedInteger(worldCharacter.resources.maxHP)}`,
-        }),
+          )}/${getFormattedInteger(worldCharacter.resources.maxHP)}`;
+          return {
+            value:
+              bonusMaxHP === 0
+                ? hpText
+                : `${hpText} (+${getFormattedInteger(bonusMaxHP)})`,
+          };
+        },
       }),
     );
     // Experience name
@@ -222,10 +231,15 @@ export const statsWorldMenu: WorldMenu<
           if (worldCharacter.resources.maxMP === null) {
             throw new Error("Max MP is null");
           }
+          const bonusMaxMP: number = getMilestoneMaxMPBonusAmount();
+          const mpText: string = `${getFormattedInteger(
+            worldCharacter.resources.mp,
+          )}/${getFormattedInteger(worldCharacter.resources.maxMP)}`;
           return {
-            value: `${getFormattedInteger(
-              worldCharacter.resources.mp,
-            )}/${getFormattedInteger(worldCharacter.resources.maxMP)}`,
+            value:
+              bonusMaxMP === 0
+                ? mpText
+                : `${mpText} (+${getFormattedInteger(bonusMaxMP)})`,
           };
         },
       }),

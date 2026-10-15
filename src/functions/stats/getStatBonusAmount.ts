@@ -1,12 +1,12 @@
 import { Boost } from "../../classes/Boost";
-import { ClassMilestone } from "../../classes/Class";
 import { ItemInstance } from "../../classes/ItemInstance";
 import { MilestoneChoice } from "../../classes/MilestoneChoice";
 import { Stat } from "retrommo-types";
 import { State } from "pixel-pigeon";
 import { WorldCharacter } from "../../classes/WorldCharacter";
 import { WorldStateSchema } from "../../state";
-import { definableExists, getDefinable } from "definables";
+import { getDefinable } from "definables";
+import { getUnlockedMilestoneChoices } from "./getUnlockedMilestoneChoices";
 import { getWorldState } from "../state/getWorldState";
 
 export const getStatBonusAmount = (stat: Stat): number => {
@@ -130,35 +130,11 @@ export const getStatBonusAmount = (stat: Stat): number => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  let milestoneStatIncreaseCount: number = 0;
-  Object.entries(worldCharacter.player.character.milestoneChoiceIDs).forEach(
-    ([milestoneLevelKey, milestoneChoiceID]: [string, string]): void => {
-      const milestoneLevel: number = Number(milestoneLevelKey);
-      if (
-        Number.isInteger(milestoneLevel) &&
-        milestoneLevel <= worldCharacter.player.character.level &&
-        definableExists(MilestoneChoice, milestoneChoiceID)
-      ) {
-        const classMilestone: ClassMilestone | undefined =
-          worldCharacter.player.character.class.milestones.find(
-            (milestone: ClassMilestone): boolean =>
-              milestone.level === milestoneLevel,
-          );
-        if (
-          typeof classMilestone !== "undefined" &&
-          classMilestone.choiceIDs.includes(milestoneChoiceID)
-        ) {
-          const milestoneChoice: MilestoneChoice = getDefinable(
-            MilestoneChoice,
-            milestoneChoiceID,
-          );
-          if (milestoneChoice.hasStat() && milestoneChoice.stat === stat) {
-            milestoneStatIncreaseCount += 1;
-          }
-        }
-      }
-    },
-  );
+  const milestoneStatIncreaseCount: number =
+    getUnlockedMilestoneChoices().filter(
+      (milestoneChoice: MilestoneChoice): boolean =>
+        milestoneChoice.hasStat() && milestoneChoice.stat === stat,
+    ).length;
   const milestoneStatIncreasePerLevel: number = 0.5;
   amount += Math.round(
     milestoneStatIncreasePerLevel *
