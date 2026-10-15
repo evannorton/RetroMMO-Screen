@@ -7,6 +7,7 @@ import { WorldCharacter } from "./WorldCharacter";
 export interface PlayerOptionsCharacter {
   readonly classID: string;
   readonly level: number;
+  readonly milestoneChoiceIDs: Record<number, string>;
   readonly partyID: string;
 }
 export interface PlayerOptions {
@@ -21,6 +22,7 @@ export interface PlayerOptions {
 export interface PlayerCharacter {
   readonly classID: string;
   level: number;
+  milestoneChoiceIDs: Record<number, string>;
   partyID: string;
 }
 export interface PlayerCharacterWithAccessors extends PlayerCharacter {
@@ -46,6 +48,7 @@ export class Player extends Definable {
         ? {
             classID: options.character.classID,
             level: options.character.level,
+            milestoneChoiceIDs: options.character.milestoneChoiceIDs,
             partyID: options.character.partyID,
           }
         : null;
@@ -82,6 +85,9 @@ export class Player extends Definable {
         },
         set level(level: number) {
           character.level = level;
+        },
+        get milestoneChoiceIDs(): Record<number, string> {
+          return character.milestoneChoiceIDs;
         },
         get party(): Party {
           return getDefinable(Party, character.partyID);

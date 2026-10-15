@@ -23,6 +23,7 @@ import {
   ItemDefinition,
   LandscapeDefinition,
   MaskDefinition,
+  MilestoneChoiceDefinition,
   MonsterDefinition,
   MusicTrackDefinition,
   NPCDefinition,
@@ -70,6 +71,7 @@ import { HeadCosmetic } from "../classes/HeadCosmetic";
 import { Item } from "../classes/Item";
 import { Landscape } from "../classes/Landscape";
 import { Mask } from "../classes/Mask";
+import { MilestoneChoice } from "../classes/MilestoneChoice";
 import { Monster } from "../classes/Monster";
 import { MusicTrack } from "../classes/MusicTrack";
 import { NPC } from "../classes/NPC";
@@ -320,6 +322,16 @@ export const loadGameData = async (): Promise<void> => {
             gameData[className] as Record<string, MaskDefinition>
           )[id] as MaskDefinition;
           new Mask({
+            definition,
+            id,
+          });
+          break;
+        }
+        case "MilestoneChoice": {
+          const definition: MilestoneChoiceDefinition = (
+            gameData[className] as Record<string, MilestoneChoiceDefinition>
+          )[id] as MilestoneChoiceDefinition;
+          new MilestoneChoice({
             definition,
             id,
           });

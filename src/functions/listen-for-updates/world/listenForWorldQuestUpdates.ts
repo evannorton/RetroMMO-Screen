@@ -110,6 +110,7 @@ export const listenForWorldQuestUpdates = (): void => {
         player.character = {
           classID: player.character.classID,
           level: playerUpdate.level,
+          milestoneChoiceIDs: player.character.milestoneChoiceIDs,
           partyID: player.character.partyID,
         };
       }

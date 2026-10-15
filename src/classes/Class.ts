@@ -1,6 +1,7 @@
 import {
   ClassDefinition,
   ClassDefinitionAbilityUnlock,
+  ClassDefinitionMilestone,
   ResourcePool,
 } from "retrommo-types";
 import { Definable, getDefinable, getDefinables } from "definables";
@@ -17,6 +18,10 @@ export interface ClassOptions {
 }
 export interface ClassAbilityUnlock {
   readonly abilityID: string;
+  readonly level: number;
+}
+export interface ClassMilestone {
+  readonly choiceIDs: readonly string[];
   readonly level: number;
 }
 export class Class extends Definable {
@@ -39,6 +44,7 @@ export class Class extends Definable {
   private _figureOrderOffset: number | null = null;
   private _hairDyeItemOrderOffset: number | null = null;
   private _maskItemOrderOffset: number | null = null;
+  private readonly _milestones: readonly ClassMilestone[];
   private readonly _name: string;
   private readonly _order: number;
   private _outfitItemOrderOffset: number | null = null;
@@ -54,6 +60,12 @@ export class Class extends Definable {
       }),
     );
     this._description = options.definition.description;
+    this._milestones = options.definition.milestones.map(
+      (milestone: ClassDefinitionMilestone): ClassMilestone => ({
+        choiceIDs: milestone.choiceIDs,
+        level: milestone.level,
+      }),
+    );
     this._defaultClothesDyeItemID = options.definition.defaultClothesDyeItemID;
     this._defaultFigureID = options.definition.defaultFigureID;
     this._defaultHairDyeItemID = options.definition.defaultHairDyeItemID;
@@ -135,6 +147,10 @@ export class Class extends Definable {
       return this._maskItemOrderOffset;
     }
     throw new Error(this.getAccessorErrorMessage("maskItemOrderOffset"));
+  }
+
+  public get milestones(): readonly ClassMilestone[] {
+    return this._milestones;
   }
 
   public get name(): string {

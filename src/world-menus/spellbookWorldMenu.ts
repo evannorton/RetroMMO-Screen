@@ -1,6 +1,11 @@
 import { Ability } from "../classes/Ability";
-import { ClassAbilityUnlock } from "../classes/Class";
-import { Color, TargetType, WorldUseAbilityRequest } from "retrommo-types";
+import { ClassAbilityUnlock, ClassMilestone } from "../classes/Class";
+import {
+  Color,
+  TargetType,
+  WorldUnlockMilestoneChoiceRequest,
+  WorldUseAbilityRequest,
+} from "retrommo-types";
 import {
   CreateLabelOptionsText,
   HUDElementReferences,
@@ -14,6 +19,7 @@ import {
   getGameWidth,
   mergeHUDElementReferences,
 } from "pixel-pigeon";
+import { MilestoneChoice } from "../classes/MilestoneChoice";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema } from "../state";
@@ -22,10 +28,16 @@ import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
 import { createPressableButton } from "../functions/ui/components/createPressableButton";
 import { createSlot } from "../functions/ui/components/createSlot";
+import { getCyclicIndex } from "../functions/getCyclicIndex";
 import { getDefinable } from "definables";
+import { getFormattedInteger } from "../functions/getFormattedInteger";
 import { getWorldState } from "../functions/state/getWorldState";
+import {
+  grayColors,
+  spellbookAbilitiesPerPage,
+  spellbookMilestonesPerPage,
+} from "../constants";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
-import { spellbookAbilitiesPerPage } from "../constants";
 import { submitStarwatchEvent } from "../functions/starwatch/submitStarwatchEvent";
 import {
   targetWorldPartyCharacter1InputCollectionID,
@@ -41,7 +53,10 @@ enum SpellbookTab {
 export interface SpellbookWorldMenuOpenOptions {}
 export interface SpellbookWorldMenuStateSchema {
   isAwaitingWorldCombat: boolean;
+  milestonesPage: number;
   selectedAbilityID: string | null;
+  selectedMilestoneChoiceID: string | null;
+  selectedMilestoneIndex: number | null;
   startedTargetingAt: number | null;
   tab: SpellbookTab;
 }
@@ -59,6 +74,84 @@ const getAbilityIDs = (): string[] => {
     .map(
       (abilityUnlock: ClassAbilityUnlock): string => abilityUnlock.abilityID,
     );
+};
+const getClassMilestones = (): readonly ClassMilestone[] => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  const worldCharacter: WorldCharacter = getDefinable(
+    WorldCharacter,
+    worldState.values.worldCharacterID,
+  );
+  return worldCharacter.player.character.class.milestones;
+};
+const getMilestoneChoiceIDs = (): readonly string[] => {
+  const milestoneChoiceIDs: string[] = [];
+  getClassMilestones().forEach((milestone: ClassMilestone): void => {
+    milestone.choiceIDs.forEach((choiceID: string): void => {
+      milestoneChoiceIDs.push(choiceID);
+    });
+  });
+  return milestoneChoiceIDs;
+};
+const getPlayerMilestoneChoiceID = (
+  milestoneLevel: number,
+): string | undefined => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  const worldCharacter: WorldCharacter = getDefinable(
+    WorldCharacter,
+    worldState.values.worldCharacterID,
+  );
+  return worldCharacter.player.character.milestoneChoiceIDs[milestoneLevel];
+};
+const getMilestoneTextColor = (milestoneLevel: number): Color => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  const worldCharacter: WorldCharacter = getDefinable(
+    WorldCharacter,
+    worldState.values.worldCharacterID,
+  );
+  let color: Color = Color.Gray;
+  if (worldCharacter.player.character.level >= milestoneLevel) {
+    if (typeof getPlayerMilestoneChoiceID(milestoneLevel) === "undefined") {
+      color = Color.VeryLightBlue;
+    } else {
+      color = Color.White;
+    }
+  }
+  return color;
+};
+const getMilestoneChoiceTextColor = (
+  milestoneLevel: number,
+  choiceID: string,
+): Color => {
+  const selectedChoiceID: string | undefined =
+    getPlayerMilestoneChoiceID(milestoneLevel);
+  let color: Color = getMilestoneTextColor(milestoneLevel);
+  if (
+    typeof selectedChoiceID !== "undefined" &&
+    selectedChoiceID !== choiceID
+  ) {
+    color = Color.Gray;
+  }
+  return color;
+};
+const getMilestoneChoiceIconPalette = (
+  milestoneLevel: number,
+  choiceID: string,
+): Color[] => {
+  const worldState: State<WorldStateSchema> = getWorldState();
+  const worldCharacter: WorldCharacter = getDefinable(
+    WorldCharacter,
+    worldState.values.worldCharacterID,
+  );
+  const selectedChoiceID: string | undefined =
+    getPlayerMilestoneChoiceID(milestoneLevel);
+  let palette: Color[] = grayColors;
+  if (
+    worldCharacter.player.character.level >= milestoneLevel &&
+    (typeof selectedChoiceID === "undefined" || selectedChoiceID === choiceID)
+  ) {
+    palette = [];
+  }
+  return palette;
 };
 
 export const getSpellbookAbility = (i: number): Ability => {
@@ -182,6 +275,8 @@ export const spellbookWorldMenu: WorldMenu<
           height: 20,
           onClick: (): void => {
             spellbookWorldMenu.state.setValues({
+              selectedMilestoneChoiceID: null,
+              selectedMilestoneIndex: null,
               tab: SpellbookTab.Abilities,
             });
           },
@@ -275,6 +370,195 @@ export const spellbookWorldMenu: WorldMenu<
           }),
         );
       }
+      const isMilestonesPaginated = (): boolean =>
+        getClassMilestones().length > spellbookMilestonesPerPage;
+      const getMilestonesLastPage = (): number =>
+        Math.max(
+          Math.floor(
+            (getClassMilestones().length - 1) / spellbookMilestonesPerPage,
+          ),
+          0,
+        );
+      const pageMilestones = (offset: number): void => {
+        const pages: number[] = [];
+        for (let i: number = 0; i < getMilestonesLastPage() + 1; i++) {
+          pages.push(i);
+        }
+        spellbookWorldMenu.state.setValues({
+          milestonesPage: getCyclicIndex(
+            pages.indexOf(spellbookWorldMenu.state.values.milestonesPage) +
+              offset,
+            pages,
+          ),
+        });
+      };
+      const milestones: readonly ClassMilestone[] = getClassMilestones();
+      const milestonesPageCount: number = Math.max(
+        Math.ceil(milestones.length / spellbookMilestonesPerPage),
+        1,
+      );
+      for (
+        let pageIndex: number = 0;
+        pageIndex < milestonesPageCount;
+        pageIndex++
+      ) {
+        let milestoneContentY: number = 50;
+        const milestonesOnPage: readonly ClassMilestone[] = milestones.slice(
+          pageIndex * spellbookMilestonesPerPage,
+          pageIndex * spellbookMilestonesPerPage + spellbookMilestonesPerPage,
+        );
+        const isMilestonePageVisible = (): boolean =>
+          milestonesTabCondition() &&
+          spellbookWorldMenu.state.values.milestonesPage === pageIndex &&
+          isForcedWorldUIVisible() === false;
+        milestonesOnPage.forEach(
+          (milestone: ClassMilestone, milestoneOnPageIndex: number): void => {
+            const milestoneIndex: number =
+              pageIndex * spellbookMilestonesPerPage + milestoneOnPageIndex;
+            const milestoneHeaderY: number = milestoneContentY;
+            labelIDs.push(
+              createLabel({
+                color: (): Color => getMilestoneTextColor(milestone.level),
+                coordinates: {
+                  condition: isMilestonePageVisible,
+                  x: 183,
+                  y: milestoneHeaderY + 4,
+                },
+                horizontalAlignment: "left",
+                text: (): CreateLabelOptionsText => ({
+                  value: `Level ${getFormattedInteger(milestone.level)}`,
+                }),
+              }),
+            );
+            milestoneContentY += 17;
+            milestone.choiceIDs.forEach((choiceID: string): void => {
+              const choiceY: number = milestoneContentY;
+              hudElementReferences.push(
+                createIconListItem({
+                  color: (): Color =>
+                    getMilestoneChoiceTextColor(milestone.level, choiceID),
+                  condition: isMilestonePageVisible,
+                  icons: [
+                    {
+                      imagePath: (): string =>
+                        getDefinable(MilestoneChoice, choiceID).imagePath,
+                      palette: (): Color[] =>
+                        getMilestoneChoiceIconPalette(
+                          milestone.level,
+                          choiceID,
+                        ),
+                    },
+                  ],
+                  isSelected: (): boolean =>
+                    spellbookWorldMenu.state.values
+                      .selectedMilestoneChoiceID === choiceID &&
+                    spellbookWorldMenu.state.values.selectedMilestoneIndex ===
+                      milestoneIndex,
+                  onClick: (): void => {
+                    if (
+                      spellbookWorldMenu.state.values
+                        .selectedMilestoneChoiceID === choiceID &&
+                      spellbookWorldMenu.state.values.selectedMilestoneIndex ===
+                        milestoneIndex
+                    ) {
+                      spellbookWorldMenu.state.setValues({
+                        selectedMilestoneChoiceID: null,
+                        selectedMilestoneIndex: null,
+                      });
+                    } else {
+                      spellbookWorldMenu.state.setValues({
+                        selectedMilestoneChoiceID: choiceID,
+                        selectedMilestoneIndex: milestoneIndex,
+                      });
+                    }
+                  },
+                  slotImagePath: "slots/basic",
+                  text: (): CreateLabelOptionsText => ({
+                    value: getDefinable(MilestoneChoice, choiceID).name,
+                  }),
+                  width: 116,
+                  x: 182,
+                  y: choiceY,
+                }),
+              );
+              milestoneContentY += 18;
+            });
+            milestoneContentY += 1;
+          },
+        );
+      }
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            milestonesTabCondition() &&
+            isMilestonesPaginated() &&
+            isForcedWorldUIVisible() === false,
+          height: 14,
+          imagePath: "arrows/left",
+          onClick: (): void => {
+            pageMilestones(-1);
+          },
+          width: 14,
+          x: 190,
+          y: 176,
+        }),
+      );
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            milestonesTabCondition() &&
+            isMilestonesPaginated() &&
+            isForcedWorldUIVisible() === false,
+          height: 14,
+          imagePath: "arrows/right",
+          onClick: (): void => {
+            pageMilestones(1);
+          },
+          width: 14,
+          x: 275,
+          y: 176,
+        }),
+      );
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean =>
+              milestonesTabCondition() &&
+              isMilestonesPaginated() &&
+              isForcedWorldUIVisible() === false,
+            x: 296,
+            y: 193,
+          },
+          horizontalAlignment: "right",
+          text: (): CreateLabelOptionsText => ({
+            value: String(spellbookWorldMenu.state.values.milestonesPage + 1),
+          }),
+        }),
+      );
+      const getSelectedMilestone = (): ClassMilestone => {
+        if (spellbookWorldMenu.state.values.selectedMilestoneIndex === null) {
+          throw new Error("Selected milestone index is null");
+        }
+        const selectedMilestone: ClassMilestone | undefined =
+          getClassMilestones()[
+            spellbookWorldMenu.state.values.selectedMilestoneIndex
+          ];
+        if (typeof selectedMilestone === "undefined") {
+          throw new Error("Selected milestone is undefined");
+        }
+        return selectedMilestone;
+      };
+      const isSelectedMilestoneLevelReached = (): boolean =>
+        worldCharacter.player.character.level >= getSelectedMilestone().level;
+      const selectedMilestoneChoiceCondition = (): boolean =>
+        milestonesTabCondition() &&
+        spellbookWorldMenu.state.values.selectedMilestoneChoiceID !== null &&
+        spellbookWorldMenu.state.values.selectedMilestoneIndex !== null &&
+        getMilestoneChoiceIDs().includes(
+          spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+        ) &&
+        isForcedWorldUIVisible() === false;
       // Selected ability panel
       hudElementReferences.push(
         createPanel({
@@ -491,6 +775,182 @@ export const spellbookWorldMenu: WorldMenu<
           y: 185,
         }),
       );
+      // Selected milestone choice panel
+      hudElementReferences.push(
+        createPanel({
+          condition: selectedMilestoneChoiceCondition,
+          height: 76,
+          imagePath: "panels/basic",
+          width: 176,
+          x: 0,
+          y: 132,
+        }),
+      );
+      hudElementReferences.push(
+        createSlot({
+          condition: selectedMilestoneChoiceCondition,
+          icons: [
+            {
+              imagePath: (): string => {
+                if (
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID ===
+                  null
+                ) {
+                  throw new Error("Selected milestone choice ID is null");
+                }
+                return getDefinable(
+                  MilestoneChoice,
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+                ).imagePath;
+              },
+              palette: (): Color[] => {
+                if (
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID ===
+                  null
+                ) {
+                  throw new Error("Selected milestone choice ID is null");
+                }
+                return getMilestoneChoiceIconPalette(
+                  getSelectedMilestone().level,
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+                );
+              },
+            },
+          ],
+          imagePath: "slots/basic",
+          x: 7,
+          y: 139,
+        }),
+      );
+      labelIDs.push(
+        createLabel({
+          color: (): Color => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            return getMilestoneChoiceTextColor(
+              getSelectedMilestone().level,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            );
+          },
+          coordinates: {
+            condition: selectedMilestoneChoiceCondition,
+            x: 27,
+            y: 144,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            const milestoneChoice: MilestoneChoice = getDefinable(
+              MilestoneChoice,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            );
+            let value: string = milestoneChoice.name;
+            if (milestoneChoice.hasUnlockAbilityIDs()) {
+              value += ` (Ability)`;
+            }
+            return {
+              value,
+            };
+          },
+        }),
+      );
+      hudElementReferences.push(
+        createImage({
+          condition: selectedMilestoneChoiceCondition,
+          height: 11,
+          imagePath: "x",
+          onClick: (): void => {
+            spellbookWorldMenu.state.setValues({
+              selectedMilestoneChoiceID: null,
+              selectedMilestoneIndex: null,
+            });
+          },
+          width: 10,
+          x: 159,
+          y: 139,
+        }),
+      );
+      labelIDs.push(
+        createLabel({
+          color: (): Color => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            return getMilestoneChoiceTextColor(
+              getSelectedMilestone().level,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            );
+          },
+          coordinates: {
+            condition: selectedMilestoneChoiceCondition,
+            x: 8,
+            y: 159,
+          },
+          horizontalAlignment: "left",
+          maxLines: 3,
+          maxWidth: 160,
+          text: (): CreateLabelOptionsText => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            return {
+              value: getDefinable(
+                MilestoneChoice,
+                spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+              ).description,
+            };
+          },
+        }),
+      );
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean => {
+            if (
+              selectedMilestoneChoiceCondition() &&
+              isSelectedMilestoneLevelReached()
+            ) {
+              return (
+                typeof worldCharacter.player.character.milestoneChoiceIDs[
+                  getSelectedMilestone().level
+                ] === "undefined"
+              );
+            }
+            return false;
+          },
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            emitToSocketioServer<WorldUnlockMilestoneChoiceRequest>({
+              data: {
+                level: getSelectedMilestone().level,
+                milestoneChoiceID:
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+              },
+              event: "world/unlock-milestone-choice",
+            });
+          },
+          text: { value: "Unlock" },
+          width: 48,
+          x: 121,
+          y: 185,
+        }),
+      );
       // Targeting background panel
       hudElementReferences.push(
         createPanel({
@@ -659,7 +1119,10 @@ export const spellbookWorldMenu: WorldMenu<
     },
     initialStateValues: {
       isAwaitingWorldCombat: false,
+      milestonesPage: 0,
       selectedAbilityID: null,
+      selectedMilestoneChoiceID: null,
+      selectedMilestoneIndex: null,
       startedTargetingAt: null,
       tab: SpellbookTab.Abilities,
     },

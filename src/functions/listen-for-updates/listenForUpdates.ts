@@ -414,6 +414,10 @@ export const listenForUpdates = (): void => {
       player.character = {
         classID: update.classID,
         level: update.level,
+        milestoneChoiceIDs:
+          typeof update.character !== "undefined"
+            ? update.character.milestoneChoiceIDs
+            : {},
         partyID: update.partyID,
       };
       const party: Party = new Party({
@@ -629,6 +633,8 @@ export const listenForUpdates = (): void => {
               ? {
                   classID: playerUpdate.character.classID,
                   level: playerUpdate.character.level,
+                  milestoneChoiceIDs:
+                    playerUpdate.character.milestoneChoiceIDs ?? {},
                   partyID: playerUpdate.character.partyID,
                 }
               : undefined,

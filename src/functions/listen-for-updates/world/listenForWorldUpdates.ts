@@ -69,6 +69,7 @@ import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../../state/getWorldState";
 import { listenForWorldBankUpdates } from "./listenForWorldBankUpdates";
 import { listenForWorldInviteUpdates } from "./listenForWorldInviteUpdates";
+import { listenForWorldMilestoneUpdates } from "./listenForWorldMilestoneUpdates";
 import { listenForWorldQuestUpdates } from "./listenForWorldQuestUpdates";
 import { listenForWorldShopUpdates } from "./listenForWorldShopUpdates";
 import { listenForWorldTradeUpdates } from "./listenForWorldTradeUpdates";
@@ -97,6 +98,7 @@ import { updateWorldCharacterOrder } from "../../updateWorldCharacterOrder";
 export const listenForWorldUpdates = (): void => {
   listenForWorldBankUpdates();
   listenForWorldInviteUpdates();
+  listenForWorldMilestoneUpdates();
   listenForWorldQuestUpdates();
   listenForWorldShopUpdates();
   listenForWorldTradeUpdates();

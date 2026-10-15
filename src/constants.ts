@@ -31,4 +31,5 @@ export const questLogCompletedQuestsPerPage: number = 7;
 export const questLogInProgressQuestsPerPage: number = 7;
 export const serverTimeUpdateInterval: number = 100;
 export const spellbookAbilitiesPerPage: number = 7;
+export const spellbookMilestonesPerPage: number = 2;
 export const targetBlinkDuration: number = 1500;
