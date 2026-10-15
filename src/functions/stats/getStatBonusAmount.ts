@@ -130,27 +130,6 @@ export const getStatBonusAmount = (stat: Stat): number => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  let baseStat: number;
-  switch (stat) {
-    case Stat.Agility:
-      baseStat = worldState.values.agility;
-      break;
-    case Stat.Defense:
-      baseStat = worldState.values.defense;
-      break;
-    case Stat.Intelligence:
-      baseStat = worldState.values.intelligence;
-      break;
-    case Stat.Luck:
-      baseStat = worldState.values.luck;
-      break;
-    case Stat.Strength:
-      baseStat = worldState.values.strength;
-      break;
-    case Stat.Wisdom:
-      baseStat = worldState.values.wisdom;
-      break;
-  }
   let milestoneStatIncreaseCount: number = 0;
   Object.entries(worldCharacter.player.character.milestoneChoiceIDs).forEach(
     ([milestoneLevelKey, milestoneChoiceID]: [string, string]): void => {
@@ -180,9 +159,11 @@ export const getStatBonusAmount = (stat: Stat): number => {
       }
     },
   );
-  const milestoneStatIncreaseProportion: number = 0.2;
+  const milestoneStatIncreasePerLevel: number = 0.5;
   amount += Math.round(
-    baseStat * milestoneStatIncreaseProportion * milestoneStatIncreaseCount,
+    milestoneStatIncreasePerLevel *
+      worldCharacter.player.character.level *
+      milestoneStatIncreaseCount,
   );
   return amount;
 };
