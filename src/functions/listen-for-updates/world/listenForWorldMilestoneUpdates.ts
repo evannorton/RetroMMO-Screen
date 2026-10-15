@@ -16,6 +16,12 @@ export const listenForWorldMilestoneUpdates = (): void => {
       );
       worldCharacter.player.character.milestoneChoiceIDs[update.level] =
         update.milestoneChoiceID;
+      worldCharacter.resources = {
+        hp: update.resources.hp,
+        maxHP: update.resources.maxHP,
+        maxMP: update.resources.maxMP ?? null,
+        mp: update.resources.mp ?? null,
+      };
     },
   });
 };
