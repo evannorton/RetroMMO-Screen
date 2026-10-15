@@ -14,7 +14,11 @@ import {
 } from "starwatch-sdk";
 import { StateSchema, state } from "../../state";
 import { WorldCharacter } from "../../classes/WorldCharacter";
-import { emitToSocketioServer, getEnvironmentVariable } from "pixel-pigeon";
+import {
+  emitToSocketioServer,
+  getEnvironmentVariable,
+  isEnvironmentVariableDefined,
+} from "pixel-pigeon";
 import { getBattleState } from "../state/getBattleState";
 import { getConstants } from "../getConstants";
 import { getDefinable } from "definables";
@@ -28,14 +32,24 @@ export const initializeStarwatch = (): void => {
   }
   const starwatchBearer: StateSchema["starwatchBearer"] | null =
     state.values.starwatchBearer;
-  const starwatchAppKey: unknown = getEnvironmentVariable("STARWATCH_APP_KEY");
-  const starwatchServerURL: unknown = getEnvironmentVariable(
+  const starwatchAppKey: unknown = isEnvironmentVariableDefined(
+    "STARWATCH_APP_KEY",
+  )
+    ? getEnvironmentVariable("STARWATCH_APP_KEY")
+    : "";
+  const starwatchServerURL: unknown = isEnvironmentVariableDefined(
     "STARWATCH_SERVER_URL",
-  );
-  const starwatchFederated: unknown = getEnvironmentVariable(
+  )
+    ? getEnvironmentVariable("STARWATCH_SERVER_URL")
+    : "";
+  const starwatchFederated: unknown = isEnvironmentVariableDefined(
     "STARWATCH_FEDERATED_AUTH",
-  );
-  const starwatchLogs: unknown = getEnvironmentVariable("STARWATCH_LOGS");
+  )
+    ? getEnvironmentVariable("STARWATCH_FEDERATED_AUTH")
+    : "";
+  const starwatchLogs: unknown = isEnvironmentVariableDefined("STARWATCH_LOGS")
+    ? getEnvironmentVariable("STARWATCH_LOGS")
+    : "";
   if (
     ((starwatchFederated === "true" && starwatchBearer !== null) ||
       (starwatchFederated !== "true" &&
