@@ -10,6 +10,7 @@ import {
   CombatEventType,
   CombatHealEvent,
   CombatInstakillFinishEvent,
+  CombatMilestoneResetEvent,
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
@@ -272,6 +273,37 @@ export const tick = (): void => {
                       worldCharacter.resources.mp + rejuvenateEvent.amount,
                     ),
                   };
+                }
+                break;
+              }
+              case CombatEventType.MilestoneReset: {
+                const milestoneResetEvent: CombatMilestoneResetEvent =
+                  eventInstance.event as CombatMilestoneResetEvent;
+                if (
+                  definableExists(
+                    WorldCharacter,
+                    milestoneResetEvent.characterID,
+                  )
+                ) {
+                  const worldCharacter: WorldCharacter = getDefinable(
+                    WorldCharacter,
+                    milestoneResetEvent.characterID,
+                  );
+                  worldCharacter.resources = {
+                    hp: milestoneResetEvent.resources.hp,
+                    maxHP: milestoneResetEvent.resources.maxHP,
+                    maxMP: milestoneResetEvent.resources.maxMP ?? null,
+                    mp: milestoneResetEvent.resources.mp ?? null,
+                  };
+                  if (worldCharacter.player.hasCharacter()) {
+                    const milestoneChoiceIDs: Record<number, string> =
+                      worldCharacter.player.character.milestoneChoiceIDs;
+                    Object.keys(milestoneChoiceIDs).forEach(
+                      (milestoneLevelKey: string): void => {
+                        delete milestoneChoiceIDs[Number(milestoneLevelKey)];
+                      },
+                    );
+                  }
                 }
                 break;
               }

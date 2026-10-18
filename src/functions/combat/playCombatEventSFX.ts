@@ -8,6 +8,7 @@ import {
   CombatEventType,
   CombatHealEvent,
   CombatInstakillFinishEvent,
+  CombatMilestoneResetEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
   CombatReviveEvent,
@@ -102,6 +103,18 @@ const getCombatEventSFXAudioPath = (
         instakillFinishEvent.abilityID,
       );
       return ability.impactInstakillAudioPath;
+    }
+    case CombatEventType.MilestoneReset: {
+      const milestoneResetEvent: CombatMilestoneResetEvent =
+        combatEvent as CombatMilestoneResetEvent;
+      const ability: Ability = getDefinable(
+        Ability,
+        milestoneResetEvent.abilityID,
+      );
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.MilestoneResetFailure: {
+      return "sfx/fail";
     }
     case CombatEventType.Miss: {
       return "sfx/actions/miss";

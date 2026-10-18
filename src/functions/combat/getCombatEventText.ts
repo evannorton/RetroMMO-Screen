@@ -23,6 +23,8 @@ import {
   CombatInventoryFullEvent,
   CombatLearnAbilityEvent,
   CombatLevelUpEvent,
+  CombatMilestoneResetEvent,
+  CombatMilestoneResetFailureEvent,
   CombatNewLevelEvent,
   CombatObtainEvent,
   CombatPoisonStartEvent,
@@ -438,6 +440,34 @@ export const getCombatEventText = (
           },
         ],
         value: `${levelUpEvent.username} levels up!`,
+      };
+    }
+    case CombatEventType.MilestoneReset: {
+      const milestoneResetEvent: CombatMilestoneResetEvent =
+        combatEvent as CombatMilestoneResetEvent;
+      return {
+        trims: [
+          {
+            index: 0,
+            length: milestoneResetEvent.username.length,
+          },
+        ],
+        value: `${milestoneResetEvent.username}'s milestone choices are reset.`,
+      };
+    }
+    case CombatEventType.MilestoneResetFailure: {
+      const milestoneResetFailureEvent: CombatMilestoneResetFailureEvent =
+        combatEvent as CombatMilestoneResetFailureEvent;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      trims.push({
+        index: value.length,
+        length: milestoneResetFailureEvent.username.length,
+      });
+      value += `${milestoneResetFailureEvent.username} has no milestone choices to reset.`;
+      return {
+        trims,
+        value,
       };
     }
     case CombatEventType.Miss: {
