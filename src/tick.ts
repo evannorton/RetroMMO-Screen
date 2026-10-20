@@ -11,6 +11,7 @@ import {
   CombatHealEvent,
   CombatInstakillFinishEvent,
   CombatMilestoneResetEvent,
+  CombatPoisonEndEvent,
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
@@ -322,6 +323,26 @@ export const tick = (): void => {
                 }
                 break;
               }
+              case CombatEventType.PoisonEnd: {
+                const poisonEndEvent: CombatPoisonEndEvent =
+                  eventInstance.event as CombatPoisonEndEvent;
+                if (typeof poisonEndEvent.target.characterID === "undefined") {
+                  throw new Error("No poison end event target character ID");
+                }
+                if (
+                  definableExists(
+                    WorldCharacter,
+                    poisonEndEvent.target.characterID,
+                  )
+                ) {
+                  const worldCharacter: WorldCharacter = getDefinable(
+                    WorldCharacter,
+                    poisonEndEvent.target.characterID,
+                  );
+                  worldCharacter.isPoisoned = false;
+                }
+                break;
+              }
               case CombatEventType.UseAbility: {
                 const useAbilityEvent: CombatUseAbilityEvent =
                   eventInstance.event as CombatUseAbilityEvent;
@@ -538,6 +559,21 @@ export const tick = (): void => {
                     instakillFinishEvent.target.battlerID,
                   );
                   battler.resources.hp = 0;
+                }
+                break;
+              }
+              case CombatEventType.PoisonEnd: {
+                const poisonEndEvent: CombatPoisonEndEvent =
+                  eventInstance.event as CombatPoisonEndEvent;
+                if (typeof poisonEndEvent.target.battlerID === "undefined") {
+                  throw new Error("No poison end event target battler ID");
+                }
+                if (definableExists(Battler, poisonEndEvent.target.battlerID)) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    poisonEndEvent.target.battlerID,
+                  );
+                  battler.poison = null;
                 }
                 break;
               }

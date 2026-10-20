@@ -27,6 +27,8 @@ import {
   CombatMilestoneResetFailureEvent,
   CombatNewLevelEvent,
   CombatObtainEvent,
+  CombatPoisonEndEvent,
+  CombatPoisonEndFailureEvent,
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
@@ -501,6 +503,59 @@ export const getCombatEventText = (
         value: `${obtainCombatEvent.username} gets ${
           getDefinable(Item, obtainCombatEvent.itemID).name
         }!`,
+      };
+    }
+    case CombatEventType.PoisonEnd: {
+      const poisonEndCombatEvent: CombatPoisonEndEvent =
+        combatEvent as CombatPoisonEndEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: poisonEndCombatEvent.target.monsterName,
+        username: poisonEndCombatEvent.target.username,
+      });
+      if (typeof poisonEndCombatEvent.target.username !== "undefined") {
+        trims.push({
+          index: 0,
+          length: combatantName.length,
+        });
+      }
+      value += `${combatantName} is `;
+      const verb: string = "cured";
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: verb.length,
+      });
+      value += `${verb}.`;
+      return {
+        colors,
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.PoisonEndFailure: {
+      const poisonEndFailureCombatEvent: CombatPoisonEndFailureEvent =
+        combatEvent as CombatPoisonEndFailureEvent;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: poisonEndFailureCombatEvent.target.monsterName,
+        username: poisonEndFailureCombatEvent.target.username,
+      });
+      if (
+        typeof poisonEndFailureCombatEvent.target.username !== "undefined"
+      ) {
+        trims.push({
+          index: value.length,
+          length: combatantName.length,
+        });
+      }
+      value += `${combatantName} is not poisoned.`;
+      return {
+        trims,
+        value,
       };
     }
     case CombatEventType.PoisonStart: {

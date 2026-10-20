@@ -9,6 +9,7 @@ import {
   CombatHealEvent,
   CombatInstakillFinishEvent,
   CombatMilestoneResetEvent,
+  CombatPoisonEndEvent,
   CombatRejuvenateEvent,
   CombatRenewEvent,
   CombatReviveEvent,
@@ -118,6 +119,15 @@ const getCombatEventSFXAudioPath = (
     }
     case CombatEventType.Miss: {
       return "sfx/actions/miss";
+    }
+    case CombatEventType.PoisonEnd: {
+      const poisonEndEvent: CombatPoisonEndEvent =
+        combatEvent as CombatPoisonEndEvent;
+      const ability: Ability = getDefinable(Ability, poisonEndEvent.abilityID);
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.PoisonEndFailure: {
+      return "sfx/fail";
     }
     case CombatEventType.PoisonStart: {
       return "sfx/actions/impact/poison-tick";

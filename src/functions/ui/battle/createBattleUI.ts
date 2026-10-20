@@ -15,6 +15,7 @@ import {
   CombatHealEvent,
   CombatInstakillEvent,
   CombatInstakillFinishEvent,
+  CombatPoisonEndEvent,
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatReviveEvent,
@@ -1062,6 +1063,11 @@ export const createBattleUI = ({
                   eventInstance.event as CombatInstakillFinishEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
               }
+              case CombatEventType.PoisonEnd: {
+                const poisonEndEvent: CombatPoisonEndEvent =
+                  eventInstance.event as CombatPoisonEndEvent;
+                return poisonEndEvent.target.battlerID === enemyBattlerID;
+              }
               case CombatEventType.PoisonStart: {
                 const poisonStartEvent: CombatPoisonStartEvent =
                   eventInstance.event as CombatPoisonStartEvent;
@@ -1120,6 +1126,11 @@ export const createBattleUI = ({
                 const instakillFinishEvent: CombatInstakillEvent =
                   eventInstance.event as CombatInstakillEvent;
                 return instakillFinishEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.PoisonEnd: {
+                const poisonEndEvent: CombatPoisonEndEvent =
+                  eventInstance.event as CombatPoisonEndEvent;
+                return poisonEndEvent.target.battlerID === enemyBattlerID;
               }
               case CombatEventType.PoisonStart: {
                 const poisonStartEvent: CombatPoisonStartEvent =
@@ -1200,6 +1211,12 @@ export const createBattleUI = ({
             matchedEventInstance.event as CombatInstakillFinishEvent;
           return getDefinable(Ability, instakillFinishEvent.abilityID)
             .battleImpactInstakillAnimation;
+        }
+        case CombatEventType.PoisonEnd: {
+          const poisonEndEvent: CombatPoisonEndEvent =
+            matchedEventInstance.event as CombatPoisonEndEvent;
+          return getDefinable(Ability, poisonEndEvent.abilityID)
+            .battleImpactAnimation;
         }
         case CombatEventType.PoisonStart: {
           return getDefinable(BattleImpactAnimation, "poison-tick");
