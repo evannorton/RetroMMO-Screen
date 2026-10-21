@@ -161,7 +161,7 @@ export const getCombatEventText = (
           : damageCombatEvent.isBleed === true
             ? "bleeds for"
             : damageCombatEvent.isRedirected === true
-              ? "guards for"
+              ? "intercepts"
               : "takes";
       value += `${combatantName} ${verb} `;
       if (typeof damageCombatEvent.target.username !== "undefined") {
