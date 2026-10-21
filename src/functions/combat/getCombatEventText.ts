@@ -19,6 +19,7 @@ import {
   CombatGoldEvent,
   CombatHealEvent,
   CombatInstakillEvent,
+  CombatInstakillFailEvent,
   CombatInstakillFinishEvent,
   CombatInventoryFullEvent,
   CombatLearnAbilityEvent,
@@ -362,6 +363,25 @@ export const getCombatEventText = (
       return {
         trims,
         value: `${combatantName} is drawn into the light.`,
+      };
+    }
+    case CombatEventType.InstakillFail: {
+      const instakillFailCombatEvent: CombatInstakillFailEvent =
+        combatEvent as CombatInstakillFailEvent;
+      const combatantName: string = getCombatantName({
+        monsterName: instakillFailCombatEvent.target.monsterName,
+        username: instakillFailCombatEvent.target.username,
+      });
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      if (typeof instakillFailCombatEvent.target.username !== "undefined") {
+        trims.push({
+          index: 0,
+          length: combatantName.length,
+        });
+      }
+      return {
+        trims,
+        value: `The light passes over ${combatantName}.`,
       };
     }
     case CombatEventType.InstakillFinish: {

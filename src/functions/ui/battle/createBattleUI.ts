@@ -14,6 +14,7 @@ import {
   CombatEventType,
   CombatHealEvent,
   CombatInstakillEvent,
+  CombatInstakillFailEvent,
   CombatInstakillFinishEvent,
   CombatPoisonEndEvent,
   CombatPoisonStartEvent,
@@ -1058,6 +1059,11 @@ export const createBattleUI = ({
                   eventInstance.event as CombatReviveEvent;
                 return reviveEvent.target.battlerID === enemyBattlerID;
               }
+              case CombatEventType.InstakillFail: {
+                const instakillFailEvent: CombatInstakillFailEvent =
+                  eventInstance.event as CombatInstakillFailEvent;
+                return instakillFailEvent.target.battlerID === enemyBattlerID;
+              }
               case CombatEventType.InstakillFinish: {
                 const instakillFinishEvent: CombatInstakillFinishEvent =
                   eventInstance.event as CombatInstakillFinishEvent;
@@ -1121,6 +1127,11 @@ export const createBattleUI = ({
                 const reviveEvent: CombatReviveEvent =
                   eventInstance.event as CombatReviveEvent;
                 return reviveEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.InstakillFail: {
+                const instakillFailEvent: CombatInstakillFailEvent =
+                  eventInstance.event as CombatInstakillFailEvent;
+                return instakillFailEvent.target.battlerID === enemyBattlerID;
               }
               case CombatEventType.InstakillFinish: {
                 const instakillFinishEvent: CombatInstakillEvent =
@@ -1204,6 +1215,12 @@ export const createBattleUI = ({
           const reviveEvent: CombatReviveEvent =
             matchedEventInstance.event as CombatReviveEvent;
           return getDefinable(Ability, reviveEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case CombatEventType.InstakillFail: {
+          const instakillFailEvent: CombatInstakillFailEvent =
+            matchedEventInstance.event as CombatInstakillFailEvent;
+          return getDefinable(Ability, instakillFailEvent.abilityID)
             .battleImpactAnimation;
         }
         case CombatEventType.InstakillFinish: {

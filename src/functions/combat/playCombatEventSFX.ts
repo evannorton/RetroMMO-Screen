@@ -96,6 +96,9 @@ const getCombatEventSFXAudioPath = (
       const ability: Ability = getDefinable(Ability, healEvent.abilityID);
       return ability.impactAudioPath;
     }
+    case CombatEventType.InstakillFail: {
+      return "sfx/fail";
+    }
     case CombatEventType.InstakillFinish: {
       const instakillFinishEvent: CombatInstakillFinishEvent =
         combatEvent as CombatInstakillFinishEvent;
