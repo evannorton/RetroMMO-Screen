@@ -108,7 +108,7 @@ const getMilestoneTextColor = (milestoneLevel: number): Color => {
     WorldCharacter,
     worldState.values.worldCharacterID,
   );
-  let color: Color = Color.Gray;
+  let color: Color = Color.DarkGray;
   if (worldCharacter.player.character.level >= milestoneLevel) {
     if (typeof getPlayerMilestoneChoiceID(milestoneLevel) === "undefined") {
       color = Color.VeryLightBlue;
@@ -129,7 +129,7 @@ const getMilestoneChoiceTextColor = (
     typeof selectedChoiceID !== "undefined" &&
     selectedChoiceID !== choiceID
   ) {
-    color = Color.Gray;
+    color = Color.DarkGray;
   }
   return color;
 };

@@ -42,6 +42,7 @@ export const loadWorldCharacterUpdate = (
     }
   }
   const worldCharacter: WorldCharacter = new WorldCharacter({
+    bestiaryKills: worldCharacterUpdate.bestiaryKills,
     clothesDyeItemID: worldCharacterUpdate.clothesDyeItemID,
     direction: worldCharacterUpdate.direction,
     figureID: worldCharacterUpdate.figureID,

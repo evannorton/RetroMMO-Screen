@@ -12,6 +12,7 @@ import {
   mergeHUDElementReferences,
 } from "pixel-pigeon";
 import { ItemInstance } from "../classes/ItemInstance";
+import { Monster } from "../classes/Monster";
 import { Quest } from "../classes/Quest";
 import {
   WorldCharacter,
@@ -34,6 +35,15 @@ import { getStatBonusAmount } from "../functions/stats/getStatBonusAmount";
 import { getStatName } from "../functions/stats/getStatName";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
+import { TimePlayed } from "../types/TimePlayed";
+
+const getPlayedDurationText = (timePlayed: TimePlayed): string => {
+  const playedMilliseconds: number =
+    timePlayed.amount + (getCurrentTime() - timePlayed.updatedAt);
+  const hours: number = Math.floor(playedMilliseconds / (1000 * 60 * 60));
+  const minutes: number = Math.floor(playedMilliseconds / (1000 * 60)) % 60;
+  return `${hours}:${minutes.toString().padStart(2, "0")}`;
+};
 
 export interface StatsWorldMenuOpenOptions {}
 export interface StatsWorldMenuStateSchema {
@@ -98,7 +108,7 @@ export const statsWorldMenu: WorldMenu<
         condition: (): boolean => isForcedWorldUIVisible() === false,
         width: 266,
         x: 19,
-        y: 44,
+        y: 45,
       }),
     );
     // Level
@@ -108,7 +118,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 50,
+          y: 51,
         },
         horizontalAlignment: "left",
         text: (): CreateLabelOptionsText => ({
@@ -125,7 +135,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
-          y: 50,
+          y: 51,
         },
         horizontalAlignment: "left",
         text: { value: "HP" },
@@ -138,7 +148,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
-          y: 50,
+          y: 51,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -162,7 +172,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 67,
+          y: 64,
         },
         horizontalAlignment: "left",
         text: {
@@ -182,7 +192,7 @@ export const statsWorldMenu: WorldMenu<
             worldCharacter.player.character.level <
               constants["maximum-level"] && isForcedWorldUIVisible() === false,
           x: 144,
-          y: 67,
+          y: 64,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -206,7 +216,7 @@ export const statsWorldMenu: WorldMenu<
             worldCharacter.player.character.class.resourcePool ===
               ResourcePool.MP && isForcedWorldUIVisible() === false,
           x: 160,
-          y: 67,
+          y: 64,
         },
         horizontalAlignment: "left",
         text: { value: "MP" },
@@ -221,7 +231,7 @@ export const statsWorldMenu: WorldMenu<
             worldCharacter.player.character.class.resourcePool ===
               ResourcePool.MP && isForcedWorldUIVisible() === false,
           x: 284,
-          y: 67,
+          y: 64,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -251,7 +261,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 84,
+          y: 77,
         },
         horizontalAlignment: "left",
         text: { value: getStatName(Stat.Strength) },
@@ -264,7 +274,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 144,
-          y: 84,
+          y: 77,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -288,7 +298,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
-          y: 84,
+          y: 77,
         },
         horizontalAlignment: "left",
         text: { value: getStatName(Stat.Intelligence) },
@@ -301,7 +311,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
-          y: 84,
+          y: 77,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -327,7 +337,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 101,
+          y: 90,
         },
         horizontalAlignment: "left",
         text: { value: getStatName(Stat.Defense) },
@@ -340,7 +350,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 144,
-          y: 101,
+          y: 90,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -364,7 +374,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
-          y: 101,
+          y: 90,
         },
         horizontalAlignment: "left",
         text: { value: getStatName(Stat.Wisdom) },
@@ -377,7 +387,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
-          y: 101,
+          y: 90,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -401,7 +411,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 118,
+          y: 103,
         },
         horizontalAlignment: "left",
         text: { value: getStatName(Stat.Agility) },
@@ -414,7 +424,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 144,
-          y: 118,
+          y: 103,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -438,7 +448,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 160,
-          y: 118,
+          y: 103,
         },
         horizontalAlignment: "left",
         text: { value: getStatName(Stat.Luck) },
@@ -451,7 +461,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 284,
-          y: 118,
+          y: 103,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -474,7 +484,7 @@ export const statsWorldMenu: WorldMenu<
         condition: (): boolean => isForcedWorldUIVisible() === false,
         width: 266,
         x: 19,
-        y: 130,
+        y: 115,
       }),
     );
     // For each boost slot
@@ -531,7 +541,7 @@ export const statsWorldMenu: WorldMenu<
             );
           },
           x: 23 + i * 35,
-          y: 141,
+          y: 126,
         }),
       );
     }
@@ -547,7 +557,7 @@ export const statsWorldMenu: WorldMenu<
             ) &&
             isForcedWorldUIVisible() === false,
           x: 257,
-          y: 136,
+          y: 121,
         },
         horizontalAlignment: "center",
         text: (): CreateLabelOptionsText => {
@@ -597,7 +607,7 @@ export const statsWorldMenu: WorldMenu<
         text: { value: "Destroy" },
         width: 48,
         x: 233,
-        y: 147,
+        y: 131,
       }),
     );
     // Divider 3
@@ -606,7 +616,7 @@ export const statsWorldMenu: WorldMenu<
         condition: (): boolean => isForcedWorldUIVisible() === false,
         width: 266,
         x: 19,
-        y: 167,
+        y: 152,
       }),
     );
     // Achievements
@@ -616,7 +626,7 @@ export const statsWorldMenu: WorldMenu<
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 172,
+          y: 182,
         },
         horizontalAlignment: "left",
         text: (): CreateLabelOptionsText => ({
@@ -629,28 +639,38 @@ export const statsWorldMenu: WorldMenu<
         }),
       }),
     );
-    // Time played
+    // Character played
     labelIDs.push(
       createLabel({
         color: Color.White,
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
           x: 20,
-          y: 183,
+          y: 158,
         },
         horizontalAlignment: "left",
-        text: (): CreateLabelOptionsText => {
-          const timePlayed: number =
-            worldState.values.timePlayed.amount +
-            (getCurrentTime() - worldState.values.timePlayed.updatedAt);
-          const hours: number = Math.floor(timePlayed / (1000 * 60 * 60));
-          const minutes: number = Math.floor(timePlayed / (1000 * 60)) % 60;
-          return {
-            value: `Time played: ${hours}:${minutes
-              .toString()
-              .padStart(2, "0")}`,
-          };
+        text: (): CreateLabelOptionsText => ({
+          value: `Time played: ${getPlayedDurationText(
+            worldState.values.timePlayed,
+          )}`,
+        }),
+      }),
+    );
+    // Total played
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => isForcedWorldUIVisible() === false,
+          x: 20,
+          y: 170,
         },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => ({
+          value: `Total played: ${getPlayedDurationText(
+            worldState.values.totalTimePlayed,
+          )}`,
+        }),
       }),
     );
     // Quests
@@ -659,8 +679,8 @@ export const statsWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
-          x: 286,
-          y: 172,
+          x: 284,
+          y: 158,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -692,8 +712,8 @@ export const statsWorldMenu: WorldMenu<
         color: Color.White,
         coordinates: {
           condition: (): boolean => isForcedWorldUIVisible() === false,
-          x: 286,
-          y: 183,
+          x: 284,
+          y: 170,
         },
         horizontalAlignment: "right",
         text: (): CreateLabelOptionsText => {
@@ -708,6 +728,38 @@ export const statsWorldMenu: WorldMenu<
             value: `Treasure: ${getFormattedInteger(
               openedCount,
             )}/${getFormattedInteger(totalCount)}`,
+          };
+        },
+      }),
+    );
+    // Bestiary
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => isForcedWorldUIVisible() === false,
+          x: 284,
+          y: 182,
+        },
+        horizontalAlignment: "right",
+        text: (): CreateLabelOptionsText => {
+          const killedMonsterCount: number = Object.entries(
+            worldCharacter.bestiaryKills,
+          ).filter(([monsterID, kills]: [string, number]): boolean => {
+            return (
+              kills > 0 && getDefinable(Monster, monsterID).countsTowardTotal
+            );
+          }).length;
+          const monsterCount: number = Array.from(
+            getDefinables(Monster),
+          ).filter(
+            ([, monster]: [string, Monster]): boolean =>
+              monster.countsTowardTotal,
+          ).length;
+          return {
+            value: `Bestiary: ${getFormattedInteger(
+              killedMonsterCount,
+            )}/${getFormattedInteger(monsterCount)}`,
           };
         },
       }),

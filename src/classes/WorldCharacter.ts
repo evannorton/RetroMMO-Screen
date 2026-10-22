@@ -19,6 +19,7 @@ export interface WorldCharacterOptionsResources {
   readonly mp?: number;
 }
 export interface WorldCharacterOptions {
+  readonly bestiaryKills?: Readonly<Record<string, number>>;
   readonly clothesDyeItemID?: string;
   readonly direction: Direction;
   readonly figureID: string;
@@ -54,6 +55,7 @@ export interface WorldCharacterEmote {
   readonly usedAt: number;
 }
 export class WorldCharacter extends Definable {
+  private readonly _bestiaryKills: Readonly<Record<string, number>>;
   private _clothesDyeItemID: string | null;
   private _direction: Direction;
   private _emote: WorldCharacterEmote | null = null;
@@ -78,6 +80,7 @@ export class WorldCharacter extends Definable {
   private _wasClicked: boolean = false;
   public constructor(options: WorldCharacterOptions) {
     super(options.id);
+    this._bestiaryKills = options.bestiaryKills ?? {};
     this._clothesDyeItemID = options.clothesDyeItemID ?? null;
     this._direction = options.direction;
     this._figureID = options.figureID;
@@ -117,6 +120,10 @@ export class WorldCharacter extends Definable {
     this._skinColorID = options.skinColorID;
     this._step = options.step;
     this._tilemapID = options.tilemapID;
+  }
+
+  public get bestiaryKills(): Readonly<Record<string, number>> {
+    return this._bestiaryKills;
   }
 
   public get clothesDyeItem(): Item {

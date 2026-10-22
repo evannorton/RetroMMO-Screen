@@ -88,6 +88,7 @@ export interface WorldStateSchema {
   readonly reachableID: string;
   readonly strength: number;
   readonly timePlayed: TimePlayed;
+  readonly totalTimePlayed: TimePlayed;
   readonly wisdom: number;
   readonly worldCharacterID: string;
 }

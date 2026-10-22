@@ -272,6 +272,7 @@ export const listenForUpdates = (): void => {
           reachableID: update.character.reachableID,
           strength: update.character.strength,
           timePlayed: update.character.timePlayed,
+          totalTimePlayed: update.character.totalTimePlayed,
           wisdom: update.character.wisdom,
           worldCharacterID: update.character.characterID,
         });
@@ -482,6 +483,7 @@ export const listenForUpdates = (): void => {
             reachableID: update.character.reachableID,
             strength: update.character.strength,
             timePlayed: update.character.timePlayed,
+            totalTimePlayed: update.character.totalTimePlayed,
             wisdom: update.character.wisdom,
             worldCharacterID: update.character.characterID,
           }),
@@ -860,6 +862,7 @@ export const listenForUpdates = (): void => {
             reachableID: update.world.reachableID,
             strength: update.world.strength,
             timePlayed: update.world.timePlayed,
+            totalTimePlayed: update.world.totalTimePlayed,
             wisdom: update.world.wisdom,
             worldCharacterID: update.world.characterID,
           });

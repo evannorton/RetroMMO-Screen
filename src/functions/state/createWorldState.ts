@@ -24,6 +24,7 @@ export interface CreateWorldStateOptions {
   readonly reachableID: string;
   readonly strength: number;
   readonly timePlayed: number;
+  readonly totalTimePlayed: number;
   readonly wisdom: number;
   readonly worldCharacterID: string;
 }
@@ -50,6 +51,7 @@ export const createWorldState = ({
   reachableID,
   strength,
   timePlayed,
+  totalTimePlayed,
   wisdom,
   worldCharacterID,
 }: CreateWorldStateOptions): State<WorldStateSchema> =>
@@ -82,6 +84,10 @@ export const createWorldState = ({
     strength,
     timePlayed: {
       amount: timePlayed,
+      updatedAt: getCurrentTime(),
+    },
+    totalTimePlayed: {
+      amount: totalTimePlayed,
       updatedAt: getCurrentTime(),
     },
     wisdom,
