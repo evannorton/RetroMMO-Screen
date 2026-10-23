@@ -271,7 +271,7 @@ export const questLogWorldMenu: WorldMenu<
         height: 16,
         imagePath: "tab-icons/quest-log/completed",
         width: 16,
-        x: 209,
+        x: 211,
         y: 29,
       }),
     );
@@ -281,7 +281,7 @@ export const questLogWorldMenu: WorldMenu<
         height: 16,
         imagePath: "tab-icons/quest-log/achievements",
         width: 16,
-        x: 235,
+        x: 237,
         y: 29,
       }),
     );
@@ -291,7 +291,7 @@ export const questLogWorldMenu: WorldMenu<
         height: 16,
         imagePath: "tab-icons/quest-log/bestiary",
         width: 16,
-        x: 261,
+        x: 263,
         y: 29,
       }),
     );
@@ -405,7 +405,7 @@ export const questLogWorldMenu: WorldMenu<
           questLogWorldMenu.close({});
         },
         width: 10,
-        x: 286,
+        x: 287,
         y: 31,
       }),
     );
