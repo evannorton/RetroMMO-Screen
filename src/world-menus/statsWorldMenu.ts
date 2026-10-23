@@ -619,60 +619,6 @@ export const statsWorldMenu: WorldMenu<
         y: 152,
       }),
     );
-    // Achievements
-    labelIDs.push(
-      createLabel({
-        color: Color.White,
-        coordinates: {
-          condition: (): boolean => isForcedWorldUIVisible() === false,
-          x: 20,
-          y: 182,
-        },
-        horizontalAlignment: "left",
-        text: (): CreateLabelOptionsText => ({
-          value: `Achievements: ${getFormattedInteger(
-            Array.from(getDefinables(Achievement)).filter(
-              ([, achievement]: [string, Achievement]): boolean =>
-                achievement.hasUnlockedAtServerTime(),
-            ).length,
-          )}/${getDefinablesCount(Achievement)}`,
-        }),
-      }),
-    );
-    // Character played
-    labelIDs.push(
-      createLabel({
-        color: Color.White,
-        coordinates: {
-          condition: (): boolean => isForcedWorldUIVisible() === false,
-          x: 20,
-          y: 158,
-        },
-        horizontalAlignment: "left",
-        text: (): CreateLabelOptionsText => ({
-          value: `Time played: ${getPlayedDurationText(
-            worldState.values.timePlayed,
-          )}`,
-        }),
-      }),
-    );
-    // Total played
-    labelIDs.push(
-      createLabel({
-        color: Color.White,
-        coordinates: {
-          condition: (): boolean => isForcedWorldUIVisible() === false,
-          x: 20,
-          y: 170,
-        },
-        horizontalAlignment: "left",
-        text: (): CreateLabelOptionsText => ({
-          value: `Total played: ${getPlayedDurationText(
-            worldState.values.totalTimePlayed,
-          )}`,
-        }),
-      }),
-    );
     // Quests
     labelIDs.push(
       createLabel({
@@ -762,6 +708,60 @@ export const statsWorldMenu: WorldMenu<
             )}/${getFormattedInteger(monsterCount)}`,
           };
         },
+      }),
+    );
+    // Achievements
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => isForcedWorldUIVisible() === false,
+          x: 20,
+          y: 158,
+        },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => ({
+          value: `Achievements: ${getFormattedInteger(
+            Array.from(getDefinables(Achievement)).filter(
+              ([, achievement]: [string, Achievement]): boolean =>
+                achievement.hasUnlockedAtServerTime(),
+            ).length,
+          )}/${getDefinablesCount(Achievement)}`,
+        }),
+      }),
+    );
+    // Character played
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => isForcedWorldUIVisible() === false,
+          x: 20,
+          y: 170,
+        },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => ({
+          value: `Time played: ${getPlayedDurationText(
+            worldState.values.timePlayed,
+          )}`,
+        }),
+      }),
+    );
+    // Total played
+    labelIDs.push(
+      createLabel({
+        color: Color.White,
+        coordinates: {
+          condition: (): boolean => isForcedWorldUIVisible() === false,
+          x: 20,
+          y: 182,
+        },
+        horizontalAlignment: "left",
+        text: (): CreateLabelOptionsText => ({
+          value: `Total played: ${getPlayedDurationText(
+            worldState.values.totalTimePlayed,
+          )}`,
+        }),
       }),
     );
     return mergeHUDElementReferences([
