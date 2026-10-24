@@ -27,6 +27,8 @@ export interface WorldCharacterOptions {
   readonly id: string;
   readonly isPoisoned?: boolean;
   readonly isRenewing?: boolean;
+  readonly poisonOrder?: number;
+  readonly renewOrder?: number;
   readonly maskItemID?: string;
   readonly openedChestIDs?: readonly string[];
   readonly order: number;
@@ -64,6 +66,8 @@ export class WorldCharacter extends Definable {
   private _hairDyeItemID: string | null;
   private _isPoisoned: boolean;
   private _isRenewing: boolean;
+  private _poisonOrder: number | null;
+  private _renewOrder: number | null;
   private _markerEntityID: string | null = null;
   private _maskItemID: string | null;
   private _movedAt: number | null = null;
@@ -87,6 +91,8 @@ export class WorldCharacter extends Definable {
     this._hairDyeItemID = options.hairDyeItemID ?? null;
     this._isPoisoned = options.isPoisoned ?? false;
     this._isRenewing = options.isRenewing ?? false;
+    this._poisonOrder = options.poisonOrder ?? null;
+    this._renewOrder = options.renewOrder ?? null;
     this._maskItemID = options.maskItemID ?? null;
     this._openedChestIDs = options.openedChestIDs ?? null;
     this._order = options.order;
@@ -245,6 +251,10 @@ export class WorldCharacter extends Definable {
     return this._playerID;
   }
 
+  public get poisonOrder(): number | null {
+    return this._poisonOrder;
+  }
+
   public get position(): TilePosition {
     return this._position;
   }
@@ -255,6 +265,10 @@ export class WorldCharacter extends Definable {
 
   public get player(): Player {
     return getDefinable(Player, this._playerID);
+  }
+
+  public get renewOrder(): number | null {
+    return this._renewOrder;
   }
 
   public get resources(): WorldCharacterResources {
@@ -310,6 +324,14 @@ export class WorldCharacter extends Definable {
 
   public set isRenewing(isRenewing: boolean) {
     this._isRenewing = isRenewing;
+  }
+
+  public set poisonOrder(poisonOrder: number | null) {
+    this._poisonOrder = poisonOrder;
+  }
+
+  public set renewOrder(renewOrder: number | null) {
+    this._renewOrder = renewOrder;
   }
 
   public set markerEntityID(markerEntityID: string | null) {

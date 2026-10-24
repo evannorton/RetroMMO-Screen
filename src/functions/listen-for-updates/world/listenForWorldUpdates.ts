@@ -488,6 +488,7 @@ export const listenForWorldUpdates = (): void => {
             mp: partyPlayer.worldCharacter.resources.maxMP ?? null,
           };
           partyPlayer.worldCharacter.isPoisoned = false;
+          partyPlayer.worldCharacter.poisonOrder = null;
         },
       );
       if (
@@ -526,6 +527,9 @@ export const listenForWorldUpdates = (): void => {
           worldMoveCharacterUpdate.isPoisoned ?? false;
         worldCharacter.isRenewing =
           worldMoveCharacterUpdate.isRenewing ?? false;
+        worldCharacter.poisonOrder =
+          worldMoveCharacterUpdate.poisonOrder ?? null;
+        worldCharacter.renewOrder = worldMoveCharacterUpdate.renewOrder ?? null;
         worldCharacter.step = worldMoveCharacterUpdate.step;
         updateWorldCharacterOrder(
           worldCharacter.id,

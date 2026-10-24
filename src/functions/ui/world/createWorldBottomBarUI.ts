@@ -32,6 +32,10 @@ import { getDefaultedHairDye } from "../../defaulted-cosmetics/getDefaultedHairD
 import { getDefaultedMask } from "../../defaulted-cosmetics/getDefaultedMask";
 import { getDefaultedOutfit } from "../../defaulted-cosmetics/getDefaultedOutfit";
 import { getDefinable } from "definables";
+import {
+  getWorldCharacterPoisonOrder,
+  getWorldCharacterRenewOrder,
+} from "../../getWorldCharacterStatusOrder";
 import { getWorldState } from "../../state/getWorldState";
 import { handleWorldCharacterClick } from "../../handleWorldCharacterClick";
 import {
@@ -150,14 +154,26 @@ export const createWorldBottomBarUI = (): void => {
       skinColorID: (): string => getPlayer().worldCharacter.skinColor.id,
       statusIconImagePaths: (): string[] => {
         const player: Player = getPlayer();
-        const statusIconImagePaths: string[] = [];
-        if (player.worldCharacter.isPoisoned) {
-          statusIconImagePaths.push("status-icons/poison");
+        const statusIconImagePaths: [string, number][] = [];
+        const poisonOrder: number | null = getWorldCharacterPoisonOrder(
+          player.worldCharacter.id,
+        );
+        const renewOrder: number | null = getWorldCharacterRenewOrder(
+          player.worldCharacter.id,
+        );
+        if (poisonOrder !== null) {
+          statusIconImagePaths.push(["status-icons/poison", poisonOrder]);
         }
-        if (player.worldCharacter.isRenewing) {
-          statusIconImagePaths.push("status-icons/renew");
+        if (renewOrder !== null) {
+          statusIconImagePaths.push(["status-icons/renew", renewOrder]);
         }
-        return statusIconImagePaths;
+        statusIconImagePaths.sort(
+          (a: [string, number], b: [string, number]): number => a[1] - b[1],
+        );
+        return statusIconImagePaths.map(
+          (statusIconImagePath: [string, number]): string =>
+            statusIconImagePath[0],
+        );
       },
     });
     createButton({

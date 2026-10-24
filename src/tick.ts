@@ -50,6 +50,7 @@ import {
 } from "pixel-pigeon";
 import { getBattlerResourcePool } from "./functions/battle/getBattlerResourcePool";
 import { getConstants } from "./functions/getConstants";
+import { getNextWorldCharacterStatusOrder } from "./functions/getWorldCharacterStatusOrder";
 import { getPianoKeyAudioPath } from "./functions/getPianoKeyAudioPath";
 import { getWorldDownsampleScale } from "./functions/getWorldDownsampleScale";
 import { handleWorldCharacterClick } from "./functions/handleWorldCharacterClick";
@@ -319,6 +320,10 @@ export const tick = (): void => {
                     WorldCharacter,
                     renewEvent.characterID,
                   );
+                  if (worldCharacter.isRenewing === false) {
+                    worldCharacter.renewOrder =
+                      getNextWorldCharacterStatusOrder(worldCharacter.id);
+                  }
                   worldCharacter.isRenewing = true;
                 }
                 break;
@@ -340,6 +345,7 @@ export const tick = (): void => {
                     poisonEndEvent.target.characterID,
                   );
                   worldCharacter.isPoisoned = false;
+                  worldCharacter.poisonOrder = null;
                 }
                 break;
               }

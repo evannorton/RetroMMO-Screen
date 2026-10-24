@@ -55,11 +55,13 @@ export const loadWorldCharacterUpdate = (
     order: worldCharacterUpdate.order,
     outfitItemID: worldCharacterUpdate.outfitItemID,
     playerID: worldCharacterUpdate.playerID,
+    poisonOrder: worldCharacterUpdate.poisonOrder,
     position: {
       x: worldCharacterUpdate.x,
       y: worldCharacterUpdate.y,
     },
     questInstances,
+    renewOrder: worldCharacterUpdate.renewOrder,
     resources:
       typeof worldCharacterUpdate.resources !== "undefined"
         ? {
