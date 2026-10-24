@@ -1,10 +1,12 @@
 import {
+  actionInputCollectionID,
   cancelBattleActionInputCollectionID,
   emotesInputCollectionID,
   globalChatInputCollectionID,
   inventoryInputCollectionID,
   lastEmoteInputCollectionID,
   localChatInputCollectionID,
+  lockMovementCollectionID,
   modChatInputCollectionID,
   moveDownWASDInputCollectionID,
   moveLeftWASDInputCollectionID,
@@ -14,16 +16,15 @@ import {
   questLogInputCollectionID,
   screenshotInputCollectionID,
   spellbookInputCollectionID,
-  lockMovementCollectionID,
   statsInputCollectionID,
   toggleBattleAbilitiesInputCollectionID,
   toggleBattleItemsInputCollectionID,
   tradeChatInputCollectionID,
   unbindBattleHotkeyInputCollectionID,
+  unbindWorldCombatHotkeyInputCollectionID,
   useAttackInputCollectionID,
   useEscapeInputCollectionID,
   usePassInputCollectionID,
-  actionInputCollectionID,
 } from "./inputCollections";
 
 export const settingsKeybindInputCollectionIDs: readonly string[] = [
@@ -52,4 +53,5 @@ export const settingsKeybindInputCollectionIDs: readonly string[] = [
   useEscapeInputCollectionID,
   cancelBattleActionInputCollectionID,
   unbindBattleHotkeyInputCollectionID,
+  unbindWorldCombatHotkeyInputCollectionID,
 ];

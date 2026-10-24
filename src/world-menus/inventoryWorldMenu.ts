@@ -28,6 +28,8 @@ import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema } from "../state";
 import { bagItemsPerPage } from "../constants";
+import { beginWorldCombatHotkeyBind } from "../functions/worldCombatHotkeys";
+import { closeWorldMenus } from "../functions/world-menus/closeWorldMenus";
 import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
 import { createItemDisplay } from "../functions/ui/components/createItemDisplay";
@@ -524,6 +526,46 @@ export const inventoryWorldMenu: WorldMenu<
               text: "Use",
               width: 34,
               x: 135,
+            },
+            {
+              condition: (): boolean => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
+                ) {
+                  throw new Error("Selected bag item instance ID is null");
+                }
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
+                );
+                const item: Item = getDefinable(Item, itemInstance.itemID);
+                if (item.hasAbility() && item.ability.canBeUsedInWorld) {
+                  return (
+                    item.ability.targetType === TargetType.AllAllies ||
+                    item.ability.targetType === TargetType.None ||
+                    item.ability.targetType === TargetType.SingleAlly
+                  );
+                }
+                return false;
+              },
+              onClick: (): void => {
+                if (
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID ===
+                  null
+                ) {
+                  throw new Error("Selected bag item instance ID is null");
+                }
+                const itemInstance: ItemInstance = getDefinable(
+                  ItemInstance,
+                  inventoryWorldMenu.state.values.selectedBagItemInstanceID,
+                );
+                beginWorldCombatHotkeyBind(itemInstance.item.getReference());
+                closeWorldMenus({});
+              },
+              text: "Bind",
+              width: 34,
+              x: 98,
             },
             {
               condition: (): boolean => {

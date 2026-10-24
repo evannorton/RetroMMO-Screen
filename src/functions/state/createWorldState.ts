@@ -1,5 +1,9 @@
 import { State, getCurrentTime } from "pixel-pigeon";
-import { WorldStateCombatRound, WorldStateSchema } from "../../state";
+import {
+  WorldStateCombatRound,
+  WorldStateHotkey,
+  WorldStateSchema,
+} from "../../state";
 
 export interface CreateWorldStateOptions {
   readonly agility: number;
@@ -14,6 +18,7 @@ export interface CreateWorldStateOptions {
   readonly experienceUntilLevel?: number;
   readonly hairDyeItemInstanceID?: string;
   readonly headItemInstanceID?: string;
+  readonly hotkeys: readonly WorldStateHotkey[];
   readonly intelligence: number;
   readonly inventoryGold: number;
   readonly luck: number;
@@ -41,6 +46,7 @@ export const createWorldState = ({
   experienceUntilLevel,
   hairDyeItemInstanceID,
   headItemInstanceID,
+  hotkeys,
   intelligence,
   inventoryGold,
   luck,
@@ -60,6 +66,7 @@ export const createWorldState = ({
     bagItemInstanceIDs,
     bankGold,
     bankItemInstanceIDs: bankItemInstanceIDs ?? [],
+    bindAction: null,
     bodyItemInstanceID: bodyItemInstanceID ?? null,
     boostItemInstanceIDs,
     clothesDyeItemInstanceID: clothesDyeItemInstanceID ?? null,
@@ -68,6 +75,8 @@ export const createWorldState = ({
     experienceUntilLevel: experienceUntilLevel ?? null,
     hairDyeItemInstanceID: hairDyeItemInstanceID ?? null,
     headItemInstanceID: headItemInstanceID ?? null,
+    hotkeyTarget: null,
+    hotkeys,
     intelligence,
     inventoryGold,
     lastPianoNoteAt: null,
@@ -90,6 +99,7 @@ export const createWorldState = ({
       amount: totalTimePlayed,
       updatedAt: getCurrentTime(),
     },
+    unbindStartedAt: null,
     wisdom,
     worldCharacterID,
   });

@@ -23,6 +23,8 @@ import { MilestoneChoice } from "../classes/MilestoneChoice";
 import { WorldCharacter } from "../classes/WorldCharacter";
 import { WorldMenu } from "../classes/WorldMenu";
 import { WorldStateSchema } from "../state";
+import { beginWorldCombatHotkeyBind } from "../functions/worldCombatHotkeys";
+import { closeWorldMenus } from "../functions/world-menus/closeWorldMenus";
 import { createIconListItem } from "../functions/ui/components/createIconListItem";
 import { createImage } from "../functions/ui/components/createImage";
 import { createPanel } from "../functions/ui/components/createPanel";
@@ -679,7 +681,24 @@ export const spellbookWorldMenu: WorldMenu<
               }
               return false;
             },
-            x: 131,
+            x: (): number => {
+              if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+                throw new Error("Selected ability ID is null");
+              }
+              const ability: Ability = getDefinable(
+                Ability,
+                spellbookWorldMenu.state.values.selectedAbilityID,
+              );
+              const canBindAbility: boolean =
+                ability.canBeUsedInWorld &&
+                (ability.targetType === TargetType.AllAllies ||
+                  ability.targetType === TargetType.None ||
+                  ability.targetType === TargetType.SingleAlly);
+              if (canBindAbility) {
+                return 93;
+              }
+              return 131;
+            },
             y: 186,
           },
           horizontalAlignment: "right",
@@ -772,6 +791,46 @@ export const spellbookWorldMenu: WorldMenu<
           text: { value: "Use" },
           width: 34,
           x: 135,
+          y: 185,
+        }),
+      );
+      hudElementReferences.push(
+        createPressableButton({
+          condition: (): boolean => {
+            if (selectedAbilityCondition()) {
+              if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+                throw new Error("Selected ability ID is null");
+              }
+              const ability: Ability = getDefinable(
+                Ability,
+                spellbookWorldMenu.state.values.selectedAbilityID,
+              );
+              return (
+                ability.canBeUsedInWorld &&
+                (ability.targetType === TargetType.AllAllies ||
+                  ability.targetType === TargetType.None ||
+                  ability.targetType === TargetType.SingleAlly)
+              );
+            }
+            return false;
+          },
+          height: 16,
+          imagePath: "pressable-buttons/gray",
+          onClick: (): void => {
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
+            }
+            beginWorldCombatHotkeyBind(
+              getDefinable(
+                Ability,
+                spellbookWorldMenu.state.values.selectedAbilityID,
+              ).getReference(),
+            );
+            closeWorldMenus({});
+          },
+          text: { value: "Bind" },
+          width: 34,
+          x: 98,
           y: 185,
         }),
       );

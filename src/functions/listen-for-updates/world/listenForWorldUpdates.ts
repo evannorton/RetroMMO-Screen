@@ -68,6 +68,7 @@ import { getAudioSourceCurrentPosition } from "pixel-pigeon/api/classes/AudioSou
 import { getDefinable, getDefinables } from "definables";
 import { getWorldState } from "../../state/getWorldState";
 import { listenForWorldBankUpdates } from "./listenForWorldBankUpdates";
+import { listenForWorldCombatHotkeyUpdates } from "./listenForWorldCombatHotkeyUpdates";
 import { listenForWorldInviteUpdates } from "./listenForWorldInviteUpdates";
 import { listenForWorldMilestoneUpdates } from "./listenForWorldMilestoneUpdates";
 import { listenForWorldQuestUpdates } from "./listenForWorldQuestUpdates";
@@ -97,6 +98,7 @@ import { updateWorldCharacterOrder } from "../../updateWorldCharacterOrder";
 
 export const listenForWorldUpdates = (): void => {
   listenForWorldBankUpdates();
+  listenForWorldCombatHotkeyUpdates();
   listenForWorldInviteUpdates();
   listenForWorldMilestoneUpdates();
   listenForWorldQuestUpdates();

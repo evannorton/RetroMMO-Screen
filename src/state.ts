@@ -60,11 +60,25 @@ export interface WorldStateQueuedBattle {
   readonly queuedAt: number;
   readonly update: WorldStartBattleUpdate;
 }
+export interface WorldStateBindAction {
+  readonly bindStartedAt: number;
+  readonly hotkeyableDefinableReference: DefinableReference;
+}
+export interface WorldStateHotkey {
+  readonly hotkeyableDefinableReference: DefinableReference;
+  readonly index: number;
+}
+export interface WorldStateHotkeyTarget {
+  readonly hotkeyableDefinableReference: DefinableReference;
+  readonly itemInstanceID: string | null;
+  readonly startedTargetingAt: number;
+}
 export interface WorldStateSchema {
   readonly agility: number;
   readonly bagItemInstanceIDs: readonly string[];
   readonly bankGold: number;
   readonly bankItemInstanceIDs: readonly (readonly string[])[];
+  readonly bindAction: WorldStateBindAction | null;
   readonly bodyItemInstanceID: string | null;
   readonly boostItemInstanceIDs: readonly string[];
   readonly clothesDyeItemInstanceID: string | null;
@@ -73,6 +87,8 @@ export interface WorldStateSchema {
   readonly experienceUntilLevel: number | null;
   readonly hairDyeItemInstanceID: string | null;
   readonly headItemInstanceID: string | null;
+  readonly hotkeys: readonly WorldStateHotkey[];
+  readonly hotkeyTarget: WorldStateHotkeyTarget | null;
   readonly intelligence: number;
   readonly inventoryGold: number;
   readonly lastPianoNoteAt: number | null;
@@ -89,6 +105,7 @@ export interface WorldStateSchema {
   readonly strength: number;
   readonly timePlayed: TimePlayed;
   readonly totalTimePlayed: TimePlayed;
+  readonly unbindStartedAt: number | null;
   readonly wisdom: number;
   readonly worldCharacterID: string;
 }

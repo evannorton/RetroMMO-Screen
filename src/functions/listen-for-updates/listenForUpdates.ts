@@ -113,6 +113,7 @@ import { exitBattlers } from "../exitBattlers";
 import { exitWorldCharacters } from "../exitWorldCharacters";
 import { getBattleState } from "../state/getBattleState";
 import { getWorldState } from "../state/getWorldState";
+import { getWorldStateHotkeys } from "../worldCombatHotkeys";
 import { initializeStarwatch } from "../starwatch/initializeStarwatch";
 import { isForcedWorldUIVisible } from "../isForcedWorldUIVisible";
 import { listenForBattleUpdates } from "./battle/listenForBattleUpdates";
@@ -259,6 +260,10 @@ export const listenForUpdates = (): void => {
           hairDyeItemInstanceID:
             update.character.hairDyeItemInstance?.itemInstanceID,
           headItemInstanceID: update.character.headItemInstance?.itemInstanceID,
+          hotkeys: getWorldStateHotkeys({
+            abilityHotkeys: update.character.abilityHotkeys,
+            itemHotkeys: update.character.itemHotkeys,
+          }),
           intelligence: update.character.intelligence,
           inventoryGold: update.character.inventoryGold,
           luck: update.character.luck,
@@ -469,6 +474,10 @@ export const listenForUpdates = (): void => {
               update.character.hairDyeItemInstance?.itemInstanceID,
             headItemInstanceID:
               update.character.headItemInstance?.itemInstanceID,
+            hotkeys: getWorldStateHotkeys({
+              abilityHotkeys: update.character.abilityHotkeys,
+              itemHotkeys: update.character.itemHotkeys,
+            }),
             intelligence: update.character.intelligence,
             inventoryGold: update.character.inventoryGold,
             luck: update.character.luck,
@@ -849,6 +858,10 @@ export const listenForUpdates = (): void => {
             hairDyeItemInstanceID:
               update.world.hairDyeItemInstance?.itemInstanceID,
             headItemInstanceID: update.world.headItemInstance?.itemInstanceID,
+            hotkeys: getWorldStateHotkeys({
+              abilityHotkeys: update.world.abilityHotkeys,
+              itemHotkeys: update.world.itemHotkeys,
+            }),
             intelligence: update.world.intelligence,
             inventoryGold: update.world.inventoryGold,
             luck: update.world.luck,

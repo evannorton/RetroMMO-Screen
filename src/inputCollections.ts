@@ -237,7 +237,7 @@ export const actionInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       value: "Space",
-    }
+    },
   ],
   name: "Action",
 });
@@ -497,6 +497,67 @@ export const useBattleHotkey12InputCollectionID: string = createInputCollection(
     name: "Battle hotkey 12",
   },
 );
+export const unbindWorldCombatHotkeyInputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Backspace",
+      },
+    ],
+    name: "Unbind world hotkey",
+  });
+export const useWorldCombatHotkey1InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit1",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad1",
+      },
+    ],
+    name: "World combat hotkey 1",
+  });
+export const useWorldCombatHotkey2InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit2",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad2",
+      },
+    ],
+    name: "World combat hotkey 2",
+  });
+export const useWorldCombatHotkey3InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit3",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad3",
+      },
+    ],
+    name: "World combat hotkey 3",
+  });
+export const useWorldCombatHotkey4InputCollectionID: string =
+  createInputCollection({
+    keyboardButtons: [
+      {
+        value: "Digit4",
+      },
+      {
+        numLock: NumLock.With,
+        value: "Numpad4",
+      },
+    ],
+    name: "World combat hotkey 4",
+  });
 export const targetBattleEnemyCharacter1InputCollectionID: string =
   createInputCollection({
     keyboardButtons: [

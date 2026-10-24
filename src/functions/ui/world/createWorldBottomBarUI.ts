@@ -41,6 +41,11 @@ import {
   statsInputCollectionID,
 } from "../../../inputCollections";
 import { inventoryWorldMenu } from "../../../world-menus/inventoryWorldMenu";
+import {
+  isWorldCombatHotkeyTargetIndicatorVisible,
+  isWorldCombatHotkeyTargeting,
+  useWorldCombatHotkeyTargetOnPlayer,
+} from "../../worldCombatHotkeys";
 import { isWorldCombatInProgress } from "../../isWorldCombatInProgress";
 import { questLogWorldMenu } from "../../../world-menus/questLogWorldMenu";
 import { spellbookWorldMenu } from "../../../world-menus/spellbookWorldMenu";
@@ -217,6 +222,8 @@ export const createWorldBottomBarUI = (): void => {
             },
           });
           spellbookWorldMenu.state.setValues({ isAwaitingWorldCombat: true });
+        } else if (isWorldCombatHotkeyTargeting()) {
+          useWorldCombatHotkeyTargetOnPlayer(partyMemberWorldPlayer.id);
         } else {
           handleWorldCharacterClick(partyMemberWorldPlayer.worldCharacterID);
         }
@@ -303,6 +310,30 @@ export const createWorldBottomBarUI = (): void => {
       color: Color.White,
       coordinates: {
         condition: itemTargetCondition,
+        x: playerX + 8,
+        y: playerY + 12,
+      },
+      horizontalAlignment: "center",
+      text: {
+        value: String(partyMemberIndex + 1),
+      },
+    });
+    const worldCombatHotkeyTargetCondition = (): boolean =>
+      partyMemberCondition() && isWorldCombatHotkeyTargetIndicatorVisible();
+    createQuadrilateral({
+      color: Color.VeryDarkGray,
+      coordinates: {
+        condition: worldCombatHotkeyTargetCondition,
+        x: playerX + 3,
+        y: playerY + 11,
+      },
+      height: 9,
+      width: 9,
+    });
+    createLabel({
+      color: Color.White,
+      coordinates: {
+        condition: worldCombatHotkeyTargetCondition,
         x: playerX + 8,
         y: playerY + 12,
       },
