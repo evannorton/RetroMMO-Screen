@@ -1,5 +1,7 @@
 import { Definable } from "definables";
 import { HUDElementReferences, State, removeHUDElements } from "pixel-pigeon";
+import { WorldStateSchema } from "../state";
+import { getWorldState } from "../functions/state/getWorldState";
 
 export interface WorldMenuOptions<OpenOptions, StateSchema> {
   readonly create: (options: OpenOptions) => HUDElementReferences;
@@ -92,5 +94,9 @@ export class WorldMenu<
     );
     this._hudElementReferences = this._create(options);
     this._openOptions = options;
+    const worldState: State<WorldStateSchema> = getWorldState();
+    worldState.setValues({
+      unbindStartedAt: null,
+    });
   }
 }
