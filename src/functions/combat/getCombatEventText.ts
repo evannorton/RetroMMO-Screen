@@ -564,9 +564,7 @@ export const getCombatEventText = (
         monsterName: poisonEndFailureCombatEvent.target.monsterName,
         username: poisonEndFailureCombatEvent.target.username,
       });
-      if (
-        typeof poisonEndFailureCombatEvent.target.username !== "undefined"
-      ) {
+      if (typeof poisonEndFailureCombatEvent.target.username !== "undefined") {
         trims.push({
           index: value.length,
           length: combatantName.length,

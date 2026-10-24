@@ -14,6 +14,7 @@ import {
 import { ItemInstance } from "../classes/ItemInstance";
 import { Monster } from "../classes/Monster";
 import { Quest } from "../classes/Quest";
+import { TimePlayed } from "../types/TimePlayed";
 import {
   WorldCharacter,
   WorldCharacterQuestInstance,
@@ -35,7 +36,6 @@ import { getStatBonusAmount } from "../functions/stats/getStatBonusAmount";
 import { getStatName } from "../functions/stats/getStatName";
 import { getWorldState } from "../functions/state/getWorldState";
 import { isForcedWorldUIVisible } from "../functions/isForcedWorldUIVisible";
-import { TimePlayed } from "../types/TimePlayed";
 
 const getPlayedDurationText = (timePlayed: TimePlayed): string => {
   const playedMilliseconds: number =
@@ -691,11 +691,10 @@ export const statsWorldMenu: WorldMenu<
         text: (): CreateLabelOptionsText => {
           const killedMonsterCount: number = Object.entries(
             worldCharacter.bestiaryKills,
-          ).filter(([monsterID, kills]: [string, number]): boolean => {
-            return (
-              kills > 0 && getDefinable(Monster, monsterID).countsTowardTotal
-            );
-          }).length;
+          ).filter(
+            ([monsterID, kills]: [string, number]): boolean =>
+              kills > 0 && getDefinable(Monster, monsterID).countsTowardTotal,
+          ).length;
           const monsterCount: number = Array.from(
             getDefinables(Monster),
           ).filter(

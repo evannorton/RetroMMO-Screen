@@ -805,7 +805,10 @@ export const listenForUpdates = (): void => {
             );
           }
           state.setValues({
-            mainMenuState: createMainMenuState({ mainMenuCharacterIDs }),
+            mainMenuState: createMainMenuState({
+              characterSelectPage: 0,
+              mainMenuCharacterIDs,
+            }),
           });
           break;
         }

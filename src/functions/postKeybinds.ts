@@ -1,19 +1,17 @@
 import {
-  KeybindInputCollection,
-  KeybindKeyboardButton,
-  KeybindNumLock,
-  KeybindsUpstreamWindowMessage,
-} from "retrommo-types";
-import {
   InputCollectionSnapshot,
   KeyboardButton,
   NumLock,
   getInputCollections,
 } from "pixel-pigeon";
-import { postWindowMessage } from "./postWindowMessage";
 import {
-  settingsKeybindInputCollectionIDs,
-} from "../settingsKeybindInputCollectionIDs";
+  KeybindInputCollection,
+  KeybindKeyboardButton,
+  KeybindNumLock,
+  KeybindsUpstreamWindowMessage,
+} from "retrommo-types";
+import { postWindowMessage } from "./postWindowMessage";
+import { settingsKeybindInputCollectionIDs } from "../settingsKeybindInputCollectionIDs";
 
 const getKeybindNumLock = (numLock: NumLock): KeybindNumLock => {
   switch (numLock) {
@@ -24,7 +22,6 @@ const getKeybindNumLock = (numLock: NumLock): KeybindNumLock => {
     case NumLock.Without:
       return "without";
   }
-  throw new Error(`Unexpected num lock "${numLock}".`);
 };
 const getKeybindKeyboardButton = (
   keyboardButton: KeyboardButton,
@@ -55,7 +52,9 @@ const getKeybindInputCollection = (
   gamepadButtons: inputCollection.gamepadButtons,
   id: inputCollection.id,
   joystickDirections: inputCollection.joystickDirections,
-  keyboardButtons: inputCollection.keyboardButtons.map(getKeybindKeyboardButton),
+  keyboardButtons: inputCollection.keyboardButtons.map(
+    getKeybindKeyboardButton,
+  ),
   matchesDefaultInputs: inputCollection.matchesDefaultInputs,
   mouseButtons: inputCollection.mouseButtons,
   name: inputCollection.name,

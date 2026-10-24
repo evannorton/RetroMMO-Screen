@@ -8,8 +8,11 @@ import {
 } from "pixel-pigeon";
 import { WorldStateSchema, state } from "../state";
 import {
+  actionInputCollectionID,
+  actionNumpadInputCollectionID,
   emotesInputCollectionID,
   lastEmoteInputCollectionID,
+  lockMovementCollectionID,
   moveDownArrowInputCollectionID,
   moveDownJoystickInputCollectionID,
   moveDownNumpadInputCollectionID,
@@ -27,9 +30,6 @@ import {
   moveUpNumpadInputCollectionID,
   moveUpWASDInputCollectionID,
   screenshotInputCollectionID,
-  lockMovementCollectionID,
-  actionInputCollectionID,
-  actionNumpadInputCollectionID,
 } from "../inputCollections";
 import { canWalk } from "../functions/canWalk";
 import { closeWorldMenus } from "../functions/world-menus/closeWorldMenus";

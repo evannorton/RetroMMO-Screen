@@ -80,6 +80,7 @@ import { loadItemInstanceUpdate } from "../../load-updates/loadItemInstanceUpdat
 import { loadWorldCharacterUpdate } from "../../load-updates/loadWorldCharacterUpdate";
 import { loadWorldInvitePromptsUpdate } from "../../load-updates/loadWorldInvitePromptsUpdate";
 import { loadWorldNPCUpdate } from "../../load-updates/loadWorldNPCUpdate";
+import { mainMenuCharactersPerPage } from "../../../constants";
 import { npcDialogueWorldMenu } from "../../../world-menus/npcDialogueWorldMenu";
 import { npcInnWorldMenu } from "../../../world-menus/npcInnWorldMenu";
 import { npcShopWorldMenu } from "../../../world-menus/npcShopWorldMenu";
@@ -432,9 +433,10 @@ export const listenForWorldUpdates = (): void => {
         bank.toggledAt = null;
       }
       const worldState: State<WorldStateSchema> = getWorldState();
+      const activeCharacterID: string = worldState.values.worldCharacterID;
       const selfWorldCharacter: WorldCharacter = getDefinable(
         WorldCharacter,
-        worldState.values.worldCharacterID,
+        activeCharacterID,
       );
       selfWorldCharacter.player.character = null;
       selfWorldCharacter.player.worldCharacterID = null;
@@ -461,8 +463,21 @@ export const listenForWorldUpdates = (): void => {
           }).id,
         );
       }
+      const activeCharacterIndex: number =
+        mainMenuCharacterIDs.indexOf(activeCharacterID);
+      if (activeCharacterIndex === -1) {
+        throw new Error(
+          "Active character is not in the character select list.",
+        );
+      }
+      const characterSelectPage: number = Math.floor(
+        activeCharacterIndex / mainMenuCharactersPerPage,
+      );
       state.setValues({
-        mainMenuState: createMainMenuState({ mainMenuCharacterIDs }),
+        mainMenuState: createMainMenuState({
+          characterSelectPage,
+          mainMenuCharacterIDs,
+        }),
         selectedPlayerID: null,
         worldState: null,
       });
