@@ -1,5 +1,8 @@
 import {
   AuthDownstreamWindowMessage,
+  BindGamepadKeybindDownstreamWindowMessage,
+  BindKeyboardKeybindDownstreamWindowMessage,
+  BindMouseKeybindDownstreamWindowMessage,
   CheckoutRequest,
   ClientErrorDownstreamWindowMessage,
   ClientErrorRequest,
@@ -13,6 +16,7 @@ import {
   MusicVolumeDownstreamWindowMessage,
   ReportIssueDownstreamWindowMessage,
   ReportIssueRequest,
+  ResetKeybindsDownstreamWindowMessage,
   SFXVolumeDownstreamWindowMessage,
   ScreenshotClipboardDownstreamWindowMessage,
   ScreenshotScaleDownstreamWindowMessage,
@@ -22,11 +26,17 @@ import {
   VideoRecordingScaleDownstreamWindowMessage,
 } from "retrommo-types";
 import {
+  NumLock,
+  bindInputCollectionGamepadButton,
+  bindInputCollectionKeyboardButton,
+  bindInputCollectionMouseButton,
+  clearInputCollection,
   clearMaxFPS,
   connectToSocketioServer,
   emitToSocketioServer,
   getCurrentTime,
   onError,
+  resetInputCollection,
   setMainVolume,
   setMaxFPS,
   setScreenshotClipboard,
@@ -59,6 +69,56 @@ export const handleWindowMessage = (message: unknown): void => {
   }
   const data: unknown = message.data;
   switch (message.event) {
+    case "retrommo/bind-gamepad-keybind": {
+      const bindGamepadKeybindData: BindGamepadKeybindDownstreamWindowMessage =
+        data as BindGamepadKeybindDownstreamWindowMessage;
+      clearInputCollection({
+        inputCollectionID: bindGamepadKeybindData.inputCollectionID,
+      });
+      bindInputCollectionGamepadButton({
+        inputCollectionID: bindGamepadKeybindData.inputCollectionID,
+        value: bindGamepadKeybindData.value,
+      });
+      break;
+    }
+    case "retrommo/bind-keyboard-keybind": {
+      const bindKeyboardKeybindData: BindKeyboardKeybindDownstreamWindowMessage =
+        data as BindKeyboardKeybindDownstreamWindowMessage;
+      let numLock: NumLock | null = null;
+      if (bindKeyboardKeybindData.numLock === "default") {
+        numLock = NumLock.Default;
+      } else if (bindKeyboardKeybindData.numLock === "with") {
+        numLock = NumLock.With;
+      } else if (bindKeyboardKeybindData.numLock === "without") {
+        numLock = NumLock.Without;
+      }
+      if (numLock === null) {
+        throw new Error(
+          `Unexpected num lock "${bindKeyboardKeybindData.numLock}".`,
+        );
+      }
+      clearInputCollection({
+        inputCollectionID: bindKeyboardKeybindData.inputCollectionID,
+      });
+      bindInputCollectionKeyboardButton({
+        inputCollectionID: bindKeyboardKeybindData.inputCollectionID,
+        numLock,
+        value: bindKeyboardKeybindData.value,
+      });
+      break;
+    }
+    case "retrommo/bind-mouse-keybind": {
+      const bindMouseKeybindData: BindMouseKeybindDownstreamWindowMessage =
+        data as BindMouseKeybindDownstreamWindowMessage;
+      clearInputCollection({
+        inputCollectionID: bindMouseKeybindData.inputCollectionID,
+      });
+      bindInputCollectionMouseButton({
+        inputCollectionID: bindMouseKeybindData.inputCollectionID,
+        value: bindMouseKeybindData.value,
+      });
+      break;
+    }
     case "retrommo/auth": {
       const authData: AuthDownstreamWindowMessage =
         data as AuthDownstreamWindowMessage;
@@ -84,6 +144,14 @@ export const handleWindowMessage = (message: unknown): void => {
       });
       onError(handleError);
       listenForUpdates();
+      break;
+    }
+    case "retrommo/reset-keybinds": {
+      const resetKeybindsData: ResetKeybindsDownstreamWindowMessage =
+        data as ResetKeybindsDownstreamWindowMessage;
+      resetInputCollection({
+        inputCollectionID: resetKeybindsData.inputCollectionID,
+      });
       break;
     }
     case "retrommo/checkout": {

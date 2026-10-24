@@ -143,9 +143,9 @@ export const screenshotInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyP" }],
   name: "Screenshot",
 });
-export const spinInputCollectionID: string = createInputCollection({
+export const lockMovementCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "ShiftLeft" }],
-  name: "Spin",
+  name: "Lock movement",
 });
 export const moveLeftWASDInputCollectionID: string = createInputCollection({
   keyboardButtons: [{ value: "KeyA" }],
@@ -237,7 +237,12 @@ export const actionInputCollectionID: string = createInputCollection({
   keyboardButtons: [
     {
       value: "Space",
-    },
+    }
+  ],
+  name: "Action",
+});
+export const actionNumpadInputCollectionID: string = createInputCollection({
+  keyboardButtons: [
     {
       numLock: NumLock.Without,
       value: "Numpad5",

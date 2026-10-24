@@ -8,7 +8,6 @@ import {
 } from "pixel-pigeon";
 import { WorldStateSchema, state } from "../state";
 import {
-  actionInputCollectionID,
   emotesInputCollectionID,
   lastEmoteInputCollectionID,
   moveDownArrowInputCollectionID,
@@ -28,7 +27,9 @@ import {
   moveUpNumpadInputCollectionID,
   moveUpWASDInputCollectionID,
   screenshotInputCollectionID,
-  spinInputCollectionID,
+  lockMovementCollectionID,
+  actionInputCollectionID,
+  actionNumpadInputCollectionID,
 } from "../inputCollections";
 import { canWalk } from "../functions/canWalk";
 import { closeWorldMenus } from "../functions/world-menus/closeWorldMenus";
@@ -84,7 +85,7 @@ export const handleInput = (): void => {
     },
   });
   createInputPressHandler({
-    inputCollectionID: spinInputCollectionID,
+    inputCollectionID: lockMovementCollectionID,
     onInput: (): void => {
       pressKeyboardShift();
     },
@@ -372,6 +373,18 @@ export const handleInput = (): void => {
     condition: (): boolean =>
       state.values.worldState !== null && isWorldCombatInProgress() === false,
     inputCollectionID: actionInputCollectionID,
+    onInput: (): void => {
+      if (isAWorldMenuOpen()) {
+        closeWorldMenus({});
+      } else {
+        interact();
+      }
+    },
+  });
+  createInputPressHandler({
+    condition: (): boolean =>
+      state.values.worldState !== null && isWorldCombatInProgress() === false,
+    inputCollectionID: actionNumpadInputCollectionID,
     onInput: (): void => {
       if (isAWorldMenuOpen()) {
         closeWorldMenus({});
