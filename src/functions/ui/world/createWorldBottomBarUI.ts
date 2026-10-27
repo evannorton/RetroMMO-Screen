@@ -370,6 +370,9 @@ export const createWorldBottomBarUI = (): void => {
     height: 11,
     imagePath: "x",
     onClick: (): void => {
+      getWorldState().setValues({
+        unbindStartedAt: null,
+      });
       emitToSocketioServer({
         data: {},
         event: "world/leave-party",
