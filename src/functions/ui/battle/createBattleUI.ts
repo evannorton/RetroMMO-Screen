@@ -12,6 +12,7 @@ import {
   CombatBleedStartEvent,
   CombatDamageEvent,
   CombatEventType,
+  CombatHardenStartEvent,
   CombatHealEvent,
   CombatInstakillEvent,
   CombatInstakillFailEvent,
@@ -653,6 +654,12 @@ export const createBattleUI = ({
               friendlyBattler.bleed.order,
             ]);
           }
+          if (friendlyBattler.hasHarden()) {
+            statusIconImagePaths.push([
+              "status-icons/harden",
+              friendlyBattler.harden.order,
+            ]);
+          }
           statusIconImagePaths.sort(
             (a: [string, number], b: [string, number]): number => a[1] - b[1],
           );
@@ -661,6 +668,7 @@ export const createBattleUI = ({
               statusIconImagePath[0],
           );
         },
+        statusIconsLayout: "wide",
       }),
     );
     buttonIDs.push(
@@ -992,17 +1000,7 @@ export const createBattleUI = ({
     };
     const getY = (): number =>
       128 - getBattlerHeight(enemyBattlerID) - getBattlerOffset(enemyBattlerID);
-    const getEnemyBattlerStatusesCount = (): number => {
-      let count: number = 0;
-      if (enemyBattler.hasPoison()) {
-        count++;
-      }
-      if (enemyBattler.hasBleed()) {
-        count++;
-      }
-      return count;
-    };
-    const getStatusIconImagePath = (index: number): string => {
+    const getEnemyBattlerStatusIconImagePaths = (): string[] => {
       const icons: [string, number][] = [];
       if (enemyBattler.hasPoison()) {
         icons.push(["status-icons/poison", enemyBattler.poison.order]);
@@ -1010,13 +1008,88 @@ export const createBattleUI = ({
       if (enemyBattler.hasBleed()) {
         icons.push(["status-icons/bleed", enemyBattler.bleed.order]);
       }
+      if (enemyBattler.hasHarden()) {
+        icons.push(["status-icons/harden", enemyBattler.harden.order]);
+      }
       icons.sort(
         (a: [string, number], b: [string, number]): number => a[1] - b[1],
       );
+      return icons.map((icon: [string, number]): string => icon[0]);
+    };
+    const getEnemyBattlerStatusesCount = (): number =>
+      getEnemyBattlerStatusIconImagePaths().length;
+    const getStatusIconImagePath = (index: number): string => {
+      const icons: string[] = getEnemyBattlerStatusIconImagePaths();
       if (typeof icons[index] === "undefined") {
         throw new Error(`icons[${index}] is undefined`);
       }
-      return icons[index][0];
+      return icons[index];
+    };
+    const statusIconSize: number = 9;
+    const statusIconGap: number = 1;
+    const getStatusIconsRowWidth = (iconsInRow: number): number => {
+      if (iconsInRow <= 1) {
+        return statusIconSize;
+      }
+      return iconsInRow * statusIconSize + (iconsInRow - 1) * statusIconGap;
+    };
+    const getMaxStatusIconsPerRow = (): number => {
+      const availableWidth: number = getBattlerWidth(enemyBattlerID) + 8;
+      let maxIconsPerRow: number = 1;
+      while (getStatusIconsRowWidth(maxIconsPerRow + 1) <= availableWidth) {
+        maxIconsPerRow++;
+      }
+      return maxIconsPerRow;
+    };
+    const getStatusIconRows = (): number[][] => {
+      const statusesCount: number = getEnemyBattlerStatusesCount();
+      const maxIconsPerRow: number = getMaxStatusIconsPerRow();
+      const rowSizes: number[] = [];
+      let remaining: number = statusesCount;
+      while (remaining > 0) {
+        const rowSize: number = Math.min(maxIconsPerRow, remaining);
+        rowSizes.unshift(rowSize);
+        remaining -= rowSize;
+      }
+      const rows: number[][] = [];
+      let nextIndex: number = 0;
+      for (const rowSize of rowSizes) {
+        const row: number[] = [];
+        for (let i: number = 0; i < rowSize; i++) {
+          row.push(nextIndex);
+          nextIndex++;
+        }
+        rows.push(row);
+      }
+      return rows;
+    };
+    const getStatusIconPosition = (
+      statusIndex: number,
+    ): { readonly x: number; readonly y: number } => {
+      const rows: number[][] = getStatusIconRows();
+      for (let rowIndex: number = 0; rowIndex < rows.length; rowIndex++) {
+        const row: number[] | undefined = rows[rowIndex];
+        if (typeof row === "undefined") {
+          throw new Error(`rows[${rowIndex}] is undefined`);
+        }
+        const indexInRow: number = row.indexOf(statusIndex);
+        if (indexInRow === -1) {
+          continue;
+        }
+        const rowWidth: number = getStatusIconsRowWidth(row.length);
+        const step: number = statusIconSize + statusIconGap;
+        return {
+          x:
+            getX() +
+            Math.floor(
+              getBattlerWidth(enemyBattlerID) / 2 -
+                rowWidth / 2 +
+                indexInRow * step,
+            ),
+          y: 131 - (rows.length - 1 - rowIndex) * (statusIconSize + 1),
+        };
+      }
+      throw new Error(`statusIndex ${statusIndex} is not in status icon rows`);
     };
     const getImpactAnimationEventInstance = ():
       | BattleStateRoundEventInstance
@@ -1048,6 +1121,11 @@ export const createBattleUI = ({
                 const damageEvent: CombatDamageEvent =
                   eventInstance.event as CombatDamageEvent;
                 return damageEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.HardenStart: {
+                const hardenStartEvent: CombatHardenStartEvent =
+                  eventInstance.event as CombatHardenStartEvent;
+                return hardenStartEvent.target.battlerID === enemyBattlerID;
               }
               case CombatEventType.Heal: {
                 const healEvent: CombatHealEvent =
@@ -1117,6 +1195,11 @@ export const createBattleUI = ({
                 const damageEvent: CombatDamageEvent =
                   eventInstance.event as CombatDamageEvent;
                 return damageEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.HardenStart: {
+                const hardenStartEvent: CombatHardenStartEvent =
+                  eventInstance.event as CombatHardenStartEvent;
+                return hardenStartEvent.target.battlerID === enemyBattlerID;
               }
               case CombatEventType.Heal: {
                 const healEvent: CombatHealEvent =
@@ -1203,6 +1286,12 @@ export const createBattleUI = ({
             throw new Error("No damage event ability ID");
           }
           return getDefinable(Ability, damageEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case CombatEventType.HardenStart: {
+          const hardenStartEvent: CombatHardenStartEvent =
+            matchedEventInstance.event as CombatHardenStartEvent;
+          return getDefinable(Ability, hardenStartEvent.abilityID)
             .battleImpactAnimation;
         }
         case CombatEventType.Heal: {
@@ -1560,50 +1649,26 @@ export const createBattleUI = ({
       }),
     );
     // Enemy status icons
-    hudElementReferences.push(
-      createImage({
-        condition: (): boolean =>
-          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 1,
-        height: 9,
-        imagePath: (): string => getStatusIconImagePath(0),
-        width: 9,
-        x: (): number =>
-          getX() +
-          Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) +
-          getBattlerShadowXOffset(enemyBattlerID),
-        y: 131,
-      }),
-    );
-    hudElementReferences.push(
-      createImage({
-        condition: (): boolean =>
-          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 2,
-        height: 9,
-        imagePath: (): string => getStatusIconImagePath(0),
-        width: 9,
-        x: (): number =>
-          getX() +
-          Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) +
-          getBattlerShadowXOffset(enemyBattlerID) -
-          5,
-        y: 131,
-      }),
-    );
-    hudElementReferences.push(
-      createImage({
-        condition: (): boolean =>
-          enemySpriteCondition() && getEnemyBattlerStatusesCount() === 2,
-        height: 9,
-        imagePath: (): string => getStatusIconImagePath(1),
-        width: 9,
-        x: (): number =>
-          getX() +
-          Math.floor(getBattlerWidth(enemyBattlerID) / 2 - 4.5) +
-          getBattlerShadowXOffset(enemyBattlerID) +
-          5,
-        y: 131,
-      }),
-    );
+    const maximumEnemyStatusIcons: number = 3;
+    for (
+      let statusIndex: number = 0;
+      statusIndex < maximumEnemyStatusIcons;
+      statusIndex++
+    ) {
+      const capturedStatusIndex: number = statusIndex;
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            enemySpriteCondition() &&
+            getEnemyBattlerStatusesCount() > capturedStatusIndex,
+          height: statusIconSize,
+          imagePath: (): string => getStatusIconImagePath(capturedStatusIndex),
+          width: statusIconSize,
+          x: (): number => getStatusIconPosition(capturedStatusIndex).x,
+          y: (): number => getStatusIconPosition(capturedStatusIndex).y,
+        }),
+      );
+    }
     // Enemy targetting number
     const targetingNumberCondition = (): boolean => {
       if (

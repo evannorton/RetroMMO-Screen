@@ -8,6 +8,7 @@ import {
   CombatDamageEvent,
   CombatDeathEvent,
   CombatEventType,
+  CombatHardenStartEvent,
   CombatHealEvent,
   CombatInstakillFinishEvent,
   CombatMilestoneResetEvent,
@@ -449,6 +450,23 @@ export const tick = (): void => {
                 }
                 break;
               }
+              case CombatEventType.HardenStart: {
+                const hardenStartEvent: CombatHardenStartEvent =
+                  eventInstance.event as CombatHardenStartEvent;
+                if (typeof hardenStartEvent.target.battlerID === "undefined") {
+                  throw new Error("No harden start event target battler ID");
+                }
+                if (
+                  definableExists(Battler, hardenStartEvent.target.battlerID)
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    hardenStartEvent.target.battlerID,
+                  );
+                  battler.harden = { order: hardenStartEvent.target.order };
+                }
+                break;
+              }
               case CombatEventType.Damage: {
                 const damageEvent: CombatDamageEvent =
                   eventInstance.event as CombatDamageEvent;
@@ -485,6 +503,7 @@ export const tick = (): void => {
                   );
                   battler.isAlive = false;
                   battler.bleed = null;
+                  battler.harden = null;
                   battler.poison = null;
                 }
                 break;

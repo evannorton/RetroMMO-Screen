@@ -7,6 +7,7 @@ import {
 import { ClothesDye } from "../../../classes/ClothesDye";
 import {
   CreateSpriteOptionsAnimation,
+  CreateSpriteOptionsAnimationFrame,
   CreateSpriteOptionsRecolor,
   HUDElementReferences,
   Scriptable,
@@ -36,6 +37,7 @@ export interface CreatePlayerSpriteOptionsEntity {
   readonly entityID: string;
   readonly step: Scriptable<Step>;
 }
+export type StatusIconsLayout = "compact" | "wide";
 export interface CreatePlayerSpriteOptions {
   readonly clothesDyeID: Scriptable<string>;
   readonly coordinates?: CreatePlayerSpriteOptionsCoordinates;
@@ -48,6 +50,7 @@ export interface CreatePlayerSpriteOptions {
   readonly scale?: number;
   readonly skinColorID: Scriptable<string>;
   readonly statusIconImagePaths?: Scriptable<readonly string[]>;
+  readonly statusIconsLayout?: StatusIconsLayout;
   readonly worldCharacterID?: string;
 }
 export const createCharacterSprite = ({
@@ -62,6 +65,7 @@ export const createCharacterSprite = ({
   scale = 1,
   skinColorID,
   statusIconImagePaths,
+  statusIconsLayout = "compact",
   worldCharacterID,
 }: CreatePlayerSpriteOptions): HUDElementReferences => {
   if (
@@ -672,15 +676,49 @@ export const createCharacterSprite = ({
       id: "WalkUp",
     },
   ];
+  const getStatusIconImagePaths = (): readonly string[] =>
+    typeof statusIconImagePaths === "function"
+      ? statusIconImagePaths()
+      : statusIconImagePaths ?? [];
   const getStatusIconImagePath = (index: number): string => {
-    const paths: readonly string[] =
-      typeof statusIconImagePaths === "function"
-        ? statusIconImagePaths()
-        : statusIconImagePaths ?? [];
+    const paths: readonly string[] = getStatusIconImagePaths();
     if (typeof paths[index] === "undefined") {
       throw new Error(`paths[${index}] is undefined`);
     }
     return paths[index];
+  };
+  const getStatusIconsCount = (): number => getStatusIconImagePaths().length;
+  const getCoordinatesX = (): number => {
+    if (typeof coordinates === "undefined") {
+      return 0;
+    }
+    if (typeof coordinates.x === "function") {
+      return coordinates.x();
+    }
+    return coordinates.x;
+  };
+  const getCoordinatesY = (): number => {
+    if (typeof coordinates === "undefined") {
+      return 0;
+    }
+    if (typeof coordinates.y === "function") {
+      return coordinates.y();
+    }
+    return coordinates.y;
+  };
+  const statusIconCoordinatesCondition = (
+    condition: () => boolean,
+  ): boolean => {
+    if (typeof coordinates === "undefined") {
+      return false;
+    }
+    if (
+      typeof coordinates.condition !== "undefined" &&
+      coordinates.condition() === false
+    ) {
+      return false;
+    }
+    return condition();
   };
   // Head back sprite
   const headBackSpriteCondition = (): boolean =>
@@ -782,147 +820,122 @@ export const createCharacterSprite = ({
   });
   spriteIDs.push(headFrontSpriteID);
   // Status icon sprites
-  const statusIconPosition1SpriteID: string = createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 9,
-            sourceHeight: 9,
-            sourceWidth: 9,
-            sourceX: 0,
-            sourceY: 0,
-            width: 9,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates:
-      typeof coordinates !== "undefined"
-        ? {
-            condition: (): boolean => {
-              if (
-                typeof coordinates.condition === "undefined" ||
-                coordinates.condition()
-              ) {
-                return (
-                  (typeof statusIconImagePaths === "function"
-                    ? statusIconImagePaths()
-                    : statusIconImagePaths ?? []
-                  ).length === 1
-                );
-              }
-              return false;
-            },
-            x: (): number =>
-              (typeof coordinates.x === "function"
-                ? coordinates.x()
-                : coordinates.x) + 3,
-            y: (): number =>
-              (typeof coordinates.y === "function"
-                ? coordinates.y()
-                : coordinates.y) + 11,
-          }
-        : undefined,
-    imagePath: (): string => getStatusIconImagePath(0),
+  const statusIconFrame: CreateSpriteOptionsAnimationFrame = {
+    height: 9,
+    sourceHeight: 9,
+    sourceWidth: 9,
+    sourceX: 0,
+    sourceY: 0,
+    width: 9,
+  };
+  const createStatusIconSprite = ({
+    condition,
+    imagePathIndex,
+    xOffset,
+    yOffset,
+  }: {
+    readonly condition: () => boolean;
+    readonly imagePathIndex: number;
+    readonly xOffset: number;
+    readonly yOffset: number;
+  }): string => {
+    const spriteID: string = createSprite({
+      animationID: "default",
+      animations: [
+        {
+          frames: [statusIconFrame],
+          id: "default",
+        },
+      ],
+      coordinates:
+        typeof coordinates !== "undefined"
+          ? {
+              condition: (): boolean =>
+                statusIconCoordinatesCondition(condition),
+              x: (): number => getCoordinatesX() + xOffset,
+              y: (): number => getCoordinatesY() + yOffset,
+            }
+          : undefined,
+      imagePath: (): string => getStatusIconImagePath(imagePathIndex),
+    });
+    spriteIDs.push(spriteID);
+    return spriteID;
+  };
+  const statusIconSize: number = 9;
+  const statusIconGap: number = statusIconsLayout === "wide" ? 1 : 0;
+  const statusIconStep: number = statusIconSize + statusIconGap;
+  const statusIconBaseYOffset: number = 11;
+  // 1 status
+  createStatusIconSprite({
+    condition: (): boolean => getStatusIconsCount() === 1,
+    imagePathIndex: 0,
+    xOffset: 3,
+    yOffset: statusIconBaseYOffset,
   });
-  spriteIDs.push(statusIconPosition1SpriteID);
-  const statusIconPosition2SpriteID: string = createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 9,
-            sourceHeight: 9,
-            sourceWidth: 9,
-            sourceX: 0,
-            sourceY: 0,
-            width: 9,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates:
-      typeof coordinates !== "undefined"
-        ? {
-            condition: (): boolean => {
-              if (
-                typeof coordinates.condition === "undefined" ||
-                coordinates.condition()
-              ) {
-                return (
-                  (typeof statusIconImagePaths === "function"
-                    ? statusIconImagePaths()
-                    : statusIconImagePaths ?? []
-                  ).length === 2
-                );
-              }
-              return false;
-            },
-            x: (): number =>
-              (typeof coordinates.x === "function"
-                ? coordinates.x()
-                : coordinates.x) - 2,
-            y: (): number =>
-              (typeof coordinates.y === "function"
-                ? coordinates.y()
-                : coordinates.y) + 11,
-          }
-        : undefined,
-    imagePath: (): string => getStatusIconImagePath(0),
+  // 2 statuses — wide (1px gap): left -2, right 8
+  createStatusIconSprite({
+    condition: (): boolean =>
+      getStatusIconsCount() === 2 && statusIconsLayout === "wide",
+    imagePathIndex: 0,
+    xOffset: -2,
+    yOffset: statusIconBaseYOffset,
   });
-  spriteIDs.push(statusIconPosition2SpriteID);
-  const statusIconPosition3SpriteID: string = createSprite({
-    animationID: "default",
-    animations: [
-      {
-        frames: [
-          {
-            height: 9,
-            sourceHeight: 9,
-            sourceWidth: 9,
-            sourceX: 0,
-            sourceY: 0,
-            width: 9,
-          },
-        ],
-        id: "default",
-      },
-    ],
-    coordinates:
-      typeof coordinates !== "undefined"
-        ? {
-            condition: (): boolean => {
-              if (
-                typeof coordinates.condition === "undefined" ||
-                coordinates.condition()
-              ) {
-                return (
-                  (typeof statusIconImagePaths === "function"
-                    ? statusIconImagePaths()
-                    : statusIconImagePaths ?? []
-                  ).length === 2
-                );
-              }
-              return false;
-            },
-            x: (): number =>
-              (typeof coordinates.x === "function"
-                ? coordinates.x()
-                : coordinates.x) + 8,
-            y: (): number =>
-              (typeof coordinates.y === "function"
-                ? coordinates.y()
-                : coordinates.y) + 11,
-          }
-        : undefined,
-    imagePath: (): string => getStatusIconImagePath(1),
+  createStatusIconSprite({
+    condition: (): boolean =>
+      getStatusIconsCount() === 2 && statusIconsLayout === "wide",
+    imagePathIndex: 1,
+    xOffset: 8,
+    yOffset: statusIconBaseYOffset,
   });
-  spriteIDs.push(statusIconPosition3SpriteID);
+  // 2 statuses, or bottom row of compact 3-status layout — compact (0px gap)
+  createStatusIconSprite({
+    condition: (): boolean => {
+      const count: number = getStatusIconsCount();
+      return statusIconsLayout === "compact" && (count === 2 || count === 3);
+    },
+    imagePathIndex: 0,
+    xOffset: -2,
+    yOffset: statusIconBaseYOffset,
+  });
+  createStatusIconSprite({
+    condition: (): boolean => {
+      const count: number = getStatusIconsCount();
+      return statusIconsLayout === "compact" && (count === 2 || count === 3);
+    },
+    imagePathIndex: 1,
+    xOffset: 7,
+    yOffset: statusIconBaseYOffset,
+  });
+  // 3 statuses in a horizontal row (wide / battle allies)
+  createStatusIconSprite({
+    condition: (): boolean =>
+      getStatusIconsCount() === 3 && statusIconsLayout === "wide",
+    imagePathIndex: 0,
+    xOffset: -7,
+    yOffset: statusIconBaseYOffset,
+  });
+  createStatusIconSprite({
+    condition: (): boolean =>
+      getStatusIconsCount() === 3 && statusIconsLayout === "wide",
+    imagePathIndex: 1,
+    xOffset: -7 + statusIconStep,
+    yOffset: statusIconBaseYOffset,
+  });
+  createStatusIconSprite({
+    condition: (): boolean =>
+      getStatusIconsCount() === 3 && statusIconsLayout === "wide",
+    imagePathIndex: 2,
+    xOffset: -7 + statusIconStep * 2,
+    yOffset: statusIconBaseYOffset,
+  });
+  // 3rd status above leftmost (compact / world bottom bar)
+  createStatusIconSprite({
+    condition: (): boolean =>
+      getStatusIconsCount() === 3 && statusIconsLayout === "compact",
+    imagePathIndex: 2,
+    xOffset: -2,
+    yOffset: statusIconBaseYOffset - statusIconStep,
+  });
   if (typeof entity !== "undefined") {
     addEntitySprite(entity.entityID, {
       condition: headBackSpriteCondition,

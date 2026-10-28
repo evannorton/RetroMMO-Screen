@@ -147,6 +147,12 @@ export const listenForBattleUpdates = (): void => {
                 order: battlerUpdate.bleed.order,
               }
             : null;
+        battler.harden =
+          typeof battlerUpdate.harden !== "undefined"
+            ? {
+                order: battlerUpdate.harden.order,
+              }
+            : null;
         battler.poison =
           typeof battlerUpdate.poison !== "undefined"
             ? {

@@ -17,6 +17,8 @@ import {
   CombatFriendlyTargetFailureEvent,
   CombatGainStatEvent,
   CombatGoldEvent,
+  CombatHardenStartEvent,
+  CombatHardenStartFailureEvent,
   CombatHealEvent,
   CombatInstakillEvent,
   CombatInstakillFailEvent,
@@ -315,6 +317,57 @@ export const getCombatEventText = (
         value: `${gainStatEvent.username} gains ${getFormattedInteger(
           gainStatEvent.amount,
         )} ${getStatName(gainStatEvent.stat)}.`,
+      };
+    }
+    case CombatEventType.HardenStart: {
+      const hardenStartCombatEvent: CombatHardenStartEvent =
+        combatEvent as CombatHardenStartEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: hardenStartCombatEvent.target.monsterName,
+        username: hardenStartCombatEvent.target.username,
+      });
+      trims.push({
+        index: 0,
+        length: combatantName.length,
+      });
+      value += `${combatantName} is `;
+      const adjective: string = "hardened";
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: adjective.length,
+      });
+      value += `${adjective}.`;
+      return {
+        colors,
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.HardenStartFailure: {
+      const hardenStartFailureCombatEvent: CombatHardenStartFailureEvent =
+        combatEvent as CombatHardenStartFailureEvent;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: hardenStartFailureCombatEvent.target.monsterName,
+        username: hardenStartFailureCombatEvent.target.username,
+      });
+      if (
+        typeof hardenStartFailureCombatEvent.target.username !== "undefined"
+      ) {
+        trims.push({
+          index: value.length,
+          length: combatantName.length,
+        });
+      }
+      value += `${combatantName} is already hardened.`;
+      return {
+        trims,
+        value,
       };
     }
     case CombatEventType.Heal: {

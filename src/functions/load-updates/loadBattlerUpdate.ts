@@ -9,6 +9,10 @@ export const loadBattlerUpdate = (battlerUpdate: BattlerUpdate): void => {
         ? { order: battlerUpdate.bleed.order }
         : undefined,
     gold: battlerUpdate.gold,
+    harden:
+      typeof battlerUpdate.harden !== "undefined"
+        ? { order: battlerUpdate.harden.order }
+        : undefined,
     isAlive: battlerUpdate.isAlive,
     monsterID: battlerUpdate.monsterID,
     poison:

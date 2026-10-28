@@ -6,6 +6,7 @@ import {
   CombatDeathEvent,
   CombatEvent,
   CombatEventType,
+  CombatHardenStartEvent,
   CombatHealEvent,
   CombatInstakillFinishEvent,
   CombatMilestoneResetEvent,
@@ -89,6 +90,18 @@ const getCombatEventSFXAudioPath = (
     case CombatEventType.FleeSuccess:
       return "sfx/actions/flee";
     case CombatEventType.FriendlyTargetFailure: {
+      return "sfx/fail";
+    }
+    case CombatEventType.HardenStart: {
+      const hardenStartEvent: CombatHardenStartEvent =
+        combatEvent as CombatHardenStartEvent;
+      const ability: Ability = getDefinable(
+        Ability,
+        hardenStartEvent.abilityID,
+      );
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.HardenStartFailure: {
       return "sfx/fail";
     }
     case CombatEventType.Heal: {

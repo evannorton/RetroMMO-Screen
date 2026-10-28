@@ -16,10 +16,16 @@ export interface BattlerPoison {
 export interface BattlerBleed {
   readonly order: number;
 }
+export interface BattlerHarden {
+  readonly order: number;
+}
 export interface BattlerOptionsPoison {
   readonly order: number;
 }
 export interface BattlerOptionsBleed {
+  readonly order: number;
+}
+export interface BattlerOptionsHarden {
   readonly order: number;
 }
 export interface BattlerOptionsResources {
@@ -33,6 +39,7 @@ export interface BattlerOptions {
   readonly battleCharacterID?: string;
   readonly bleed?: BattlerOptionsBleed;
   readonly gold: number;
+  readonly harden?: BattlerOptionsHarden;
   readonly isAlive?: boolean;
   readonly poison?: BattlerOptionsPoison;
   readonly monsterID?: string;
@@ -43,6 +50,7 @@ export class Battler extends Definable {
   private readonly _battleCharacterID?: string;
   private _bleed: BattlerBleed | null;
   private readonly _gold: number;
+  private _harden: BattlerHarden | null;
   private _isAlive: boolean;
   private readonly _monsterID?: string;
   private _poison: BattlerPoison | null;
@@ -57,6 +65,12 @@ export class Battler extends Definable {
       typeof options.bleed !== "undefined"
         ? {
             order: options.bleed.order,
+          }
+        : null;
+    this._harden =
+      typeof options.harden !== "undefined"
+        ? {
+            order: options.harden.order,
           }
         : null;
     this._poison =
@@ -116,6 +130,13 @@ export class Battler extends Definable {
     return this._gold;
   }
 
+  public get harden(): BattlerHarden {
+    if (this._harden !== null) {
+      return this._harden;
+    }
+    throw new Error(this.getAccessorErrorMessage("harden"));
+  }
+
   public get isAlive(): boolean {
     return this._isAlive;
   }
@@ -156,6 +177,10 @@ export class Battler extends Definable {
     this._bleed = bleed;
   }
 
+  public set harden(harden: BattlerHarden | null) {
+    this._harden = harden;
+  }
+
   public set isAlive(isAlive: boolean) {
     this._isAlive = isAlive;
   }
@@ -180,6 +205,10 @@ export class Battler extends Definable {
 
   public hasBleed(): boolean {
     return this._bleed !== null;
+  }
+
+  public hasHarden(): boolean {
+    return this._harden !== null;
   }
 
   public hasPoison(): boolean {

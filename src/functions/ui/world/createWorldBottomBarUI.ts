@@ -175,6 +175,7 @@ export const createWorldBottomBarUI = (): void => {
             statusIconImagePath[0],
         );
       },
+      statusIconsLayout: "compact",
     });
     createButton({
       coordinates: {
