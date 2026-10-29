@@ -12,6 +12,7 @@ import {
   CombatBleedStartEvent,
   CombatDamageEvent,
   CombatEventType,
+  CombatHardenEndEvent,
   CombatHardenStartEvent,
   CombatHealEvent,
   CombatInstakillEvent,
@@ -21,6 +22,8 @@ import {
   CombatPoisonStartEvent,
   CombatRejuvenateEvent,
   CombatReviveEvent,
+  CombatSoftenEndEvent,
+  CombatSoftenStartEvent,
   CombatantType,
   Constants,
   Direction,
@@ -660,6 +663,12 @@ export const createBattleUI = ({
               friendlyBattler.harden.order,
             ]);
           }
+          if (friendlyBattler.hasSoften()) {
+            statusIconImagePaths.push([
+              "status-icons/soften",
+              friendlyBattler.soften.order,
+            ]);
+          }
           statusIconImagePaths.sort(
             (a: [string, number], b: [string, number]): number => a[1] - b[1],
           );
@@ -1011,6 +1020,9 @@ export const createBattleUI = ({
       if (enemyBattler.hasHarden()) {
         icons.push(["status-icons/harden", enemyBattler.harden.order]);
       }
+      if (enemyBattler.hasSoften()) {
+        icons.push(["status-icons/soften", enemyBattler.soften.order]);
+      }
       icons.sort(
         (a: [string, number], b: [string, number]): number => a[1] - b[1],
       );
@@ -1122,6 +1134,11 @@ export const createBattleUI = ({
                   eventInstance.event as CombatDamageEvent;
                 return damageEvent.target.battlerID === enemyBattlerID;
               }
+              case CombatEventType.HardenEnd: {
+                const hardenEndEvent: CombatHardenEndEvent =
+                  eventInstance.event as CombatHardenEndEvent;
+                return hardenEndEvent.target.battlerID === enemyBattlerID;
+              }
               case CombatEventType.HardenStart: {
                 const hardenStartEvent: CombatHardenStartEvent =
                   eventInstance.event as CombatHardenStartEvent;
@@ -1162,6 +1179,16 @@ export const createBattleUI = ({
                   eventInstance.event as CombatRejuvenateEvent;
                 return rejuvenateEvent.target.battlerID === enemyBattlerID;
               }
+              case CombatEventType.SoftenEnd: {
+                const softenEndEvent: CombatSoftenEndEvent =
+                  eventInstance.event as CombatSoftenEndEvent;
+                return softenEndEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.SoftenStart: {
+                const softenStartEvent: CombatSoftenStartEvent =
+                  eventInstance.event as CombatSoftenStartEvent;
+                return softenStartEvent.target.battlerID === enemyBattlerID;
+              }
             }
           }
           return false;
@@ -1195,6 +1222,11 @@ export const createBattleUI = ({
                 const damageEvent: CombatDamageEvent =
                   eventInstance.event as CombatDamageEvent;
                 return damageEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.HardenEnd: {
+                const hardenEndEvent: CombatHardenEndEvent =
+                  eventInstance.event as CombatHardenEndEvent;
+                return hardenEndEvent.target.battlerID === enemyBattlerID;
               }
               case CombatEventType.HardenStart: {
                 const hardenStartEvent: CombatHardenStartEvent =
@@ -1235,6 +1267,16 @@ export const createBattleUI = ({
                 const rejuvenateEvent: CombatRejuvenateEvent =
                   eventInstance.event as CombatRejuvenateEvent;
                 return rejuvenateEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.SoftenEnd: {
+                const softenEndEvent: CombatSoftenEndEvent =
+                  eventInstance.event as CombatSoftenEndEvent;
+                return softenEndEvent.target.battlerID === enemyBattlerID;
+              }
+              case CombatEventType.SoftenStart: {
+                const softenStartEvent: CombatSoftenStartEvent =
+                  eventInstance.event as CombatSoftenStartEvent;
+                return softenStartEvent.target.battlerID === enemyBattlerID;
               }
             }
           }
@@ -1288,6 +1330,12 @@ export const createBattleUI = ({
           return getDefinable(Ability, damageEvent.abilityID)
             .battleImpactAnimation;
         }
+        case CombatEventType.HardenEnd: {
+          const hardenEndEvent: CombatHardenEndEvent =
+            matchedEventInstance.event as CombatHardenEndEvent;
+          return getDefinable(Ability, hardenEndEvent.abilityID)
+            .battleImpactAnimation;
+        }
         case CombatEventType.HardenStart: {
           const hardenStartEvent: CombatHardenStartEvent =
             matchedEventInstance.event as CombatHardenStartEvent;
@@ -1331,6 +1379,18 @@ export const createBattleUI = ({
           const rejuvenateEvent: CombatRejuvenateEvent =
             matchedEventInstance.event as CombatRejuvenateEvent;
           return getDefinable(Ability, rejuvenateEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case CombatEventType.SoftenEnd: {
+          const softenEndEvent: CombatSoftenEndEvent =
+            matchedEventInstance.event as CombatSoftenEndEvent;
+          return getDefinable(Ability, softenEndEvent.abilityID)
+            .battleImpactAnimation;
+        }
+        case CombatEventType.SoftenStart: {
+          const softenStartEvent: CombatSoftenStartEvent =
+            matchedEventInstance.event as CombatSoftenStartEvent;
+          return getDefinable(Ability, softenStartEvent.abilityID)
             .battleImpactAnimation;
         }
       }

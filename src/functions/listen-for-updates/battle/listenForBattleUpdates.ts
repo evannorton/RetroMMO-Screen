@@ -159,6 +159,12 @@ export const listenForBattleUpdates = (): void => {
                 order: battlerUpdate.poison.order,
               }
             : null;
+        battler.soften =
+          typeof battlerUpdate.soften !== "undefined"
+            ? {
+                order: battlerUpdate.soften.order,
+              }
+            : null;
         if (battleState.values.friendlyBattlerIDs.includes(battlerUpdate.id)) {
           if (typeof battlerUpdate.resources === "undefined") {
             throw new Error(

@@ -6,6 +6,7 @@ import {
   CombatDeathEvent,
   CombatEvent,
   CombatEventType,
+  CombatHardenEndEvent,
   CombatHardenStartEvent,
   CombatHealEvent,
   CombatInstakillFinishEvent,
@@ -14,6 +15,8 @@ import {
   CombatRejuvenateEvent,
   CombatRenewEvent,
   CombatReviveEvent,
+  CombatSoftenEndEvent,
+  CombatSoftenStartEvent,
   CombatUseAbilityEvent,
   CombatUseItemEvent,
   CombatantType,
@@ -92,6 +95,12 @@ const getCombatEventSFXAudioPath = (
     case CombatEventType.FriendlyTargetFailure: {
       return "sfx/fail";
     }
+    case CombatEventType.HardenEnd: {
+      const hardenEndEvent: CombatHardenEndEvent =
+        combatEvent as CombatHardenEndEvent;
+      const ability: Ability = getDefinable(Ability, hardenEndEvent.abilityID);
+      return ability.impactAudioPath;
+    }
     case CombatEventType.HardenStart: {
       const hardenStartEvent: CombatHardenStartEvent =
         combatEvent as CombatHardenStartEvent;
@@ -168,6 +177,24 @@ const getCombatEventSFXAudioPath = (
       return ability.impactAudioPath;
     }
     case CombatEventType.ReviveFailure: {
+      return "sfx/fail";
+    }
+    case CombatEventType.SoftenEnd: {
+      const softenEndEvent: CombatSoftenEndEvent =
+        combatEvent as CombatSoftenEndEvent;
+      const ability: Ability = getDefinable(Ability, softenEndEvent.abilityID);
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.SoftenStart: {
+      const softenStartEvent: CombatSoftenStartEvent =
+        combatEvent as CombatSoftenStartEvent;
+      const ability: Ability = getDefinable(
+        Ability,
+        softenStartEvent.abilityID,
+      );
+      return ability.impactAudioPath;
+    }
+    case CombatEventType.SoftenStartFailure: {
       return "sfx/fail";
     }
     case CombatEventType.UseAbility: {

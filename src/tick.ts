@@ -8,6 +8,7 @@ import {
   CombatDamageEvent,
   CombatDeathEvent,
   CombatEventType,
+  CombatHardenEndEvent,
   CombatHardenStartEvent,
   CombatHealEvent,
   CombatInstakillFinishEvent,
@@ -17,6 +18,8 @@ import {
   CombatRejuvenateEvent,
   CombatRenewEvent,
   CombatReviveEvent,
+  CombatSoftenEndEvent,
+  CombatSoftenStartEvent,
   CombatUseAbilityEvent,
   Constants,
   Direction,
@@ -450,23 +453,6 @@ export const tick = (): void => {
                 }
                 break;
               }
-              case CombatEventType.HardenStart: {
-                const hardenStartEvent: CombatHardenStartEvent =
-                  eventInstance.event as CombatHardenStartEvent;
-                if (typeof hardenStartEvent.target.battlerID === "undefined") {
-                  throw new Error("No harden start event target battler ID");
-                }
-                if (
-                  definableExists(Battler, hardenStartEvent.target.battlerID)
-                ) {
-                  const battler: Battler = getDefinable(
-                    Battler,
-                    hardenStartEvent.target.battlerID,
-                  );
-                  battler.harden = { order: hardenStartEvent.target.order };
-                }
-                break;
-              }
               case CombatEventType.Damage: {
                 const damageEvent: CombatDamageEvent =
                   eventInstance.event as CombatDamageEvent;
@@ -505,11 +491,44 @@ export const tick = (): void => {
                   battler.bleed = null;
                   battler.harden = null;
                   battler.poison = null;
+                  battler.soften = null;
                 }
                 break;
               }
               case CombatEventType.Defeat: {
                 playMusic();
+                break;
+              }
+              case CombatEventType.HardenEnd: {
+                const hardenEndEvent: CombatHardenEndEvent =
+                  eventInstance.event as CombatHardenEndEvent;
+                if (typeof hardenEndEvent.target.battlerID === "undefined") {
+                  throw new Error("No harden end event target battler ID");
+                }
+                if (definableExists(Battler, hardenEndEvent.target.battlerID)) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    hardenEndEvent.target.battlerID,
+                  );
+                  battler.harden = null;
+                }
+                break;
+              }
+              case CombatEventType.HardenStart: {
+                const hardenStartEvent: CombatHardenStartEvent =
+                  eventInstance.event as CombatHardenStartEvent;
+                if (typeof hardenStartEvent.target.battlerID === "undefined") {
+                  throw new Error("No harden start event target battler ID");
+                }
+                if (
+                  definableExists(Battler, hardenStartEvent.target.battlerID)
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    hardenStartEvent.target.battlerID,
+                  );
+                  battler.harden = { order: hardenStartEvent.target.order };
+                }
                 break;
               }
               case CombatEventType.Heal: {
@@ -649,6 +668,38 @@ export const tick = (): void => {
                     battler.resources.maxMP,
                     battler.resources.mp + rejuvenateEvent.amount,
                   );
+                }
+                break;
+              }
+              case CombatEventType.SoftenEnd: {
+                const softenEndEvent: CombatSoftenEndEvent =
+                  eventInstance.event as CombatSoftenEndEvent;
+                if (typeof softenEndEvent.target.battlerID === "undefined") {
+                  throw new Error("No soften end event target battler ID");
+                }
+                if (definableExists(Battler, softenEndEvent.target.battlerID)) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    softenEndEvent.target.battlerID,
+                  );
+                  battler.soften = null;
+                }
+                break;
+              }
+              case CombatEventType.SoftenStart: {
+                const softenStartEvent: CombatSoftenStartEvent =
+                  eventInstance.event as CombatSoftenStartEvent;
+                if (typeof softenStartEvent.target.battlerID === "undefined") {
+                  throw new Error("No soften start event target battler ID");
+                }
+                if (
+                  definableExists(Battler, softenStartEvent.target.battlerID)
+                ) {
+                  const battler: Battler = getDefinable(
+                    Battler,
+                    softenStartEvent.target.battlerID,
+                  );
+                  battler.soften = { order: softenStartEvent.target.order };
                 }
                 break;
               }

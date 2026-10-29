@@ -29,6 +29,10 @@ export const loadBattlerUpdate = (battlerUpdate: BattlerUpdate): void => {
             will: battlerUpdate.resources.will,
           }
         : undefined,
+    soften:
+      typeof battlerUpdate.soften !== "undefined"
+        ? { order: battlerUpdate.soften.order }
+        : undefined,
     type: battlerUpdate.type,
   });
 };

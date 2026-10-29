@@ -19,6 +19,9 @@ export interface BattlerBleed {
 export interface BattlerHarden {
   readonly order: number;
 }
+export interface BattlerSoften {
+  readonly order: number;
+}
 export interface BattlerOptionsPoison {
   readonly order: number;
 }
@@ -26,6 +29,9 @@ export interface BattlerOptionsBleed {
   readonly order: number;
 }
 export interface BattlerOptionsHarden {
+  readonly order: number;
+}
+export interface BattlerOptionsSoften {
   readonly order: number;
 }
 export interface BattlerOptionsResources {
@@ -42,6 +48,7 @@ export interface BattlerOptions {
   readonly harden?: BattlerOptionsHarden;
   readonly isAlive?: boolean;
   readonly poison?: BattlerOptionsPoison;
+  readonly soften?: BattlerOptionsSoften;
   readonly monsterID?: string;
   readonly resources?: BattlerOptionsResources;
   readonly type: CombatantType;
@@ -54,6 +61,7 @@ export class Battler extends Definable {
   private _isAlive: boolean;
   private readonly _monsterID?: string;
   private _poison: BattlerPoison | null;
+  private _soften: BattlerSoften | null;
   private _resources: BattlerResources | null;
   private readonly _type: CombatantType;
   public constructor(id: string, options: BattlerOptions) {
@@ -77,6 +85,12 @@ export class Battler extends Definable {
       typeof options.poison !== "undefined"
         ? {
             order: options.poison.order,
+          }
+        : null;
+    this._soften =
+      typeof options.soften !== "undefined"
+        ? {
+            order: options.soften.order,
           }
         : null;
     this._resources =
@@ -169,6 +183,13 @@ export class Battler extends Definable {
     throw new Error(this.getAccessorErrorMessage("resources"));
   }
 
+  public get soften(): BattlerSoften {
+    if (this._soften !== null) {
+      return this._soften;
+    }
+    throw new Error(this.getAccessorErrorMessage("soften"));
+  }
+
   public get type(): CombatantType {
     return this._type;
   }
@@ -199,6 +220,10 @@ export class Battler extends Definable {
     };
   }
 
+  public set soften(soften: BattlerSoften | null) {
+    this._soften = soften;
+  }
+
   public hasBattleCharacter(): boolean {
     return typeof this._battleCharacterID !== "undefined";
   }
@@ -213,5 +238,9 @@ export class Battler extends Definable {
 
   public hasPoison(): boolean {
     return this._poison !== null;
+  }
+
+  public hasSoften(): boolean {
+    return this._soften !== null;
   }
 }

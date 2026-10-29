@@ -17,6 +17,7 @@ import {
   CombatFriendlyTargetFailureEvent,
   CombatGainStatEvent,
   CombatGoldEvent,
+  CombatHardenEndEvent,
   CombatHardenStartEvent,
   CombatHardenStartFailureEvent,
   CombatHealEvent,
@@ -37,6 +38,9 @@ import {
   CombatRenewEvent,
   CombatReviveEvent,
   CombatReviveFailureEvent,
+  CombatSoftenEndEvent,
+  CombatSoftenStartEvent,
+  CombatSoftenStartFailureEvent,
   CombatUseAbilityEvent,
   CombatUseItemEvent,
 } from "retrommo-types";
@@ -317,6 +321,34 @@ export const getCombatEventText = (
         value: `${gainStatEvent.username} gains ${getFormattedInteger(
           gainStatEvent.amount,
         )} ${getStatName(gainStatEvent.stat)}.`,
+      };
+    }
+    case CombatEventType.HardenEnd: {
+      const hardenEndCombatEvent: CombatHardenEndEvent =
+        combatEvent as CombatHardenEndEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: hardenEndCombatEvent.target.monsterName,
+        username: hardenEndCombatEvent.target.username,
+      });
+      trims.push({
+        index: 0,
+        length: combatantName.length,
+      });
+      value += `${combatantName} is `;
+      const adjective: string = "unhardened";
+      colors.push({
+        color: negativeColor,
+        index: value.length,
+        length: adjective.length,
+      });
+      value += `${adjective}.`;
+      return {
+        colors,
+        trims,
+        value,
       };
     }
     case CombatEventType.HardenStart: {
@@ -780,6 +812,85 @@ export const getCombatEventText = (
         });
       }
       value += `${combatantName} is already alive.`;
+      return {
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.SoftenEnd: {
+      const softenEndCombatEvent: CombatSoftenEndEvent =
+        combatEvent as CombatSoftenEndEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: softenEndCombatEvent.target.monsterName,
+        username: softenEndCombatEvent.target.username,
+      });
+      trims.push({
+        index: 0,
+        length: combatantName.length,
+      });
+      value += `${combatantName} is `;
+      const adjective: string = "unsoftened";
+      colors.push({
+        color: positiveColor,
+        index: value.length,
+        length: adjective.length,
+      });
+      value += `${adjective}.`;
+      return {
+        colors,
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.SoftenStart: {
+      const softenStartCombatEvent: CombatSoftenStartEvent =
+        combatEvent as CombatSoftenStartEvent;
+      let value: string = "";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const colors: CreateLabelOptionsTextColor[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: softenStartCombatEvent.target.monsterName,
+        username: softenStartCombatEvent.target.username,
+      });
+      trims.push({
+        index: 0,
+        length: combatantName.length,
+      });
+      value += `${combatantName} is `;
+      const adjective: string = "softened";
+      colors.push({
+        color: negativeColor,
+        index: value.length,
+        length: adjective.length,
+      });
+      value += `${adjective}.`;
+      return {
+        colors,
+        trims,
+        value,
+      };
+    }
+    case CombatEventType.SoftenStartFailure: {
+      const softenStartFailureCombatEvent: CombatSoftenStartFailureEvent =
+        combatEvent as CombatSoftenStartFailureEvent;
+      let value: string = "...but ";
+      const trims: CreateLabelOptionsTextTrim[] = [];
+      const combatantName: string = getCombatantName({
+        monsterName: softenStartFailureCombatEvent.target.monsterName,
+        username: softenStartFailureCombatEvent.target.username,
+      });
+      if (
+        typeof softenStartFailureCombatEvent.target.username !== "undefined"
+      ) {
+        trims.push({
+          index: value.length,
+          length: combatantName.length,
+        });
+      }
+      value += `${combatantName} is already softened.`;
       return {
         trims,
         value,
