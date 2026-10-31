@@ -2,6 +2,7 @@ import { Ability } from "../classes/Ability";
 import { ClassAbilityUnlock, ClassMilestone } from "../classes/Class";
 import {
   Color,
+  ResourcePool,
   TargetType,
   WorldUnlockMilestoneChoiceRequest,
   WorldUseAbilityRequest,
@@ -673,6 +674,8 @@ export const spellbookWorldMenu: WorldMenu<
                   throw new Error("Selected ability ID is null");
                 }
                 return (
+                  worldCharacter.player.character.class.resourcePool ===
+                    ResourcePool.MP &&
                   getDefinable(
                     Ability,
                     spellbookWorldMenu.state.values.selectedAbilityID,
@@ -681,38 +684,63 @@ export const spellbookWorldMenu: WorldMenu<
               }
               return false;
             },
-            x: (): number => {
-              if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
-                throw new Error("Selected ability ID is null");
-              }
-              const ability: Ability = getDefinable(
-                Ability,
-                spellbookWorldMenu.state.values.selectedAbilityID,
-              );
-              const canBindAbility: boolean =
-                ability.canBeUsedInWorld &&
-                (ability.targetType === TargetType.AllAllies ||
-                  ability.targetType === TargetType.None ||
-                  ability.targetType === TargetType.SingleAlly);
-              if (canBindAbility) {
-                return 93;
-              }
-              return 131;
-            },
-            y: 186,
+            x: 7,
+            y: 194,
           },
-          horizontalAlignment: "right",
+          horizontalAlignment: "left",
           text: (): CreateLabelOptionsText => {
             if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
               throw new Error("Selected ability ID is null");
             }
             return {
-              value: `${
+              value: `${getFormattedInteger(
                 getDefinable(
                   Ability,
                   spellbookWorldMenu.state.values.selectedAbilityID,
-                ).mpCost
-              } MP`,
+                ).mpCost,
+              )} MP`,
+            };
+          },
+        }),
+      );
+      // Selected ability will cost
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedAbilityCondition()) {
+                if (
+                  spellbookWorldMenu.state.values.selectedAbilityID === null
+                ) {
+                  throw new Error("Selected ability ID is null");
+                }
+                return (
+                  worldCharacter.player.character.class.resourcePool ===
+                    ResourcePool.Will &&
+                  getDefinable(
+                    Ability,
+                    spellbookWorldMenu.state.values.selectedAbilityID,
+                  ).willCost > 0
+                );
+              }
+              return false;
+            },
+            x: 7,
+            y: 194,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (spellbookWorldMenu.state.values.selectedAbilityID === null) {
+              throw new Error("Selected ability ID is null");
+            }
+            return {
+              value: `${getFormattedInteger(
+                getDefinable(
+                  Ability,
+                  spellbookWorldMenu.state.values.selectedAbilityID,
+                ).willCost,
+              )} FP`,
             };
           },
         }),
@@ -730,8 +758,12 @@ export const spellbookWorldMenu: WorldMenu<
                 spellbookWorldMenu.state.values.selectedAbilityID,
               );
               if (ability.canBeUsedInWorld) {
-                const mp: number = worldCharacter.resources.mp ?? 0;
-                return mp >= ability.mpCost;
+                switch (worldCharacter.player.character.class.resourcePool) {
+                  case ResourcePool.MP: {
+                    const mp: number = worldCharacter.resources.mp ?? 0;
+                    return mp >= ability.mpCost;
+                  }
+                }
               }
             }
             return false;
