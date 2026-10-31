@@ -1004,6 +1004,138 @@ export const spellbookWorldMenu: WorldMenu<
           },
         }),
       );
+      labelIDs.push(
+        createLabel({
+          color: (): Color => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            return getMilestoneChoiceTextColor(
+              getSelectedMilestone().level,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            );
+          },
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedMilestoneChoiceCondition()) {
+                if (
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID ===
+                  null
+                ) {
+                  throw new Error("Selected milestone choice ID is null");
+                }
+                const milestoneChoice: MilestoneChoice = getDefinable(
+                  MilestoneChoice,
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+                );
+                if (milestoneChoice.hasUnlockAbilityIDs()) {
+                  const abilityID: string | undefined =
+                    milestoneChoice.unlockAbilityIDs[0];
+                  if (typeof abilityID === "undefined") {
+                    throw new Error("Unlock ability ID is undefined");
+                  }
+                  return (
+                    worldCharacter.player.character.class.resourcePool ===
+                      ResourcePool.MP &&
+                    getDefinable(Ability, abilityID).mpCost > 0
+                  );
+                }
+              }
+              return false;
+            },
+            x: 7,
+            y: 194,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            const abilityID: string | undefined = getDefinable(
+              MilestoneChoice,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            ).unlockAbilityIDs[0];
+            if (typeof abilityID === "undefined") {
+              throw new Error("Unlock ability ID is undefined");
+            }
+            return {
+              value: `${getFormattedInteger(
+                getDefinable(Ability, abilityID).mpCost,
+              )} MP`,
+            };
+          },
+        }),
+      );
+      labelIDs.push(
+        createLabel({
+          color: (): Color => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            return getMilestoneChoiceTextColor(
+              getSelectedMilestone().level,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            );
+          },
+          coordinates: {
+            condition: (): boolean => {
+              if (selectedMilestoneChoiceCondition()) {
+                if (
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID ===
+                  null
+                ) {
+                  throw new Error("Selected milestone choice ID is null");
+                }
+                const milestoneChoice: MilestoneChoice = getDefinable(
+                  MilestoneChoice,
+                  spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+                );
+                if (milestoneChoice.hasUnlockAbilityIDs()) {
+                  const abilityID: string | undefined =
+                    milestoneChoice.unlockAbilityIDs[0];
+                  if (typeof abilityID === "undefined") {
+                    throw new Error("Unlock ability ID is undefined");
+                  }
+                  return (
+                    worldCharacter.player.character.class.resourcePool ===
+                      ResourcePool.Will &&
+                    getDefinable(Ability, abilityID).willCost > 0
+                  );
+                }
+              }
+              return false;
+            },
+            x: 7,
+            y: 194,
+          },
+          horizontalAlignment: "left",
+          text: (): CreateLabelOptionsText => {
+            if (
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID === null
+            ) {
+              throw new Error("Selected milestone choice ID is null");
+            }
+            const abilityID: string | undefined = getDefinable(
+              MilestoneChoice,
+              spellbookWorldMenu.state.values.selectedMilestoneChoiceID,
+            ).unlockAbilityIDs[0];
+            if (typeof abilityID === "undefined") {
+              throw new Error("Unlock ability ID is undefined");
+            }
+            return {
+              value: `${getFormattedInteger(
+                getDefinable(Ability, abilityID).willCost,
+              )} FP`,
+            };
+          },
+        }),
+      );
       hudElementReferences.push(
         createPressableButton({
           condition: (): boolean => {
