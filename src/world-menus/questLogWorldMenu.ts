@@ -901,13 +901,16 @@ export const questLogWorldMenu: WorldMenu<
       }),
     );
     const getBestiaryMonsterIDs = (): string[] =>
-      Array.from(getDefinables(Monster).keys()).sort(
-        (a: string, b: string): number => {
+      Array.from(getDefinables(Monster).keys())
+        .filter((monsterID: string): boolean => {
+          const monster: Monster = getDefinable(Monster, monsterID);
+          return monster.showsInBestiary === true;
+        })
+        .sort((a: string, b: string): number => {
           const monsterA: Monster = getDefinable(Monster, a);
           const monsterB: Monster = getDefinable(Monster, b);
           return monsterA.name.localeCompare(monsterB.name);
-        },
-      );
+        });
     const getBestiaryMonster = (i: number): Monster => {
       const bestiaryMonsterIDs: string[] = getBestiaryMonsterIDs();
       const pageOffset: number =

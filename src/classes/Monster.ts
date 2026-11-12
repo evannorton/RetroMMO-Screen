@@ -26,6 +26,7 @@ export class Monster extends Definable {
   private readonly _shadowXRadius: number;
   private readonly _shadowYOffset: number;
   private readonly _shadowYRadius: number;
+  private readonly _showsInBestiary: boolean;
   private readonly _strength: number;
   private readonly _wisdom: number;
   public constructor(options: MonsterOptions) {
@@ -50,6 +51,7 @@ export class Monster extends Definable {
     this._shadowXRadius = options.definition.shadowXRadius;
     this._shadowYOffset = options.definition.shadowYOffset;
     this._shadowYRadius = options.definition.shadowYRadius;
+    this._showsInBestiary = options.definition.showsInBestiary ?? false;
     this._strength = options.definition.strength;
     this._wisdom = options.definition.wisdom;
   }
@@ -135,6 +137,10 @@ export class Monster extends Definable {
 
   public get shadowYRadius(): number {
     return this._shadowYRadius;
+  }
+
+  public get showsInBestiary(): boolean {
+    return this._showsInBestiary;
   }
 
   public get strength(): number {
