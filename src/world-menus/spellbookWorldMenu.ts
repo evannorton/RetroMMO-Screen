@@ -55,6 +55,7 @@ enum SpellbookTab {
 
 export interface SpellbookWorldMenuOpenOptions {}
 export interface SpellbookWorldMenuStateSchema {
+  abilitiesPage: number;
   isAwaitingWorldCombat: boolean;
   milestonesPage: number;
   selectedAbilityID: string | null;
@@ -159,7 +160,9 @@ const getMilestoneChoiceIconPalette = (
 
 export const getSpellbookAbility = (i: number): Ability => {
   const abilityIDs: string[] = getAbilityIDs();
-  const abilityID: string | undefined = abilityIDs[i];
+  const pageOffset: number =
+    spellbookWorldMenu.state.values.abilitiesPage * spellbookAbilitiesPerPage;
+  const abilityID: string | undefined = abilityIDs[i + pageOffset];
   if (typeof abilityID === "undefined") {
     throw new Error("Ability ID not found");
   }
@@ -278,6 +281,7 @@ export const spellbookWorldMenu: WorldMenu<
           height: 20,
           onClick: (): void => {
             spellbookWorldMenu.state.setValues({
+              milestonesPage: 0,
               selectedMilestoneChoiceID: null,
               selectedMilestoneIndex: null,
               tab: SpellbookTab.Abilities,
@@ -297,6 +301,7 @@ export const spellbookWorldMenu: WorldMenu<
           height: 20,
           onClick: (): void => {
             spellbookWorldMenu.state.setValues({
+              abilitiesPage: 0,
               selectedAbilityID: null,
               tab: SpellbookTab.Milestones,
             });
@@ -326,16 +331,44 @@ export const spellbookWorldMenu: WorldMenu<
         ) &&
         spellbookWorldMenu.state.values.startedTargetingAt === null &&
         isForcedWorldUIVisible() === false;
+      const getAbilitiesLastPage = (): number =>
+        Math.max(
+          Math.floor(
+            (getAbilityIDs().length - 1) / spellbookAbilitiesPerPage,
+          ),
+          0,
+        );
+      const isAbilitiesPaginated = (): boolean =>
+        getAbilityIDs().length > spellbookAbilitiesPerPage;
+      const pageAbilities = (offset: number): void => {
+        const pages: number[] = [];
+        for (let i: number = 0; i < getAbilitiesLastPage() + 1; i++) {
+          pages.push(i);
+        }
+        spellbookWorldMenu.state.setValues({
+          abilitiesPage: getCyclicIndex(
+            pages.indexOf(spellbookWorldMenu.state.values.abilitiesPage) +
+              offset,
+            pages,
+          ),
+        });
+      };
       // Abilities
       for (let i: number = 0; i < spellbookAbilitiesPerPage; i++) {
         const y: number = 49 + i * 18;
         hudElementReferences.push(
           createIconListItem({
-            condition: (): boolean =>
-              abilitiesTabCondition() &&
-              spellbookWorldMenu.state.values.startedTargetingAt === null &&
-              i < getAbilityIDs().length &&
-              isForcedWorldUIVisible() === false,
+            condition: (): boolean => {
+              const pageOffset: number =
+                spellbookWorldMenu.state.values.abilitiesPage *
+                spellbookAbilitiesPerPage;
+              return (
+                abilitiesTabCondition() &&
+                spellbookWorldMenu.state.values.startedTargetingAt === null &&
+                i + pageOffset < getAbilityIDs().length &&
+                isForcedWorldUIVisible() === false
+              );
+            },
             icons: [
               {
                 imagePath: (): string => getSpellbookAbility(i).iconImagePath,
@@ -373,6 +406,58 @@ export const spellbookWorldMenu: WorldMenu<
           }),
         );
       }
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            abilitiesTabCondition() &&
+            isAbilitiesPaginated() &&
+            spellbookWorldMenu.state.values.startedTargetingAt === null &&
+            isForcedWorldUIVisible() === false,
+          height: 14,
+          imagePath: "arrows/left",
+          onClick: (): void => {
+            pageAbilities(-1);
+          },
+          width: 14,
+          x: 190,
+          y: 176,
+        }),
+      );
+      hudElementReferences.push(
+        createImage({
+          condition: (): boolean =>
+            abilitiesTabCondition() &&
+            isAbilitiesPaginated() &&
+            spellbookWorldMenu.state.values.startedTargetingAt === null &&
+            isForcedWorldUIVisible() === false,
+          height: 14,
+          imagePath: "arrows/right",
+          onClick: (): void => {
+            pageAbilities(1);
+          },
+          width: 14,
+          x: 275,
+          y: 176,
+        }),
+      );
+      labelIDs.push(
+        createLabel({
+          color: Color.White,
+          coordinates: {
+            condition: (): boolean =>
+              abilitiesTabCondition() &&
+              isAbilitiesPaginated() &&
+              spellbookWorldMenu.state.values.startedTargetingAt === null &&
+              isForcedWorldUIVisible() === false,
+            x: 296,
+            y: 193,
+          },
+          horizontalAlignment: "right",
+          text: (): CreateLabelOptionsText => ({
+            value: String(spellbookWorldMenu.state.values.abilitiesPage + 1),
+          }),
+        }),
+      );
       const isMilestonesPaginated = (): boolean =>
         getClassMilestones().length > spellbookMilestonesPerPage;
       const getMilestonesLastPage = (): number =>
@@ -1341,6 +1426,7 @@ export const spellbookWorldMenu: WorldMenu<
       ]);
     },
     initialStateValues: {
+      abilitiesPage: 0,
       isAwaitingWorldCombat: false,
       milestonesPage: 0,
       selectedAbilityID: null,
